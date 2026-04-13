@@ -24,7 +24,12 @@ class ApiInterceptor extends Interceptor {
 
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) {
-    logger.e(err.response?.statusCode);
+    final statusCode = err.response?.statusCode;
+    if (statusCode == 401) {
+      logger.w('Unauthorized: ${err.requestOptions.path}');
+    } else {
+      logger.e(statusCode);
+    }
     handler.next(err);
   }
 }

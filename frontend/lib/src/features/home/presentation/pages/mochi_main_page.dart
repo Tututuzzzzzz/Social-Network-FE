@@ -81,6 +81,11 @@ class MochiMainPage extends StatelessWidget {
 
           return FeaturePageScaffold(
             title: 'Mochi Main',
+            titleWidget: Image.asset(
+              'assets/images/logo1.jpg',
+              height: 28,
+              fit: BoxFit.contain,
+            ),
             bodyPadding: EdgeInsets.zero,
             isLoading: state is HomeInitialState || state is HomeLoadingState,
             errorTitle: state is HomeFailureState ? 'Cannot load feed' : null,

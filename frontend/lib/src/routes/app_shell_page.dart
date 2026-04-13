@@ -1,70 +1,68 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../widgets/app_shell_bottom_nav_bar.dart';
+import 'app_route_path.dart';
+
 class AppShellPage extends StatelessWidget {
-  final StatefulNavigationShell navigationShell;
+  final Widget body;
 
-  const AppShellPage({super.key, required this.navigationShell});
+  const AppShellPage({super.key, required this.body});
 
-  static const List<_ShellDestination> _destinations = [
-    _ShellDestination(
-      label: 'Home',
-      icon: Icons.home_outlined,
-      selectedIcon: Icons.home,
-    ),
-    _ShellDestination(
-      label: 'Reels',
-      icon: Icons.video_collection_outlined,
-      selectedIcon: Icons.video_collection,
-    ),
-    _ShellDestination(
-      label: 'Chat',
-      icon: Icons.chat_bubble_outline,
-      selectedIcon: Icons.chat_bubble,
-    ),
-    _ShellDestination(
-      label: 'Profile',
-      icon: Icons.person_outline,
-      selectedIcon: Icons.person,
-    ),
-  ];
+  int _resolveSelectedTabIndex(BuildContext context) {
+    final location = GoRouterState.of(context).uri.path;
 
-  void _onDestinationSelected(int index) {
-    navigationShell.goBranch(
-      index,
-      initialLocation: index == navigationShell.currentIndex,
-    );
+    if (location.startsWith(AppRoutes.homeSearch.path)) {
+      return 0;
+    }
+    if (location.startsWith(AppRoutes.reels.path)) {
+      return 1;
+    }
+    if (location.startsWith(AppRoutes.chat.path)) {
+      return 2;
+    }
+    if (location.startsWith(AppRoutes.profile.path)) {
+      return 3;
+    }
+
+    return 0;
+  }
+
+  void _onDestinationSelected(BuildContext context, int index) {
+    switch (index) {
+      case 0:
+        context.go(AppRoutes.home.path);
+        break;
+      case 1:
+        context.go(AppRoutes.reels.path);
+        break;
+      case 2:
+        context.go(AppRoutes.chat.path);
+        break;
+      case 3:
+        context.go(AppRoutes.profile.path);
+        break;
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    final selectedIndex = _resolveSelectedTabIndex(context);
+
     return Scaffold(
-      body: navigationShell,
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: navigationShell.currentIndex,
-        onDestinationSelected: _onDestinationSelected,
-        destinations: _destinations
-            .map(
-              (destination) => NavigationDestination(
-                icon: Icon(destination.icon),
-                selectedIcon: Icon(destination.selectedIcon),
-                label: destination.label,
-              ),
-            )
-            .toList(),
+      resizeToAvoidBottomInset: false,
+      body: Stack(
+        children: [
+          Positioned.fill(child: body),
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: AppShellBottomNavBar(
+              selectedIndex: selectedIndex,
+              onTap: (index) => _onDestinationSelected(context, index),
+            ),
+          ),
+        ],
       ),
     );
   }
-}
-
-class _ShellDestination {
-  final String label;
-  final IconData icon;
-  final IconData selectedIcon;
-
-  const _ShellDestination({
-    required this.label,
-    required this.icon,
-    required this.selectedIcon,
-  });
 }

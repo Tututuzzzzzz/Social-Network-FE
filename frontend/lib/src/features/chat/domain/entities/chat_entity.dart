@@ -7,6 +7,7 @@ class ChatEntity extends Equatable {
   final String timeLabel;
   final int unreadCount;
   final bool isPinned;
+  final bool isHidden;
   final bool isOnline;
   final bool isGroup;
   final String fullConversation;
@@ -18,10 +19,37 @@ class ChatEntity extends Equatable {
     this.timeLabel = '',
     this.unreadCount = 0,
     this.isPinned = false,
+    this.isHidden = false,
     this.isOnline = false,
     this.isGroup = false,
     this.fullConversation = '',
   });
+
+  ChatEntity copyWith({
+    String? id,
+    String? senderName,
+    String? messagePreview,
+    String? timeLabel,
+    int? unreadCount,
+    bool? isPinned,
+    bool? isHidden,
+    bool? isOnline,
+    bool? isGroup,
+    String? fullConversation,
+  }) {
+    return ChatEntity(
+      id: id ?? this.id,
+      senderName: senderName ?? this.senderName,
+      messagePreview: messagePreview ?? this.messagePreview,
+      timeLabel: timeLabel ?? this.timeLabel,
+      unreadCount: unreadCount ?? this.unreadCount,
+      isPinned: isPinned ?? this.isPinned,
+      isHidden: isHidden ?? this.isHidden,
+      isOnline: isOnline ?? this.isOnline,
+      isGroup: isGroup ?? this.isGroup,
+      fullConversation: fullConversation ?? this.fullConversation,
+    );
+  }
 
   @override
   List<Object?> get props => [
@@ -31,6 +59,7 @@ class ChatEntity extends Equatable {
     timeLabel,
     unreadCount,
     isPinned,
+    isHidden,
     isOnline,
     isGroup,
     fullConversation,

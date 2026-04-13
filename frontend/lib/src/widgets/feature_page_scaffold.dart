@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 class FeaturePageScaffold extends StatelessWidget {
   final String title;
+  final Widget? titleWidget;
   final Widget? body;
   final bool isLoading;
   final bool isEmpty;
@@ -19,6 +20,7 @@ class FeaturePageScaffold extends StatelessWidget {
   const FeaturePageScaffold({
     super.key,
     required this.title,
+    this.titleWidget,
     this.body,
     this.isLoading = false,
     this.isEmpty = false,
@@ -63,7 +65,7 @@ class FeaturePageScaffold extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(title), actions: actions),
+      appBar: AppBar(title: titleWidget ?? Text(title), actions: actions),
       floatingActionButton: floatingActionButton,
       body: SafeArea(
         child: Stack(
