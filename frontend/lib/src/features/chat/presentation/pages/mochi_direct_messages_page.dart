@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../configs/injector/injector_conf.dart';
 import '../../../../routes/app_route_path.dart';
-import '../../../../widgets/feature_page_scaffold.dart';
 import '../../domain/entities/chat_entity.dart';
 import '../bloc/chat/chat_bloc.dart';
 
@@ -17,52 +17,434 @@ class MochiDirectMessagesPage extends StatefulWidget {
 }
 
 class _MochiDirectMessagesPageState extends State<MochiDirectMessagesPage> {
-  static const List<String> _filters = ['All', 'Unread', 'Groups'];
+  static const String _username = 'hoangtu_1';
+  static const List<Color> _avatarColors = [
+    Color(0xFFE8EBF4),
+    Color(0xFFEDE4EC),
+    Color(0xFFE5F0E7),
+    Color(0xFFF2EAD9),
+    Color(0xFFE7E6F6),
+  ];
 
-  int _selectedFilter = 0;
   String _query = '';
-
-  bool _matchesQuery(ChatEntity item) {
-    if (_query.isEmpty) {
-      return true;
-    }
-
-    final source = '${item.senderName} ${item.messagePreview}';
-    return source.toLowerCase().contains(_query.toLowerCase());
-  }
-
-  bool _matchesFilter(ChatEntity item) {
-    if (_selectedFilter == 0) {
-      return true;
-    }
-    if (_selectedFilter == 1) {
-      return item.unreadCount > 0;
-    }
-
-    return item.isGroup;
-  }
-
-  List<_ActiveContact> _buildActiveContacts(List<ChatEntity> threads) {
-    final unique = <String>{};
-    final result = <_ActiveContact>[];
-
-    for (final item in threads) {
-      if (!unique.add(item.senderName)) {
-        continue;
-      }
-      result.add(
-        _ActiveContact(name: item.senderName, isOnline: item.isOnline),
-      );
-      if (result.length == 6) {
-        break;
-      }
-    }
-
-    return result;
-  }
+  bool _showPendingThreads = true;
 
   List<ChatEntity> _visibleThreads(List<ChatEntity> threads) {
-    return threads.where(_matchesFilter).where(_matchesQuery).toList();
+    final keyword = _query.toLowerCase();
+    if (keyword.isEmpty) {
+      return threads;
+    }
+
+    return threads.where((item) {
+      final source = '${item.senderName} ${item.messagePreview}'.toLowerCase();
+      return source.contains(keyword);
+    }).toList();
+  }
+
+  String _displayName(ChatEntity item) {
+    final value = item.senderName.trim();
+    return value.isEmpty ? 'Conversation' : value;
+  }
+
+  String _displayPreview(ChatEntity item) {
+    final value = item.messagePreview.trim();
+    return value.isEmpty ? 'Start chatting...' : value;
+  }
+
+  String _displayTimeLabel(ChatEntity item) {
+    final value = item.timeLabel.trim();
+    if (value.isEmpty) {
+      return '.now';
+    }
+
+    return value.startsWith('.') ? value : '.$value';
+  }
+
+  String _initial(String name) {
+    final trimmed = name.trim();
+    if (trimmed.isEmpty) {
+      return '?';
+    }
+
+    return trimmed.substring(0, 1).toUpperCase();
+  }
+
+  Widget _buildTopBar() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(8, 8, 8, 6),
+      child: SizedBox(
+        height: 44,
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: const [
+                Text(
+                  _username,
+                  style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF111113),
+                  ),
+                ),
+                SizedBox(width: 2),
+                Icon(
+                  Icons.keyboard_arrow_down_rounded,
+                  size: 20,
+                  color: Color(0xFF111113),
+                ),
+              ],
+            ),
+            Positioned(
+              right: 0,
+              child: IconButton(
+                onPressed: () {},
+                icon: const Icon(Icons.add, size: 24),
+                color: const Color(0xFF111113),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSearchInput() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: TextField(
+        onChanged: (value) => setState(() => _query = value.trim()),
+        decoration: InputDecoration(
+          hintText: 'Search',
+          hintStyle: const TextStyle(
+            color: Color(0xFF8E8E93),
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+          ),
+          prefixIcon: const Icon(Icons.search, color: Color(0xFF8E8E93)),
+          filled: true,
+          fillColor: const Color(0xFFF2F2F5),
+          contentPadding: const EdgeInsets.symmetric(vertical: 14),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(18),
+            borderSide: BorderSide.none,
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(18),
+            borderSide: const BorderSide(color: Color(0xFFCFD3DC)),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSectionHeader(int pendingCount) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 14, 16, 2),
+      child: Row(
+        children: [
+          const Text(
+            'Tin nhắn',
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.w700,
+              color: Color(0xFF111113),
+            ),
+          ),
+          const Spacer(),
+          TextButton(
+            onPressed: pendingCount == 0
+                ? null
+                : () => setState(
+                    () => _showPendingThreads = !_showPendingThreads,
+                  ),
+            style: TextButton.styleFrom(
+              foregroundColor: const Color(0xFF6E9BFF),
+              padding: EdgeInsets.zero,
+              minimumSize: Size.zero,
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            ),
+            child: Text(
+              pendingCount == 0
+                  ? 'Tin nhắn đang chờ'
+                  : 'Tin nhắn đang chờ ($pendingCount)',
+              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPendingHeader() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
+      child: Row(
+        children: [
+          const Text(
+            'Tin nhắn đang chờ',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w700,
+              color: Color(0xFF111113),
+            ),
+          ),
+          const Spacer(),
+          TextButton(
+            onPressed: () =>
+                setState(() => _showPendingThreads = !_showPendingThreads),
+            style: TextButton.styleFrom(
+              foregroundColor: const Color(0xFF6E9BFF),
+              padding: EdgeInsets.zero,
+              minimumSize: Size.zero,
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            ),
+            child: Text(
+              _showPendingThreads ? 'Thu gọn' : 'Mở rộng',
+              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<bool> _confirmDeleteDialog(String name) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Xóa đoạn chat'),
+          content: Text('Bạn có muốn xóa đoạn chat với $name không?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text('Hủy'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: const Text('Xóa'),
+            ),
+          ],
+        );
+      },
+    );
+
+    return confirmed ?? false;
+  }
+
+  Future<void> _openChatThread(ChatEntity item) async {
+    final chatBloc = context.read<ChatBloc>();
+    final result = await context.pushNamed(
+      AppRoutes.chatMochiChatRoom.name,
+      pathParameters: {'threadId': item.id},
+      extra: item,
+    );
+
+    if (!mounted) {
+      return;
+    }
+
+    if (result is ChatEntity) {
+      chatBloc.add(ChatThreadPreviewUpdatedEvent(result));
+    }
+  }
+
+  Widget _buildConversationItem(
+    BuildContext context,
+    ChatEntity item,
+    int index,
+  ) {
+    final name = _displayName(item);
+
+    return Slidable(
+      key: ValueKey(item.id),
+      endActionPane: ActionPane(
+        motion: const DrawerMotion(),
+        extentRatio: 0.72,
+        children: [
+          SlidableAction(
+            onPressed: (_) {
+              context.read<ChatBloc>().add(ChatThreadPinToggledEvent(item.id));
+            },
+            backgroundColor: const Color(0xFF4B8EFF),
+            foregroundColor: Colors.white,
+            icon: item.isPinned ? Icons.push_pin : Icons.push_pin_outlined,
+            label: item.isPinned ? 'Bỏ ghim' : 'Ghim',
+          ),
+          SlidableAction(
+            onPressed: (_) {
+              context.read<ChatBloc>().add(
+                ChatThreadHiddenChangedEvent(item.id, isHidden: !item.isHidden),
+              );
+            },
+            backgroundColor: const Color(0xFF8E8E93),
+            foregroundColor: Colors.white,
+            icon: item.isHidden
+                ? Icons.visibility_outlined
+                : Icons.visibility_off_outlined,
+            label: item.isHidden ? 'Hiện' : 'Ẩn',
+          ),
+          SlidableAction(
+            onPressed: (_) async {
+              final chatBloc = context.read<ChatBloc>();
+              final confirmed = await _confirmDeleteDialog(name);
+              if (!mounted || !confirmed) {
+                return;
+              }
+              chatBloc.add(ChatThreadDeletedEvent(item.id));
+            },
+            backgroundColor: const Color(0xFFE84545),
+            foregroundColor: Colors.white,
+            icon: Icons.delete_outline,
+            label: 'Xóa',
+          ),
+        ],
+      ),
+      child: InkWell(
+        onTap: () => _openChatThread(item),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Container(
+                width: 52,
+                height: 52,
+                decoration: BoxDecoration(
+                  color: _avatarColors[index % _avatarColors.length],
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: const Color(0xFFDCDDDF),
+                    width: 1.1,
+                  ),
+                ),
+                alignment: Alignment.center,
+                child: Text(
+                  _initial(name),
+                  style: const TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w700,
+                    color: Color(0xFF2A2B2F),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Flexible(
+                          child: Text(
+                            name,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              fontSize: 17,
+                              fontWeight: FontWeight.w600,
+                              color: Color(0xFF1A1A1D),
+                              height: 1,
+                            ),
+                          ),
+                        ),
+                        if (item.isOnline)
+                          Container(
+                            margin: const EdgeInsets.only(left: 6),
+                            width: 7,
+                            height: 7,
+                            decoration: const BoxDecoration(
+                              color: Color(0xFF1EC85D),
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                        if (item.isPinned)
+                          const Padding(
+                            padding: EdgeInsets.only(left: 6),
+                            child: Icon(
+                              Icons.push_pin,
+                              size: 14,
+                              color: Color(0xFF4B8EFF),
+                            ),
+                          ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      _displayPreview(item),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        color: Color(0xFF7C7E84),
+                        fontWeight: FontWeight.w400,
+                        height: 1.1,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              Padding(
+                padding: const EdgeInsets.only(top: 2),
+                child: Text(
+                  _displayTimeLabel(item),
+                  style: const TextStyle(
+                    fontSize: 13,
+                    color: Color(0xFF9A9CA2),
+                    fontWeight: FontWeight.w400,
+                    height: 1,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStatusView({
+    required IconData icon,
+    required String title,
+    String? subtitle,
+    VoidCallback? onRetry,
+  }) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 36, color: const Color(0xFF6E6F73)),
+            const SizedBox(height: 10),
+            Text(
+              title,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF2A2B2F),
+              ),
+            ),
+            if (subtitle != null) ...[
+              const SizedBox(height: 6),
+              Text(
+                subtitle,
+                textAlign: TextAlign.center,
+                style: const TextStyle(fontSize: 14, color: Color(0xFF6E6F73)),
+              ),
+            ],
+            if (onRetry != null) ...[
+              const SizedBox(height: 12),
+              FilledButton(onPressed: onRetry, child: const Text('Thu lai')),
+            ],
+          ],
+        ),
+      ),
+    );
   }
 
   @override
@@ -74,250 +456,90 @@ class _MochiDirectMessagesPageState extends State<MochiDirectMessagesPage> {
           final loadedThreads = state is ChatSuccessState
               ? state.items
               : const <ChatEntity>[];
-          final activeContacts = _buildActiveContacts(loadedThreads);
           final visibleThreads = _visibleThreads(loadedThreads);
+          final activeThreads = visibleThreads
+              .where((item) => !item.isHidden)
+              .toList();
+          final pendingThreads = visibleThreads
+              .where((item) => item.isHidden)
+              .toList();
+          final isInitialLoading =
+              (state is ChatInitialState || state is ChatLoadingState) &&
+              loadedThreads.isEmpty;
 
-          return FeaturePageScaffold(
-            title: 'Mochi Direct Messages',
-            isLoading: state is ChatInitialState || state is ChatLoadingState,
-            isEmpty: state is ChatSuccessState && visibleThreads.isEmpty,
-            emptyTitle: 'No conversations found',
-            emptyMessage: 'Try another filter or keyword.',
-            emptyIcon: Icons.forum_outlined,
-            errorTitle: state is ChatFailureState ? 'Cannot load chats' : null,
-            errorMessage: state is ChatFailureState ? state.message : null,
-            onRetry: () =>
-                context.read<ChatBloc>().add(const ChatFetchedEvent()),
-            actions: [
-              IconButton(
-                onPressed: () {},
-                icon: const Icon(Icons.call_outlined),
-              ),
-              IconButton(onPressed: () {}, icon: const Icon(Icons.more_horiz)),
-            ],
-            floatingActionButton: FloatingActionButton(
-              onPressed: () {},
-              child: const Icon(Icons.edit_outlined),
-            ),
-            body: ListView(
-              padding: const EdgeInsets.fromLTRB(12, 12, 12, 88),
+          Widget listContent;
+          if (state is ChatFailureState && loadedThreads.isEmpty) {
+            listContent = _buildStatusView(
+              icon: Icons.error_outline,
+              title: 'Khong the tai tin nhan',
+              subtitle: state.message,
+              onRetry: () =>
+                  context.read<ChatBloc>().add(const ChatFetchedEvent()),
+            );
+          } else if (isInitialLoading) {
+            listContent = const Center(child: CircularProgressIndicator());
+          } else if (activeThreads.isEmpty && pendingThreads.isEmpty) {
+            listContent = _buildStatusView(
+              icon: Icons.search_off_outlined,
+              title: 'Khong tim thay doan chat',
+              subtitle: 'Thu tim voi tu khoa khac.',
+            );
+          } else {
+            listContent = ListView(
+              padding: const EdgeInsets.only(bottom: 16),
               children: [
-                TextField(
-                  onChanged: (value) => setState(() => _query = value.trim()),
-                  decoration: InputDecoration(
-                    hintText: 'Search conversations',
-                    prefixIcon: const Icon(Icons.search),
-                    filled: true,
-                    fillColor: const Color(0xFFF3F6FA),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(14),
-                      borderSide: BorderSide.none,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 14),
-                Row(
-                  children: [
-                    Text(
-                      'Active now',
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w700,
+                ...List.generate(activeThreads.length, (index) {
+                  return _buildConversationItem(
+                    context,
+                    activeThreads[index],
+                    index,
+                  );
+                }),
+                if (activeThreads.isEmpty)
+                  const Padding(
+                    padding: EdgeInsets.fromLTRB(16, 8, 16, 6),
+                    child: Text(
+                      'Không có tin nhắn trong hộp chính.',
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: Color(0xFF8E8E93),
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
-                    const Spacer(),
-                    TextButton(onPressed: () {}, child: const Text('See all')),
-                  ],
-                ),
-                const SizedBox(height: 6),
-                SizedBox(
-                  height: 84,
-                  child: ListView.separated(
-                    scrollDirection: Axis.horizontal,
-                    itemCount: activeContacts.length,
-                    separatorBuilder: (_, index) => const SizedBox(width: 12),
-                    itemBuilder: (context, index) {
-                      final item = activeContacts[index];
-                      return SizedBox(
-                        width: 64,
-                        child: Column(
-                          children: [
-                            Stack(
-                              children: [
-                                CircleAvatar(
-                                  radius: 24,
-                                  child: Text(item.name.substring(0, 1)),
-                                ),
-                                if (item.isOnline)
-                                  Positioned(
-                                    right: 0,
-                                    bottom: 0,
-                                    child: Container(
-                                      width: 11,
-                                      height: 11,
-                                      decoration: BoxDecoration(
-                                        color: const Color(0xFF26A65B),
-                                        shape: BoxShape.circle,
-                                        border: Border.all(
-                                          color: Colors.white,
-                                          width: 1.5,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                              ],
-                            ),
-                            const SizedBox(height: 6),
-                            Text(
-                              item.name,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: Theme.of(context).textTheme.bodySmall,
-                            ),
-                          ],
-                        ),
+                  ),
+                if (pendingThreads.isNotEmpty) ...[
+                  const SizedBox(height: 4),
+                  _buildPendingHeader(),
+                  if (_showPendingThreads)
+                    ...List.generate(pendingThreads.length, (index) {
+                      return _buildConversationItem(
+                        context,
+                        pendingThreads[index],
+                        activeThreads.length + index,
                       );
-                    },
-                  ),
-                ),
-                const SizedBox(height: 14),
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    children: [
-                      for (var i = 0; i < _filters.length; i++)
-                        Padding(
-                          padding: EdgeInsets.only(
-                            right: i == _filters.length - 1 ? 0 : 8,
-                          ),
-                          child: ChoiceChip(
-                            label: Text(_filters[i]),
-                            selected: i == _selectedFilter,
-                            onSelected: (_) =>
-                                setState(() => _selectedFilter = i),
-                            showCheckmark: false,
-                          ),
-                        ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 12),
-                ...visibleThreads.map(
-                  (item) => Card(
-                    margin: const EdgeInsets.only(bottom: 10),
-                    child: ListTile(
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 8,
-                      ),
-                      leading: Stack(
-                        children: [
-                          CircleAvatar(
-                            radius: 22,
-                            child: Text(item.senderName.substring(0, 1)),
-                          ),
-                          if (item.isOnline)
-                            Positioned(
-                              right: 0,
-                              bottom: 0,
-                              child: Container(
-                                width: 10,
-                                height: 10,
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFF26A65B),
-                                  shape: BoxShape.circle,
-                                  border: Border.all(
-                                    color: Colors.white,
-                                    width: 1.4,
-                                  ),
-                                ),
-                              ),
-                            ),
-                        ],
-                      ),
-                      title: Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              item.senderName,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                fontWeight: item.unreadCount > 0
-                                    ? FontWeight.w700
-                                    : FontWeight.w600,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            item.timeLabel,
-                            style: Theme.of(context).textTheme.bodySmall
-                                ?.copyWith(color: Colors.grey[600]),
-                          ),
-                        ],
-                      ),
-                      subtitle: Padding(
-                        padding: const EdgeInsets.only(top: 4),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: Text(
-                                item.messagePreview,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: Theme.of(context).textTheme.bodyMedium,
-                              ),
-                            ),
-                            if (item.isPinned)
-                              const Padding(
-                                padding: EdgeInsets.only(left: 8),
-                                child: Icon(Icons.push_pin_outlined, size: 16),
-                              ),
-                            if (item.unreadCount > 0)
-                              Container(
-                                margin: const EdgeInsets.only(left: 8),
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 7,
-                                  vertical: 2,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFF4A9BFF),
-                                  borderRadius: BorderRadius.circular(20),
-                                ),
-                                child: Text(
-                                  '${item.unreadCount}',
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ),
-                          ],
-                        ),
-                      ),
-                      onTap: () {
-                        context.pushNamed(
-                          AppRoutes.chatMochiChatRoom.name,
-                          pathParameters: {'threadId': item.id},
-                          extra: item,
-                        );
-                      },
-                    ),
-                  ),
-                ),
+                    }),
+                ],
               ],
+            );
+          }
+
+          return Scaffold(
+            backgroundColor: Colors.white,
+            body: SafeArea(
+              child: Column(
+                children: [
+                  _buildTopBar(),
+                  _buildSearchInput(),
+                  _buildSectionHeader(pendingThreads.length),
+                  if (state is ChatLoadingState && loadedThreads.isNotEmpty)
+                    const LinearProgressIndicator(minHeight: 2),
+                  Expanded(child: listContent),
+                ],
+              ),
             ),
           );
         },
       ),
     );
   }
-}
-
-class _ActiveContact {
-  final String name;
-  final bool isOnline;
-
-  const _ActiveContact({required this.name, required this.isOnline});
 }

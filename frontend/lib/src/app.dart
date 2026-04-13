@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'configs/injector/injector_conf.dart';
-import 'core/constants/list_translation_locale.dart';
 import 'features/auth/presentation/bloc/auth/auth_bloc.dart';
 import 'l10n/generated/app_localizations.dart';
 import 'routes/app_route_conf.dart';
@@ -26,7 +25,7 @@ class App extends StatelessWidget {
           title: 'Social Network',
           routerConfig: _appRoutesConf.router,
           localizationsDelegates: AppLocalizations.localizationsDelegates,
-          supportedLocales: const [englishLocale, vietnameseLocale],
+          supportedLocales: AppLocalizations.supportedLocales,
         ),
       ),
     );
