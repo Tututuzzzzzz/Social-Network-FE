@@ -31,10 +31,6 @@ void main() {
       () => HomeBloc(FetchHomeItemsUseCase(_FakeHomeRepository())),
     );
 
-    getIt.registerFactory<ChatBloc>(
-      () => ChatBloc(FetchChatItemsUseCase(_FakeChatRepository())),
-    );
-
     getIt.registerFactory<ProfileBloc>(
       () => ProfileBloc(FetchProfileItemsUseCase(_FakeProfileRepository())),
     );
@@ -93,22 +89,6 @@ class _FakeHomeRepository implements HomeRepository {
         likesCount: 12,
         commentsCount: 3,
         minutesAgo: 5,
-      ),
-    ]);
-  }
-}
-
-class _FakeChatRepository implements ChatRepository {
-  @override
-  Future<Either<Failure, List<ChatEntity>>> fetchItems() async {
-    return right(const [
-      ChatEntity(
-        id: 'thread_1',
-        senderName: 'Alice Nguyen',
-        messagePreview: 'Ping from widget test',
-        timeLabel: '1m',
-        unreadCount: 1,
-        isOnline: true,
       ),
     ]);
   }

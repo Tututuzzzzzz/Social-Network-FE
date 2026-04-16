@@ -9,8 +9,9 @@ final getIt = GetIt.I;
 
 void configureDepedencies() {
   AuthDepedency.init();
-  HomeDependency.init();
+  PostDepedency.init();
   ChatDependency.init();
+  MessageDependency.init();
   ProfileDependency.init();
   ReelsDependency.init();
 
@@ -20,7 +21,9 @@ void configureDepedencies() {
     () => Dio()..interceptors.add(getIt<ApiInterceptor>()),
   );
 
-  getIt.registerLazySingleton(() => ApiInterceptor());
+  getIt.registerLazySingleton(
+    () => ApiInterceptor(getIt<SecureLocalStorage>()),
+  );
 
   getIt.registerLazySingleton(
     () => SecureLocalStorage(getIt<FlutterSecureStorage>()),

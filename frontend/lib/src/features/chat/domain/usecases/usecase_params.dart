@@ -8,3 +8,12 @@ class ChatQueryParams extends Equatable {
   @override
   List<Object?> get props => [page];
 }
+
+class CreateDirectConversationParams extends Equatable {
+  final String recipientId;
+
+  const CreateDirectConversationParams({required this.recipientId});
+
+  @override
+  List<Object?> get props => [recipientId];
+}

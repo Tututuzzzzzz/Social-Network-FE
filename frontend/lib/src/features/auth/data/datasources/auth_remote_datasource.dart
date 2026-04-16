@@ -17,7 +17,6 @@ sealed class AuthRemoteDataSource {
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   final ApiHelper _apiHelper;
   final SecureLocalStorage _secureLocalStorage;
-
   const AuthRemoteDataSourceImpl(this._apiHelper, this._secureLocalStorage);
 
   @override
@@ -29,19 +28,13 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         data: model.toJson(),
       );
 
-      final token = result['accessToken']?.toString() ?? '';
-      if (token.isEmpty) {
+      final accessToken = result['accessToken']?.toString() ?? '';
+      if (accessToken.isEmpty) {
         throw ServerException();
       }
+      await _secureLocalStorage.save(key: 'access_token', value: accessToken);
 
-      await _secureLocalStorage.save(key: 'access_token', value: token);
-
-      final profileResult = await _apiHelper.execute(
-        method: Method.get,
-        url: ApiConstants.profile,
-      );
-
-      final payload = profileResult['user'] ?? profileResult['data'] ?? result;
+      final payload = result['user'] ?? result;
       if (payload is Map<String, dynamic>) {
         return UserModel.fromJson(payload);
       }
@@ -63,6 +56,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   Future<void> logout() async {
     try {
       await _secureLocalStorage.delete(key: 'access_token');
+      await Future.delayed(const Duration(seconds: 1));
       return;
     } catch (e) {
       logger.e(e);

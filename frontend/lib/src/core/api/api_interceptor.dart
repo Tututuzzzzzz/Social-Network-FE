@@ -1,11 +1,12 @@
 import 'package:dio/dio.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
+import '../cache/secure_local_storage.dart';
 import '../utils/logger.dart';
 import 'api_constants.dart';
 
 class ApiInterceptor extends Interceptor {
-  static const _secureStorage = FlutterSecureStorage();
+  final SecureLocalStorage _secureLocalStorage;
+  const ApiInterceptor(this._secureLocalStorage);
 
   @override
   Future<void> onRequest(
@@ -14,22 +15,17 @@ class ApiInterceptor extends Interceptor {
   ) async {
     options.baseUrl = ApiConstants.baseUrl;
 
-    final token = await _secureStorage.read(key: 'access_token');
-    if (token != null && token.isNotEmpty) {
-      options.headers['Authorization'] = 'Bearer $token';
+    final accessToken = await _secureLocalStorage.load(key: 'access_token');
+    if (accessToken.isNotEmpty) {
+      options.headers['Authorization'] = 'Bearer $accessToken';
     }
 
-    handler.next(options);
+    super.onRequest(options, handler);
   }
 
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) {
-    final statusCode = err.response?.statusCode;
-    if (statusCode == 401) {
-      logger.w('Unauthorized: ${err.requestOptions.path}');
-    } else {
-      logger.e(statusCode);
-    }
-    handler.next(err);
+    logger.e(err.response?.statusCode);
+    super.onError(err, handler);
   }
 }

@@ -1,75 +1,18 @@
 import '../../../../core/api/api_constants.dart';
 import '../../../../core/api/api_helper.dart';
+import '../../../../core/errors/exceptions.dart';
+import '../../../../core/utils/logger.dart';
 import '../models/chat_model.dart';
 
 abstract class ChatRemoteDataSource {
   Future<List<ChatModel>> fetchItems();
+  Future<ChatModel> createDirectConversation({required String recipientId});
 }
 
 class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
   final ApiHelper _apiHelper;
 
   const ChatRemoteDataSourceImpl(this._apiHelper);
-
-  static const List<ChatModel> _mockItems = [
-    ChatModel(
-      id: 't_1',
-      senderName: 'An Nguyen',
-      messagePreview: 'Can we align Home Search tabs with Figma after lunch?',
-      timeLabel: '2m',
-      unreadCount: 2,
-      isPinned: true,
-      isOnline: true,
-      fullConversation:
-          'An: Can we align Home Search tabs with Figma after lunch?\nYou: Sure, I can push a patch right after standup.\nAn: Great, also check empty/error state spacing.',
-    ),
-    ChatModel(
-      id: 't_2',
-      senderName: 'Design Team',
-      messagePreview: '4 new comments on Prototype frame mapping',
-      timeLabel: '12m',
-      unreadCount: 0,
-      isPinned: true,
-      isOnline: false,
-      isGroup: true,
-      fullConversation:
-          'Linh: 4 new comments on Prototype frame mapping\nBinh: Please check screens under chat module.\nYou: Got it, I will update by tonight.',
-    ),
-    ChatModel(
-      id: 't_3',
-      senderName: 'Khoa Tran',
-      messagePreview: 'I pushed the route alias update, please review.',
-      timeLabel: '34m',
-      unreadCount: 1,
-      isPinned: false,
-      isOnline: false,
-      fullConversation:
-          'Khoa: I pushed the route alias update, please review.\nYou: Looking now.\nKhoa: Thanks, especially auth redirect.',
-    ),
-    ChatModel(
-      id: 't_4',
-      senderName: 'Mina Le',
-      messagePreview: 'Let us sync before tonight deploy.',
-      timeLabel: '1h',
-      unreadCount: 0,
-      isPinned: false,
-      isOnline: true,
-      fullConversation:
-          'Mina: Let us sync before tonight deploy.\nYou: 20:30 okay?\nMina: Perfect.',
-    ),
-    ChatModel(
-      id: 't_5',
-      senderName: 'Frontend Guild',
-      messagePreview: 'Please keep reusable widgets in presentation/widgets.',
-      timeLabel: '2h',
-      unreadCount: 0,
-      isPinned: false,
-      isOnline: false,
-      isGroup: true,
-      fullConversation:
-          'Lead: Please keep reusable widgets in presentation/widgets.\nYou: Done for Home, now extending Chat.',
-    ),
-  ];
 
   @override
   Future<List<ChatModel>> fetchItems() async {
@@ -78,20 +21,39 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
         method: Method.get,
         url: ApiConstants.conversations,
       );
-      final items = _mapConversationsToChatItems(result);
-      if (items.isNotEmpty) {
-        return items;
-      }
-    } catch (_) {
-      // Ignore and fall back to mocked data when API is unavailable.
+      return _mapConversationsToChatItems(result);
+    } catch (e, st) {
+      logger.e(e, stackTrace: st);
+      throw ServerException();
     }
+  }
 
-    await Future<void>.delayed(const Duration(milliseconds: 320));
-    return _mockItems;
+  @override
+  Future<ChatModel> createDirectConversation({
+    required String recipientId,
+  }) async {
+    try {
+      final result = await _apiHelper.execute(
+        method: Method.post,
+        url: ApiConstants.conversations,
+        data: {'type': 'direct', 'recipientId': recipientId},
+      );
+
+      final conversationRaw = result['conversation'];
+      if (conversationRaw is! Map) {
+        throw ServerException();
+      }
+
+      final conversation = Map<String, dynamic>.from(conversationRaw);
+      return _mapConversationToChatItem(conversation);
+    } catch (e, st) {
+      logger.e(e, stackTrace: st);
+      throw ServerException();
+    }
   }
 
   List<ChatModel> _mapConversationsToChatItems(Map<String, dynamic> payload) {
-    final conversationsRaw = payload['conversations'];
+    final conversationsRaw = _extractConversations(payload);
     if (conversationsRaw is! List) {
       return const [];
     }
@@ -103,54 +65,91 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
       }
 
       final conversation = Map<String, dynamic>.from(conversationRaw);
-      final id = _asText(conversation['_id']);
-      if (id.isEmpty) {
-        continue;
+      final mapped = _mapConversationToChatItem(conversation);
+      if (mapped.id.isNotEmpty) {
+        items.add(mapped);
       }
-
-      final type = _asText(conversation['type']);
-      final isGroup = type == 'group';
-      final senderName = _extractSenderName(conversation, isGroup);
-      final lastMessageRaw = conversation['lastMessage'];
-      Map<String, dynamic>? lastMessage;
-      if (lastMessageRaw is Map) {
-        lastMessage = Map<String, dynamic>.from(lastMessageRaw);
-      }
-
-      final preview = _asText(lastMessage?['content']);
-      final fallbackPreview = preview.isNotEmpty ? preview : 'No messages yet';
-      final lastTimestamp = _asText(lastMessage?['createdAt']).isNotEmpty
-          ? _asText(lastMessage?['createdAt'])
-          : _asText(conversation['lastMessageAt']);
-
-      final unread = _extractUnreadCount(conversation);
-
-      final senderRaw = lastMessage?['senderId'];
-      String senderLabel = senderName;
-      if (senderRaw is Map) {
-        final sender = Map<String, dynamic>.from(senderRaw);
-        final displayName = _asText(sender['displayName']);
-        if (displayName.isNotEmpty) {
-          senderLabel = displayName;
-        }
-      }
-
-      items.add(
-        ChatModel(
-          id: id,
-          senderName: senderName,
-          messagePreview: fallbackPreview,
-          timeLabel: _formatTimeLabel(lastTimestamp),
-          unreadCount: unread,
-          isPinned: false,
-          isOnline: false,
-          isGroup: isGroup,
-          fullConversation: '$senderLabel: $fallbackPreview',
-        ),
-      );
     }
 
     return items;
+  }
+
+  ChatModel _mapConversationToChatItem(Map<String, dynamic> conversation) {
+    final id = _asText(conversation['_id']).isNotEmpty
+        ? _asText(conversation['_id'])
+        : _asText(conversation['id']);
+
+    final type = _asText(conversation['type']);
+    final isGroup = type == 'group';
+    final recipientId = _extractRecipientId(conversation, isGroup);
+    final senderName = _extractSenderName(conversation, isGroup);
+    final lastMessageRaw = conversation['lastMessage'];
+    Map<String, dynamic>? lastMessage;
+    if (lastMessageRaw is Map) {
+      lastMessage = Map<String, dynamic>.from(lastMessageRaw);
+    }
+
+    final preview = _asText(lastMessage?['content']);
+    final fallbackPreview = preview.isNotEmpty ? preview : 'No messages yet';
+    final lastTimestamp = _asText(lastMessage?['createdAt']).isNotEmpty
+        ? _asText(lastMessage?['createdAt'])
+        : _asText(conversation['lastMessageAt']);
+
+    final unread = _extractUnreadCount(conversation);
+
+    final senderRaw = lastMessage?['senderId'];
+    String senderLabel = senderName;
+    if (senderRaw is Map) {
+      final sender = Map<String, dynamic>.from(senderRaw);
+      final displayName = _asText(sender['displayName']).isNotEmpty
+          ? _asText(sender['displayName'])
+          : _asText(sender['username']);
+      if (displayName.isNotEmpty) {
+        senderLabel = displayName;
+      }
+    }
+
+    return ChatModel(
+      id: id,
+      recipientId: recipientId,
+      senderName: senderName,
+      messagePreview: fallbackPreview,
+      timeLabel: _formatTimeLabel(lastTimestamp),
+      unreadCount: unread,
+      isPinned: false,
+      isOnline: false,
+      isGroup: isGroup,
+      fullConversation: '$senderLabel: $fallbackPreview',
+    );
+  }
+
+  dynamic _extractConversations(Map<String, dynamic> payload) {
+    if (payload['conversations'] is List) {
+      return payload['conversations'];
+    }
+
+    final data = payload['data'];
+    if (data is Map<String, dynamic>) {
+      if (data['conversations'] is List) {
+        return data['conversations'];
+      }
+      if (data['items'] is List) {
+        return data['items'];
+      }
+      if (data['docs'] is List) {
+        return data['docs'];
+      }
+    }
+
+    if (payload['items'] is List) {
+      return payload['items'];
+    }
+
+    if (payload['docs'] is List) {
+      return payload['docs'];
+    }
+
+    return const [];
   }
 
   String _extractSenderName(Map<String, dynamic> conversation, bool isGroup) {
@@ -172,7 +171,7 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
       final participantRaw = participantsRaw[candidateIndex];
       if (participantRaw is Map) {
         final participant = Map<String, dynamic>.from(participantRaw);
-        final name = _asText(participant['displayName']);
+        final name = _asDisplayName(participant);
         if (name.isNotEmpty) {
           return name;
         }
@@ -181,7 +180,7 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
       final firstRaw = participantsRaw.first;
       if (firstRaw is Map) {
         final first = Map<String, dynamic>.from(firstRaw);
-        final name = _asText(first['displayName']);
+        final name = _asDisplayName(first);
         if (name.isNotEmpty) {
           return name;
         }
@@ -191,7 +190,64 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     return 'Conversation';
   }
 
+  String _extractRecipientId(Map<String, dynamic> conversation, bool isGroup) {
+    if (isGroup) {
+      return '';
+    }
+
+    final participantsRaw = conversation['participants'];
+    if (participantsRaw is! List || participantsRaw.isEmpty) {
+      return '';
+    }
+
+    final candidateIndex = participantsRaw.length > 1 ? 1 : 0;
+    final candidateRaw = participantsRaw[candidateIndex];
+    if (candidateRaw is Map) {
+      final candidate = Map<String, dynamic>.from(candidateRaw);
+      final id = _extractUserId(candidate);
+      if (id.isNotEmpty) {
+        return id;
+      }
+    }
+
+    final firstRaw = participantsRaw.first;
+    if (firstRaw is Map) {
+      final first = Map<String, dynamic>.from(firstRaw);
+      return _extractUserId(first);
+    }
+
+    return '';
+  }
+
+  String _extractUserId(Map<String, dynamic> participant) {
+    final direct = _asText(participant['_id']);
+    if (direct.isNotEmpty) {
+      return direct;
+    }
+
+    final userIdRaw = participant['userId'];
+    if (userIdRaw is String) {
+      return userIdRaw;
+    }
+
+    if (userIdRaw is Map) {
+      final nested = Map<String, dynamic>.from(userIdRaw);
+      final nestedId = _asText(nested['_id']);
+      if (nestedId.isNotEmpty) {
+        return nestedId;
+      }
+      return _asText(nested['id']);
+    }
+
+    return _asText(participant['id']);
+  }
+
   int _extractUnreadCount(Map<String, dynamic> conversation) {
+    final directUnread = conversation['unreadCount'];
+    if (directUnread is num) {
+      return directUnread.toInt();
+    }
+
     final unreadRaw = conversation['unreadCounts'];
     if (unreadRaw is Map) {
       final unreadMap = Map<String, dynamic>.from(unreadRaw);
@@ -207,6 +263,33 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     }
 
     return 0;
+  }
+
+  String _asDisplayName(Map<String, dynamic> participant) {
+    final displayName = _asText(participant['displayName']);
+    if (displayName.isNotEmpty) {
+      return displayName;
+    }
+
+    final username = _asText(participant['username']);
+    if (username.isNotEmpty) {
+      return username;
+    }
+
+    final nestedUser = participant['userId'];
+    if (nestedUser is Map) {
+      final nested = Map<String, dynamic>.from(nestedUser);
+      final nestedDisplayName = _asText(nested['displayName']);
+      if (nestedDisplayName.isNotEmpty) {
+        return nestedDisplayName;
+      }
+      final nestedUsername = _asText(nested['username']);
+      if (nestedUsername.isNotEmpty) {
+        return nestedUsername;
+      }
+    }
+
+    return '';
   }
 
   String _formatTimeLabel(String isoValue) {
