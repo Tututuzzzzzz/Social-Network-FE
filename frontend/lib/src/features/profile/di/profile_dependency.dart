@@ -1,44 +1,54 @@
 import '../../../configs/injector/injector_conf.dart';
+import '../../../core/cache/hive_local_storage.dart';
+import '../../../core/network/network_checker.dart';
 import '../../../core/api/api_helper.dart';
 import '../data/datasources/profile_local_datasource.dart';
 import '../data/datasources/profile_remote_datasource.dart';
 import '../data/repositories/profile_repository_impl.dart';
-import '../domain/usecases/fetch_profile_items_usecase.dart';
+import '../domain/usecases/get_profile_usecase.dart';
+import '../domain/usecases/get_user_posts_usecase.dart';
+import '../domain/usecases/update_avatar_usecase.dart';
+import '../domain/usecases/update_profile_usecase.dart';
 import '../presentation/bloc/profile/profile_bloc.dart';
+import '../domain/repositories/profile_repository.dart';
 
 class ProfileDependency {
   ProfileDependency._();
 
   static void init() {
-    if (!getIt.isRegistered<ProfileBloc>()) {
-      getIt.registerFactory(
-        () => ProfileBloc(getIt<FetchProfileItemsUseCase>()),
-      );
-    }
+    getIt.registerFactory(() => ProfileBloc(getIt<GetProfileUseCase>()));
 
-    if (!getIt.isRegistered<FetchProfileItemsUseCase>()) {
-      getIt.registerLazySingleton(
-        () => FetchProfileItemsUseCase(getIt<ProfileRepositoryImpl>()),
-      );
-    }
+    getIt.registerLazySingleton<ProfileRemoteDataSource>(
+      () => ProfileRemoteDataSourceImpl(getIt<ApiHelper>()),
+    );
 
-    if (!getIt.isRegistered<ProfileRepositoryImpl>()) {
-      getIt.registerLazySingleton(
-        () => ProfileRepositoryImpl(
-          getIt<ProfileRemoteDataSourceImpl>(),
-          getIt<ProfileLocalDataSourceImpl>(),
-        ),
-      );
-    }
+    getIt.registerLazySingleton<ProfileLocalDataSource>(
+      () => ProfileLocalDataSourceImpl(getIt<HiveLocalStorage>()),
+    );
 
-    if (!getIt.isRegistered<ProfileRemoteDataSourceImpl>()) {
-      getIt.registerLazySingleton(
-        () => ProfileRemoteDataSourceImpl(getIt<ApiHelper>()),
-      );
-    }
+    getIt.registerLazySingleton<ProfileRepository>(
+      () => ProfileRepositoryImpl(
+        getIt<ProfileRemoteDataSource>(),
+        getIt<ProfileLocalDataSource>(),
+        getIt<NetworkInfo>(),
+        getIt<HiveLocalStorage>(),
+      ),
+    );
 
-    if (!getIt.isRegistered<ProfileLocalDataSourceImpl>()) {
-      getIt.registerLazySingleton(() => ProfileLocalDataSourceImpl());
-    }
+    getIt.registerLazySingleton(
+      () => GetProfileUseCase(getIt<ProfileRepository>()),
+    );
+
+    getIt.registerLazySingleton(
+      () => GetUserPostsUseCase(getIt<ProfileRepository>()),
+    );
+
+    getIt.registerLazySingleton(
+      () => UpdateProfileUseCase(getIt<ProfileRepository>()),
+    );
+
+    getIt.registerLazySingleton(
+      () => UpdateAvatarUseCase(getIt<ProfileRepository>()),
+    );
   }
 }

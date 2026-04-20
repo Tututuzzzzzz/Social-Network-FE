@@ -52,4 +52,8 @@ class ApiConstants {
       '/friends/requests/$requestId/accept';
   static String friendRequestReject(String requestId) =>
       '/friends/requests/$requestId/reject';
+
+  // // User posts endpoints
+  // static String userPostById(String userId, String postId) =>
+  //     '/users/$userId/posts/$postId';
 }
