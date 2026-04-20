@@ -30,3 +30,38 @@ class MessageError extends MessageState {
   @override
   List<Object?> get props => [message];
 }
+
+class MessageHistoryBootstrapping extends MessageState {}
+
+class MessageHistoryBootstrapFinished extends MessageState {}
+
+class MessageHistoryCacheHydrated extends MessageState {
+  final MessageHistoryPageEntity page;
+
+  const MessageHistoryCacheHydrated(this.page);
+
+  @override
+  List<Object?> get props => [page];
+}
+
+class MessageHistoryRemoteHydrated extends MessageState {
+  final MessageHistoryPageEntity page;
+
+  const MessageHistoryRemoteHydrated(this.page);
+
+  @override
+  List<Object?> get props => [page];
+}
+
+class MessageHistoryOlderLoading extends MessageState {}
+
+class MessageHistoryOlderLoaded extends MessageState {
+  final MessageHistoryPageEntity page;
+
+  const MessageHistoryOlderLoaded(this.page);
+
+  @override
+  List<Object?> get props => [page];
+}
+
+class MessageHistoryOlderLoadFinished extends MessageState {}

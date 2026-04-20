@@ -1,7 +1,12 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../configs/injector/injector_conf.dart';
+import '../../../../core/realtime/realtime_socket_service.dart';
 import '../../../chat/domain/entities/chat_entity.dart';
+import '../../data/models/message_model.dart';
 import '../../domain/entities/message_entity.dart';
 import '../bloc/message_bloc.dart';
 import '../bloc/message_event.dart';
@@ -18,18 +23,310 @@ class MessageChatRoomPage extends StatefulWidget {
 
 class _MessageChatRoomPageState extends State<MessageChatRoomPage> {
   final TextEditingController _composerController = TextEditingController();
+  final ScrollController _historyScrollController = ScrollController();
   final List<_MessageLine> _messages = [];
+  final List<MessageEntity> _messageEntities = [];
+  final Set<String> _knownMessageIds = <String>{};
+
+  static const int _historyPageLimit = 30;
+
+  late final RealtimeSocketService _realtimeSocketService;
+
+  StreamSubscription<Map<String, dynamic>>? _newMessageSubscription;
+
+  String _currentUserId = '';
+  String? _nextCursor;
+  bool _hasMoreHistory = true;
+  bool _isLoadingOlderHistory = false;
+  bool _isBootstrappingHistory = false;
+  double _previousMaxScrollExtentBeforeOlderLoad = 0.0;
 
   @override
   void initState() {
     super.initState();
+    _realtimeSocketService = getIt<RealtimeSocketService>();
+
     _messages.addAll(_parseConversation(widget.thread));
+    _historyScrollController.addListener(_onHistoryScroll);
+    unawaited(_initializeRoomState());
   }
 
   @override
   void dispose() {
+    _newMessageSubscription?.cancel();
+    _historyScrollController
+      ..removeListener(_onHistoryScroll)
+      ..dispose();
     _composerController.dispose();
     super.dispose();
+  }
+
+  Future<void> _initializeRoomState() async {
+    _currentUserId = await _realtimeSocketService.getCurrentUserId();
+    _bootstrapHistory();
+    await _setupRealtime();
+  }
+
+  Future<void> _setupRealtime() async {
+    await _realtimeSocketService.ensureConnected();
+
+    _realtimeSocketService.joinConversation(widget.thread.id);
+
+    await _newMessageSubscription?.cancel();
+    _newMessageSubscription = _realtimeSocketService.newMessageStream.listen(
+      _onNewRealtimeMessage,
+    );
+  }
+
+  void _onNewRealtimeMessage(Map<String, dynamic> payload) {
+    final conversationId = payload['conversationId']?.toString() ?? '';
+    if (conversationId != widget.thread.id) {
+      return;
+    }
+
+    final messageRaw = payload['message'];
+    if (messageRaw is! Map) {
+      return;
+    }
+
+    final message = MessageModel.fromJson(
+      Map<String, dynamic>.from(messageRaw),
+    );
+    _appendMessage(
+      message,
+      fallbackAuthor: widget.thread.senderName.trim().isNotEmpty
+          ? widget.thread.senderName
+          : 'Friend',
+    );
+  }
+
+  void _bootstrapHistory() {
+    if (!mounted) {
+      return;
+    }
+
+    context.read<MessageBloc>().add(
+      MessageHistoryBootstrapRequested(
+        conversationId: widget.thread.id,
+        limit: _historyPageLimit,
+      ),
+    );
+  }
+
+  void _onHistoryScroll() {
+    if (!_historyScrollController.hasClients) {
+      return;
+    }
+
+    if (_historyScrollController.position.pixels <= 80) {
+      unawaited(_loadOlderHistory());
+    }
+  }
+
+  Future<void> _loadOlderHistory() async {
+    final cursor = _nextCursor?.trim();
+    if (_isLoadingOlderHistory ||
+        !_hasMoreHistory ||
+        cursor == null ||
+        cursor.isEmpty) {
+      return;
+    }
+
+    _previousMaxScrollExtentBeforeOlderLoad =
+        _historyScrollController.hasClients
+        ? _historyScrollController.position.maxScrollExtent
+        : 0.0;
+
+    context.read<MessageBloc>().add(
+      MessageHistoryLoadOlderRequested(
+        conversationId: widget.thread.id,
+        cursor: cursor,
+        limit: _historyPageLimit,
+      ),
+    );
+  }
+
+  void _requestPersistHistoryCache({int? limit}) {
+    if (_messageEntities.isEmpty) {
+      return;
+    }
+
+    context.read<MessageBloc>().add(
+      MessageHistoryCacheSaveRequested(
+        conversationId: widget.thread.id,
+        page: MessageHistoryPageEntity(
+          messages: List<MessageEntity>.from(_messageEntities),
+          hasMore: _hasMoreHistory,
+          limit: limit ?? _historyPageLimit,
+          nextCursor: _nextCursor,
+        ),
+      ),
+    );
+  }
+
+  void _restoreScrollAfterOlderLoaded() {
+    if (!_historyScrollController.hasClients) {
+      return;
+    }
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!_historyScrollController.hasClients) {
+        return;
+      }
+
+      final newMaxScrollExtent =
+          _historyScrollController.position.maxScrollExtent;
+      final delta =
+          newMaxScrollExtent - _previousMaxScrollExtentBeforeOlderLoad;
+      if (delta > 0) {
+        _historyScrollController.jumpTo(
+          _historyScrollController.position.pixels + delta,
+        );
+      }
+    });
+  }
+
+  void _scrollToLatestAfterHydration() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!_historyScrollController.hasClients) {
+        return;
+      }
+
+      final maxScrollExtent = _historyScrollController.position.maxScrollExtent;
+      _historyScrollController.jumpTo(maxScrollExtent);
+    });
+  }
+
+  List<MessageEntity> _sortByCreatedAtAsc(List<MessageEntity> messages) {
+    final sorted = List<MessageEntity>.from(messages);
+    sorted.sort((a, b) {
+      final aTime = a.createdAt?.millisecondsSinceEpoch ?? 0;
+      final bTime = b.createdAt?.millisecondsSinceEpoch ?? 0;
+      if (aTime != bTime) {
+        return aTime.compareTo(bTime);
+      }
+      return a.id.compareTo(b.id);
+    });
+    return sorted;
+  }
+
+  String _defaultPeerAuthor() {
+    final name = widget.thread.senderName.trim();
+    return name.isNotEmpty ? name : 'Friend';
+  }
+
+  _MessageLine? _toMessageLine(
+    MessageEntity message, {
+    required String fallbackAuthor,
+  }) {
+    final content = message.content.trim();
+    final text = content.isNotEmpty
+        ? content
+        : (message.media.isNotEmpty ? '[Attachment]' : '');
+
+    if (text.isEmpty) {
+      return null;
+    }
+
+    final senderId = message.senderId.trim();
+    final fromMe =
+        _currentUserId.isNotEmpty &&
+        senderId.isNotEmpty &&
+        senderId == _currentUserId;
+
+    return _MessageLine(
+      id: message.id.trim(),
+      author: fromMe ? 'You' : fallbackAuthor,
+      text: text,
+      fromMe: fromMe,
+    );
+  }
+
+  void _replaceHistory(List<MessageEntity> messages) {
+    if (messages.isEmpty) {
+      return;
+    }
+
+    final sorted = _sortByCreatedAtAsc(messages);
+    final nextLines = <_MessageLine>[];
+    final nextEntities = <MessageEntity>[];
+    final knownIds = <String>{};
+
+    for (final message in sorted) {
+      final line = _toMessageLine(
+        message,
+        fallbackAuthor: _defaultPeerAuthor(),
+      );
+      if (line == null) {
+        continue;
+      }
+
+      final id = line.id.trim();
+      if (id.isNotEmpty && knownIds.contains(id)) {
+        continue;
+      }
+
+      if (id.isNotEmpty) {
+        knownIds.add(id);
+      }
+
+      nextEntities.add(message);
+      nextLines.add(line);
+    }
+
+    if (!mounted) {
+      return;
+    }
+
+    setState(() {
+      _messageEntities
+        ..clear()
+        ..addAll(nextEntities);
+      _messages
+        ..clear()
+        ..addAll(nextLines);
+      _knownMessageIds
+        ..clear()
+        ..addAll(knownIds);
+    });
+  }
+
+  void _prependOlderHistory(List<MessageEntity> messages) {
+    final sorted = _sortByCreatedAtAsc(messages);
+    final prependLines = <_MessageLine>[];
+    final prependEntities = <MessageEntity>[];
+
+    for (final message in sorted) {
+      final line = _toMessageLine(
+        message,
+        fallbackAuthor: _defaultPeerAuthor(),
+      );
+
+      if (line == null) {
+        continue;
+      }
+
+      final id = line.id.trim();
+      if (id.isNotEmpty && _knownMessageIds.contains(id)) {
+        continue;
+      }
+
+      if (id.isNotEmpty) {
+        _knownMessageIds.add(id);
+      }
+
+      prependEntities.add(message);
+      prependLines.add(line);
+    }
+
+    if (prependLines.isEmpty || !mounted) {
+      return;
+    }
+
+    setState(() {
+      _messageEntities.insertAll(0, prependEntities);
+      _messages.insertAll(0, prependLines);
+    });
   }
 
   List<_MessageLine> _parseConversation(ChatEntity thread) {
@@ -124,15 +421,35 @@ class _MessageChatRoomPageState extends State<MessageChatRoomPage> {
   }
 
   void _appendSentMessage(MessageEntity sentMessage) {
-    final content = sentMessage.content.trim();
-    if (content.isEmpty) {
+    _composerController.clear();
+    _appendMessage(sentMessage, fallbackAuthor: 'You');
+  }
+
+  void _appendMessage(MessageEntity message, {required String fallbackAuthor}) {
+    final messageId = message.id.trim();
+    if (messageId.isNotEmpty && _knownMessageIds.contains(messageId)) {
+      return;
+    }
+
+    final line = _toMessageLine(message, fallbackAuthor: fallbackAuthor);
+    if (line == null) {
+      return;
+    }
+
+    if (!mounted) {
       return;
     }
 
     setState(() {
-      _messages.add(_MessageLine(author: 'You', text: content, fromMe: true));
-      _composerController.clear();
+      if (messageId.isNotEmpty) {
+        _knownMessageIds.add(messageId);
+      }
+
+      _messageEntities.add(message);
+      _messages.add(line);
     });
+
+    _requestPersistHistoryCache();
   }
 
   @override
@@ -189,11 +506,67 @@ class _MessageChatRoomPageState extends State<MessageChatRoomPage> {
         ),
         body: BlocConsumer<MessageBloc, MessageState>(
           listener: (context, state) {
+            if (state is MessageHistoryBootstrapping) {
+              setState(() {
+                _isBootstrappingHistory = true;
+              });
+            }
+
+            if (state is MessageHistoryBootstrapFinished) {
+              setState(() {
+                _isBootstrappingHistory = false;
+              });
+            }
+
+            if (state is MessageHistoryCacheHydrated) {
+              if (state.page.messages.isNotEmpty) {
+                _replaceHistory(state.page.messages);
+                _nextCursor = state.page.nextCursor;
+                _hasMoreHistory = state.page.hasMore;
+                _scrollToLatestAfterHydration();
+              }
+            }
+
+            if (state is MessageHistoryRemoteHydrated) {
+              _replaceHistory(state.page.messages);
+              _nextCursor = state.page.nextCursor;
+              _hasMoreHistory = state.page.hasMore;
+              _scrollToLatestAfterHydration();
+              _requestPersistHistoryCache(limit: state.page.limit);
+            }
+
+            if (state is MessageHistoryOlderLoading) {
+              setState(() {
+                _isLoadingOlderHistory = true;
+              });
+            }
+
+            if (state is MessageHistoryOlderLoaded) {
+              _prependOlderHistory(state.page.messages);
+              _nextCursor = state.page.nextCursor;
+              _hasMoreHistory = state.page.hasMore;
+              _requestPersistHistoryCache(limit: state.page.limit);
+              _restoreScrollAfterOlderLoaded();
+            }
+
+            if (state is MessageHistoryOlderLoadFinished) {
+              setState(() {
+                _isLoadingOlderHistory = false;
+              });
+            }
+
             if (state is MessageSent) {
               _appendSentMessage(state.message);
             }
 
             if (state is MessageError) {
+              if (_isBootstrappingHistory || _isLoadingOlderHistory) {
+                setState(() {
+                  _isBootstrappingHistory = false;
+                  _isLoadingOlderHistory = false;
+                });
+              }
+
               ScaffoldMessenger.of(
                 context,
               ).showSnackBar(SnackBar(content: Text(state.message)));
@@ -205,8 +578,20 @@ class _MessageChatRoomPageState extends State<MessageChatRoomPage> {
             return SafeArea(
               child: Column(
                 children: [
+                  if (_isBootstrappingHistory)
+                    const LinearProgressIndicator(minHeight: 2),
+                  if (_isLoadingOlderHistory)
+                    const Padding(
+                      padding: EdgeInsets.only(top: 8),
+                      child: SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      ),
+                    ),
                   Expanded(
                     child: ListView.separated(
+                      controller: _historyScrollController,
                       padding: const EdgeInsets.fromLTRB(12, 12, 12, 16),
                       itemCount: _messages.length,
                       separatorBuilder: (_, index) => const SizedBox(height: 8),
@@ -319,11 +704,13 @@ class _MessageChatRoomPageState extends State<MessageChatRoomPage> {
 }
 
 class _MessageLine {
+  final String id;
   final String author;
   final String text;
   final bool fromMe;
 
   const _MessageLine({
+    this.id = '',
     required this.author,
     required this.text,
     required this.fromMe,

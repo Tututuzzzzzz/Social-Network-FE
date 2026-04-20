@@ -5,6 +5,12 @@ import '../../../../core/utils/logger.dart';
 import '../models/message_model.dart';
 
 abstract class MessageRemoteDataSource {
+  Future<MessageHistoryPageModel> fetchConversationHistory({
+    required String conversationId,
+    int limit,
+    String? cursor,
+  });
+
   Future<MessageModel> sendDirectText({
     required String conversationId,
     required String recipientId,
@@ -65,6 +71,29 @@ class MessageRemoteDataSourceImpl implements MessageRemoteDataSource {
   final ApiHelper _apiHelper;
 
   const MessageRemoteDataSourceImpl(this._apiHelper);
+
+  @override
+  Future<MessageHistoryPageModel> fetchConversationHistory({
+    required String conversationId,
+    int limit = 30,
+    String? cursor,
+  }) async {
+    try {
+      final response = await _apiHelper.execute(
+        url: ApiConstants.messagesHistory(
+          conversationId,
+          limit: limit,
+          cursor: cursor,
+        ),
+        method: Method.get,
+      );
+
+      return MessageHistoryPageModel.fromApiJson(response);
+    } catch (e, st) {
+      logger.e(e, stackTrace: st);
+      throw ServerException();
+    }
+  }
 
   MessageModel _extractMessage(dynamic response) {
     if (response is Map<String, dynamic>) {

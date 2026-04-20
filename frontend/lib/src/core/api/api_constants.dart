@@ -47,6 +47,21 @@ class ApiConstants {
   static String messagesReadAll(String conversationId) =>
       '/messages/$conversationId/messages/read-all';
 
+  static String messagesHistory(
+    String conversationId, {
+    int limit = 30,
+    String? cursor,
+  }) {
+    final queryParameters = <String, String>{'limit': '$limit'};
+    final normalizedCursor = cursor?.trim() ?? '';
+    if (normalizedCursor.isNotEmpty) {
+      queryParameters['cursor'] = normalizedCursor;
+    }
+
+    final query = Uri(queryParameters: queryParameters).query;
+    return '/messages/$conversationId/messages?$query';
+  }
+
   // Friend requests endpoints
   static String friendRequestAccept(String requestId) =>
       '/friends/requests/$requestId/accept';
