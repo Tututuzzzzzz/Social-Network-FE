@@ -26,4 +26,18 @@ class ChatRepositoryImpl implements ChatRepository {
       return left(ServerFailure());
     }
   }
+
+  @override
+  Future<Either<Failure, ChatEntity>> createDirectConversation({
+    required String recipientId,
+  }) async {
+    try {
+      final item = await _remoteDataSource.createDirectConversation(
+        recipientId: recipientId,
+      );
+      return right(item);
+    } catch (_) {
+      return left(ServerFailure());
+    }
+  }
 }

@@ -1,33 +1,37 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../../core/usecases/usecase.dart';
+import '../../../../../core/utils/failure_converter.dart';
+import '../../../../../core/utils/logger.dart';
 import '../../../domain/entities/profile_entity.dart';
-import '../../../domain/usecases/fetch_profile_items_usecase.dart';
+import '../../../domain/usecases/get_profile_usecase.dart';
 import '../../../domain/usecases/usecase_params.dart';
 
 part 'profile_event.dart';
 part 'profile_state.dart';
 
 class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
-  final FetchProfileItemsUseCase _fetchItemsUseCase;
+  final GetProfileUseCase _getProfileUseCase;
 
-  ProfileBloc(this._fetchItemsUseCase) : super(const ProfileInitialState()) {
-    on<ProfileFetchedEvent>(_onFetched);
+  ProfileBloc(this._getProfileUseCase) : super(ProfileInitialState()) {
+    on<ProfileGetEvent>(_onGet);
   }
 
-  Future<void> _onFetched(
-    ProfileFetchedEvent event,
-    Emitter<ProfileState> emit,
-  ) async {
-    emit(const ProfileLoadingState());
+  Future<void> _onGet(ProfileGetEvent event, Emitter<ProfileState> emit) async {
+    emit(ProfileLoadingState());
 
-    final result = await _fetchItemsUseCase.call(
-      ProfileQueryParams(page: event.page),
-    );
+    final result = await _getProfileUseCase.call(event.params);
 
     result.fold(
-      (failure) => emit(const ProfileFailureState('Unable to load data')),
-      (items) => emit(ProfileSuccessState(items)),
+      (l) => emit(ProfileFailureState(mapFailureToMessage(l))),
+      (r) => emit(ProfileLoadedState(r)),
     );
+  }
+
+  @override
+  Future<void> close() {
+    logger.i('===== CLOSE ProfileBloc =====');
+    return super.close();
   }
 }

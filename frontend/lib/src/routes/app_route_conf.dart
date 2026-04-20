@@ -1,6 +1,11 @@
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import '../configs/injector/injector_conf.dart';
 import '../features/chat/domain/entities/chat_entity.dart';
+import '../features/message/presentation/bloc/message_bloc.dart';
+import '../features/post/presentation/bloc/post/post_bloc.dart';
+import '../features/profile/presentation/bloc/profile/profile_bloc.dart';
 import 'app_shell_page.dart';
 import 'app_route_path.dart';
 import 'routes.dart';
@@ -73,13 +78,18 @@ class AppRoutesConf {
       GoRoute(
         path: AppRoutes.home.path,
         name: AppRoutes.home.name,
-        builder: (context, state) => const AppShellPage(body: MochiMainPage()),
+        builder: (context, state) => BlocProvider<PostBloc>(
+          create: (_) => getIt<PostBloc>(),
+          child: const FeedScreen(),
+        ),
       ),
       GoRoute(
         path: AppRoutes.homeSearch.path,
         name: AppRoutes.homeSearch.name,
-        builder: (context, state) =>
-            const AppShellPage(body: MochiSearchPage()),
+        builder: (context, state) => BlocProvider<PostBloc>(
+          create: (_) => getIt<PostBloc>(),
+          child: const FeedScreen(),
+        ),
       ),
       GoRoute(
         path: AppRoutes.reels.path,
@@ -95,8 +105,15 @@ class AppRoutesConf {
       GoRoute(
         path: AppRoutes.profile.path,
         name: AppRoutes.profile.name,
-        builder: (context, state) =>
-            const AppShellPage(body: MochiProfilePage()),
+        builder: (context, state) => BlocProvider<ProfileBloc>(
+          create: (_) => getIt<ProfileBloc>(),
+          child: const AppShellPage(body: MochiProfilePage()),
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.editProfile.path,
+        name: AppRoutes.editProfile.name,
+        builder: (context, state) => const EditProfilePage(),
       ),
       GoRoute(
         path: AppRoutes.chatMochiChatRoom.path,
@@ -111,7 +128,10 @@ class AppRoutesConf {
                   senderName: 'Conversation',
                   messagePreview: 'Start chatting',
                 );
-          return MochiChatRoomPage(thread: thread);
+          return BlocProvider<MessageBloc>(
+            create: (_) => getIt<MessageBloc>(),
+            child: MessageChatRoomPage(thread: thread),
+          );
         },
       ),
     ],

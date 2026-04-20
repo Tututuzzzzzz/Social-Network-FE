@@ -12,11 +12,16 @@ class ApiConstants {
   static const String login = '/auth/login';
   static const String register = '/auth/register';
   static const String friends = '/friends';
+  static const String friendsRequests = '/friends/requests';
   static const String profile = '/users/me';
   static const String profileAvatar = '/users/me/avatar';
   static const String conversations = '/conversations';
   static const String messages = '/messages/direct';
   static const String groups = '/messages/group';
+  static const String messagesDirectText = '/messages/direct/text';
+  static const String messagesDirectMedia = '/messages/direct/media';
+  static const String messagesGroupText = '/messages/group/text';
+  static const String messagesGroupMedia = '/messages/group/media';
   static const String posts = '/posts';
   static const String postsFeed = '/posts/feed';
   static const String notifications = '/notifications';
@@ -33,4 +38,22 @@ class ApiConstants {
       '/users/$userId/posts?page=$page&limit=$limit';
   static String notificationRead(String notificationId) =>
       '/notifications/$notificationId/read';
+
+  // Messages endpoints
+  static String messageReaction(String messageId) =>
+      '/messages/$messageId/reaction';
+  static String messageRead(String conversationId, String messageId) =>
+      '/messages/$conversationId/messages/$messageId/read';
+  static String messagesReadAll(String conversationId) =>
+      '/messages/$conversationId/messages/read-all';
+
+  // Friend requests endpoints
+  static String friendRequestAccept(String requestId) =>
+      '/friends/requests/$requestId/accept';
+  static String friendRequestReject(String requestId) =>
+      '/friends/requests/$requestId/reject';
+
+  // // User posts endpoints
+  // static String userPostById(String userId, String postId) =>
+  //     '/users/$userId/posts/$postId';
 }

@@ -2,6 +2,7 @@ import 'package:equatable/equatable.dart';
 
 class ChatEntity extends Equatable {
   final String id;
+  final String recipientId;
   final String senderName;
   final String messagePreview;
   final String timeLabel;
@@ -14,6 +15,7 @@ class ChatEntity extends Equatable {
 
   const ChatEntity({
     required this.id,
+    this.recipientId = '',
     this.senderName = '',
     this.messagePreview = '',
     this.timeLabel = '',
@@ -27,6 +29,7 @@ class ChatEntity extends Equatable {
 
   ChatEntity copyWith({
     String? id,
+    String? recipientId,
     String? senderName,
     String? messagePreview,
     String? timeLabel,
@@ -39,6 +42,7 @@ class ChatEntity extends Equatable {
   }) {
     return ChatEntity(
       id: id ?? this.id,
+      recipientId: recipientId ?? this.recipientId,
       senderName: senderName ?? this.senderName,
       messagePreview: messagePreview ?? this.messagePreview,
       timeLabel: timeLabel ?? this.timeLabel,
@@ -54,6 +58,7 @@ class ChatEntity extends Equatable {
   @override
   List<Object?> get props => [
     id,
+    recipientId,
     senderName,
     messagePreview,
     timeLabel,

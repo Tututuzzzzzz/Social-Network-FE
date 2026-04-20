@@ -7,6 +7,7 @@ export '../../core/api/api_helper.dart';
 export '../../core/network/network_checker.dart';
 export '../../features/auth/di/auth_depedency.dart';
 export '../../features/chat/di/chat_dependency.dart';
-export '../../features/home/di/home_dependency.dart';
+export '../../features/message/di/message_dependency.dart';
+export '../../features/post/di/post_depedency.dart';
 export '../../features/profile/di/profile_dependency.dart';
 export '../../features/reels/di/reels_dependency.dart';

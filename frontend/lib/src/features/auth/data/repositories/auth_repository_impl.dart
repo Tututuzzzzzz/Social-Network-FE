@@ -35,9 +35,13 @@ class AuthRepositoryImpl implements AuthRepository {
 
       final result = await _authRemoteDataSource.login(model);
       final userModel = UserModel.fromEntity(result);
+      final resolvedUserId = (result.userId ?? userModel.userId ?? '')
+          .toString()
+          .trim();
 
-      final safeUserId = result.userId ?? params.username;
-      await _secureLocalStorage.save(key: "user_id", value: safeUserId);
+      if (resolvedUserId.isNotEmpty) {
+        await _secureLocalStorage.save(key: "user_id", value: resolvedUserId);
+      }
       await _localStorage.save(
         key: "user",
         value: userModel.toJson(),

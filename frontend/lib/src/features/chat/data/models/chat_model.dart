@@ -3,6 +3,7 @@ import '../../domain/entities/chat_entity.dart';
 class ChatModel extends ChatEntity {
   const ChatModel({
     required super.id,
+    super.recipientId,
     super.senderName,
     super.messagePreview,
     super.timeLabel,
@@ -17,6 +18,7 @@ class ChatModel extends ChatEntity {
   factory ChatModel.fromJson(Map<String, dynamic> json) {
     return ChatModel(
       id: json['id']?.toString() ?? '',
+      recipientId: json['recipientId']?.toString() ?? '',
       senderName: json['senderName']?.toString() ?? '',
       messagePreview: json['messagePreview']?.toString() ?? '',
       timeLabel: json['timeLabel']?.toString() ?? '',
@@ -31,6 +33,7 @@ class ChatModel extends ChatEntity {
 
   Map<String, dynamic> toJson() => {
     'id': id,
+    'recipientId': recipientId,
     'senderName': senderName,
     'messagePreview': messagePreview,
     'timeLabel': timeLabel,

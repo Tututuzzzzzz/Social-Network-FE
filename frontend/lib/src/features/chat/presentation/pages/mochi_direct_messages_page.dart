@@ -4,8 +4,13 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../configs/injector/injector_conf.dart';
+import '../../../../core/api/api_constants.dart';
+import '../../../../core/api/api_helper.dart';
+import '../../../friend/presentation/page/friend_picker_bottom_sheet.dart';
 import '../../../../routes/app_route_path.dart';
 import '../../domain/entities/chat_entity.dart';
+import '../../domain/usecases/create_direct_conversation_usecase.dart';
+import '../../domain/usecases/usecase_params.dart';
 import '../bloc/chat/chat_bloc.dart';
 
 class MochiDirectMessagesPage extends StatefulWidget {
@@ -28,6 +33,97 @@ class _MochiDirectMessagesPageState extends State<MochiDirectMessagesPage> {
 
   String _query = '';
   bool _showPendingThreads = true;
+
+  Future<void> _createConversationAndOpen(
+    FriendPickerUser friend,
+    BuildContext blocContext,
+  ) async {
+    final messenger = ScaffoldMessenger.of(context);
+    final chatBloc = blocContext.read<ChatBloc>();
+    final router = GoRouter.of(blocContext);
+
+    ChatEntity? chatEntity;
+
+    try {
+      if (getIt.isRegistered<CreateDirectConversationUseCase>()) {
+        final useCase = getIt<CreateDirectConversationUseCase>();
+        final result = await useCase(
+          CreateDirectConversationParams(recipientId: friend.id),
+        );
+
+        result.fold(
+          (_) {
+            chatEntity = null;
+          },
+          (chat) {
+            chatEntity = chat;
+          },
+        );
+      } else {
+        chatEntity = await _createConversationFallback(friend);
+      }
+    } catch (_) {
+      chatEntity = await _createConversationFallback(friend);
+    }
+
+    if (!mounted || !blocContext.mounted) {
+      return;
+    }
+
+    if (chatEntity == null || chatEntity!.id.trim().isEmpty) {
+      messenger.showSnackBar(
+        const SnackBar(content: Text('Khong tao duoc cuoc tro chuyen')),
+      );
+      return;
+    }
+
+    chatBloc.add(const ChatFetchedEvent());
+    await router.pushNamed(
+      AppRoutes.chatMochiChatRoom.name,
+      pathParameters: {'threadId': chatEntity!.id},
+      extra: chatEntity,
+    );
+  }
+
+  Future<ChatEntity?> _createConversationFallback(
+    FriendPickerUser friend,
+  ) async {
+    final apiHelper = getIt<ApiHelper>();
+    final result = await apiHelper.execute(
+      method: Method.post,
+      url: ApiConstants.conversations,
+      data: {'type': 'direct', 'recipientId': friend.id},
+    );
+
+    final raw = result['conversation'];
+    if (raw is! Map) {
+      return null;
+    }
+
+    final map = Map<String, dynamic>.from(raw);
+    final id = (map['_id'] ?? map['id'] ?? '').toString();
+    if (id.isEmpty) {
+      return null;
+    }
+
+    return ChatEntity(
+      id: id,
+      recipientId: friend.id,
+      senderName: friend.name,
+      messagePreview: 'Start chatting...',
+      timeLabel: 'now',
+      isGroup: false,
+      fullConversation: '${friend.name}: Start chatting...',
+    );
+  }
+
+  Future<void> _openFriendsPicker(BuildContext blocContext) async {
+    final selectedFriend = await showFriendPickerBottomSheet(context);
+    if (!mounted || !blocContext.mounted || selectedFriend == null) {
+      return;
+    }
+    await _createConversationAndOpen(selectedFriend, blocContext);
+  }
 
   List<ChatEntity> _visibleThreads(List<ChatEntity> threads) {
     final keyword = _query.toLowerCase();
@@ -69,7 +165,7 @@ class _MochiDirectMessagesPageState extends State<MochiDirectMessagesPage> {
     return trimmed.substring(0, 1).toUpperCase();
   }
 
-  Widget _buildTopBar() {
+  Widget _buildTopBar(BuildContext blocContext) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(8, 8, 8, 6),
       child: SizedBox(
@@ -99,7 +195,7 @@ class _MochiDirectMessagesPageState extends State<MochiDirectMessagesPage> {
             Positioned(
               right: 0,
               child: IconButton(
-                onPressed: () {},
+                onPressed: () => _openFriendsPicker(blocContext),
                 icon: const Icon(Icons.add, size: 24),
                 color: const Color(0xFF111113),
               ),
@@ -234,15 +330,18 @@ class _MochiDirectMessagesPageState extends State<MochiDirectMessagesPage> {
     return confirmed ?? false;
   }
 
-  Future<void> _openChatThread(ChatEntity item) async {
-    final chatBloc = context.read<ChatBloc>();
-    final result = await context.pushNamed(
+  Future<void> _openChatThread(
+    ChatEntity item,
+    BuildContext blocContext,
+  ) async {
+    final chatBloc = blocContext.read<ChatBloc>();
+    final result = await blocContext.pushNamed(
       AppRoutes.chatMochiChatRoom.name,
       pathParameters: {'threadId': item.id},
       extra: item,
     );
 
-    if (!mounted) {
+    if (!mounted || !blocContext.mounted) {
       return;
     }
 
@@ -303,7 +402,7 @@ class _MochiDirectMessagesPageState extends State<MochiDirectMessagesPage> {
         ],
       ),
       child: InkWell(
-        onTap: () => _openChatThread(item),
+        onTap: () => _openChatThread(item, context),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           child: Row(
@@ -528,7 +627,7 @@ class _MochiDirectMessagesPageState extends State<MochiDirectMessagesPage> {
             body: SafeArea(
               child: Column(
                 children: [
-                  _buildTopBar(),
+                  _buildTopBar(context),
                   _buildSearchInput(),
                   _buildSectionHeader(pendingThreads.length),
                   if (state is ChatLoadingState && loadedThreads.isNotEmpty)

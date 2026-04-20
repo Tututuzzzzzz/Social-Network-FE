@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import '../../../../core/api/api_constants.dart';
 import '../../../../core/api/api_exception.dart';
 import '../../../../core/api/api_helper.dart';
@@ -17,7 +19,6 @@ sealed class AuthRemoteDataSource {
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   final ApiHelper _apiHelper;
   final SecureLocalStorage _secureLocalStorage;
-
   const AuthRemoteDataSourceImpl(this._apiHelper, this._secureLocalStorage);
 
   @override
@@ -29,28 +30,28 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         data: model.toJson(),
       );
 
-      final token = result['accessToken']?.toString() ?? '';
-      if (token.isEmpty) {
+      final accessToken = result['accessToken']?.toString() ?? '';
+      if (accessToken.isEmpty) {
         throw ServerException();
       }
+      await _secureLocalStorage.save(key: 'access_token', value: accessToken);
 
-      await _secureLocalStorage.save(key: 'access_token', value: token);
+      final payload = result['user'] ?? result;
+      final json = payload is Map<String, dynamic>
+          ? Map<String, dynamic>.from(payload)
+          : payload is Map
+          ? Map<String, dynamic>.from(payload)
+          : <String, dynamic>{};
 
-      final profileResult = await _apiHelper.execute(
-        method: Method.get,
-        url: ApiConstants.profile,
+      final tokenUserId = _extractUserIdFromAccessToken(accessToken);
+      final userId = (json['_id'] ?? json['id'] ?? tokenUserId ?? '')
+          .toString();
+
+      return UserModel(
+        userId: userId.isNotEmpty ? userId : null,
+        userName: (json['username'] ?? result['username'])?.toString(),
+        email: json['email']?.toString(),
       );
-
-      final payload = profileResult['user'] ?? profileResult['data'] ?? result;
-      if (payload is Map<String, dynamic>) {
-        return UserModel.fromJson(payload);
-      }
-
-      if (payload is Map) {
-        return UserModel.fromJson(Map<String, dynamic>.from(payload));
-      }
-
-      throw ServerException();
     } on UnauthorisedException {
       throw AuthException();
     } catch (e) {
@@ -63,6 +64,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   Future<void> logout() async {
     try {
       await _secureLocalStorage.delete(key: 'access_token');
+      await Future.delayed(const Duration(seconds: 1));
       return;
     } catch (e) {
       logger.e(e);
@@ -85,6 +87,29 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     } catch (e) {
       logger.e(e);
       throw ServerException();
+    }
+  }
+
+  String? _extractUserIdFromAccessToken(String accessToken) {
+    try {
+      final parts = accessToken.split('.');
+      if (parts.length < 2) {
+        return null;
+      }
+
+      final payloadBase64 = base64Url.normalize(parts[1]);
+      final payload = utf8.decode(base64Url.decode(payloadBase64));
+      final decoded = jsonDecode(payload);
+
+      if (decoded is! Map<String, dynamic>) {
+        return null;
+      }
+
+      final userId = decoded['userId'] ?? decoded['sub'] ?? decoded['_id'];
+      final idText = userId?.toString() ?? '';
+      return idText.trim().isEmpty ? null : idText.trim();
+    } catch (_) {
+      return null;
     }
   }
 }

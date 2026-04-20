@@ -3,6 +3,7 @@ import '../../../core/api/api_helper.dart';
 import '../data/datasources/chat_local_datasource.dart';
 import '../data/datasources/chat_remote_datasource.dart';
 import '../data/repositories/chat_repository_impl.dart';
+import '../domain/usecases/create_direct_conversation_usecase.dart';
 import '../domain/usecases/fetch_chat_items_usecase.dart';
 import '../presentation/bloc/chat/chat_bloc.dart';
 
@@ -17,6 +18,12 @@ class ChatDependency {
     if (!getIt.isRegistered<FetchChatItemsUseCase>()) {
       getIt.registerLazySingleton(
         () => FetchChatItemsUseCase(getIt<ChatRepositoryImpl>()),
+      );
+    }
+
+    if (!getIt.isRegistered<CreateDirectConversationUseCase>()) {
+      getIt.registerLazySingleton(
+        () => CreateDirectConversationUseCase(getIt<ChatRepositoryImpl>()),
       );
     }
 

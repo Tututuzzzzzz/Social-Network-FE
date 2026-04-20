@@ -7,11 +7,13 @@ sealed class ProfileEvent extends Equatable {
   List<Object?> get props => [];
 }
 
-class ProfileFetchedEvent extends ProfileEvent {
-  final int page;
+class ProfileLoadEvent extends ProfileEvent {}
 
-  const ProfileFetchedEvent({this.page = 1});
+class ProfileGetEvent extends ProfileEvent {
+  final ProfileParams params;
+
+  const ProfileGetEvent(this.params);
 
   @override
-  List<Object?> get props => [page];
+  List<Object?> get props => [params];
 }
