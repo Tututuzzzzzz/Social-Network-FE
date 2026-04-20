@@ -19,7 +19,7 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     try {
       final result = await _apiHelper.execute(
         method: Method.get,
-        url: ApiConstants.conversations,
+        url: ApiConstants.conversations,  
       );
       return _mapConversationsToChatItems(result);
     } catch (e, st) {
@@ -165,6 +165,11 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
       return 'Group chat';
     }
 
+    final recipientDisplayName = _asText(conversation['recipientDisplayName']);
+    if (recipientDisplayName.isNotEmpty) {
+      return recipientDisplayName;
+    }
+
     final participantsRaw = conversation['participants'];
     if (participantsRaw is List && participantsRaw.isNotEmpty) {
       final candidateIndex = participantsRaw.length > 1 ? 1 : 0;
@@ -193,6 +198,11 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
   String _extractRecipientId(Map<String, dynamic> conversation, bool isGroup) {
     if (isGroup) {
       return '';
+    }
+
+    final directRecipientId = _asText(conversation['recipientId']);
+    if (directRecipientId.isNotEmpty) {
+      return directRecipientId;
     }
 
     final participantsRaw = conversation['participants'];

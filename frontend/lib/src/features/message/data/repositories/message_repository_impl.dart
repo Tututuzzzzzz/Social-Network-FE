@@ -1,14 +1,88 @@
 import 'package:fpdart/fpdart.dart';
 
 import '../../../../core/errors/failures.dart';
+import '../../../../core/errors/exceptions.dart';
+import '../models/message_model.dart';
+import '../datasources/message_local_datasource.dart';
 import '../../domain/entities/message_entity.dart';
 import '../../domain/repositories/message_repository.dart';
 import '../datasources/message_remote_datasource.dart';
 
 class MessageRepositoryImpl implements MessageRepository {
   final MessageRemoteDataSource _remoteDataSource;
+  final MessageLocalDataSource _localDataSource;
 
-  MessageRepositoryImpl(this._remoteDataSource);
+  MessageRepositoryImpl(this._remoteDataSource, this._localDataSource);
+
+  @override
+  Future<Either<Failure, MessageHistoryPageEntity>> fetchConversationHistory({
+    required String conversationId,
+    int limit = 30,
+    String? cursor,
+  }) async {
+    try {
+      final item = await _remoteDataSource.fetchConversationHistory(
+        conversationId: conversationId,
+        limit: limit,
+        cursor: cursor,
+      );
+      return right(item);
+    } catch (_) {
+      if ((cursor?.trim().isNotEmpty ?? false)) {
+        return left(ServerFailure());
+      }
+
+      try {
+        final cached = await _localDataSource.loadConversationHistory(
+          conversationId: conversationId,
+        );
+
+        if (cached != null) {
+          return right(cached);
+        }
+      } on CacheException {
+        return left(CacheFailure());
+      }
+
+      return left(ServerFailure());
+    }
+  }
+
+  @override
+  Future<Either<Failure, MessageHistoryPageEntity>>
+  loadCachedConversationHistory({required String conversationId}) async {
+    try {
+      final cached = await _localDataSource.loadConversationHistory(
+        conversationId: conversationId,
+      );
+
+      return right(cached ?? const MessageHistoryPageEntity());
+    } on CacheException {
+      return left(CacheFailure());
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> saveCachedConversationHistory({
+    required String conversationId,
+    required MessageHistoryPageEntity page,
+  }) async {
+    try {
+      await _localDataSource.saveConversationHistory(
+        conversationId: conversationId,
+        page: MessageHistoryPageModel(
+          messages: page.messages,
+          hasMore: page.hasMore,
+          limit: page.limit,
+          nextCursor: page.nextCursor,
+        ),
+      );
+
+      return right(null);
+    } on CacheException {
+      return left(CacheFailure());
+    }
+  }
 
   @override
   Future<Either<Failure, MessageEntity>> sendDirectText({

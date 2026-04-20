@@ -79,3 +79,34 @@ class MessageActionResultEntity extends Equatable {
   @override
   List<Object?> get props => [message, data];
 }
+
+class MessageHistoryPageEntity extends Equatable {
+  final List<MessageEntity> messages;
+  final bool hasMore;
+  final int limit;
+  final String? nextCursor;
+
+  const MessageHistoryPageEntity({
+    this.messages = const [],
+    this.hasMore = false,
+    this.limit = 30,
+    this.nextCursor,
+  });
+
+  MessageHistoryPageEntity copyWith({
+    List<MessageEntity>? messages,
+    bool? hasMore,
+    int? limit,
+    String? nextCursor,
+  }) {
+    return MessageHistoryPageEntity(
+      messages: messages ?? this.messages,
+      hasMore: hasMore ?? this.hasMore,
+      limit: limit ?? this.limit,
+      nextCursor: nextCursor ?? this.nextCursor,
+    );
+  }
+
+  @override
+  List<Object?> get props => [messages, hasMore, limit, nextCursor];
+}

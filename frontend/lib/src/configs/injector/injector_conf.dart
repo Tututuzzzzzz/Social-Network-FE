@@ -29,6 +29,10 @@ void configureDepedencies() {
     () => SecureLocalStorage(getIt<FlutterSecureStorage>()),
   );
 
+  getIt.registerLazySingleton(
+    () => RealtimeSocketService(getIt<SecureLocalStorage>()),
+  );
+
   getIt.registerLazySingleton(() => HiveLocalStorage());
 
   getIt.registerLazySingleton(

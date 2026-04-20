@@ -1,5 +1,7 @@
 import 'package:equatable/equatable.dart';
 
+import '../entities/message_entity.dart';
+
 class SendTextMessageParams extends Equatable {
   final String conversationId;
   final String recipientId;
@@ -79,4 +81,41 @@ class MarkAllMessagesAsReadParams extends Equatable {
 
   @override
   List<Object?> get props => [conversationId, lastMessageId];
+}
+
+class FetchConversationHistoryParams extends Equatable {
+  final String conversationId;
+  final int limit;
+  final String? cursor;
+
+  const FetchConversationHistoryParams({
+    required this.conversationId,
+    this.limit = 30,
+    this.cursor,
+  });
+
+  @override
+  List<Object?> get props => [conversationId, limit, cursor];
+}
+
+class ConversationHistoryCacheParams extends Equatable {
+  final String conversationId;
+
+  const ConversationHistoryCacheParams({required this.conversationId});
+
+  @override
+  List<Object?> get props => [conversationId];
+}
+
+class SaveConversationHistoryCacheParams extends Equatable {
+  final String conversationId;
+  final MessageHistoryPageEntity page;
+
+  const SaveConversationHistoryCacheParams({
+    required this.conversationId,
+    required this.page,
+  });
+
+  @override
+  List<Object?> get props => [conversationId, page];
 }

@@ -58,6 +58,38 @@ class MessageModel extends MessageEntity {
       updatedAt: DateTime.tryParse(json['updatedAt']?.toString() ?? ''),
     );
   }
+
+  factory MessageModel.fromEntity(MessageEntity entity) {
+    return MessageModel(
+      id: entity.id,
+      conversationId: entity.conversationId,
+      senderId: entity.senderId,
+      content: entity.content,
+      media: entity.media,
+      createdAt: entity.createdAt,
+      updatedAt: entity.updatedAt,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'conversationId': conversationId,
+    'senderId': senderId,
+    'content': content,
+    'media': media
+        .map(
+          (item) => {
+            'bucket': item.bucket,
+            'objectKey': item.objectKey,
+            'mimeType': item.mimeType,
+            'size': item.size,
+            'mediaUrl': item.mediaUrl,
+          },
+        )
+        .toList(),
+    'createdAt': createdAt?.toIso8601String(),
+    'updatedAt': updatedAt?.toIso8601String(),
+  };
 }
 
 class MessageActionResultModel extends MessageActionResultEntity {
@@ -71,4 +103,71 @@ class MessageActionResultModel extends MessageActionResultEntity {
           : null,
     );
   }
+}
+
+class MessageHistoryPageModel extends MessageHistoryPageEntity {
+  const MessageHistoryPageModel({
+    super.messages,
+    super.hasMore,
+    super.limit,
+    super.nextCursor,
+  });
+
+  factory MessageHistoryPageModel.fromApiJson(Map<String, dynamic> json) {
+    final dataRaw = json['data'];
+    final messages = <MessageEntity>[];
+
+    if (dataRaw is List) {
+      for (final item in dataRaw) {
+        if (item is! Map) {
+          continue;
+        }
+
+        messages.add(MessageModel.fromJson(Map<String, dynamic>.from(item)));
+      }
+    }
+
+    final pageInfoRaw = json['pageInfo'];
+    final pageInfo = pageInfoRaw is Map
+        ? Map<String, dynamic>.from(pageInfoRaw)
+        : const <String, dynamic>{};
+
+    return MessageHistoryPageModel(
+      messages: messages,
+      hasMore: pageInfo['hasMore'] == true,
+      limit: (pageInfo['limit'] as num?)?.toInt() ?? 30,
+      nextCursor: pageInfo['nextCursor']?.toString(),
+    );
+  }
+
+  factory MessageHistoryPageModel.fromCacheJson(Map<String, dynamic> json) {
+    final messagesRaw = json['messages'];
+    final messages = <MessageEntity>[];
+
+    if (messagesRaw is List) {
+      for (final item in messagesRaw) {
+        if (item is! Map) {
+          continue;
+        }
+
+        messages.add(MessageModel.fromJson(Map<String, dynamic>.from(item)));
+      }
+    }
+
+    return MessageHistoryPageModel(
+      messages: messages,
+      hasMore: json['hasMore'] == true,
+      limit: (json['limit'] as num?)?.toInt() ?? 30,
+      nextCursor: json['nextCursor']?.toString(),
+    );
+  }
+
+  Map<String, dynamic> toCacheJson() => {
+    'messages': messages
+        .map((item) => MessageModel.fromEntity(item).toJson())
+        .toList(),
+    'hasMore': hasMore,
+    'limit': limit,
+    'nextCursor': nextCursor,
+  };
 }

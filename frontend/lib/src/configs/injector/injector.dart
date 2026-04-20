@@ -4,6 +4,7 @@ export '../../core/cache/secure_local_storage.dart';
 export '../../core/cache/hive_local_storage.dart';
 export '../../core/api/api_interceptor.dart';
 export '../../core/api/api_helper.dart';
+export '../../core/realtime/realtime_socket_service.dart';
 export '../../core/network/network_checker.dart';
 export '../../features/auth/di/auth_depedency.dart';
 export '../../features/chat/di/chat_dependency.dart';
