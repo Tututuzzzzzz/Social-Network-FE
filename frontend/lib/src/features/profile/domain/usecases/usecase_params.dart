@@ -1,10 +1,9 @@
-import 'package:equatable/equatable.dart';
+import 'get_profile_usecase.dart' as get_profile_params;
+import 'get_user_posts_usecase.dart' as get_user_posts_params;
+import 'update_profile_usecase.dart' as update_profile_params;
+import 'update_avatar_usecase.dart' as update_avatar_params;
 
-class ProfileQueryParams extends Equatable {
-  final int page;
-
-  const ProfileQueryParams({this.page = 1});
-
-  @override
-  List<Object?> get props => [page];
-}
+typedef ProfileParams = get_profile_params.Params;
+typedef GetUserPostsParams = get_user_posts_params.Params;
+typedef UpdateProfileParams = update_profile_params.Params;
+typedef UpdateAvatarParams = update_avatar_params.Params;

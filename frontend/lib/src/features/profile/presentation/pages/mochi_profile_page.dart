@@ -1,306 +1,359 @@
+import 'dart:async';
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../configs/injector/injector_conf.dart';
-import '../../../../widgets/feature_page_scaffold.dart';
+import '../../../../core/api/api_constants.dart';
+import '../../../../core/cache/hive_local_storage.dart';
+import '../../../../core/cache/secure_local_storage.dart';
+import '../../../../core/utils/url_normalizer.dart';
+import '../../../../routes/app_route_path.dart';
+import '../../data/models/profile_model.dart';
 import '../../domain/entities/profile_entity.dart';
+import '../../domain/usecases/get_user_posts_usecase.dart';
+import '../../domain/usecases/usecase_params.dart';
 import '../bloc/profile/profile_bloc.dart';
+import '../widgets/mochi_profile_sections.dart';
 
-class MochiProfilePage extends StatelessWidget {
+class MochiProfilePage extends StatefulWidget {
   const MochiProfilePage({super.key});
 
-  String _compactCount(int value) {
-    if (value < 1000) {
-      return '$value';
-    }
-    if (value < 1000000) {
-      return '${(value / 1000).toStringAsFixed(1)}K';
-    }
-    return '${(value / 1000000).toStringAsFixed(1)}M';
-  }
-
-  Widget _buildAvatar(ProfileEntity profile) {
-    final displayText = profile.displayName.isNotEmpty
-        ? profile.displayName
-        : profile.username;
-    final initial = displayText.isNotEmpty
-        ? displayText.substring(0, 1).toUpperCase()
-        : 'U';
-
-    if (profile.avatarUrl.isEmpty) {
-      return CircleAvatar(
-        radius: 38,
-        child: Text(
-          initial,
-          style: const TextStyle(fontWeight: FontWeight.w700),
-        ),
-      );
-    }
-
-    return CircleAvatar(
-      radius: 38,
-      backgroundImage: NetworkImage(profile.avatarUrl),
-      onBackgroundImageError: (error, stackTrace) {},
-    );
-  }
-
-  Widget _buildHeader(BuildContext context, ProfileEntity profile) {
-    final displayName = profile.displayName.isNotEmpty
-        ? profile.displayName
-        : profile.username;
-    final username = profile.username.isNotEmpty ? '@${profile.username}' : '';
-
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildAvatar(profile),
-                const SizedBox(width: 14),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        displayName,
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                      if (username.isNotEmpty)
-                        Padding(
-                          padding: const EdgeInsets.only(top: 2),
-                          child: Text(
-                            username,
-                            style: Theme.of(context).textTheme.bodyMedium
-                                ?.copyWith(color: Colors.grey[700]),
-                          ),
-                        ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            if (profile.bio.isNotEmpty) ...[
-              const SizedBox(height: 14),
-              Text(profile.bio, style: Theme.of(context).textTheme.bodyMedium),
-            ],
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                Expanded(
-                  child: _StatCard(
-                    label: 'Posts',
-                    value: _compactCount(profile.postsCount),
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: _StatCard(
-                    label: 'Friends',
-                    value: _compactCount(profile.friendsCount),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildPostGrid(List<ProfilePostPreview> posts) {
-    return GridView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: posts.length,
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 3,
-        crossAxisSpacing: 8,
-        mainAxisSpacing: 8,
-        childAspectRatio: 1,
-      ),
-      itemBuilder: (context, index) {
-        final item = posts[index];
-
-        return ClipRRect(
-          borderRadius: BorderRadius.circular(12),
-          child: Stack(
-            children: [
-              Positioned.fill(
-                child: item.mediaUrl.isEmpty
-                    ? Container(
-                        color: const Color(0xFFE8EEF5),
-                        alignment: Alignment.center,
-                        child: const Icon(Icons.image_outlined),
-                      )
-                    : Image.network(
-                        item.mediaUrl,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) => Container(
-                          color: const Color(0xFFE8EEF5),
-                          alignment: Alignment.center,
-                          child: const Icon(Icons.broken_image_outlined),
-                        ),
-                      ),
-              ),
-              Positioned(
-                left: 6,
-                right: 6,
-                bottom: 6,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 6,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.black.withValues(alpha: 0.55),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Row(
-                    children: [
-                      const Icon(
-                        Icons.favorite_border,
-                        size: 12,
-                        color: Colors.white,
-                      ),
-                      const SizedBox(width: 4),
-                      Expanded(
-                        child: Text(
-                          '${item.likesCount}',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 11,
-                            fontWeight: FontWeight.w600,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
   @override
-  Widget build(BuildContext context) {
-    return BlocProvider<ProfileBloc>(
-      create: (_) => getIt<ProfileBloc>()..add(const ProfileFetchedEvent()),
-      child: BlocBuilder<ProfileBloc, ProfileState>(
-        builder: (context, state) {
-          final profile = state is ProfileSuccessState && state.items.isNotEmpty
-              ? state.items.first
-              : null;
-
-          return FeaturePageScaffold(
-            title: 'Mochi Profile',
-            isLoading:
-                state is ProfileInitialState || state is ProfileLoadingState,
-            isEmpty: state is ProfileSuccessState && profile == null,
-            emptyTitle: 'Profile is empty',
-            emptyMessage: 'No profile data available from API.',
-            emptyIcon: Icons.person_outline,
-            errorTitle: state is ProfileFailureState
-                ? 'Cannot load profile'
-                : null,
-            errorMessage: state is ProfileFailureState ? state.message : null,
-            onRetry: () =>
-                context.read<ProfileBloc>().add(const ProfileFetchedEvent()),
-            actions: [
-              IconButton(
-                onPressed: () {},
-                icon: const Icon(Icons.edit_outlined),
-              ),
-            ],
-            body: profile == null
-                ? const SizedBox.shrink()
-                : ListView(
-                    padding: const EdgeInsets.fromLTRB(12, 12, 12, 24),
-                    children: [
-                      _buildHeader(context, profile),
-                      const SizedBox(height: 14),
-                      Row(
-                        children: [
-                          Text(
-                            'Posts',
-                            style: Theme.of(context).textTheme.titleMedium
-                                ?.copyWith(fontWeight: FontWeight.w700),
-                          ),
-                          const Spacer(),
-                          Text(
-                            '${profile.posts.length} shown',
-                            style: Theme.of(context).textTheme.bodySmall,
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 10),
-                      if (profile.posts.isEmpty)
-                        Container(
-                          padding: const EdgeInsets.symmetric(vertical: 24),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFF4F7FB),
-                            borderRadius: BorderRadius.circular(14),
-                          ),
-                          alignment: Alignment.center,
-                          child: Text(
-                            'No posts published yet.',
-                            style: Theme.of(context).textTheme.bodyMedium,
-                          ),
-                        )
-                      else
-                        _buildPostGrid(profile.posts),
-                    ],
-                  ),
-          );
-        },
-      ),
-    );
-  }
+  State<MochiProfilePage> createState() => _MochiProfilePageState();
 }
 
-class _StatCard extends StatelessWidget {
-  final String label;
-  final String value;
+class _MochiProfilePageState extends State<MochiProfilePage> {
+  ProfileEntity? _cachedProfile;
+  String _currentUserId = '';
+  List<String> _userPostImages = const [];
+  Set<String> _multiImageOverlayUrls = const {};
 
-  const _StatCard({required this.label, required this.value});
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _loadProfile());
+  }
+
+  Future<void> _loadProfile() async {
+    if (!mounted) {
+      return;
+    }
+
+    if (_currentUserId.trim().isEmpty) {
+      _currentUserId = await _resolveCurrentUserId();
+    }
+
+    if (!mounted) {
+      return;
+    }
+
+    if (_currentUserId.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Không tìm thấy user_id đăng nhập')),
+      );
+      return;
+    }
+
+    await _loadCachedProfile();
+    await _loadCachedUserPosts();
+
+    context.read<ProfileBloc>().add(
+      ProfileGetEvent(ProfileParams(userId: _currentUserId)),
+    );
+
+    unawaited(_loadUserPosts());
+  }
+
+  Future<void> _loadCachedProfile() async {
+    final localStorage = getIt<HiveLocalStorage>();
+    final cached = await localStorage.load(
+      key: 'profile_$_currentUserId',
+      boxName: 'cache',
+    );
+
+    if (!mounted || cached is! Map) {
+      return;
+    }
+
+    try {
+      final model = ProfileModel.fromJson(Map<String, dynamic>.from(cached));
+      setState(() {
+        _cachedProfile = model;
+      });
+    } catch (_) {
+      // Ignore invalid cache format.
+    }
+  }
+
+  Future<void> _loadCachedUserPosts() async {
+    final localStorage = getIt<HiveLocalStorage>();
+    final cached = await localStorage.load(
+      key: 'user_posts_${_currentUserId}_1_60',
+      boxName: 'cache',
+    );
+
+    if (!mounted || cached is! List) {
+      return;
+    }
+
+    final postMaps = cached
+        .whereType<Map>()
+        .map((e) => Map<String, dynamic>.from(e))
+        .toList();
+
+    final (images, overlays) = _extractRepresentativeImages(postMaps);
+    if (images.isEmpty && overlays.isEmpty) {
+      return;
+    }
+
+    setState(() {
+      _userPostImages = images;
+      _multiImageOverlayUrls = overlays;
+    });
+  }
+
+  Future<void> _loadUserPosts() async {
+    final useCase = getIt<GetUserPostsUseCase>();
+    final result = await useCase.call(
+      GetUserPostsParams(userId: _currentUserId, page: 1, limit: 60),
+    );
+
+    if (!mounted) {
+      return;
+    }
+
+    result.fold((_) {}, (posts) {
+      final postMaps = posts
+          .map(
+            (post) => {
+              'media': post.media
+                  .map((m) => {'mimeType': m.mimeType, 'mediaUrl': m.mediaUrl})
+                  .toList(),
+            },
+          )
+          .toList();
+
+      final (repImages, multiUrls) = _extractRepresentativeImages(postMaps);
+
+      setState(() {
+        _userPostImages = repImages;
+        _multiImageOverlayUrls = multiUrls;
+      });
+    });
+  }
+
+  (List<String>, Set<String>) _extractRepresentativeImages(
+    List<Map<String, dynamic>> postMaps,
+  ) {
+    final List<String> repImages = <String>[];
+    final Set<String> multiUrls = <String>{};
+
+    for (final post in postMaps) {
+      final medias =
+          (post['media'] as List?)
+              ?.whereType<Map>()
+              .map((e) => Map<String, dynamic>.from(e))
+              .toList() ??
+          const <Map<String, dynamic>>[];
+
+      final postImageUrls = medias
+          .where(
+            (media) =>
+                (media['mimeType']?.toString().toLowerCase().startsWith(
+                      'image/',
+                    ) ??
+                    false) ||
+                _isLikelyImageUrl(media['mediaUrl']?.toString()),
+          )
+          .map((media) => (media['mediaUrl'] ?? '').toString().trim())
+          .where((raw) => raw.isNotEmpty)
+          .toList();
+
+      if (postImageUrls.isEmpty) continue;
+
+      final first = _normalizeMediaUrl(postImageUrls.first);
+      if (first.isEmpty) continue;
+
+      repImages.add(first);
+      if (postImageUrls.length > 1) {
+        multiUrls.add(first);
+      }
+    }
+
+    return (repImages, multiUrls);
+  }
+
+  bool _isLikelyImageUrl(String? input) {
+    final raw = (input ?? '').trim();
+    if (raw.isEmpty) {
+      return false;
+    }
+
+    final uri = Uri.tryParse(raw);
+    final path = (uri?.path ?? raw).toLowerCase();
+    return path.endsWith('.jpg') ||
+        path.endsWith('.jpeg') ||
+        path.endsWith('.png') ||
+        path.endsWith('.webp') ||
+        path.endsWith('.gif');
+  }
+
+  String _normalizeMediaUrl(String input) {
+    final raw = input.trim();
+    if (raw.isEmpty) {
+      return '';
+    }
+
+    final apiUri = Uri.parse(ApiConstants.baseUrl);
+
+    var normalized = raw;
+    if (!raw.startsWith('http://') && !raw.startsWith('https://')) {
+      final origin =
+          '${apiUri.scheme}://${apiUri.host}${apiUri.hasPort ? ':${apiUri.port}' : ''}';
+      normalized = raw.startsWith('/') ? '$origin$raw' : '$origin/$raw';
+    }
+
+    return normalizeClientNetworkUrl(normalized);
+  }
+
+  Future<String> _resolveCurrentUserId() async {
+    final secureStorage = getIt<SecureLocalStorage>();
+    final storedUserId = await secureStorage.load(key: 'user_id') as String?;
+    final secureUserId = (storedUserId ?? '').trim();
+    if (secureUserId.isNotEmpty) {
+      return secureUserId;
+    }
+
+    final localStorage = getIt<HiveLocalStorage>();
+    final cachedUser = await localStorage.load(key: 'user', boxName: 'cache');
+    if (cachedUser is Map) {
+      final map = cachedUser.map(
+        (key, value) => MapEntry(key.toString(), value),
+      );
+      final userId = (map['_id'] ?? map['id'] ?? '').toString().trim();
+      if (userId.isNotEmpty) {
+        await secureStorage.save(key: 'user_id', value: userId);
+        return userId;
+      }
+    }
+
+    final accessToken =
+        await secureStorage.load(key: 'access_token') as String?;
+    final tokenUserId = _extractUserIdFromAccessToken(accessToken);
+    if ((tokenUserId ?? '').isNotEmpty) {
+      await secureStorage.save(key: 'user_id', value: tokenUserId);
+      return tokenUserId!;
+    }
+
+    return '';
+  }
+
+  String? _extractUserIdFromAccessToken(String? accessToken) {
+    final token = (accessToken ?? '').trim();
+    if (token.isEmpty) {
+      return null;
+    }
+    try {
+      final parts = token.split('.');
+      if (parts.length < 2) return null;
+
+      var payload = parts[1];
+      // Base64 padding correction
+      while (payload.length % 4 != 0) {
+        payload += '=';
+      }
+
+      final decoded = utf8.decode(base64Url.decode(payload));
+      final Map<String, dynamic> map = json.decode(decoded);
+
+      // Try common claim names that may hold the user id
+      final possible =
+          map['userId'] ??
+          map['id'] ??
+          map['sub'] ??
+          map['_id'] ??
+          map['user'] ??
+          map['user_id'];
+      if (possible == null) return null;
+
+      if (possible is String && possible.trim().isNotEmpty)
+        return possible.trim();
+      if (possible is num) return possible.toString();
+      if (possible is Map) {
+        final nested = possible['_id'] ?? possible['id'];
+        if (nested != null) return nested.toString();
+      }
+
+      return null;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Future<void> _refresh() async {
+    await _loadProfile();
+    await Future<void>.delayed(const Duration(milliseconds: 100));
+  }
+
+  Future<void> _openEditProfile() async {
+    final updated = await context.pushNamed<bool>(AppRoutes.editProfile.name);
+    if (updated == true && mounted) {
+      await _refresh();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: const Color(0xFFF3F6FA),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-        child: Column(
-          children: [
-            Text(
-              value,
-              style: Theme.of(
-                context,
-              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
-            ),
-            const SizedBox(height: 2),
-            Text(
-              label,
-              style: Theme.of(
-                context,
-              ).textTheme.bodySmall?.copyWith(color: Colors.grey[700]),
-            ),
-          ],
-        ),
-      ),
+    return BlocConsumer<ProfileBloc, ProfileState>(
+      listener: (context, state) {
+        if (state is ProfileLoadedState) {
+          _cachedProfile = state.profile;
+        }
+
+        if (state is ProfileFailureState) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(state.message)));
+        }
+      },
+      builder: (context, state) {
+        final profile = state is ProfileLoadedState
+            ? state.profile
+            : _cachedProfile;
+
+        if (profile == null && state is ProfileFailureState) {
+          return MochiProfileErrorView(onRetry: _refresh);
+        }
+
+        if (profile == null) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        final profilePreviewImages = profile.posts
+            .map((item) => _normalizeMediaUrl(item.mediaUrl))
+            .where((url) => url.trim().isNotEmpty)
+            .toList();
+        final usingRealPostImages = _userPostImages.isNotEmpty;
+        final images = usingRealPostImages
+            ? _userPostImages
+            : (profilePreviewImages.isNotEmpty
+                  ? profilePreviewImages
+                  : const <String>[]);
+        final overlayUrls = usingRealPostImages
+            ? _multiImageOverlayUrls
+            : const <String>{};
+
+        return MochiProfileBody(
+          profile: profile,
+          images: images,
+          overlayImageUrls: overlayUrls,
+          onEditProfile: _openEditProfile,
+          onRefresh: _refresh,
+        );
+      },
     );
   }
 }

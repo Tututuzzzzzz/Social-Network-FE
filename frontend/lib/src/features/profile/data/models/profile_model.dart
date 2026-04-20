@@ -1,62 +1,57 @@
 import '../../domain/entities/profile_entity.dart';
 
 class ProfileModel extends ProfileEntity {
-  const ProfileModel({
-    required super.id,
-    super.displayName,
-    super.username,
-    super.bio,
-    super.avatarUrl,
-    super.postsCount,
-    super.friendsCount,
-    super.posts,
-  });
+  ProfileModel({
+    required String id,
+    String? username,
+    String? displayName,
+    String? bio,
+    String? avatarUrl,
+    int postsCount = 0,
+    int friendsCount = 0,
+    List<ProfilePostPreview> posts = const [],
+  }) : super(
+         id: id,
+         username: username,
+         displayName: displayName,
+         bio: bio,
+         avatarUrl: avatarUrl,
+         postsCount: postsCount,
+         friendsCount: friendsCount,
+         posts: posts,
+       );
 
   factory ProfileModel.fromJson(Map<String, dynamic> json) {
-    final postsRaw = json['posts'];
-    final posts = postsRaw is List
-        ? postsRaw
-              .whereType<Map>()
-              .map(
-                (item) => ProfilePostPreview(
-                  id: item['id']?.toString() ?? '',
-                  mediaUrl: item['mediaUrl']?.toString() ?? '',
-                  caption: item['caption']?.toString() ?? '',
-                  likesCount: (item['likesCount'] as num?)?.toInt() ?? 0,
-                ),
-              )
-              .toList()
-        : const <ProfilePostPreview>[];
-
     return ProfileModel(
-      id: json['id']?.toString() ?? '',
-      displayName: json['displayName']?.toString() ?? '',
-      username: json['username']?.toString() ?? '',
-      bio: json['bio']?.toString() ?? '',
-      avatarUrl: json['avatarUrl']?.toString() ?? '',
+      id: json['id'] as String,
+      username: json['username'] as String?,
+      displayName: json['displayName'] as String?,
+      bio: json['bio'] as String?,
+      avatarUrl: json['avatarUrl'] as String?,
       postsCount: (json['postsCount'] as num?)?.toInt() ?? 0,
       friendsCount: (json['friendsCount'] as num?)?.toInt() ?? 0,
-      posts: posts,
+      posts: (json['posts'] as List<dynamic>? ?? [])
+          .whereType<Map>()
+          .map(
+            (e) => ProfilePostPreview(
+              id: e['id'] as String,
+              mediaUrl: e['mediaUrl'] as String? ?? '',
+            ),
+          )
+          .toList(),
     );
   }
 
-  Map<String, dynamic> toJson() => {
-    'id': id,
-    'displayName': displayName,
-    'username': username,
-    'bio': bio,
-    'avatarUrl': avatarUrl,
-    'postsCount': postsCount,
-    'friendsCount': friendsCount,
-    'posts': posts
-        .map(
-          (item) => {
-            'id': item.id,
-            'mediaUrl': item.mediaUrl,
-            'caption': item.caption,
-            'likesCount': item.likesCount,
-          },
-        )
-        .toList(),
-  };
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'username': username,
+      'displayName': displayName,
+      'bio': bio,
+      'avatarUrl': avatarUrl,
+      'postsCount': postsCount,
+      'friendsCount': friendsCount,
+      'posts': posts.map((e) => {'id': e.id, 'mediaUrl': e.mediaUrl}).toList(),
+    };
+  }
 }

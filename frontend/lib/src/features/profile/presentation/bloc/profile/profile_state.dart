@@ -7,27 +7,43 @@ sealed class ProfileState extends Equatable {
   List<Object?> get props => [];
 }
 
-class ProfileInitialState extends ProfileState {
-  const ProfileInitialState();
-}
+class ProfileInitialState extends ProfileState {}
 
-class ProfileLoadingState extends ProfileState {
-  const ProfileLoadingState();
-}
+class ProfileLoadingState extends ProfileState {}
 
-class ProfileSuccessState extends ProfileState {
-  final List<ProfileEntity> items;
+class ProfileLoadedState extends ProfileState {
+  final ProfileEntity profile;
 
-  const ProfileSuccessState(this.items);
+  const ProfileLoadedState(this.profile);
 
   @override
-  List<Object?> get props => [items];
+  List<Object?> get props => [profile];
 }
 
 class ProfileFailureState extends ProfileState {
   final String message;
 
   const ProfileFailureState(this.message);
+
+  @override
+  List<Object?> get props => [message];
+}
+
+class ProfileActionLoadingState extends ProfileState {}
+
+class ProfileActionSuccessState extends ProfileState {
+  final String message;
+
+  const ProfileActionSuccessState(this.message);
+
+  @override
+  List<Object?> get props => [message];
+}
+
+class ProfileActionFailureState extends ProfileState {
+  final String message;
+
+  const ProfileActionFailureState(this.message);
 
   @override
   List<Object?> get props => [message];

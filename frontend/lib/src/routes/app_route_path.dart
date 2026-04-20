@@ -10,6 +10,7 @@ enum AppRoutes {
   reels(path: '/reels'),
   chat(path: '/chat'),
   chatMochiChatRoom(path: '/chat/room/:threadId'),
+  editProfile(path: '/profile/edit'),
   profile(path: '/profile');
 
   final String path;

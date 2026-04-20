@@ -3,36 +3,29 @@ import 'package:equatable/equatable.dart';
 class ProfilePostPreview extends Equatable {
   final String id;
   final String mediaUrl;
-  final String caption;
-  final int likesCount;
 
-  const ProfilePostPreview({
-    required this.id,
-    this.mediaUrl = '',
-    this.caption = '',
-    this.likesCount = 0,
-  });
+  ProfilePostPreview({required this.id, this.mediaUrl = ''});
 
   @override
-  List<Object?> get props => [id, mediaUrl, caption, likesCount];
+  List<Object?> get props => [id, mediaUrl];
 }
 
 class ProfileEntity extends Equatable {
   final String id;
-  final String displayName;
-  final String username;
-  final String bio;
-  final String avatarUrl;
+  final String? username;
+  final String? displayName;
+  final String? avatarUrl;
+  final String? bio;
   final int postsCount;
   final int friendsCount;
   final List<ProfilePostPreview> posts;
 
-  const ProfileEntity({
+  ProfileEntity({
     required this.id,
-    this.displayName = '',
-    this.username = '',
-    this.bio = '',
-    this.avatarUrl = '',
+    this.username,
+    this.displayName,
+    this.avatarUrl,
+    this.bio,
     this.postsCount = 0,
     this.friendsCount = 0,
     this.posts = const [],
@@ -41,10 +34,10 @@ class ProfileEntity extends Equatable {
   @override
   List<Object?> get props => [
     id,
-    displayName,
     username,
-    bio,
+    displayName,
     avatarUrl,
+    bio,
     postsCount,
     friendsCount,
     posts,
