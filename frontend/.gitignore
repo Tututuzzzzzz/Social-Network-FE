@@ -48,6 +48,7 @@ build/
 frontend/build/
 
 .env
+env/prod.json
 
 # Generated prototype mapping artifacts
 /prototype-*.json

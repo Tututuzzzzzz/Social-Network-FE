@@ -1,11 +1,19 @@
 import 'package:flutter/foundation.dart';
 
+import '../../configs/app_env_config.dart';
+
 class ApiConstants {
   static String get baseUrl {
+    final configuredBaseUrl = AppEnvConfig.apiBaseUrl.trim();
+    if (configuredBaseUrl.isNotEmpty) {
+      return configuredBaseUrl;
+    }
+
     // Android emulator cannot reach host services via localhost.
     if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
-      return 'http://localhost:3001/api';
+      return 'http://10.0.2.2:3001/api';
     }
+
     return 'http://localhost:3001/api';
   }
 
