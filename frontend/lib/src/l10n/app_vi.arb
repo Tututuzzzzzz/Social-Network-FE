@@ -262,4 +262,11 @@
   ,"@likesCountText": { "placeholders": { "count": {} } }
   ,"followAction": "Theo dõi"
   ,"recentSearchTitle": "Gần đây"
+  ,"friendRequestSent": "Đã gửi"
+  ,"friendRequestSendSuccess": "Đã gửi lời mời kết bạn"
+  ,"friendRequestSendError": "Không thể gửi lời mời kết bạn"
+  ,"acceptFriendRequest": "Chấp nhận"
+  ,"rejectFriendRequest": "Từ chối"
+  ,"notificationsTitle": "Thông báo"
+  ,"markAllAsRead": "Đọc tất cả"
 }

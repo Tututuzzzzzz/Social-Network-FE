@@ -35,7 +35,11 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     emit(AuthLoginLoadingState());
 
     final result = await _loginUseCase.call(
-      LoginParams(username: event.username, password: event.password),
+      LoginParams(
+        username: event.username,
+        password: event.password,
+        rememberMe: event.rememberMe,
+      ),
     );
 
     result.fold(

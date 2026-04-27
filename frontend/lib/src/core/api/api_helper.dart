@@ -47,6 +47,10 @@ class ApiHelper {
         return response.data;
       case 201:
         return response.data;
+      case 204:
+        return response.data is Map<String, dynamic>
+            ? response.data
+            : <String, dynamic>{};
       case 400:
         throw BadRequestException(response.data['message'].toString());
       case 401:

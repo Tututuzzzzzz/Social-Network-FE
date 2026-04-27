@@ -42,6 +42,10 @@ class AuthRepositoryImpl implements AuthRepository {
       if (resolvedUserId.isNotEmpty) {
         await _secureLocalStorage.save(key: "user_id", value: resolvedUserId);
       }
+      await _secureLocalStorage.save(
+        key: 'remember_me',
+        value: params.rememberMe ? 'true' : 'false',
+      );
       await _localStorage.save(
         key: "user",
         value: userModel.toJson(),
@@ -63,6 +67,8 @@ class AuthRepositoryImpl implements AuthRepository {
 
       await _secureLocalStorage.delete(key: "user_id");
       await _secureLocalStorage.delete(key: "access_token");
+      await _secureLocalStorage.delete(key: "refresh_token");
+      await _secureLocalStorage.delete(key: 'remember_me');
       await _localStorage.delete(key: "user", boxName: "cache");
 
       return Right(result);

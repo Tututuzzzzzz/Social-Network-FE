@@ -5,6 +5,7 @@ import '../data/repositories/friend_repository_impl.dart';
 import '../domain/usecases/get_friend_requests.dart';
 import '../domain/usecases/accept_friend_request.dart';
 import '../domain/usecases/reject_friend_request.dart';
+import '../domain/usecases/send_friend_request.dart';
 import '../presentation/bloc/friend_requests_bloc.dart';
 
 class FriendDependency {
@@ -26,6 +27,12 @@ class FriendDependency {
     if (!getIt.isRegistered<AcceptFriendRequest>()) {
       getIt.registerLazySingleton(
         () => AcceptFriendRequest(getIt<FriendRepositoryImpl>()),
+      );
+    }
+
+    if (!getIt.isRegistered<SendFriendRequest>()) {
+      getIt.registerLazySingleton(
+        () => SendFriendRequest(getIt<FriendRepositoryImpl>()),
       );
     }
 

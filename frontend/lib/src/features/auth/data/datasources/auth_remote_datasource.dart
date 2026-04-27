@@ -13,6 +13,7 @@ import '../models/user_model.dart';
 sealed class AuthRemoteDataSource {
   Future<UserModel> login(LoginModel model);
   Future<void> logout();
+  Future<String> refreshSession();
   Future<void> register(RegisterModel model);
 }
 
@@ -31,10 +32,17 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       );
 
       final accessToken = result['accessToken']?.toString() ?? '';
+      final refreshToken = result['refreshToken']?.toString() ?? '';
       if (accessToken.isEmpty) {
         throw ServerException();
       }
       await _secureLocalStorage.save(key: 'access_token', value: accessToken);
+      if (refreshToken.isNotEmpty) {
+        await _secureLocalStorage.save(
+          key: 'refresh_token',
+          value: refreshToken,
+        );
+      }
 
       final payload = result['user'] ?? result;
       final json = payload is Map<String, dynamic>
@@ -63,12 +71,59 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   @override
   Future<void> logout() async {
     try {
-      await _secureLocalStorage.delete(key: 'access_token');
-      await Future.delayed(const Duration(seconds: 1));
+      final refreshToken = await _secureLocalStorage.load(key: 'refresh_token');
+      try {
+        await _apiHelper.execute(
+          method: Method.post,
+          url: ApiConstants.logout,
+          data: {
+            if (refreshToken.trim().isNotEmpty)
+              'refreshToken': refreshToken.trim(),
+          },
+        );
+      } catch (_) {
+        // If the server session is already expired, local cleanup still proceeds.
+      }
       return;
     } catch (e) {
       logger.e(e);
       throw ServerException();
+    }
+  }
+
+  @override
+  Future<String> refreshSession() async {
+    try {
+      final refreshToken = await _secureLocalStorage.load(key: 'refresh_token');
+      if (refreshToken.trim().isEmpty) {
+        throw AuthException();
+      }
+
+      final result = await _apiHelper.execute(
+        method: Method.post,
+        url: ApiConstants.refresh,
+        data: {'refreshToken': refreshToken.trim()},
+      );
+
+      final accessToken = result['accessToken']?.toString() ?? '';
+      final nextRefreshToken = result['refreshToken']?.toString() ?? '';
+
+      if (accessToken.isEmpty) {
+        throw AuthException();
+      }
+
+      await _secureLocalStorage.save(key: 'access_token', value: accessToken);
+      if (nextRefreshToken.isNotEmpty) {
+        await _secureLocalStorage.save(
+          key: 'refresh_token',
+          value: nextRefreshToken,
+        );
+      }
+
+      return accessToken;
+    } catch (e) {
+      logger.e(e);
+      throw AuthException();
     }
   }
 

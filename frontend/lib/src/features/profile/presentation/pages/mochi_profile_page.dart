@@ -11,6 +11,7 @@ import '../../../../core/cache/hive_local_storage.dart';
 import '../../../../core/cache/secure_local_storage.dart';
 import '../../../../core/utils/url_normalizer.dart';
 import '../../../../routes/app_route_path.dart';
+import '../../../auth/presentation/bloc/auth/auth_bloc.dart';
 import '../../data/models/profile_model.dart';
 import '../../domain/entities/profile_entity.dart';
 import '../../domain/usecases/get_user_posts_usecase.dart';
@@ -305,55 +306,121 @@ class _MochiProfilePageState extends State<MochiProfilePage> {
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return BlocConsumer<ProfileBloc, ProfileState>(
-      listener: (context, state) {
-        if (state is ProfileLoadedState) {
-          _cachedProfile = state.profile;
-        }
-
-        if (state is ProfileFailureState) {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text(state.message)));
-        }
-      },
-      builder: (context, state) {
-        final profile = state is ProfileLoadedState
-            ? state.profile
-            : _cachedProfile;
-
-        if (profile == null && state is ProfileFailureState) {
-          return MochiProfileErrorView(onRetry: _refresh);
-        }
-
-        if (profile == null) {
-          return const Center(child: CircularProgressIndicator());
-        }
-
-        final profilePreviewImages = profile.posts
-            .map((item) => _normalizeMediaUrl(item.mediaUrl))
-            .where((url) => url.trim().isNotEmpty)
-            .toList();
-        final usingRealPostImages = _userPostImages.isNotEmpty;
-        final images = usingRealPostImages
-            ? _userPostImages
-            : (profilePreviewImages.isNotEmpty
-                  ? profilePreviewImages
-                  : const <String>[]);
-        final overlayUrls = usingRealPostImages
-            ? _multiImageOverlayUrls
-            : const <String>{};
-
-        return MochiProfileBody(
-          profile: profile,
-          images: images,
-          overlayImageUrls: overlayUrls,
-          onEditProfile: _openEditProfile,
-          onRefresh: _refresh,
+  Future<void> _openMenu() async {
+    final selected = await showModalBottomSheet<String>(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (sheetContext) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(12, 10, 12, 16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 42,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFD5D7DD),
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                ListTile(
+                  leading: const Icon(Icons.logout, color: Colors.redAccent),
+                  title: const Text(
+                    'Đăng xuất',
+                    style: TextStyle(fontWeight: FontWeight.w600),
+                  ),
+                  onTap: () => Navigator.of(sheetContext).pop('logout'),
+                ),
+              ],
+            ),
+          ),
         );
       },
+    );
+
+    if (!mounted || selected != 'logout') {
+      return;
+    }
+
+    context.read<AuthBloc>().add(AuthLogoutEvent());
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MultiBlocListener(
+      listeners: [
+        BlocListener<AuthBloc, AuthState>(
+          listener: (context, state) {
+            if (state is AuthLogoutFailureState) {
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(SnackBar(content: Text(state.message)));
+            }
+
+            if (state is AuthLogoutSuccessState) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Đăng xuất thành công')),
+              );
+              context.go(AppRoutes.login.path);
+            }
+          },
+        ),
+      ],
+      child: BlocConsumer<ProfileBloc, ProfileState>(
+        listener: (context, state) {
+          if (state is ProfileLoadedState) {
+            _cachedProfile = state.profile;
+          }
+
+          if (state is ProfileFailureState) {
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text(state.message)));
+          }
+        },
+        builder: (context, state) {
+          final profile = state is ProfileLoadedState
+              ? state.profile
+              : _cachedProfile;
+
+          if (profile == null && state is ProfileFailureState) {
+            return MochiProfileErrorView(onRetry: _refresh);
+          }
+
+          if (profile == null) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          final profilePreviewImages = profile.posts
+              .map((item) => _normalizeMediaUrl(item.mediaUrl))
+              .where((url) => url.trim().isNotEmpty)
+              .toList();
+          final usingRealPostImages = _userPostImages.isNotEmpty;
+          final images = usingRealPostImages
+              ? _userPostImages
+              : (profilePreviewImages.isNotEmpty
+                    ? profilePreviewImages
+                    : const <String>[]);
+          final overlayUrls = usingRealPostImages
+              ? _multiImageOverlayUrls
+              : const <String>{};
+
+          return MochiProfileBody(
+            profile: profile,
+            images: images,
+            overlayImageUrls: overlayUrls,
+            onEditProfile: _openEditProfile,
+            onOpenMenu: _openMenu,
+            onRefresh: _refresh,
+          );
+        },
+      ),
     );
   }
 }

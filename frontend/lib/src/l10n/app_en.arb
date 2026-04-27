@@ -262,4 +262,11 @@
   ,"@likesCountText": { "placeholders": { "count": {} } }
   ,"followAction": "Follow"
   ,"recentSearchTitle": "Recent"
+  ,"friendRequestSent": "Sent"
+  ,"friendRequestSendSuccess": "Friend request sent"
+  ,"friendRequestSendError": "Cannot send friend request"
+  ,"acceptFriendRequest": "Accept"
+  ,"rejectFriendRequest": "Reject"
+  ,"notificationsTitle": "Notifications"
+  ,"markAllAsRead": "Read all"
 }

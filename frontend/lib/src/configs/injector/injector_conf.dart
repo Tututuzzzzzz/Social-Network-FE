@@ -11,7 +11,9 @@ void configureDepedencies() {
   AuthDepedency.init();
   PostDepedency.init();
   ChatDependency.init();
+  FriendDependency.init();
   MessageDependency.init();
+  NotificationsDepedency.init();
   ProfileDependency.init();
   ReelsDependency.init();
 

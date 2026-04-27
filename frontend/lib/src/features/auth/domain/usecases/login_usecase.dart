@@ -30,8 +30,13 @@ class AuthLoginUseCase implements UseCase<UserEntity, Params> {
 class Params extends Equatable {
   final String username;
   final String password;
-  const Params({required this.username, required this.password});
+  final bool rememberMe;
+  const Params({
+    required this.username,
+    required this.password,
+    this.rememberMe = false,
+  });
 
   @override
-  List<Object?> get props => [username, password];
+  List<Object?> get props => [username, password, rememberMe];
 }

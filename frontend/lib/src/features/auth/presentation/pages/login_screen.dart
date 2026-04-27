@@ -195,6 +195,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                     AuthLoginEvent(
                                       _usernameController.text.trim(),
                                       _passwordController.text,
+                                      rememberMe: _rememberMe,
                                     ),
                                   );
                                 },
