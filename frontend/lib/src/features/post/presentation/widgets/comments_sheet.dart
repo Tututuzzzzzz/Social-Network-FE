@@ -11,6 +11,7 @@ class CommentsSheet extends StatefulWidget {
     super.key,
     required this.initialPost,
     required this.currentUserId,
+    this.onCommentsCountChanged,
     this.highlightedCommentId,
     this.initialReplyCommentId,
     this.autoFocusComposer = false,
@@ -18,6 +19,7 @@ class CommentsSheet extends StatefulWidget {
 
   final PostEntity initialPost;
   final String? currentUserId;
+  final ValueChanged<int>? onCommentsCountChanged;
   final String? highlightedCommentId;
   final String? initialReplyCommentId;
   final bool autoFocusComposer;
@@ -74,6 +76,7 @@ class _CommentsSheetState extends State<CommentsSheet>
           setState(() {
             _comments = List<PostCommentEntity>.from(data.comments);
           });
+          widget.onCommentsCountChanged?.call(data.commentsCount);
         },
       );
     } finally {
@@ -200,11 +203,13 @@ class _CommentsSheetState extends State<CommentsSheet>
         },
         (comment) {
           if (!mounted) return;
+          final nextCount = _comments.length + 1;
           _controller.clear();
           setState(() {
             _comments = [..._comments, comment];
             _replyTarget = null;
           });
+          widget.onCommentsCountChanged?.call(nextCount);
           FocusScope.of(context).unfocus();
         },
       );

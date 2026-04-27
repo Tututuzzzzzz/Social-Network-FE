@@ -17,6 +17,7 @@ class PostCard extends StatelessWidget {
     this.isVerified = false,
     this.isLikedByMe = false,
     this.likeCountOverride,
+    this.commentCountOverride,
     this.onLike,
     this.onComment,
     this.onShare,
@@ -26,6 +27,7 @@ class PostCard extends StatelessWidget {
     this.followingLabel,
     this.followLabel,
     this.isFollowing = true,
+    this.showFollowButton = true,
     this.onFollowTap,
     this.onAuthorTap,
   });
@@ -38,6 +40,7 @@ class PostCard extends StatelessWidget {
   final bool isVerified;
   final bool isLikedByMe;
   final int? likeCountOverride;
+  final int? commentCountOverride;
   final VoidCallback? onLike;
   final VoidCallback? onComment;
   final VoidCallback? onShare;
@@ -47,6 +50,7 @@ class PostCard extends StatelessWidget {
   final String? followingLabel;
   final String? followLabel;
   final bool isFollowing;
+  final bool showFollowButton;
   final VoidCallback? onFollowTap;
   final VoidCallback? onAuthorTap;
 
@@ -54,7 +58,7 @@ class PostCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final likesCount = likeCountOverride ?? post.likes.length;
-    final commentCount = post.commentsCount;
+    final commentCount = commentCountOverride ?? post.commentsCount;
     final imageUrls = _resolveImageUrls();
 
     final displayName = (authorName != null && authorName!.trim().isNotEmpty)
@@ -142,13 +146,16 @@ class PostCard extends StatelessWidget {
                     ),
                   ),
                 ),
-                FollowStatusChip(
-                  isFollowing: isFollowing,
-                  followingText: followingLabel ?? context.l10n.followingStatus,
-                  followText: followLabel ?? context.l10n.followAction,
-                  onTap: onFollowTap,
-                ),
-                const SizedBox(width: 4),
+                if (showFollowButton) ...[
+                  FollowStatusChip(
+                    isFollowing: isFollowing,
+                    followingText:
+                        followingLabel ?? context.l10n.followingStatus,
+                    followText: followLabel ?? context.l10n.followAction,
+                    onTap: onFollowTap,
+                  ),
+                  const SizedBox(width: 4),
+                ],
                 IconButton(
                   visualDensity: VisualDensity.compact,
                   splashRadius: 18,

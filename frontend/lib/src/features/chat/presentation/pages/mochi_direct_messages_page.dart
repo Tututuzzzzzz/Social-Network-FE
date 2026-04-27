@@ -1,17 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../configs/injector/injector_conf.dart';
 import '../../../../core/api/api_constants.dart';
 import '../../../../core/api/api_helper.dart';
-import '../../../friend/presentation/pages/friend_picker_bottom_sheet.dart';
 import '../../../../routes/app_route_path.dart';
+import '../../../friend/presentation/pages/friend_picker_bottom_sheet.dart';
 import '../../domain/entities/chat_entity.dart';
 import '../../domain/usecases/create_direct_conversation_usecase.dart';
 import '../../domain/usecases/usecase_params.dart';
 import '../bloc/chat/chat_bloc.dart';
+import '../widgets/mochi_dm_conversation_item.dart';
+import '../widgets/mochi_dm_pending_header.dart';
+import '../widgets/mochi_dm_search_input.dart';
+import '../widgets/mochi_dm_section_header.dart';
+import '../widgets/mochi_dm_status_view.dart';
+import '../widgets/mochi_dm_styles.dart';
+import '../widgets/mochi_dm_top_bar.dart';
 
 class MochiDirectMessagesPage extends StatefulWidget {
   const MochiDirectMessagesPage({super.key});
@@ -23,13 +29,6 @@ class MochiDirectMessagesPage extends StatefulWidget {
 
 class _MochiDirectMessagesPageState extends State<MochiDirectMessagesPage> {
   static const String _username = 'hoangtu_1';
-  static const List<Color> _avatarColors = [
-    Color(0xFFE8EBF4),
-    Color(0xFFEDE4EC),
-    Color(0xFFE5F0E7),
-    Color(0xFFF2EAD9),
-    Color(0xFFE7E6F6),
-  ];
 
   String _query = '';
   bool _showPendingThreads = true;
@@ -165,162 +164,21 @@ class _MochiDirectMessagesPageState extends State<MochiDirectMessagesPage> {
     return trimmed.substring(0, 1).toUpperCase();
   }
 
-  Widget _buildTopBar(BuildContext blocContext) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(8, 8, 8, 6),
-      child: SizedBox(
-        height: 44,
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: const [
-                Text(
-                  _username,
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFF111113),
-                  ),
-                ),
-                SizedBox(width: 2),
-                Icon(
-                  Icons.keyboard_arrow_down_rounded,
-                  size: 20,
-                  color: Color(0xFF111113),
-                ),
-              ],
-            ),
-            Positioned(
-              right: 0,
-              child: IconButton(
-                onPressed: () => _openFriendsPicker(blocContext),
-                icon: const Icon(Icons.add, size: 24),
-                color: const Color(0xFF111113),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSearchInput() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: TextField(
-        onChanged: (value) => setState(() => _query = value.trim()),
-        decoration: InputDecoration(
-          hintText: 'Search',
-          hintStyle: const TextStyle(
-            color: Color(0xFF8E8E93),
-            fontSize: 14,
-            fontWeight: FontWeight.w500,
-          ),
-          prefixIcon: const Icon(Icons.search, color: Color(0xFF8E8E93)),
-          filled: true,
-          fillColor: const Color(0xFFF2F2F5),
-          contentPadding: const EdgeInsets.symmetric(vertical: 14),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(18),
-            borderSide: BorderSide.none,
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(18),
-            borderSide: const BorderSide(color: Color(0xFFCFD3DC)),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSectionHeader(int pendingCount) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 14, 16, 2),
-      child: Row(
-        children: [
-          const Text(
-            'Tin nhắn',
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.w700,
-              color: Color(0xFF111113),
-            ),
-          ),
-          const Spacer(),
-          TextButton(
-            onPressed: pendingCount == 0
-                ? null
-                : () => setState(
-                    () => _showPendingThreads = !_showPendingThreads,
-                  ),
-            style: TextButton.styleFrom(
-              foregroundColor: const Color(0xFF6E9BFF),
-              padding: EdgeInsets.zero,
-              minimumSize: Size.zero,
-              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-            ),
-            child: Text(
-              pendingCount == 0
-                  ? 'Tin nhắn đang chờ'
-                  : 'Tin nhắn đang chờ ($pendingCount)',
-              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildPendingHeader() {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
-      child: Row(
-        children: [
-          const Text(
-            'Tin nhắn đang chờ',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w700,
-              color: Color(0xFF111113),
-            ),
-          ),
-          const Spacer(),
-          TextButton(
-            onPressed: () =>
-                setState(() => _showPendingThreads = !_showPendingThreads),
-            style: TextButton.styleFrom(
-              foregroundColor: const Color(0xFF6E9BFF),
-              padding: EdgeInsets.zero,
-              minimumSize: Size.zero,
-              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-            ),
-            child: Text(
-              _showPendingThreads ? 'Thu gọn' : 'Mở rộng',
-              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   Future<bool> _confirmDeleteDialog(String name) async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Xóa đoạn chat'),
-          content: Text('Bạn có muốn xóa đoạn chat với $name không?'),
+          title: const Text('Xoa doan chat'),
+          content: Text('Ban co muon xoa doan chat voi $name khong?'),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(false),
-              child: const Text('Hủy'),
+              child: const Text('Huy'),
             ),
             FilledButton(
               onPressed: () => Navigator.of(context).pop(true),
-              child: const Text('Xóa'),
+              child: const Text('Xoa'),
             ),
           ],
         );
@@ -350,202 +208,6 @@ class _MochiDirectMessagesPageState extends State<MochiDirectMessagesPage> {
     }
   }
 
-  Widget _buildConversationItem(
-    BuildContext context,
-    ChatEntity item,
-    int index,
-  ) {
-    final name = _displayName(item);
-
-    return Slidable(
-      key: ValueKey(item.id),
-      endActionPane: ActionPane(
-        motion: const DrawerMotion(),
-        extentRatio: 0.72,
-        children: [
-          SlidableAction(
-            onPressed: (_) {
-              context.read<ChatBloc>().add(ChatThreadPinToggledEvent(item.id));
-            },
-            backgroundColor: const Color(0xFF4B8EFF),
-            foregroundColor: Colors.white,
-            icon: item.isPinned ? Icons.push_pin : Icons.push_pin_outlined,
-            label: item.isPinned ? 'Bỏ ghim' : 'Ghim',
-          ),
-          SlidableAction(
-            onPressed: (_) {
-              context.read<ChatBloc>().add(
-                ChatThreadHiddenChangedEvent(item.id, isHidden: !item.isHidden),
-              );
-            },
-            backgroundColor: const Color(0xFF8E8E93),
-            foregroundColor: Colors.white,
-            icon: item.isHidden
-                ? Icons.visibility_outlined
-                : Icons.visibility_off_outlined,
-            label: item.isHidden ? 'Hiện' : 'Ẩn',
-          ),
-          SlidableAction(
-            onPressed: (_) async {
-              final chatBloc = context.read<ChatBloc>();
-              final confirmed = await _confirmDeleteDialog(name);
-              if (!mounted || !confirmed) {
-                return;
-              }
-              chatBloc.add(ChatThreadDeletedEvent(item.id));
-            },
-            backgroundColor: const Color(0xFFE84545),
-            foregroundColor: Colors.white,
-            icon: Icons.delete_outline,
-            label: 'Xóa',
-          ),
-        ],
-      ),
-      child: InkWell(
-        onTap: () => _openChatThread(item, context),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Container(
-                width: 52,
-                height: 52,
-                decoration: BoxDecoration(
-                  color: _avatarColors[index % _avatarColors.length],
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: const Color(0xFFDCDDDF),
-                    width: 1.1,
-                  ),
-                ),
-                alignment: Alignment.center,
-                child: Text(
-                  _initial(name),
-                  style: const TextStyle(
-                    fontSize: 17,
-                    fontWeight: FontWeight.w700,
-                    color: Color(0xFF2A2B2F),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Flexible(
-                          child: Text(
-                            name,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                              fontSize: 17,
-                              fontWeight: FontWeight.w600,
-                              color: Color(0xFF1A1A1D),
-                              height: 1,
-                            ),
-                          ),
-                        ),
-                        if (item.isOnline)
-                          Container(
-                            margin: const EdgeInsets.only(left: 6),
-                            width: 7,
-                            height: 7,
-                            decoration: const BoxDecoration(
-                              color: Color(0xFF1EC85D),
-                              shape: BoxShape.circle,
-                            ),
-                          ),
-                        if (item.isPinned)
-                          const Padding(
-                            padding: EdgeInsets.only(left: 6),
-                            child: Icon(
-                              Icons.push_pin,
-                              size: 14,
-                              color: Color(0xFF4B8EFF),
-                            ),
-                          ),
-                      ],
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      _displayPreview(item),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        color: Color(0xFF7C7E84),
-                        fontWeight: FontWeight.w400,
-                        height: 1.1,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 8),
-              Padding(
-                padding: const EdgeInsets.only(top: 2),
-                child: Text(
-                  _displayTimeLabel(item),
-                  style: const TextStyle(
-                    fontSize: 13,
-                    color: Color(0xFF9A9CA2),
-                    fontWeight: FontWeight.w400,
-                    height: 1,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildStatusView({
-    required IconData icon,
-    required String title,
-    String? subtitle,
-    VoidCallback? onRetry,
-  }) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, size: 36, color: const Color(0xFF6E6F73)),
-            const SizedBox(height: 10),
-            Text(
-              title,
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: Color(0xFF2A2B2F),
-              ),
-            ),
-            if (subtitle != null) ...[
-              const SizedBox(height: 6),
-              Text(
-                subtitle,
-                textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 14, color: Color(0xFF6E6F73)),
-              ),
-            ],
-            if (onRetry != null) ...[
-              const SizedBox(height: 12),
-              FilledButton(onPressed: onRetry, child: const Text('Thu lai')),
-            ],
-          ],
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return BlocProvider<ChatBloc>(
@@ -568,7 +230,7 @@ class _MochiDirectMessagesPageState extends State<MochiDirectMessagesPage> {
 
           Widget listContent;
           if (state is ChatFailureState && loadedThreads.isEmpty) {
-            listContent = _buildStatusView(
+            listContent = MochiDmStatusView(
               icon: Icons.error_outline,
               title: 'Khong the tai tin nhan',
               subtitle: state.message,
@@ -578,7 +240,7 @@ class _MochiDirectMessagesPageState extends State<MochiDirectMessagesPage> {
           } else if (isInitialLoading) {
             listContent = const Center(child: CircularProgressIndicator());
           } else if (activeThreads.isEmpty && pendingThreads.isEmpty) {
-            listContent = _buildStatusView(
+            listContent = const MochiDmStatusView(
               icon: Icons.search_off_outlined,
               title: 'Khong tim thay doan chat',
               subtitle: 'Thu tim voi tu khoa khac.',
@@ -588,33 +250,84 @@ class _MochiDirectMessagesPageState extends State<MochiDirectMessagesPage> {
               padding: const EdgeInsets.only(bottom: 16),
               children: [
                 ...List.generate(activeThreads.length, (index) {
-                  return _buildConversationItem(
-                    context,
-                    activeThreads[index],
-                    index,
+                  final item = activeThreads[index];
+                  final name = _displayName(item);
+                  return MochiDmConversationItem(
+                    item: item,
+                    index: index,
+                    name: name,
+                    preview: _displayPreview(item),
+                    timeLabel: _displayTimeLabel(item),
+                    initial: _initial(name),
+                    onTap: () => _openChatThread(item, context),
+                    onPinToggle: () => context.read<ChatBloc>().add(
+                      ChatThreadPinToggledEvent(item.id),
+                    ),
+                    onHiddenToggle: () => context.read<ChatBloc>().add(
+                      ChatThreadHiddenChangedEvent(
+                        item.id,
+                        isHidden: !item.isHidden,
+                      ),
+                    ),
+                    onDelete: () async {
+                      final chatBloc = context.read<ChatBloc>();
+                      final confirmed = await _confirmDeleteDialog(name);
+                      if (!mounted || !confirmed) {
+                        return;
+                      }
+                      chatBloc.add(ChatThreadDeletedEvent(item.id));
+                    },
                   );
                 }),
                 if (activeThreads.isEmpty)
                   const Padding(
                     padding: EdgeInsets.fromLTRB(16, 8, 16, 6),
                     child: Text(
-                      'Không có tin nhắn trong hộp chính.',
+                      'Khong co tin nhan trong hop chinh.',
                       style: TextStyle(
                         fontSize: 13,
-                        color: Color(0xFF8E8E93),
+                        color: MochiDmStyles.searchHint,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
                   ),
                 if (pendingThreads.isNotEmpty) ...[
                   const SizedBox(height: 4),
-                  _buildPendingHeader(),
+                  MochiDmPendingHeader(
+                    showPending: _showPendingThreads,
+                    onToggle: () => setState(
+                      () => _showPendingThreads = !_showPendingThreads,
+                    ),
+                  ),
                   if (_showPendingThreads)
                     ...List.generate(pendingThreads.length, (index) {
-                      return _buildConversationItem(
-                        context,
-                        pendingThreads[index],
-                        activeThreads.length + index,
+                      final item = pendingThreads[index];
+                      final name = _displayName(item);
+                      return MochiDmConversationItem(
+                        item: item,
+                        index: activeThreads.length + index,
+                        name: name,
+                        preview: _displayPreview(item),
+                        timeLabel: _displayTimeLabel(item),
+                        initial: _initial(name),
+                        onTap: () => _openChatThread(item, context),
+                        onPinToggle: () => context.read<ChatBloc>().add(
+                          ChatThreadPinToggledEvent(item.id),
+                        ),
+                        onHiddenToggle: () => context.read<ChatBloc>().add(
+                          ChatThreadHiddenChangedEvent(
+                            item.id,
+                            isHidden: !item.isHidden,
+                          ),
+                        ),
+                        onDelete: () async {
+                          final chatBloc = context.read<ChatBloc>();
+                          final confirmed = await _confirmDeleteDialog(name);
+                          if (!mounted || !confirmed) {
+                            return;
+                          }
+                          chatBloc.add(ChatThreadDeletedEvent(item.id));
+                        },
                       );
                     }),
                 ],
@@ -623,13 +336,24 @@ class _MochiDirectMessagesPageState extends State<MochiDirectMessagesPage> {
           }
 
           return Scaffold(
-            backgroundColor: Colors.white,
+            backgroundColor: MochiDmStyles.pageBackground,
             body: SafeArea(
               child: Column(
                 children: [
-                  _buildTopBar(context),
-                  _buildSearchInput(),
-                  _buildSectionHeader(pendingThreads.length),
+                  MochiDmTopBar(
+                    username: _username,
+                    onAddPressed: () => _openFriendsPicker(context),
+                  ),
+                  MochiDmSearchInput(
+                    onChanged: (value) => setState(() => _query = value.trim()),
+                  ),
+                  MochiDmSectionHeader(
+                    pendingCount: pendingThreads.length,
+                    canTogglePending: pendingThreads.isNotEmpty,
+                    onTogglePending: () => setState(
+                      () => _showPendingThreads = !_showPendingThreads,
+                    ),
+                  ),
                   if (state is ChatLoadingState && loadedThreads.isNotEmpty)
                     const LinearProgressIndicator(minHeight: 2),
                   Expanded(child: listContent),

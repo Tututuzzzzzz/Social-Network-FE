@@ -7,3 +7,4 @@ export '../features/message/presentation/pages/message_chat_room_page.dart';
 export '../features/reels/presentation/pages/mochi_reels_page.dart';
 export '../features/profile/presentation/pages/mochi_profile_page.dart';
 export '../features/profile/presentation/pages/edit_profile_page.dart';
+export '../features/notifications/presentation/pages/notification_screen.dart';

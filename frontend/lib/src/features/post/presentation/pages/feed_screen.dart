@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../configs/injector/injector_conf.dart';
 import '../../../../core/l10n/l10n.dart';
 import '../../../../core/cache/secure_local_storage.dart';
+import '../../../friend/data/repositories/friend_repository_impl.dart';
 import '../../../friend/domain/usecases/send_friend_request.dart';
 import '../../../notifications/presentation/bloc/notification_bloc.dart';
 import '../../../notifications/presentation/bloc/notification_state.dart';
@@ -28,8 +29,10 @@ class _FeedScreenState extends State<FeedScreen> {
   final ScrollController _scrollController = ScrollController();
 
   List<PostEntity> _posts = const [];
+  final Map<String, int> _commentCountOverrides = <String, int>{};
   int _currentNavIndex = 0;
   String _currentUserId = '';
+  final Set<String> _friendIds = <String>{};
   final Set<String> _sendingFriendRequestAuthorIds = <String>{};
   final Set<String> _sentFriendRequestAuthorIds = <String>{};
 
@@ -44,6 +47,7 @@ class _FeedScreenState extends State<FeedScreen> {
 
   Future<void> _bootstrapFeed() async {
     await _resolveCurrentUserId();
+    await _resolveFriendIds();
     if (!mounted) return;
     context.read<PostBloc>().add(PostLoadEvent());
   }
@@ -62,6 +66,25 @@ class _FeedScreenState extends State<FeedScreen> {
     }
   }
 
+  Future<void> _resolveFriendIds() async {
+    if (_friendIds.isNotEmpty || _currentUserId.trim().isEmpty) {
+      return;
+    }
+
+    try {
+      final repository = getIt<FriendRepositoryImpl>();
+      final friendIds = await repository.getAllFriendIds();
+      if (!mounted) return;
+      setState(() {
+        _friendIds
+          ..clear()
+          ..addAll(friendIds);
+      });
+    } catch (_) {
+      // Keep feed usable even if the friend list fails to load.
+    }
+  }
+
   Future<void> _openCommentsSheet(PostEntity initialPost) async {
     await showModalBottomSheet<void>(
       context: context,
@@ -72,6 +95,12 @@ class _FeedScreenState extends State<FeedScreen> {
           CommentsSheet(
             initialPost: initialPost,
             currentUserId: _currentUserId.isEmpty ? null : _currentUserId,
+            onCommentsCountChanged: (count) {
+              if (!mounted) return;
+              setState(() {
+                _commentCountOverrides[initialPost.id] = count;
+              });
+            },
           ),
     );
   }
@@ -339,6 +368,10 @@ class _FeedScreenState extends State<FeedScreen> {
                         }
 
                         final post = visiblePosts[index - 1];
+                        final isSelfPost =
+                            _currentUserId.isNotEmpty &&
+                            post.authorId == _currentUserId;
+                        final isAlreadyFriend = _friendIds.contains(post.authorId);
                         final hasSentRequest = _sentFriendRequestAuthorIds
                             .contains(post.authorId);
                         final isSendingRequest = _sendingFriendRequestAuthorIds
@@ -348,13 +381,17 @@ class _FeedScreenState extends State<FeedScreen> {
                           post: post,
                           isLikedByMe: _currentUserId.isNotEmpty &&
                               post.likes.contains(_currentUserId),
-                          isFollowing: hasSentRequest,
+                          commentCountOverride: _commentCountOverrides[post.id],
+                          isFollowing: isAlreadyFriend,
+                          showFollowButton: !isSelfPost,
                           onLike: () {
                             context.read<PostBloc>().add(
                               PostLikeToggleEvent(post.id),
                             );
                           },
-                          onFollowTap: isSendingRequest
+                          onFollowTap: isSelfPost || isAlreadyFriend
+                              ? null
+                              : isSendingRequest
                               ? null
                               : () => _onFollowTap(post),
                           onAuthorTap: _showFeatureSoon,
@@ -363,7 +400,9 @@ class _FeedScreenState extends State<FeedScreen> {
                           onShare: _showFeatureSoon,
                           onSave: _showFeatureSoon,
                           onMore: () => _showPostOptionsSheet(post),
-                          followingLabel: hasSentRequest
+                          followingLabel: isAlreadyFriend
+                              ? "Friends"
+                              : hasSentRequest
                               ? "Following"
                               : "Follow",
                         );
