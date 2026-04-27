@@ -56,7 +56,23 @@ class PostModel extends PostEntity {
                 (e) => PostCommentEntity(
                   id: e['id'] as String,
                   parentCommentId: e['parentCommentId'] as String?,
-                  authorId: e['authorId'] as String,
+              authorId: e['authorId'] is Map
+                ? ((e['authorId'] as Map)['_id'] ??
+                    (e['authorId'] as Map)['id'] ??
+                    '')
+                  .toString()
+                : e['authorId'] as String,
+              authorUsername: e['authorId'] is Map
+                ? (e['authorId'] as Map)['username']?.toString()
+                : null,
+              authorDisplayName: e['authorId'] is Map
+                ? ((e['authorId'] as Map)['displayName'] ??
+                    (e['authorId'] as Map)['fullName'])
+                  ?.toString()
+                : null,
+              authorAvatarUrl: e['authorId'] is Map
+                ? (e['authorId'] as Map)['avatarUrl']?.toString()
+                : null,
                   content: e['content'] as String,
                   createdAt: DateTime.parse(e['createdAt'] as String),
                   updatedAt: DateTime.parse(e['updatedAt'] as String),

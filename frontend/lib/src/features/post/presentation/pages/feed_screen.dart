@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../configs/injector/injector_conf.dart';
 import '../../../../core/l10n/l10n.dart';
+import '../../../../core/cache/secure_local_storage.dart';
 import '../../../friend/domain/usecases/send_friend_request.dart';
 import '../../../notifications/presentation/bloc/notification_bloc.dart';
 import '../../../notifications/presentation/bloc/notification_state.dart';
@@ -29,6 +30,7 @@ class _FeedScreenState extends State<FeedScreen> {
 
   List<PostEntity> _posts = const [];
   int _currentNavIndex = 0;
+  String _currentUserId = '';
   final Set<String> _sendingFriendRequestAuthorIds = <String>{};
   final Set<String> _sentFriendRequestAuthorIds = <String>{};
 
@@ -37,8 +39,28 @@ class _FeedScreenState extends State<FeedScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      context.read<PostBloc>().add(PostLoadEvent());
+      _bootstrapFeed();
     });
+  }
+
+  Future<void> _bootstrapFeed() async {
+    await _resolveCurrentUserId();
+    if (!mounted) return;
+    context.read<PostBloc>().add(PostLoadEvent());
+  }
+
+  Future<void> _resolveCurrentUserId() async {
+    if (_currentUserId.trim().isNotEmpty) return;
+
+    final secureStorage = getIt<SecureLocalStorage>();
+    final storedUserId = await secureStorage.load(key: 'user_id');
+    final normalized = storedUserId.trim();
+    if (normalized.isNotEmpty) {
+      if (!mounted) return;
+      setState(() {
+        _currentUserId = normalized;
+      });
+    }
   }
 
   Future<void> _openCommentsSheet(PostEntity initialPost) async {
@@ -48,7 +70,10 @@ class _FeedScreenState extends State<FeedScreen> {
       useSafeArea: true,
       backgroundColor: Colors.transparent,
       builder: (_) =>
-          CommentsSheet(initialPost: initialPost, currentUserId: null),
+          CommentsSheet(
+            initialPost: initialPost,
+            currentUserId: _currentUserId.isEmpty ? null : _currentUserId,
+          ),
     );
   }
 
@@ -322,9 +347,14 @@ class _FeedScreenState extends State<FeedScreen> {
 
                         return PostCard(
                           post: post,
-                          isLikedByMe: false,
+                          isLikedByMe: _currentUserId.isNotEmpty &&
+                              post.likes.contains(_currentUserId),
                           isFollowing: hasSentRequest,
-                          onLike: _showFeatureSoon,
+                          onLike: () {
+                            context.read<PostBloc>().add(
+                              PostLikeToggleEvent(post.id),
+                            );
+                          },
                           onFollowTap: isSendingRequest
                               ? null
                               : () => _onFollowTap(post),

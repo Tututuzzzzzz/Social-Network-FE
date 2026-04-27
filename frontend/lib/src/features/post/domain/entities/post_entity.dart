@@ -32,6 +32,35 @@ class PostEntity extends Equatable {
     required this.updatedAt,
   });
 
+  PostEntity copyWith({
+    String? authorId,
+    String? authorUsername,
+    String? authorDisplayName,
+    String? authorAvatarUrl,
+    String? content,
+    List<PostMediaEntity>? media,
+    List<String>? likes,
+    List<PostCommentEntity>? comments,
+    int? commentsCount,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) {
+    return PostEntity(
+      id: id,
+      authorId: authorId ?? this.authorId,
+      authorUsername: authorUsername ?? this.authorUsername,
+      authorDisplayName: authorDisplayName ?? this.authorDisplayName,
+      authorAvatarUrl: authorAvatarUrl ?? this.authorAvatarUrl,
+      content: content ?? this.content,
+      media: media ?? this.media,
+      likes: likes ?? this.likes,
+      comments: comments ?? this.comments,
+      commentsCount: commentsCount ?? this.commentsCount,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
+  }
+
   @override
   List<Object?> get props => [
     id,

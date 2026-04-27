@@ -35,3 +35,12 @@ class PostDeleteEvent extends PostEvent {
   @override
   List<Object?> get props => [params];
 }
+
+class PostLikeToggleEvent extends PostEvent {
+  final String postId;
+
+  const PostLikeToggleEvent(this.postId);
+
+  @override
+  List<Object?> get props => [postId];
+}

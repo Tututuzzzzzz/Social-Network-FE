@@ -126,6 +126,8 @@ class _NotificationScreenState extends State<NotificationScreen> {
                             final item = state.items[index];
                             return _NotificationTile(
                               item: item,
+                              showFriendRequestActions: item.isActionable,
+                              isSubmitting: state.isSubmitting,
                               onTap: () {
                                 if (!item.isRead) {
                                   context.read<NotificationBloc>().add(
@@ -145,9 +147,16 @@ class _NotificationScreenState extends State<NotificationScreen> {
 
 class _NotificationTile extends StatelessWidget {
   final NotificationEntity item;
+  final bool showFriendRequestActions;
+  final bool isSubmitting;
   final VoidCallback onTap;
 
-  const _NotificationTile({required this.item, required this.onTap});
+  const _NotificationTile({
+    required this.item,
+    required this.showFriendRequestActions,
+    required this.isSubmitting,
+    required this.onTap,
+  });
 
   bool get _isFriendRequestNotification => item.type == 'FRIEND_REQUEST';
 
@@ -209,14 +218,16 @@ class _NotificationTile extends StatelessWidget {
                   ),
             contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           ),
-          if (_isFriendRequestNotification && item.entityId != null)
+          if (_isFriendRequestNotification && showFriendRequestActions)
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   TextButton(
-                    onPressed: () {
+                    onPressed: isSubmitting
+                        ? null
+                        : () {
                       context.read<NotificationBloc>().add(
                         NotificationRejectFriendRequestRequested(
                           item.entityId!,
@@ -228,7 +239,9 @@ class _NotificationTile extends StatelessWidget {
                   ),
                   const SizedBox(width: 8),
                   FilledButton(
-                    onPressed: () {
+                    onPressed: isSubmitting
+                        ? null
+                        : () {
                       context.read<NotificationBloc>().add(
                         NotificationAcceptFriendRequestRequested(
                           item.entityId!,

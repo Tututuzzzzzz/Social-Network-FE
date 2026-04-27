@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/src/configs/injector/injector_conf.dart';
 import 'package:frontend/src/features/post/domain/entities/post_comment_entity.dart';
 import 'package:frontend/src/features/post/domain/entities/post_entity.dart';
+import 'package:frontend/src/features/post/domain/usecases/create_comment_usecase.dart';
+import 'package:frontend/src/features/post/domain/usecases/get_comments_usecase.dart';
 import 'package:intl/intl.dart';
 
 class CommentsSheet extends StatefulWidget {
@@ -30,6 +33,7 @@ class _CommentsSheetState extends State<CommentsSheet>
   final Map<String, GlobalKey> _commentKeys = <String, GlobalKey>{};
   PostCommentEntity? _replyTarget;
   late List<PostCommentEntity> _comments;
+  bool _isLoadingComments = false;
   bool _isSubmitting = false;
   String? _activeHighlightCommentId;
   bool _didAutoHighlight = false;
@@ -47,6 +51,34 @@ class _CommentsSheetState extends State<CommentsSheet>
     );
     if ((_activeHighlightCommentId ?? '').isNotEmpty) {
       _pulseController.repeat(reverse: true);
+    }
+
+    _loadCommentsFromServer();
+  }
+
+  Future<void> _loadCommentsFromServer() async {
+    if (_isLoadingComments) return;
+
+    setState(() => _isLoadingComments = true);
+
+    try {
+      final useCase = getIt<GetCommentsUseCase>();
+      final result = await useCase.call(
+        GetCommentsParams(postId: widget.initialPost.id),
+      );
+
+      result.fold(
+        (_) {},
+        (data) {
+          if (!mounted) return;
+          setState(() {
+            _comments = List<PostCommentEntity>.from(data.comments);
+          });
+        },
+      );
+    } finally {
+      if (!mounted) return;
+      setState(() => _isLoadingComments = false);
     }
   }
 
@@ -66,6 +98,24 @@ class _CommentsSheetState extends State<CommentsSheet>
         ? normalized.substring(0, 10)
         : normalized;
     return '@$prefix';
+  }
+
+  String _resolveCommentAuthorLabel(PostCommentEntity comment) {
+    if (widget.currentUserId != null && comment.authorId == widget.currentUserId) {
+      return 'Ban';
+    }
+
+    final displayName = comment.authorDisplayName?.trim() ?? '';
+    if (displayName.isNotEmpty) {
+      return displayName;
+    }
+
+    final username = comment.authorUsername?.trim() ?? '';
+    if (username.isNotEmpty) {
+      return '@$username';
+    }
+
+    return _formatCommentAuthor(comment.authorId);
   }
 
   List<_FlattenedComment> _buildFlattenedComments(
@@ -132,23 +182,36 @@ class _CommentsSheetState extends State<CommentsSheet>
 
     setState(() => _isSubmitting = true);
 
-    final now = DateTime.now();
-    final comment = PostCommentEntity(
-      id: now.microsecondsSinceEpoch.toString(),
-      parentCommentId: _replyTarget?.id,
-      authorId: widget.currentUserId ?? 'me',
-      content: content,
-      createdAt: now,
-      updatedAt: now,
-    );
+    try {
+      final useCase = getIt<CreateCommentUseCase>();
+      final result = await useCase.call(
+        CreateCommentParams(
+          postId: widget.initialPost.id,
+          content: content,
+          parentCommentId: _replyTarget?.id,
+        ),
+      );
 
-    _controller.clear();
-    setState(() {
-      _comments = [..._comments, comment];
-      _replyTarget = null;
-      _isSubmitting = false;
-    });
-    FocusScope.of(context).unfocus();
+      result.fold(
+        (failure) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Khong the gui comment. Hay thu lai.')),
+          );
+        },
+        (comment) {
+          if (!mounted) return;
+          _controller.clear();
+          setState(() {
+            _comments = [..._comments, comment];
+            _replyTarget = null;
+          });
+          FocusScope.of(context).unfocus();
+        },
+      );
+    } finally {
+      if (!mounted) return;
+      setState(() => _isSubmitting = false);
+    }
   }
 
   @override
@@ -202,7 +265,11 @@ class _CommentsSheetState extends State<CommentsSheet>
                     ),
                     Divider(height: 1, color: Colors.grey.shade200),
                     Expanded(
-                      child: comments.isEmpty
+                      child: _isLoadingComments && comments.isEmpty
+                          ? const Center(
+                              child: CircularProgressIndicator(),
+                            )
+                          : comments.isEmpty
                           ? const Center(
                               child: Text(
                                 'Chua co binh luan nao. Hay la nguoi dau tien!',
@@ -229,8 +296,8 @@ class _CommentsSheetState extends State<CommentsSheet>
                                 final indent = (item.depth * 18.0)
                                     .clamp(0.0, 72.0)
                                     .toDouble();
-                                final authorLabel = _formatCommentAuthor(
-                                  comment.authorId,
+                                final authorLabel = _resolveCommentAuthorLabel(
+                                  comment,
                                 );
                                 final isHighlighted =
                                     _activeHighlightCommentId == comment.id;
