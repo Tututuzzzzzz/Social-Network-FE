@@ -6,7 +6,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../configs/injector/injector_conf.dart';
 import '../../../../core/api/api_constants.dart';
 import '../../../../core/api/api_helper.dart';
-import '../../../friend/presentation/page/friend_picker_bottom_sheet.dart';
+import '../../../friend/presentation/pages/friend_picker_bottom_sheet.dart';
 import '../../../../routes/app_route_path.dart';
 import '../../domain/entities/chat_entity.dart';
 import '../../domain/usecases/create_direct_conversation_usecase.dart';
