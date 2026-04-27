@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import '../../../../configs/injector/injector_conf.dart';
 import '../../../../core/l10n/l10n.dart';
+import '../../../friend/domain/usecases/send_friend_request.dart';
+import '../../../notifications/presentation/bloc/notification_bloc.dart';
+import '../../../notifications/presentation/bloc/notification_state.dart';
 import '../../../../routes/app_route_path.dart';
 import '../../../../widgets/app_shell_bottom_nav_bar.dart';
 import '../../domain/entities/post_entity.dart';
@@ -24,6 +28,8 @@ class _FeedScreenState extends State<FeedScreen> {
 
   List<PostEntity> _posts = const [];
   int _currentNavIndex = 0;
+  final Set<String> _sendingFriendRequestAuthorIds = <String>{};
+  final Set<String> _sentFriendRequestAuthorIds = <String>{};
 
   @override
   void initState() {
@@ -101,6 +107,48 @@ class _FeedScreenState extends State<FeedScreen> {
 
   Future<void> _refreshPosts() async {
     context.read<PostBloc>().add(PostLoadEvent());
+  }
+
+  Future<void> _onFollowTap(PostEntity post) async {
+    final authorId = post.authorId.trim();
+    
+    if (authorId.isEmpty) {
+      return;
+    }
+
+    if (_sendingFriendRequestAuthorIds.contains(authorId) ||
+        _sentFriendRequestAuthorIds.contains(authorId)) {
+      return;
+    }
+
+    setState(() {
+      _sendingFriendRequestAuthorIds.add(authorId);
+    });
+
+    try {
+      final useCase = getIt<SendFriendRequest>();
+      await useCase(authorId);
+
+      if (!mounted) return;
+
+      setState(() {
+        _sentFriendRequestAuthorIds.add(authorId);
+      });
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Friend request sent successfully")));
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Failed to send friend request. Please try again.")),
+      );
+    } finally {
+      if (!mounted) return;
+      setState(() {
+        _sendingFriendRequestAuthorIds.remove(authorId);
+      });
+    }
   }
 
   void _onBottomNavTap(int index) {
@@ -203,13 +251,37 @@ class _FeedScreenState extends State<FeedScreen> {
             ),
             centerTitle: true,
             actions: [
-              IconButton(
-                onPressed: _showFeatureSoon,
-                icon: const Icon(
-                  Icons.notifications_none,
-                  color: Colors.black,
-                  size: 22,
-                ),
+              BlocBuilder<NotificationBloc, NotificationState>(
+                builder: (context, notificationState) {
+                  final hasUnreadNotifications = notificationState.unreadCount > 0;
+                  
+                  return Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      IconButton(
+                        onPressed: () => context.push(AppRoutes.notifications.path),
+                        icon: const Icon(
+                          Icons.notifications_none,
+                          color: Colors.black,
+                          size: 22,
+                        ),
+                      ),
+                      if (hasUnreadNotifications)
+                        Positioned(
+                          top: 8,
+                          right: 8,
+                          child: Container(
+                            width: 10,
+                            height: 10,
+                            decoration: const BoxDecoration(
+                              color: Colors.red,
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                        ),
+                    ],
+                  );
+                },
               ),
             ],
             bottom: PreferredSize(
@@ -242,20 +314,28 @@ class _FeedScreenState extends State<FeedScreen> {
                         }
 
                         final post = visiblePosts[index - 1];
+                        final hasSentRequest = _sentFriendRequestAuthorIds
+                            .contains(post.authorId);
+                        final isSendingRequest = _sendingFriendRequestAuthorIds
+                            .contains(post.authorId);
 
                         return PostCard(
                           post: post,
                           isLikedByMe: false,
-                          isFollowing: false,
+                          isFollowing: hasSentRequest,
                           onLike: _showFeatureSoon,
-                          onFollowTap: _showFeatureSoon,
+                          onFollowTap: isSendingRequest
+                              ? null
+                              : () => _onFollowTap(post),
                           onAuthorTap: _showFeatureSoon,
                           onComment: () => _openCommentsSheet(post),
                           onViewComments: () => _openCommentsSheet(post),
                           onShare: _showFeatureSoon,
                           onSave: _showFeatureSoon,
                           onMore: () => _showPostOptionsSheet(post),
-                          followingLabel: l10n.followingStatus,
+                          followingLabel: hasSentRequest
+                              ? "Following"
+                              : "Follow",
                         );
                       },
                     ),

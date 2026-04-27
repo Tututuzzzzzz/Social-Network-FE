@@ -9,6 +9,7 @@ enum AppRoutes {
   homeSearch(path: '/home/search'),
   reels(path: '/reels'),
   chat(path: '/chat'),
+  notifications(path: '/notifications'),
   chatMochiChatRoom(path: '/chat/room/:threadId'),
   editProfile(path: '/profile/edit'),
   profile(path: '/profile');

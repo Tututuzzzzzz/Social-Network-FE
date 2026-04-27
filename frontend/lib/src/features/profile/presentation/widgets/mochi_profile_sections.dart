@@ -9,6 +9,7 @@ class MochiProfileBody extends StatelessWidget {
   final List<String> images;
   final Set<String> overlayImageUrls;
   final VoidCallback onEditProfile;
+  final VoidCallback onOpenMenu;
   final Future<void> Function() onRefresh;
 
   const MochiProfileBody({
@@ -17,6 +18,7 @@ class MochiProfileBody extends StatelessWidget {
     required this.images,
     required this.overlayImageUrls,
     required this.onEditProfile,
+    required this.onOpenMenu,
     required this.onRefresh,
   });
 
@@ -36,7 +38,10 @@ class MochiProfileBody extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _MochiProfileTopBar(profile: profile),
+                      _MochiProfileTopBar(
+                        profile: profile,
+                        onOpenMenu: onOpenMenu,
+                      ),
                       const SizedBox(height: 14),
                       _MochiProfileHeader(profile: profile),
                       const SizedBox(height: 12),
@@ -165,8 +170,9 @@ class MochiProfileErrorView extends StatelessWidget {
 
 class _MochiProfileTopBar extends StatelessWidget {
   final ProfileEntity profile;
+  final VoidCallback onOpenMenu;
 
-  const _MochiProfileTopBar({required this.profile});
+  const _MochiProfileTopBar({required this.profile, required this.onOpenMenu});
 
   @override
   Widget build(BuildContext context) {
@@ -200,7 +206,11 @@ class _MochiProfileTopBar extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 8),
-        const Icon(Icons.menu_rounded, size: 28),
+        IconButton(
+          onPressed: onOpenMenu,
+          icon: const Icon(Icons.menu_rounded, size: 28),
+          tooltip: 'Tùy chọn',
+        ),
       ],
     );
   }

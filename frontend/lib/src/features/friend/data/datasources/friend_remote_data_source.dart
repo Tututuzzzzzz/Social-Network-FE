@@ -8,6 +8,7 @@ import '../../../../core/utils/logger.dart';
 /// Remote data source for friend-related network calls using ApiHelper.
 abstract class FriendRemoteDataSource {
   Future<List<FriendRequestModel>> fetchFriendRequests();
+  Future<void> sendFriendRequest(String userId, {String? message});
   Future<void> acceptFriendRequest(String requestId);
   Future<void> rejectFriendRequest(String requestId);
 }
@@ -27,6 +28,24 @@ class FriendRemoteDataSourceImpl implements FriendRemoteDataSource {
 
       final data = _extractList(result);
       return data.map(FriendRequestModel.fromJson).toList();
+    } catch (e, st) {
+      logger.e(e, stackTrace: st);
+      throw ServerException();
+    }
+  }
+
+  @override
+  Future<void> sendFriendRequest(String userId, {String? message}) async {
+    try {
+      await _apiHelper.execute(
+        method: Method.post,
+        url: ApiConstants.friendsRequests,
+        data: {
+          'to': userId,
+          if ((message ?? '').trim().isNotEmpty) 'message': message!.trim(),
+        },
+      );
+      return;
     } catch (e, st) {
       logger.e(e, stackTrace: st);
       throw ServerException();

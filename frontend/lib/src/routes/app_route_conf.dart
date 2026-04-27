@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../configs/injector/injector_conf.dart';
 import '../features/chat/domain/entities/chat_entity.dart';
 import '../features/message/presentation/bloc/message_bloc.dart';
+import '../features/notifications/presentation/bloc/notification_bloc.dart';
 import '../features/post/presentation/bloc/post/post_bloc.dart';
 import '../features/profile/presentation/bloc/profile/profile_bloc.dart';
 import 'app_shell_page.dart';
@@ -101,6 +102,14 @@ class AppRoutesConf {
         name: AppRoutes.chat.name,
         builder: (context, state) =>
             const AppShellPage(body: MochiDirectMessagesPage()),
+      ),
+      GoRoute(
+        path: AppRoutes.notifications.path,
+        name: AppRoutes.notifications.name,
+        builder: (context, state) => BlocProvider<NotificationBloc>(
+          create: (_) => getIt<NotificationBloc>(),
+          child: const NotificationScreen(),
+        ),
       ),
       GoRoute(
         path: AppRoutes.profile.path,

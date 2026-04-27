@@ -10,11 +10,12 @@ sealed class AuthEvent extends Equatable {
 class AuthLoginEvent extends AuthEvent {
   final String username;
   final String password;
+  final bool rememberMe;
 
-  const AuthLoginEvent(this.username, this.password);
+  const AuthLoginEvent(this.username, this.password, {this.rememberMe = false});
 
   @override
-  List<Object?> get props => [username, password];
+  List<Object?> get props => [username, password, rememberMe];
 }
 
 class AuthRegisterEvent extends AuthEvent {

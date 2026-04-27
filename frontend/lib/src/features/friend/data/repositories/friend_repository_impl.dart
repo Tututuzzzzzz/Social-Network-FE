@@ -1,5 +1,4 @@
 import '../datasources/friend_remote_data_source.dart';
-import '../models/friend_request_model.dart';
 import '../../domain/entities/friend_request.dart';
 import '../../domain/repositories/friend_repository.dart';
 
@@ -22,6 +21,11 @@ class FriendRepositoryImpl implements FriendRepository {
           ),
         )
         .toList();
+  }
+
+  @override
+  Future<void> sendFriendRequest(String userId, {String? message}) async {
+    await remoteDataSource.sendFriendRequest(userId, message: message);
   }
 
   @override
