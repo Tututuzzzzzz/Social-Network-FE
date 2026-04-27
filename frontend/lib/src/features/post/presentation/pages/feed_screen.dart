@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-
 import '../../../../configs/injector/injector_conf.dart';
 import '../../../../core/l10n/l10n.dart';
 import '../../../friend/domain/usecases/send_friend_request.dart';
