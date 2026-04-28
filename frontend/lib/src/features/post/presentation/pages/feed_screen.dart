@@ -162,12 +162,15 @@ class _FeedScreenState extends State<FeedScreen> {
         context.go(AppRoutes.home.path);
         break;
       case 1:
-        context.go(AppRoutes.reels.path);
+        context.go(AppRoutes.homeSearch.path);
         break;
       case 2:
-        context.go(AppRoutes.chat.path);
+        context.go(AppRoutes.reels.path);
         break;
       case 3:
+        context.go(AppRoutes.chat.path);
+        break;
+      case 4:
         context.go(AppRoutes.profile.path);
         break;
     }

@@ -13,19 +13,19 @@ class AppShellPage extends StatelessWidget {
     final location = GoRouterState.of(context).uri.path;
 
     if (location.startsWith(AppRoutes.homeSearch.path)) {
-      return 0;
-    }
-    if (location.startsWith(AppRoutes.reels.path)) {
       return 1;
     }
-    if (location.startsWith(AppRoutes.chat.path)) {
+    if (location.startsWith(AppRoutes.reels.path)) {
       return 2;
     }
-    if (location.startsWith(AppRoutes.profile.path)) {
+    if (location.startsWith(AppRoutes.chat.path)) {
       return 3;
     }
+    if (location.startsWith(AppRoutes.profile.path)) {
+      return 4;
+    }
 
-    return 0;
+    return 0; // default home
   }
 
   void _onDestinationSelected(BuildContext context, int index) {
@@ -34,12 +34,15 @@ class AppShellPage extends StatelessWidget {
         context.go(AppRoutes.home.path);
         break;
       case 1:
-        context.go(AppRoutes.reels.path);
+        context.go(AppRoutes.homeSearch.path);
         break;
       case 2:
-        context.go(AppRoutes.chat.path);
+        context.go(AppRoutes.reels.path);
         break;
       case 3:
+        context.go(AppRoutes.chat.path);
+        break;
+      case 4:
         context.go(AppRoutes.profile.path);
         break;
     }

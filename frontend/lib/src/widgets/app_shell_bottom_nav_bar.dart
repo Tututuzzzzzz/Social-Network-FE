@@ -14,10 +14,8 @@ class AppShellBottomNavBar extends StatelessWidget {
 
   static const List<_BottomNavItem> _items = [
     _BottomNavItem(icon: Icons.home_outlined, selectedIcon: Icons.home),
-    _BottomNavItem(
-      icon: Icons.smart_display_outlined,
-      selectedIcon: Icons.smart_display,
-    ),
+    _BottomNavItem(icon: Icons.search_outlined, selectedIcon: Icons.search),
+    _BottomNavItem(icon: Icons.smart_display_outlined, selectedIcon: Icons.smart_display),
     _BottomNavItem(icon: Icons.send_outlined, selectedIcon: Icons.send),
     _BottomNavItem(icon: Icons.person_outline, selectedIcon: Icons.person),
   ];
@@ -26,17 +24,22 @@ class AppShellBottomNavBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final mediaQuery = MediaQuery.of(context);
     final bottomInset = mediaQuery.viewPadding.bottom;
-    final navHeight = 74 + bottomInset;
-    const navRadius = 30.0;
-    const activeButtonSize = 44.0;
+    const navHeight = 79.0;
+    const navWidth = 375.0;
+    const navRadius = 50.0;
+    const activeButtonSize = 69.0;
 
-    return SizedBox(
-      height: navHeight,
-      child: Padding(
-        padding: EdgeInsets.fromLTRB(12, 0, 12, 12 + bottomInset),
+    return Container(
+      width: double.infinity,
+      height: navHeight + bottomInset + 12, // Added 12 for bottom margin
+      padding: EdgeInsets.only(bottom: bottomInset + 12),
+      alignment: Alignment.bottomCenter,
+      child: SizedBox(
+        height: navHeight,
+        width: navWidth,
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(navRadius),
-          child: BackdropFilter(
+            borderRadius: BorderRadius.circular(navRadius),
+            child: BackdropFilter(
             filter: ImageFilter.blur(sigmaX: 40, sigmaY: 40),
             child: DecoratedBox(
               decoration: BoxDecoration(
@@ -91,25 +94,23 @@ class AppShellBottomNavBar extends StatelessWidget {
                         child: Material(
                           color: Colors.transparent,
                           child: InkWell(
-                            borderRadius: BorderRadius.circular(28),
+                            borderRadius: BorderRadius.circular(50),
                             onTap: () => onTap(index),
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 10),
-                              child: Center(
-                                child: AnimatedContainer(
-                                  duration: const Duration(milliseconds: 180),
-                                  curve: Curves.easeOut,
-                                  height: activeButtonSize,
-                                  width: activeButtonSize,
-                                  decoration: BoxDecoration(
-                                    color: isSelected
-                                        ? const Color(0x85DCE3FF)
-                                        : Colors.transparent,
-                                    borderRadius: BorderRadius.circular(24),
-                                    border: isSelected
-                                        ? Border.all(
-                                            color: const Color(0x88FFFFFF),
-                                          )
+                            child: Center(
+                              child: AnimatedContainer(
+                                duration: const Duration(milliseconds: 180),
+                                curve: Curves.easeOut,
+                                height: activeButtonSize,
+                                width: activeButtonSize,
+                                decoration: BoxDecoration(
+                                  color: isSelected
+                                      ? const Color(0xFFE2E9FF)
+                                      : Colors.transparent,
+                                  shape: BoxShape.circle,
+                                  border: isSelected
+                                      ? Border.all(
+                                          color: const Color(0x88FFFFFF),
+                                        )
                                         : null,
                                     boxShadow: isSelected
                                         ? const [
@@ -131,9 +132,8 @@ class AppShellBottomNavBar extends StatelessWidget {
                               ),
                             ),
                           ),
-                        ),
-                      );
-                    }),
+                        );
+                      }),
                   ),
                 ],
               ),

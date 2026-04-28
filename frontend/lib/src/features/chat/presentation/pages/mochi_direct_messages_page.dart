@@ -167,7 +167,7 @@ class _MochiDirectMessagesPageState extends State<MochiDirectMessagesPage> {
 
   Widget _buildTopBar(BuildContext blocContext) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(8, 8, 8, 6),
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
       child: SizedBox(
         height: 44,
         child: Stack(
@@ -179,25 +179,25 @@ class _MochiDirectMessagesPageState extends State<MochiDirectMessagesPage> {
                 Text(
                   _username,
                   style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFF111113),
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
                   ),
                 ),
                 SizedBox(width: 2),
                 Icon(
-                  Icons.keyboard_arrow_down_rounded,
-                  size: 20,
-                  color: Color(0xFF111113),
+                  Icons.keyboard_arrow_down,
+                  size: 18,
+                  color: Colors.black,
                 ),
               ],
             ),
             Positioned(
-              right: 0,
+              right: -8,
               child: IconButton(
                 onPressed: () => _openFriendsPicker(blocContext),
-                icon: const Icon(Icons.add, size: 24),
-                color: const Color(0xFF111113),
+                icon: const Icon(Icons.add, size: 28, weight: 300),
+                color: Colors.black,
               ),
             ),
           ],
@@ -208,27 +208,30 @@ class _MochiDirectMessagesPageState extends State<MochiDirectMessagesPage> {
 
   Widget _buildSearchInput() {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: TextField(
-        onChanged: (value) => setState(() => _query = value.trim()),
-        decoration: InputDecoration(
-          hintText: 'Search',
-          hintStyle: const TextStyle(
-            color: Color(0xFF8E8E93),
-            fontSize: 14,
-            fontWeight: FontWeight.w500,
-          ),
-          prefixIcon: const Icon(Icons.search, color: Color(0xFF8E8E93)),
-          filled: true,
-          fillColor: const Color(0xFFF2F2F5),
-          contentPadding: const EdgeInsets.symmetric(vertical: 14),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(18),
-            borderSide: BorderSide.none,
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(18),
-            borderSide: const BorderSide(color: Color(0xFFCFD3DC)),
+      padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
+      child: SizedBox(
+        height: 36,
+        child: TextField(
+          onChanged: (value) => setState(() => _query = value.trim()),
+          decoration: InputDecoration(
+            hintText: 'Search',
+            hintStyle: const TextStyle(
+              color: Color(0xFF8E8E93),
+              fontSize: 15,
+              fontWeight: FontWeight.w400,
+            ),
+            prefixIcon: const Icon(Icons.search, color: Color(0xFF8E8E93), size: 20),
+            filled: true,
+            fillColor: const Color(0xFFEBEBEB),
+            contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 16),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: BorderSide.none,
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: const BorderSide(color: Color(0xFFCFD3DC)),
+            ),
           ),
         ),
       ),
@@ -237,15 +240,15 @@ class _MochiDirectMessagesPageState extends State<MochiDirectMessagesPage> {
 
   Widget _buildSectionHeader(int pendingCount) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 14, 16, 2),
+      padding: const EdgeInsets.fromLTRB(16, 10, 16, 6),
       child: Row(
         children: [
           const Text(
             'Tin nhắn',
             style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.w700,
-              color: Color(0xFF111113),
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: Colors.black,
             ),
           ),
           const Spacer(),
@@ -261,11 +264,9 @@ class _MochiDirectMessagesPageState extends State<MochiDirectMessagesPage> {
               minimumSize: Size.zero,
               tapTargetSize: MaterialTapTargetSize.shrinkWrap,
             ),
-            child: Text(
-              pendingCount == 0
-                  ? 'Tin nhắn đang chờ'
-                  : 'Tin nhắn đang chờ ($pendingCount)',
-              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+            child: const Text(
+              'Tin nhắn đang chờ',
+              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w400),
             ),
           ),
         ],
@@ -404,32 +405,28 @@ class _MochiDirectMessagesPageState extends State<MochiDirectMessagesPage> {
       child: InkWell(
         onTap: () => _openChatThread(item, context),
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Container(
-                width: 52,
-                height: 52,
+                width: 58,
+                height: 58,
                 decoration: BoxDecoration(
                   color: _avatarColors[index % _avatarColors.length],
                   shape: BoxShape.circle,
-                  border: Border.all(
-                    color: const Color(0xFFDCDDDF),
-                    width: 1.1,
-                  ),
                 ),
                 alignment: Alignment.center,
                 child: Text(
                   _initial(name),
                   style: const TextStyle(
-                    fontSize: 17,
+                    fontSize: 18,
                     fontWeight: FontWeight.w700,
                     color: Color(0xFF2A2B2F),
                   ),
                 ),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: 14),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -442,9 +439,9 @@ class _MochiDirectMessagesPageState extends State<MochiDirectMessagesPage> {
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: const TextStyle(
-                              fontSize: 17,
+                              fontSize: 15,
                               fontWeight: FontWeight.w600,
-                              color: Color(0xFF1A1A1D),
+                              color: Colors.black,
                               height: 1,
                             ),
                           ),
@@ -452,8 +449,8 @@ class _MochiDirectMessagesPageState extends State<MochiDirectMessagesPage> {
                         if (item.isOnline)
                           Container(
                             margin: const EdgeInsets.only(left: 6),
-                            width: 7,
-                            height: 7,
+                            width: 8,
+                            height: 8,
                             decoration: const BoxDecoration(
                               color: Color(0xFF1EC85D),
                               shape: BoxShape.circle,
@@ -470,32 +467,37 @@ class _MochiDirectMessagesPageState extends State<MochiDirectMessagesPage> {
                           ),
                       ],
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      _displayPreview(item),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        color: Color(0xFF7C7E84),
-                        fontWeight: FontWeight.w400,
-                        height: 1.1,
-                      ),
+                    const SizedBox(height: 6),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.baseline,
+                      textBaseline: TextBaseline.alphabetic,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            _displayPreview(item),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              fontSize: 14,
+                              color: Color(0xFF8E8E93),
+                              fontWeight: FontWeight.w400,
+                              height: 1.1,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          _displayTimeLabel(item),
+                          style: const TextStyle(
+                            fontSize: 13,
+                            color: Color(0xFF8E8E93),
+                            fontWeight: FontWeight.w400,
+                            height: 1.1,
+                          ),
+                        ),
+                      ],
                     ),
                   ],
-                ),
-              ),
-              const SizedBox(width: 8),
-              Padding(
-                padding: const EdgeInsets.only(top: 2),
-                child: Text(
-                  _displayTimeLabel(item),
-                  style: const TextStyle(
-                    fontSize: 13,
-                    color: Color(0xFF9A9CA2),
-                    fontWeight: FontWeight.w400,
-                    height: 1,
-                  ),
                 ),
               ),
             ],
