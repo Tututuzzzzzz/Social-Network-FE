@@ -17,6 +17,12 @@ void configureDepedencies() {
   ProfileDependency.init();
   ReelsDependency.init();
 
+  // Language
+  getIt.registerLazySingleton<LanguageRepository>(
+    () => LanguageRepositoryImpl(getIt<HiveLocalStorage>()),
+  );
+  getIt.registerFactory(() => LanguageBloc(getIt<LanguageRepository>()));
+
   getIt.registerLazySingleton(() => ApiHelper(getIt<Dio>()));
 
   getIt.registerLazySingleton(

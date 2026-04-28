@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import '../bloc/language_bloc.dart';
 import 'package:frontend/src/core/extensions/integer_sizedbox_extension.dart';
 import 'package:frontend/src/core/l10n/l10n.dart';
 import 'package:frontend/src/configs/injector/injector_conf.dart';
@@ -67,6 +69,35 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                 // Logo
                 Image.asset('assets/images/logo.jpg', height: 120, width: 220),
 
+                // Language Switcher
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    _LanguageOption(
+                      label: 'English',
+                      flag: '🇺🇸',
+                      onTap: () => context
+                          .read<LanguageBloc>()
+                          .add(LanguageChanged(const Locale('en'))),
+                      isSelected: context.watch<LanguageBloc>().state.locale?.languageCode == 'en',
+                    ),
+                    const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 12),
+                      child: Text('|', style: TextStyle(color: Colors.grey)),
+                    ),
+                    _LanguageOption(
+                      label: 'Tiếng Việt',
+                      flag: '🇻🇳',
+                      onTap: () => context
+                          .read<LanguageBloc>()
+                          .add(LanguageChanged(const Locale('vi'))),
+                      isSelected: context.watch<LanguageBloc>().state.locale?.languageCode == 'vi',
+                    ),
+                  ],
+                ),
+
+                24.hS,
+
                 // Two lines of description under the logo
                 Text(
                   l10n.welcomeTaglineConnect,
@@ -108,6 +139,42 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _LanguageOption extends StatelessWidget {
+  final String label;
+  final String flag;
+  final VoidCallback onTap;
+  final bool isSelected;
+
+  const _LanguageOption({
+    required this.label,
+    required this.flag,
+    required this.onTap,
+    required this.isSelected,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(flag, style: const TextStyle(fontSize: 16)),
+          const SizedBox(width: 4),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+              color: isSelected ? Colors.blue : Colors.black87,
+            ),
+          ),
+        ],
       ),
     );
   }

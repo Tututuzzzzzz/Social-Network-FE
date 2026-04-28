@@ -7,6 +7,8 @@ export '../../core/api/api_helper.dart';
 export '../../core/realtime/realtime_socket_service.dart';
 export '../../core/network/network_checker.dart';
 export '../../features/auth/di/auth_depedency.dart';
+export '../../features/auth/domain/repositories/language_repository.dart';
+export '../../features/auth/presentation/bloc/language_bloc.dart';
 export '../../features/chat/di/chat_dependency.dart';
 export '../../features/friend/di/friend_dependency.dart';
 export '../../features/message/di/message_dependency.dart';
