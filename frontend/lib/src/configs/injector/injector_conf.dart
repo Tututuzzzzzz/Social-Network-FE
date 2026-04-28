@@ -15,7 +15,7 @@ void configureDepedencies() {
   MessageDependency.init();
   NotificationsDepedency.init();
   ProfileDependency.init();
-  ReelsDependency.init();
+  HomeDependency.init();
 
   // Language
   getIt.registerLazySingleton<LanguageRepository>(

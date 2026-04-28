@@ -1,5 +1,7 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../configs/injector/injector_conf.dart';
 import '../../../../core/l10n/l10n.dart';
@@ -111,7 +113,7 @@ class _FeedScreenState extends State<FeedScreen> {
 
   Future<void> _onFollowTap(PostEntity post) async {
     final authorId = post.authorId.trim();
-    
+
     if (authorId.isEmpty) {
       return;
     }
@@ -135,13 +137,15 @@ class _FeedScreenState extends State<FeedScreen> {
         _sentFriendRequestAuthorIds.add(authorId);
       });
 
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text("Friend request sent successfully")));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Friend request sent successfully")),
+      );
     } catch (_) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Failed to send friend request. Please try again.")),
+        SnackBar(
+          content: Text("Failed to send friend request. Please try again."),
+        ),
       );
     } finally {
       if (mounted) {
@@ -165,12 +169,9 @@ class _FeedScreenState extends State<FeedScreen> {
         context.go(AppRoutes.homeSearch.path);
         break;
       case 2:
-        context.go(AppRoutes.reels.path);
-        break;
-      case 3:
         context.go(AppRoutes.chat.path);
         break;
-      case 4:
+      case 3:
         context.go(AppRoutes.profile.path);
         break;
     }
@@ -217,16 +218,17 @@ class _FeedScreenState extends State<FeedScreen> {
             elevation: 0,
             surfaceTintColor: Colors.white,
             leading: IconButton(
-              icon: const Icon(
-                Icons.add_box_outlined,
-                color: Colors.black,
-                size: 22,
+              icon: SvgPicture.string(
+                '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-square-plus-icon lucide-square-plus"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M8 12h8"/><path d="M12 8v8"/></svg>',
+                width: 22,
+                height: 22,
+                colorFilter: const ColorFilter.mode(Colors.black, BlendMode.srcIn),
               ),
               onPressed: _openCreatePostScreen,
             ),
             title: Image.asset(
               'assets/images/logo.jpg',
-              height: 34,
+              height: 64,
               fit: BoxFit.contain,
               filterQuality: FilterQuality.medium,
               errorBuilder: (context, error, stackTrace) {
@@ -237,7 +239,7 @@ class _FeedScreenState extends State<FeedScreen> {
                       'Mochi',
                       style: TextStyle(
                         color: Colors.black,
-                        fontSize: 30,
+                        fontSize: 36,
                         fontStyle: FontStyle.italic,
                         fontWeight: FontWeight.w800,
                         letterSpacing: -1,
@@ -246,7 +248,7 @@ class _FeedScreenState extends State<FeedScreen> {
                     SizedBox(width: 2),
                     Icon(
                       Icons.keyboard_arrow_down,
-                      size: 18,
+                      size: 20,
                       color: Colors.black,
                     ),
                   ],
@@ -257,17 +259,20 @@ class _FeedScreenState extends State<FeedScreen> {
             actions: [
               BlocBuilder<NotificationBloc, NotificationState>(
                 builder: (context, notificationState) {
-                  final hasUnreadNotifications = notificationState.unreadCount > 0;
-                  
+                  final hasUnreadNotifications =
+                      notificationState.unreadCount > 0;
+
                   return Stack(
                     clipBehavior: Clip.none,
                     children: [
                       IconButton(
-                        onPressed: () => context.push(AppRoutes.notifications.path),
-                        icon: const Icon(
-                          Icons.notifications_none,
-                          color: Colors.black,
-                          size: 22,
+                        onPressed: () =>
+                            context.push(AppRoutes.notifications.path),
+                        icon: SvgPicture.string(
+                          '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-bell-icon lucide-bell"><path d="M10.268 21a2 2 0 0 0 3.464 0"/><path d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326"/></svg>',
+                          width: 22,
+                          height: 22,
+                          colorFilter: const ColorFilter.mode(Colors.black, BlendMode.srcIn),
                         ),
                       ),
                       if (hasUnreadNotifications)

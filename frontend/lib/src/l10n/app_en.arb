@@ -269,4 +269,7 @@
   ,"rejectFriendRequest": "Reject"
   ,"notificationsTitle": "Notifications"
   ,"markAllAsRead": "Read all"
+  ,"titleSearch": "Search"
+  ,"titleReels": "Reels"
+  ,"titleChat": "Chat"
 }

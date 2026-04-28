@@ -793,4 +793,34 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get recentSearchTitle => 'Recent';
+
+  @override
+  String get friendRequestSent => 'Sent';
+
+  @override
+  String get friendRequestSendSuccess => 'Friend request sent';
+
+  @override
+  String get friendRequestSendError => 'Cannot send friend request';
+
+  @override
+  String get acceptFriendRequest => 'Accept';
+
+  @override
+  String get rejectFriendRequest => 'Reject';
+
+  @override
+  String get notificationsTitle => 'Notifications';
+
+  @override
+  String get markAllAsRead => 'Read all';
+
+  @override
+  String get titleSearch => 'Search';
+
+  @override
+  String get titleReels => 'Reels';
+
+  @override
+  String get titleChat => 'Chat';
 }

@@ -219,7 +219,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
         context.go(AppRoutes.home.path);
         break;
       case 1:
-        context.go(AppRoutes.reels.path);
+        context.go(AppRoutes.homeSearch.path);
         break;
       case 2:
         context.go(AppRoutes.chat.path);

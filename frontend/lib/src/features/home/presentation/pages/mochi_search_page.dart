@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
 import '../../../../configs/injector/injector_conf.dart';
-import '../../../../widgets/feature_page_scaffold.dart';
 import '../../domain/entities/home_entity.dart';
 import '../bloc/home/home_bloc.dart';
 import '../widgets/home_widgets.dart';
@@ -101,69 +99,108 @@ class _MochiSearchPageState extends State<MochiSearchPage> {
         .toList();
   }
 
+  Widget _buildSearchResults(
+    BuildContext context,
+    List<HomeUserResult> people,
+    List<HomeDiscoveryItem> discovery,
+  ) {
+    if (people.isEmpty && discovery.isEmpty) {
+      return const Padding(
+        padding: EdgeInsets.only(top: 60),
+        child: Center(
+          child: Text(
+            'No results found',
+            style: TextStyle(color: Colors.grey, fontSize: 16),
+          ),
+        ),
+      );
+    }
+
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(12, 0, 12, 24),
+      children: [
+        HomeFilterTabs(
+          tabs: _tabs,
+          selectedIndex: _selectedTab,
+          onChanged: (value) => setState(() => _selectedTab = value),
+        ),
+        const SizedBox(height: 18),
+        if (people.isNotEmpty) ...[
+          const HomeSectionHeader(title: 'People', actionText: 'See all'),
+          const SizedBox(height: 8),
+          ...people.map(
+            (item) => HomeUserResultTile(
+              item: item,
+              onTap: () {},
+              onTapFollow: () {},
+            ),
+          ),
+          const SizedBox(height: 16),
+        ],
+        if (discovery.isNotEmpty) ...[
+          const HomeSectionHeader(title: 'Discover', actionText: 'Explore'),
+          const SizedBox(height: 8),
+          HomeDiscoveryGrid(items: discovery),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildExploreGrid(BuildContext context) {
+    return GridView.builder(
+      padding: EdgeInsets.zero,
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 3,
+        crossAxisSpacing: 2,
+        mainAxisSpacing: 2,
+      ),
+      itemCount: 30,
+      itemBuilder: (context, index) {
+        return Container(
+          color: Colors.grey.shade300,
+          child: Icon(Icons.image, color: Colors.grey.shade400, size: 32),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider<HomeBloc>(
       create: (_) => getIt<HomeBloc>()..add(const HomeFetchedEvent()),
       child: BlocBuilder<HomeBloc, HomeState>(
         builder: (context, state) {
-          final loadedItems = state is HomeSuccessState
-              ? state.items
-              : const <HomeEntity>[];
+          final loadedItems =
+              state is HomeSuccessState ? state.items : const <HomeEntity>[];
           final people = _buildPeople(loadedItems);
           final discovery = _buildDiscovery(loadedItems);
 
-          return FeaturePageScaffold(
-            title: 'Mochi Search',
-            isLoading: state is HomeInitialState || state is HomeLoadingState,
-            isEmpty:
-                state is HomeSuccessState &&
-                people.isEmpty &&
-                discovery.isEmpty,
-            emptyTitle: 'No results found',
-            emptyMessage: 'Try another keyword or switch the filter tab.',
-            emptyIcon: Icons.search_off_outlined,
-            errorTitle: state is HomeFailureState ? 'Cannot load search' : null,
-            errorMessage: state is HomeFailureState ? state.message : null,
-            onRetry: () =>
-                context.read<HomeBloc>().add(const HomeFetchedEvent()),
-            actions: [
-              IconButton(
-                onPressed: () {},
-                icon: const Icon(Icons.bookmark_border),
-              ),
-            ],
-            body: ListView(
-              padding: const EdgeInsets.fromLTRB(12, 12, 12, 24),
-              children: [
-                HomeSearchInput(
-                  onChanged: (value) => setState(() => _query = value.trim()),
-                  onSubmitted: () {},
-                ),
-                const SizedBox(height: 12),
-                HomeFilterTabs(
-                  tabs: _tabs,
-                  selectedIndex: _selectedTab,
-                  onChanged: (value) => setState(() => _selectedTab = value),
-                ),
-                const SizedBox(height: 18),
-                const HomeSectionHeader(title: 'People', actionText: 'See all'),
-                const SizedBox(height: 8),
-                ...people.map(
-                  (item) => HomeUserResultTile(
-                    item: item,
-                    onTap: () {},
-                    onTapFollow: () {},
+          final isSearching = _query.isNotEmpty;
+          final isLoading =
+              state is HomeInitialState || state is HomeLoadingState;
+
+          return Scaffold(
+            backgroundColor: Colors.white,
+            body: SafeArea(
+              child: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(12, 12, 12, 8),
+                    child: HomeSearchInput(
+                      onChanged: (value) =>
+                          setState(() => _query = value.trim()),
+                      onSubmitted: () {},
+                    ),
                   ),
-                ),
-                const SizedBox(height: 16),
-                const HomeSectionHeader(
-                  title: 'Discover',
-                  actionText: 'Explore',
-                ),
-                const SizedBox(height: 8),
-                HomeDiscoveryGrid(items: discovery),
-              ],
+                  Expanded(
+                    child: isLoading
+                        ? const Center(child: CircularProgressIndicator())
+                        : isSearching
+                            ? _buildSearchResults(context, people, discovery)
+                            : _buildExploreGrid(context),
+                  ),
+                ],
+              ),
             ),
           );
         },

@@ -1567,6 +1567,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Recent'**
   String get recentSearchTitle;
+
+  /// No description provided for @friendRequestSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent'**
+  String get friendRequestSent;
+
+  /// No description provided for @friendRequestSendSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Friend request sent'**
+  String get friendRequestSendSuccess;
+
+  /// No description provided for @friendRequestSendError.
+  ///
+  /// In en, this message translates to:
+  /// **'Cannot send friend request'**
+  String get friendRequestSendError;
+
+  /// No description provided for @acceptFriendRequest.
+  ///
+  /// In en, this message translates to:
+  /// **'Accept'**
+  String get acceptFriendRequest;
+
+  /// No description provided for @rejectFriendRequest.
+  ///
+  /// In en, this message translates to:
+  /// **'Reject'**
+  String get rejectFriendRequest;
+
+  /// No description provided for @notificationsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications'**
+  String get notificationsTitle;
+
+  /// No description provided for @markAllAsRead.
+  ///
+  /// In en, this message translates to:
+  /// **'Read all'**
+  String get markAllAsRead;
+
+  /// No description provided for @titleSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Search'**
+  String get titleSearch;
+
+  /// No description provided for @titleReels.
+  ///
+  /// In en, this message translates to:
+  /// **'Reels'**
+  String get titleReels;
+
+  /// No description provided for @titleChat.
+  ///
+  /// In en, this message translates to:
+  /// **'Chat'**
+  String get titleChat;
 }
 
 class _AppLocalizationsDelegate

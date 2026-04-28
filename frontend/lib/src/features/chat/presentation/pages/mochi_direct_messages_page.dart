@@ -3,14 +3,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../l10n/generated/app_localizations.dart';
 import '../../../../configs/injector/injector_conf.dart';
-import '../../../../core/api/api_constants.dart';
-import '../../../../core/api/api_helper.dart';
-import '../../../friend/presentation/pages/friend_picker_bottom_sheet.dart';
 import '../../../../routes/app_route_path.dart';
 import '../../domain/entities/chat_entity.dart';
-import '../../domain/usecases/create_direct_conversation_usecase.dart';
-import '../../domain/usecases/usecase_params.dart';
 import '../bloc/chat/chat_bloc.dart';
 
 class MochiDirectMessagesPage extends StatefulWidget {
@@ -22,7 +18,6 @@ class MochiDirectMessagesPage extends StatefulWidget {
 }
 
 class _MochiDirectMessagesPageState extends State<MochiDirectMessagesPage> {
-  static const String _username = 'hoangtu_1';
   static const List<Color> _avatarColors = [
     Color(0xFFE8EBF4),
     Color(0xFFEDE4EC),
@@ -34,96 +29,8 @@ class _MochiDirectMessagesPageState extends State<MochiDirectMessagesPage> {
   String _query = '';
   bool _showPendingThreads = true;
 
-  Future<void> _createConversationAndOpen(
-    FriendPickerUser friend,
-    BuildContext blocContext,
-  ) async {
-    final messenger = ScaffoldMessenger.of(context);
-    final chatBloc = blocContext.read<ChatBloc>();
-    final router = GoRouter.of(blocContext);
 
-    ChatEntity? chatEntity;
 
-    try {
-      if (getIt.isRegistered<CreateDirectConversationUseCase>()) {
-        final useCase = getIt<CreateDirectConversationUseCase>();
-        final result = await useCase(
-          CreateDirectConversationParams(recipientId: friend.id),
-        );
-
-        result.fold(
-          (_) {
-            chatEntity = null;
-          },
-          (chat) {
-            chatEntity = chat;
-          },
-        );
-      } else {
-        chatEntity = await _createConversationFallback(friend);
-      }
-    } catch (_) {
-      chatEntity = await _createConversationFallback(friend);
-    }
-
-    if (!mounted || !blocContext.mounted) {
-      return;
-    }
-
-    if (chatEntity == null || chatEntity!.id.trim().isEmpty) {
-      messenger.showSnackBar(
-        const SnackBar(content: Text('Khong tao duoc cuoc tro chuyen')),
-      );
-      return;
-    }
-
-    chatBloc.add(const ChatFetchedEvent());
-    await router.pushNamed(
-      AppRoutes.chatMochiChatRoom.name,
-      pathParameters: {'threadId': chatEntity!.id},
-      extra: chatEntity,
-    );
-  }
-
-  Future<ChatEntity?> _createConversationFallback(
-    FriendPickerUser friend,
-  ) async {
-    final apiHelper = getIt<ApiHelper>();
-    final result = await apiHelper.execute(
-      method: Method.post,
-      url: ApiConstants.conversations,
-      data: {'type': 'direct', 'recipientId': friend.id},
-    );
-
-    final raw = result['conversation'];
-    if (raw is! Map) {
-      return null;
-    }
-
-    final map = Map<String, dynamic>.from(raw);
-    final id = (map['_id'] ?? map['id'] ?? '').toString();
-    if (id.isEmpty) {
-      return null;
-    }
-
-    return ChatEntity(
-      id: id,
-      recipientId: friend.id,
-      senderName: friend.name,
-      messagePreview: 'Start chatting...',
-      timeLabel: 'now',
-      isGroup: false,
-      fullConversation: '${friend.name}: Start chatting...',
-    );
-  }
-
-  Future<void> _openFriendsPicker(BuildContext blocContext) async {
-    final selectedFriend = await showFriendPickerBottomSheet(context);
-    if (!mounted || !blocContext.mounted || selectedFriend == null) {
-      return;
-    }
-    await _createConversationAndOpen(selectedFriend, blocContext);
-  }
 
   List<ChatEntity> _visibleThreads(List<ChatEntity> threads) {
     final keyword = _query.toLowerCase();
@@ -173,30 +80,11 @@ class _MochiDirectMessagesPageState extends State<MochiDirectMessagesPage> {
         child: Stack(
           alignment: Alignment.center,
           children: [
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: const [
-                Text(
-                  _username,
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
-                  ),
-                ),
-                SizedBox(width: 2),
-                Icon(
-                  Icons.keyboard_arrow_down,
-                  size: 18,
-                  color: Colors.black,
-                ),
-              ],
-            ),
-            Positioned(
-              right: -8,
-              child: IconButton(
-                onPressed: () => _openFriendsPicker(blocContext),
-                icon: const Icon(Icons.add, size: 28, weight: 300),
+            Text(
+              AppLocalizations.of(blocContext)!.titleChat,
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
                 color: Colors.black,
               ),
             ),

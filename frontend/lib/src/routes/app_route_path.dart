@@ -7,7 +7,6 @@ enum AppRoutes {
   authRegister(path: '/auth/register'),
   home(path: '/home'),
   homeSearch(path: '/home/search'),
-  reels(path: '/reels'),
   chat(path: '/chat'),
   notifications(path: '/notifications'),
   chatMochiChatRoom(path: '/chat/room/:threadId'),

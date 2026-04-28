@@ -15,4 +15,4 @@ export '../../features/message/di/message_dependency.dart';
 export '../../features/notifications/di/notifications_depedency.dart';
 export '../../features/post/di/post_depedency.dart';
 export '../../features/profile/di/profile_dependency.dart';
-export '../../features/reels/di/reels_dependency.dart';
+export '../../features/home/di/home_dependency.dart';

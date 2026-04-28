@@ -87,15 +87,7 @@ class AppRoutesConf {
       GoRoute(
         path: AppRoutes.homeSearch.path,
         name: AppRoutes.homeSearch.name,
-        builder: (context, state) => BlocProvider<PostBloc>(
-          create: (_) => getIt<PostBloc>(),
-          child: const FeedScreen(),
-        ),
-      ),
-      GoRoute(
-        path: AppRoutes.reels.path,
-        name: AppRoutes.reels.name,
-        builder: (context, state) => const AppShellPage(body: MochiReelsPage()),
+        builder: (context, state) => const AppShellPage(body: MochiSearchPage()),
       ),
       GoRoute(
         path: AppRoutes.chat.path,

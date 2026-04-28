@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class FeaturePageScaffold extends StatelessWidget {
   final String title;
@@ -317,7 +318,11 @@ class _PrototypeScreenFallback extends StatelessWidget {
                         icon: Icons.chat_bubble_outline,
                         label: 'Comment',
                       ),
-                      _PreviewAction(icon: Icons.send_outlined, label: 'Share'),
+                      _SvgPreviewAction(
+                        svgData:
+                            '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-send-icon lucide-send"><path d="M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z"/><path d="m21.854 2.147-10.94 10.939"/></svg>',
+                        label: 'Share',
+                      ),
                     ],
                   ),
                 ],
@@ -458,7 +463,11 @@ class _PrototypeScreenFallback extends StatelessWidget {
                         label: '1.2k',
                       ),
                       SizedBox(height: 12),
-                      _ReelsAction(icon: Icons.send_outlined, label: 'Share'),
+                      _SvgReelsAction(
+                        svgData:
+                            '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-send-icon lucide-send"><path d="M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z"/><path d="m21.854 2.147-10.94 10.939"/></svg>',
+                        label: 'Share',
+                      ),
                     ],
                   ),
                 ),
@@ -629,6 +638,53 @@ class _ReelsAction extends StatelessWidget {
     return Column(
       children: [
         Icon(icon, color: Colors.white),
+        const SizedBox(height: 4),
+        Text(label, style: const TextStyle(color: Colors.white)),
+      ],
+    );
+  }
+}
+
+class _SvgPreviewAction extends StatelessWidget {
+  final String svgData;
+  final String label;
+
+  const _SvgPreviewAction({required this.svgData, required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        SvgPicture.string(
+          svgData,
+          width: 18,
+          height: 18,
+          colorFilter: const ColorFilter.mode(Colors.black, BlendMode.srcIn),
+        ),
+        const SizedBox(width: 5),
+        Text(label),
+      ],
+    );
+  }
+}
+
+class _SvgReelsAction extends StatelessWidget {
+  final String svgData;
+  final String label;
+
+  const _SvgReelsAction({required this.svgData, required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        SvgPicture.string(
+          svgData,
+          width: 24,
+          height: 24,
+          colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+        ),
         const SizedBox(height: 4),
         Text(label, style: const TextStyle(color: Colors.white)),
       ],

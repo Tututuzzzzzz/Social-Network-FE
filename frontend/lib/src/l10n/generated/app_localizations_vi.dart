@@ -799,4 +799,34 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get recentSearchTitle => 'Gần đây';
+
+  @override
+  String get friendRequestSent => 'Đã gửi';
+
+  @override
+  String get friendRequestSendSuccess => 'Đã gửi lời mời kết bạn';
+
+  @override
+  String get friendRequestSendError => 'Không thể gửi lời mời kết bạn';
+
+  @override
+  String get acceptFriendRequest => 'Chấp nhận';
+
+  @override
+  String get rejectFriendRequest => 'Từ chối';
+
+  @override
+  String get notificationsTitle => 'Thông báo';
+
+  @override
+  String get markAllAsRead => 'Đọc tất cả';
+
+  @override
+  String get titleSearch => 'Tìm kiếm';
+
+  @override
+  String get titleReels => 'Reels';
+
+  @override
+  String get titleChat => 'Trò chuyện';
 }
