@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:frontend/src/configs/injector/injector_conf.dart';
 import 'package:frontend/src/features/post/domain/entities/post_comment_entity.dart';
 import 'package:frontend/src/features/post/domain/entities/post_entity.dart';
+import 'package:frontend/src/features/post/domain/usecases/create_comment_usecase.dart';
+import 'package:frontend/src/features/post/domain/usecases/get_comments_usecase.dart';
 import 'package:intl/intl.dart';
-import 'package:go_router/go_router.dart';
-import '../../../../routes/app_route_path.dart';
 
 class CommentsSheet extends StatefulWidget {
   const CommentsSheet({
     super.key,
     required this.initialPost,
     required this.currentUserId,
+    this.onCommentsCountChanged,
     this.highlightedCommentId,
     this.initialReplyCommentId,
     this.autoFocusComposer = false,
@@ -18,6 +19,7 @@ class CommentsSheet extends StatefulWidget {
 
   final PostEntity initialPost;
   final String? currentUserId;
+  final ValueChanged<int>? onCommentsCountChanged;
   final String? highlightedCommentId;
   final String? initialReplyCommentId;
   final bool autoFocusComposer;
@@ -33,6 +35,7 @@ class _CommentsSheetState extends State<CommentsSheet>
   final Map<String, GlobalKey> _commentKeys = <String, GlobalKey>{};
   PostCommentEntity? _replyTarget;
   late List<PostCommentEntity> _comments;
+  bool _isLoadingComments = false;
   bool _isSubmitting = false;
   String? _activeHighlightCommentId;
   bool _didAutoHighlight = false;
@@ -50,6 +53,35 @@ class _CommentsSheetState extends State<CommentsSheet>
     );
     if ((_activeHighlightCommentId ?? '').isNotEmpty) {
       _pulseController.repeat(reverse: true);
+    }
+
+    _loadCommentsFromServer();
+  }
+
+  Future<void> _loadCommentsFromServer() async {
+    if (_isLoadingComments) return;
+
+    setState(() => _isLoadingComments = true);
+
+    try {
+      final useCase = getIt<GetCommentsUseCase>();
+      final result = await useCase.call(
+        GetCommentsParams(postId: widget.initialPost.id),
+      );
+
+      result.fold(
+        (_) {},
+        (data) {
+          if (!mounted) return;
+          setState(() {
+            _comments = List<PostCommentEntity>.from(data.comments);
+          });
+          widget.onCommentsCountChanged?.call(data.commentsCount);
+        },
+      );
+    } finally {
+      if (!mounted) return;
+      setState(() => _isLoadingComments = false);
     }
   }
 
@@ -69,6 +101,24 @@ class _CommentsSheetState extends State<CommentsSheet>
         ? normalized.substring(0, 10)
         : normalized;
     return '@$prefix';
+  }
+
+  String _resolveCommentAuthorLabel(PostCommentEntity comment) {
+    if (widget.currentUserId != null && comment.authorId == widget.currentUserId) {
+      return 'Ban';
+    }
+
+    final displayName = comment.authorDisplayName?.trim() ?? '';
+    if (displayName.isNotEmpty) {
+      return displayName;
+    }
+
+    final username = comment.authorUsername?.trim() ?? '';
+    if (username.isNotEmpty) {
+      return '@$username';
+    }
+
+    return _formatCommentAuthor(comment.authorId);
   }
 
   List<_FlattenedComment> _buildFlattenedComments(
@@ -135,23 +185,38 @@ class _CommentsSheetState extends State<CommentsSheet>
 
     setState(() => _isSubmitting = true);
 
-    final now = DateTime.now();
-    final comment = PostCommentEntity(
-      id: now.microsecondsSinceEpoch.toString(),
-      parentCommentId: _replyTarget?.id,
-      authorId: widget.currentUserId ?? 'me',
-      content: content,
-      createdAt: now,
-      updatedAt: now,
-    );
+    try {
+      final useCase = getIt<CreateCommentUseCase>();
+      final result = await useCase.call(
+        CreateCommentParams(
+          postId: widget.initialPost.id,
+          content: content,
+          parentCommentId: _replyTarget?.id,
+        ),
+      );
 
-    _controller.clear();
-    setState(() {
-      _comments = [..._comments, comment];
-      _replyTarget = null;
-      _isSubmitting = false;
-    });
-    FocusScope.of(context).unfocus();
+      result.fold(
+        (failure) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Khong the gui comment. Hay thu lai.')),
+          );
+        },
+        (comment) {
+          if (!mounted) return;
+          final nextCount = _comments.length + 1;
+          _controller.clear();
+          setState(() {
+            _comments = [..._comments, comment];
+            _replyTarget = null;
+          });
+          widget.onCommentsCountChanged?.call(nextCount);
+          FocusScope.of(context).unfocus();
+        },
+      );
+    } finally {
+      if (!mounted) return;
+      setState(() => _isSubmitting = false);
+    }
   }
 
   @override
@@ -205,7 +270,11 @@ class _CommentsSheetState extends State<CommentsSheet>
                     ),
                     Divider(height: 1, color: Colors.grey.shade200),
                     Expanded(
-                      child: comments.isEmpty
+                      child: _isLoadingComments && comments.isEmpty
+                          ? const Center(
+                              child: CircularProgressIndicator(),
+                            )
+                          : comments.isEmpty
                           ? const Center(
                               child: Text(
                                 'Chua co binh luan nao. Hay la nguoi dau tien!',
@@ -232,8 +301,8 @@ class _CommentsSheetState extends State<CommentsSheet>
                                 final indent = (item.depth * 18.0)
                                     .clamp(0.0, 72.0)
                                     .toDouble();
-                                final authorLabel = _formatCommentAuthor(
-                                  comment.authorId,
+                                final authorLabel = _resolveCommentAuthorLabel(
+                                  comment,
                                 );
                                 final isHighlighted =
                                     _activeHighlightCommentId == comment.id;
@@ -262,28 +331,17 @@ class _CommentsSheetState extends State<CommentsSheet>
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                       children: [
-                                        GestureDetector(
-                                          onTap: () {
-                                            Navigator.pop(context);
-                                            context.pushNamed(
-                                              AppRoutes.otherProfile.name,
-                                              pathParameters: {
-                                                'userId': comment.authorId,
-                                              },
-                                            );
-                                          },
-                                          child: CircleAvatar(
-                                            radius: 14,
-                                            backgroundColor: const Color(
-                                              0xFFE7E7E7,
-                                            ),
-                                            child: Text(
-                                              authorLabel[0].toUpperCase(),
-                                              style: const TextStyle(
-                                                fontSize: 11,
-                                                fontWeight: FontWeight.w700,
-                                                color: Colors.black87,
-                                              ),
+                                        CircleAvatar(
+                                          radius: 14,
+                                          backgroundColor: const Color(
+                                            0xFFE7E7E7,
+                                          ),
+                                          child: Text(
+                                            authorLabel[0].toUpperCase(),
+                                            style: const TextStyle(
+                                              fontSize: 11,
+                                              fontWeight: FontWeight.w700,
+                                              color: Colors.black87,
                                             ),
                                           ),
                                         ),
@@ -295,25 +353,12 @@ class _CommentsSheetState extends State<CommentsSheet>
                                             children: [
                                               Row(
                                                 children: [
-                                                  GestureDetector(
-                                                    onTap: () {
-                                                      Navigator.pop(context);
-                                                      context.pushNamed(
-                                                        AppRoutes.otherProfile
-                                                            .name,
-                                                        pathParameters: {
-                                                          'userId':
-                                                              comment.authorId,
-                                                        },
-                                                      );
-                                                    },
-                                                    child: Text(
-                                                      authorLabel,
-                                                      style: const TextStyle(
-                                                        fontSize: 13,
-                                                        fontWeight:
-                                                            FontWeight.w700,
-                                                      ),
+                                                  Text(
+                                                    authorLabel,
+                                                    style: const TextStyle(
+                                                      fontSize: 13,
+                                                      fontWeight:
+                                                          FontWeight.w700,
                                                     ),
                                                   ),
                                                   const SizedBox(width: 8),
@@ -449,13 +494,13 @@ class _CommentsSheetState extends State<CommentsSheet>
                                           : 'Viet tra loi...',
                                       filled: true,
                                       fillColor: const Color(0xFFF4F4F4),
-                                      isDense: true,
-                                      contentPadding: const EdgeInsets.symmetric(
-                                        horizontal: 14,
-                                        vertical: 8,
-                                      ),
+                                      contentPadding:
+                                          const EdgeInsets.symmetric(
+                                            horizontal: 14,
+                                            vertical: 10,
+                                          ),
                                       border: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(30),
+                                        borderRadius: BorderRadius.circular(22),
                                         borderSide: BorderSide.none,
                                       ),
                                     ),
@@ -474,12 +519,7 @@ class _CommentsSheetState extends State<CommentsSheet>
                                             strokeWidth: 2,
                                           ),
                                         )
-                                      : SvgPicture.string(
-                                          '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-send-icon lucide-send"><path d="M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z"/><path d="m21.854 2.147-10.94 10.939"/></svg>',
-                                          width: 24,
-                                          height: 24,
-                                          colorFilter: const ColorFilter.mode(Colors.black, BlendMode.srcIn),
-                                        ),
+                                      : const Icon(Icons.send_rounded),
                                 ),
                               ],
                             ),

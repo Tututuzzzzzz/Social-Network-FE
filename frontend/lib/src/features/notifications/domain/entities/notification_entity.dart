@@ -11,6 +11,7 @@ class NotificationEntity extends Equatable {
   final String body;
   final String? entityType;
   final String? entityId;
+  final bool isActionable;
   final bool isRead;
   final DateTime? readAt;
   final DateTime? createdAt;
@@ -26,12 +27,13 @@ class NotificationEntity extends Equatable {
     required this.body,
     this.entityType,
     this.entityId,
+    this.isActionable = false,
     required this.isRead,
     this.readAt,
     this.createdAt,
   });
 
-  NotificationEntity copyWith({bool? isRead, DateTime? readAt}) {
+  NotificationEntity copyWith({bool? isRead, DateTime? readAt, bool? isActionable}) {
     return NotificationEntity(
       id: id,
       recipientId: recipientId,
@@ -43,6 +45,7 @@ class NotificationEntity extends Equatable {
       body: body,
       entityType: entityType,
       entityId: entityId,
+      isActionable: isActionable ?? this.isActionable,
       isRead: isRead ?? this.isRead,
       readAt: readAt ?? this.readAt,
       createdAt: createdAt,
@@ -61,6 +64,7 @@ class NotificationEntity extends Equatable {
     body,
     entityType,
     entityId,
+    isActionable,
     isRead,
     readAt,
     createdAt,

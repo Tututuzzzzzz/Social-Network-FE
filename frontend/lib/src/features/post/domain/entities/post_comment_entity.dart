@@ -4,6 +4,9 @@ class PostCommentEntity extends Equatable {
   final String id;
   final String? parentCommentId;
   final String authorId;
+  final String? authorUsername;
+  final String? authorDisplayName;
+  final String? authorAvatarUrl;
   final String content;
   final DateTime createdAt;
   final DateTime updatedAt;
@@ -12,6 +15,9 @@ class PostCommentEntity extends Equatable {
     required this.id,
     this.parentCommentId,
     required this.authorId,
+    this.authorUsername,
+    this.authorDisplayName,
+    this.authorAvatarUrl,
     required this.content,
     required this.createdAt,
     required this.updatedAt,
@@ -22,6 +28,9 @@ class PostCommentEntity extends Equatable {
     id,
     parentCommentId,
     authorId,
+    authorUsername,
+    authorDisplayName,
+    authorAvatarUrl,
     content,
     createdAt,
     updatedAt,
