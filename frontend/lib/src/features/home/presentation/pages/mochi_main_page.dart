@@ -15,6 +15,7 @@ class MochiMainPage extends StatelessWidget {
 
   static const List<HomePostItem> _fallbackPosts = [
     HomePostItem(
+      authorId: 'fallback_1',
       author: 'An Nguyen',
       minutesAgo: 8,
       content: 'Loading feed from API...',
@@ -22,6 +23,7 @@ class MochiMainPage extends StatelessWidget {
       comments: 16,
     ),
     HomePostItem(
+      authorId: 'fallback_2',
       author: 'Binh Tran',
       minutesAgo: 21,
       content: 'Switch to your backend data and remove fallback entries.',
@@ -34,17 +36,21 @@ class MochiMainPage extends StatelessWidget {
     final people = items.where((item) => item.kind == 'person').toList();
     if (people.isEmpty) {
       return const [
-        HomeStoryItem(name: 'Your story', hasUnread: false),
-        HomeStoryItem(name: 'An', hasUnread: true),
+        HomeStoryItem(id: 'me', name: 'Your story', hasUnread: false),
+        HomeStoryItem(id: 'other_1', name: 'An', hasUnread: true),
       ];
     }
 
     final stories = people.take(8).map((item) {
-      return HomeStoryItem(name: item.title, hasUnread: item.isOnline);
+      return HomeStoryItem(
+        id: item.id,
+        name: item.title,
+        hasUnread: item.isOnline,
+      );
     }).toList();
 
     return [
-      const HomeStoryItem(name: 'Your story', hasUnread: false),
+      const HomeStoryItem(id: 'me', name: 'Your story', hasUnread: false),
       ...stories,
     ].take(9).toList();
   }
@@ -52,6 +58,7 @@ class MochiMainPage extends StatelessWidget {
   static List<HomePostItem> _buildPosts(List<HomeEntity> items) {
     final posts = items.where((item) => item.kind == 'post').map((item) {
       return HomePostItem(
+        authorId: item.authorId,
         author: item.title,
         minutesAgo: item.minutesAgo,
         content: item.subtitle,
@@ -82,6 +89,16 @@ class MochiMainPage extends StatelessWidget {
 
           return FeaturePageScaffold(
             title: 'Mochi Main',
+            leading: GestureDetector(
+              onTap: () => context.pushNamed(AppRoutes.profile.name),
+              child: const Padding(
+                padding: EdgeInsets.all(10.0),
+                child: CircleAvatar(
+                  radius: 14,
+                  child: Text('Y'),
+                ),
+              ),
+            ),
             titleWidget: Image.asset(
               'assets/images/logo1.jpg',
               height: 28,
@@ -120,7 +137,10 @@ class MochiMainPage extends StatelessWidget {
             body: ListView(
               padding: const EdgeInsets.fromLTRB(12, 12, 12, 96),
               children: [
-                const HomeComposerCard(),
+                HomeComposerCard(
+                  onTapAvatar: () =>
+                      context.pushNamed(AppRoutes.profile.name),
+                ),
                 const SizedBox(height: 12),
                 HomeStoriesStrip(items: stories),
                 const SizedBox(height: 16),

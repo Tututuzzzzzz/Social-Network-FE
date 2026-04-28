@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../configs/injector/injector_conf.dart';
+import '../../../../routes/app_route_path.dart';
 import '../../domain/entities/home_entity.dart';
 import '../bloc/home/home_bloc.dart';
 import '../widgets/home_widgets.dart';
@@ -34,6 +36,7 @@ class _MochiSearchPageState extends State<MochiSearchPage> {
         })
         .map((item) {
           return HomeUserResult(
+            id: item.id,
             name: item.title,
             handle: item.handle,
             mutualFriends: item.mutualFriends,
@@ -140,7 +143,12 @@ class _MochiSearchPageState extends State<MochiSearchPage> {
           ...people.map(
             (item) => HomeUserResultTile(
               item: item,
-              onTap: () {},
+              onTap: () {
+                context.pushNamed(
+                  AppRoutes.otherProfile.name,
+                  pathParameters: {'userId': item.id},
+                );
+              },
               onTapFollow: () {},
             ),
           ),
@@ -195,10 +203,25 @@ class _MochiSearchPageState extends State<MochiSearchPage> {
                 children: [
                   Padding(
                     padding: const EdgeInsets.fromLTRB(12, 12, 12, 8),
-                    child: HomeSearchInput(
-                      onChanged: (value) =>
-                          setState(() => _query = value.trim()),
-                      onSubmitted: () {},
+                    child: Row(
+                      children: [
+                        GestureDetector(
+                          onTap: () =>
+                              context.pushNamed(AppRoutes.profile.name),
+                          child: const CircleAvatar(
+                            radius: 18,
+                            child: Text('Y'),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: HomeSearchInput(
+                            onChanged: (value) =>
+                                setState(() => _query = value.trim()),
+                            onSubmitted: () {},
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                   Expanded(

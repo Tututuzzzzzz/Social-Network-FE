@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import '../../../../routes/app_route_path.dart';
 
 class HomePostItem {
+  final String authorId;
   final String author;
   final int minutesAgo;
   final String content;
@@ -9,6 +12,7 @@ class HomePostItem {
   final String mediaUrl;
 
   const HomePostItem({
+    required this.authorId,
     required this.author,
     required this.minutesAgo,
     required this.content,
@@ -63,28 +67,40 @@ class HomeFeedPostCard extends StatelessWidget {
           children: [
             Row(
               children: [
-                CircleAvatar(
-                  radius: 18,
-                  child: Text(item.author.substring(0, 1)),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                GestureDetector(
+                  onTap: () {
+                    context.pushNamed(
+                      AppRoutes.otherProfile.name,
+                      pathParameters: {'userId': item.authorId},
+                    );
+                  },
+                  child: Row(
                     children: [
-                      Text(
-                        item.author,
-                        style: const TextStyle(fontWeight: FontWeight.w600),
+                      CircleAvatar(
+                        radius: 18,
+                        child: Text(item.author.substring(0, 1)),
                       ),
-                      Text(
-                        _formatTimeAgo(item.minutesAgo),
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Colors.grey[600],
-                        ),
+                      const SizedBox(width: 10),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            item.author,
+                            style: const TextStyle(fontWeight: FontWeight.w600),
+                          ),
+                          Text(
+                            _formatTimeAgo(item.minutesAgo),
+                            style:
+                                Theme.of(context).textTheme.bodySmall?.copyWith(
+                                      color: Colors.grey[600],
+                                    ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
                 ),
+                const Spacer(),
                 IconButton(
                   onPressed: onTapMore,
                   icon: const Icon(Icons.more_horiz),

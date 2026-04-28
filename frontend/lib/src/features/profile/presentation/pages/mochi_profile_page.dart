@@ -20,7 +20,8 @@ import '../bloc/profile/profile_bloc.dart';
 import '../widgets/mochi_profile_sections.dart';
 
 class MochiProfilePage extends StatefulWidget {
-  const MochiProfilePage({super.key});
+  final String? userId;
+  const MochiProfilePage({super.key, this.userId});
 
   @override
   State<MochiProfilePage> createState() => _MochiProfilePageState();
@@ -28,7 +29,9 @@ class MochiProfilePage extends StatefulWidget {
 
 class _MochiProfilePageState extends State<MochiProfilePage> {
   ProfileEntity? _cachedProfile;
-  String _currentUserId = '';
+  String _targetUserId = '';
+  String _loggedInUserId = '';
+  bool _isOtherUser = false;
   List<String> _userPostImages = const [];
   Set<String> _multiImageOverlayUrls = const {};
 
@@ -38,22 +41,33 @@ class _MochiProfilePageState extends State<MochiProfilePage> {
     WidgetsBinding.instance.addPostFrameCallback((_) => _loadProfile());
   }
 
+  @override
+  void didUpdateWidget(covariant MochiProfilePage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.userId != widget.userId) {
+      _targetUserId = ''; // Reset to force re-resolution
+      WidgetsBinding.instance.addPostFrameCallback((_) => _loadProfile());
+    }
+  }
+
   Future<void> _loadProfile() async {
     if (!mounted) {
       return;
     }
 
-    if (_currentUserId.trim().isEmpty) {
-      _currentUserId = await _resolveCurrentUserId();
+    if (_targetUserId.trim().isEmpty) {
+      _loggedInUserId = await _resolveCurrentUserId();
+      _targetUserId = widget.userId ?? _loggedInUserId;
+      _isOtherUser = _targetUserId != _loggedInUserId;
     }
 
     if (!mounted) {
       return;
     }
 
-    if (_currentUserId.isEmpty) {
+    if (_targetUserId.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Không tìm thấy user_id đăng nhập')),
+        const SnackBar(content: Text('Không tìm thấy user_id')),
       );
       return;
     }
@@ -62,7 +76,7 @@ class _MochiProfilePageState extends State<MochiProfilePage> {
     await _loadCachedUserPosts();
     if (!mounted) return;
     context.read<ProfileBloc>().add(
-      ProfileGetEvent(ProfileParams(userId: _currentUserId)),
+      ProfileGetEvent(ProfileParams(userId: _targetUserId)),
     );
 
     unawaited(_loadUserPosts());
@@ -71,7 +85,7 @@ class _MochiProfilePageState extends State<MochiProfilePage> {
   Future<void> _loadCachedProfile() async {
     final localStorage = getIt<HiveLocalStorage>();
     final cached = await localStorage.load(
-      key: 'profile_$_currentUserId',
+      key: 'profile_$_targetUserId',
       boxName: 'cache',
     );
 
@@ -92,7 +106,7 @@ class _MochiProfilePageState extends State<MochiProfilePage> {
   Future<void> _loadCachedUserPosts() async {
     final localStorage = getIt<HiveLocalStorage>();
     final cached = await localStorage.load(
-      key: 'user_posts_${_currentUserId}_1_60',
+      key: 'user_posts_${_targetUserId}_1_60',
       boxName: 'cache',
     );
 
@@ -119,7 +133,7 @@ class _MochiProfilePageState extends State<MochiProfilePage> {
   Future<void> _loadUserPosts() async {
     final useCase = getIt<GetUserPostsUseCase>();
     final result = await useCase.call(
-      GetUserPostsParams(userId: _currentUserId, page: 1, limit: 60),
+      GetUserPostsParams(userId: _targetUserId, page: 1, limit: 60),
     );
 
     if (!mounted) {
@@ -416,6 +430,7 @@ class _MochiProfilePageState extends State<MochiProfilePage> {
             profile: profile,
             images: images,
             overlayImageUrls: overlayUrls,
+            isOtherUser: _isOtherUser,
             onEditProfile: _openEditProfile,
             onOpenMenu: _openMenu,
             onRefresh: _refresh,

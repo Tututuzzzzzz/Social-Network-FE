@@ -9,6 +9,7 @@ class MochiProfileBody extends StatelessWidget {
   final ProfileEntity profile;
   final List<String> images;
   final Set<String> overlayImageUrls;
+  final bool isOtherUser;
   final VoidCallback onEditProfile;
   final VoidCallback onOpenMenu;
   final Future<void> Function() onRefresh;
@@ -18,6 +19,7 @@ class MochiProfileBody extends StatelessWidget {
     required this.profile,
     required this.images,
     required this.overlayImageUrls,
+    this.isOtherUser = false,
     required this.onEditProfile,
     required this.onOpenMenu,
     required this.onRefresh,
@@ -37,16 +39,18 @@ class MochiProfileBody extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _FacebookStyleTopBar(
+                    _MochiStyleTopBar(
                       profile: profile,
                       onOpenMenu: onOpenMenu,
+                      isOtherUser: isOtherUser,
                     ),
-                    _FacebookStyleCoverAndAvatar(profile: profile),
+                    _MochiStyleCoverAndAvatar(profile: profile),
                     const SizedBox(height: 60), // Space for overlapping avatar
-                    _FacebookStyleInfoSection(profile: profile),
+                    _MochiStyleInfoSection(profile: profile),
                     const SizedBox(height: 16),
-                    _FacebookStyleActionButtons(
+                    _MochiStyleActionButtons(
                       onEditProfile: onEditProfile,
+                      isOtherUser: isOtherUser,
                     ),
                     const SizedBox(height: 16),
                     const Divider(
@@ -55,7 +59,7 @@ class MochiProfileBody extends StatelessWidget {
                       color: Color(0xFFC9CCD1),
                     ),
                     const SizedBox(height: 16),
-                    _FacebookStyleDetailsSection(profile: profile),
+                    _MochiStyleDetailsSection(profile: profile),
                     const SizedBox(height: 16),
                     const Divider(
                       height: 1,
@@ -63,7 +67,7 @@ class MochiProfileBody extends StatelessWidget {
                       color: Color(0xFFC9CCD1),
                     ),
                     const SizedBox(height: 16),
-                    const _FacebookStylePhotosHeader(),
+                    const _MochiStylePhotosHeader(),
                     const SizedBox(height: 12),
                   ],
                 ),
@@ -160,13 +164,15 @@ class MochiProfileErrorView extends StatelessWidget {
   }
 }
 
-class _FacebookStyleTopBar extends StatelessWidget {
+class _MochiStyleTopBar extends StatelessWidget {
   final ProfileEntity profile;
   final VoidCallback onOpenMenu;
+  final bool isOtherUser;
 
-  const _FacebookStyleTopBar({
+  const _MochiStyleTopBar({
     required this.profile,
     required this.onOpenMenu,
+    required this.isOtherUser,
   });
 
   @override
@@ -176,9 +182,15 @@ class _FacebookStyleTopBar extends StatelessWidget {
         : 'username';
 
     return Padding(
-      padding: const EdgeInsets.only(left: 16, top: 10, bottom: 10, right: 12),
+      padding: const EdgeInsets.only(left: 8, top: 10, bottom: 10, right: 12),
       child: Row(
         children: [
+          if (isOtherUser)
+            IconButton(
+              onPressed: () => Navigator.of(context).pop(),
+              icon: const Icon(Icons.arrow_back, color: Colors.black),
+            ),
+          if (!isOtherUser) const SizedBox(width: 8),
           Expanded(
             child: Row(
               mainAxisSize: MainAxisSize.min,
@@ -195,35 +207,44 @@ class _FacebookStyleTopBar extends StatelessWidget {
                     ),
                   ),
                 ),
-                const SizedBox(width: 4),
-                const Icon(Icons.keyboard_arrow_down_rounded, size: 24),
+                if (!isOtherUser) ...[
+                  const SizedBox(width: 4),
+                  const Icon(Icons.keyboard_arrow_down_rounded, size: 24),
+                ],
               ],
             ),
           ),
-          IconButton(
-            onPressed: onOpenMenu,
-            icon: SvgPicture.string(
-              '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-settings-icon lucide-settings"><path d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915"/><circle cx="12" cy="12" r="3"/></svg>',
-              width: 26,
-              height: 26,
-              colorFilter: const ColorFilter.mode(Colors.black, BlendMode.srcIn),
+          if (!isOtherUser)
+            IconButton(
+              onPressed: onOpenMenu,
+              icon: SvgPicture.string(
+                '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-settings-icon lucide-settings"><path d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915"/><circle cx="12" cy="12" r="3"/></svg>',
+                width: 26,
+                height: 26,
+                colorFilter:
+                    const ColorFilter.mode(Colors.black, BlendMode.srcIn),
+              ),
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints(),
+              style: IconButton.styleFrom(
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
             ),
-            padding: EdgeInsets.zero,
-            constraints: const BoxConstraints(),
-            style: IconButton.styleFrom(
-              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          if (isOtherUser)
+            IconButton(
+              onPressed: () {}, // Search user's posts UI
+              icon: const Icon(Icons.search, color: Colors.black, size: 28),
             ),
-          ),
         ],
       ),
     );
   }
 }
 
-class _FacebookStyleCoverAndAvatar extends StatelessWidget {
+class _MochiStyleCoverAndAvatar extends StatelessWidget {
   final ProfileEntity profile;
 
-  const _FacebookStyleCoverAndAvatar({required this.profile});
+  const _MochiStyleCoverAndAvatar({required this.profile});
 
   @override
   Widget build(BuildContext context) {
@@ -306,10 +327,10 @@ class _FacebookStyleCoverAndAvatar extends StatelessWidget {
   }
 }
 
-class _FacebookStyleInfoSection extends StatelessWidget {
+class _MochiStyleInfoSection extends StatelessWidget {
   final ProfileEntity profile;
 
-  const _FacebookStyleInfoSection({required this.profile});
+  const _MochiStyleInfoSection({required this.profile});
 
   @override
   Widget build(BuildContext context) {
@@ -347,11 +368,13 @@ class _FacebookStyleInfoSection extends StatelessWidget {
   }
 }
 
-class _FacebookStyleActionButtons extends StatelessWidget {
+class _MochiStyleActionButtons extends StatelessWidget {
   final VoidCallback onEditProfile;
+  final bool isOtherUser;
 
-  const _FacebookStyleActionButtons({
+  const _MochiStyleActionButtons({
     required this.onEditProfile,
+    required this.isOtherUser,
   });
 
   @override
@@ -360,7 +383,7 @@ class _FacebookStyleActionButtons extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Row(
         children: [
-          // Blue "Add to Story" Button
+          // Blue Primary Button: "Add to Story" or "Add Friend"
           Expanded(
             child: Material(
               color: const Color(0xFF1877F2),
@@ -371,14 +394,18 @@ class _FacebookStyleActionButtons extends StatelessWidget {
                 child: Container(
                   height: 35,
                   alignment: Alignment.center,
-                  child: const Row(
+                  child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.add, color: Colors.white, size: 18),
-                      SizedBox(width: 4),
+                      Icon(
+                        isOtherUser ? Icons.person_add : Icons.add,
+                        color: Colors.white,
+                        size: 18,
+                      ),
+                      const SizedBox(width: 4),
                       Text(
-                        'Thêm vào tin',
-                        style: TextStyle(
+                        isOtherUser ? 'Thêm bạn bè' : 'Thêm vào tin',
+                        style: const TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
                           fontSize: 15,
@@ -391,25 +418,35 @@ class _FacebookStyleActionButtons extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 8),
-          // Grey "Edit Profile" Button
+          // Grey Secondary Button: "Edit Profile" or "Message"
           Expanded(
             child: Material(
               color: const Color(0xFFE4E6EB),
               borderRadius: BorderRadius.circular(30),
               child: InkWell(
-                onTap: onEditProfile,
+                onTap: isOtherUser ? () {} : onEditProfile,
                 borderRadius: BorderRadius.circular(30),
                 child: Container(
                   height: 35,
                   alignment: Alignment.center,
-                  child: const Row(
+                  child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.edit, color: Colors.black, size: 16),
-                      SizedBox(width: 4),
+                      SvgPicture.string(
+                        isOtherUser
+                            ? '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-send-icon lucide-send"><path d="M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z"/><path d="m21.854 2.147-10.94 10.939"/></svg>'
+                            : '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-edit-3"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>',
+                        width: 16,
+                        height: 16,
+                        colorFilter: const ColorFilter.mode(
+                          Colors.black,
+                          BlendMode.srcIn,
+                        ),
+                      ),
+                      const SizedBox(width: 4),
                       Text(
-                        'Chỉnh sửa trang...',
-                        style: TextStyle(
+                        isOtherUser ? 'Nhắn tin' : 'Chỉnh sửa...',
+                        style: const TextStyle(
                           color: Colors.black,
                           fontWeight: FontWeight.bold,
                           fontSize: 15,
@@ -421,16 +458,33 @@ class _FacebookStyleActionButtons extends StatelessWidget {
               ),
             ),
           ),
+          if (isOtherUser) ...[
+            const SizedBox(width: 8),
+            Material(
+              color: const Color(0xFFE4E6EB),
+              borderRadius: BorderRadius.circular(30),
+              child: InkWell(
+                onTap: () {},
+                borderRadius: BorderRadius.circular(30),
+                child: Container(
+                  width: 44,
+                  height: 35,
+                  alignment: Alignment.center,
+                  child: const Icon(Icons.more_horiz, color: Colors.black),
+                ),
+              ),
+            ),
+          ],
         ],
       ),
     );
   }
 }
 
-class _FacebookStyleDetailsSection extends StatelessWidget {
+class _MochiStyleDetailsSection extends StatelessWidget {
   final ProfileEntity profile;
 
-  const _FacebookStyleDetailsSection({required this.profile});
+  const _MochiStyleDetailsSection({required this.profile});
 
   @override
   Widget build(BuildContext context) {
@@ -491,8 +545,8 @@ class _DetailRow extends StatelessWidget {
   }
 }
 
-class _FacebookStylePhotosHeader extends StatelessWidget {
-  const _FacebookStylePhotosHeader();
+class _MochiStylePhotosHeader extends StatelessWidget {
+  const _MochiStylePhotosHeader();
 
   @override
   Widget build(BuildContext context) {

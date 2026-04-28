@@ -15,6 +15,7 @@ class HomeModel extends HomeEntity {
     super.likesCount,
     super.commentsCount,
     super.minutesAgo,
+    super.authorId,
   });
 
   factory HomeModel.fromJson(Map<String, dynamic> json) {
@@ -32,7 +33,18 @@ class HomeModel extends HomeEntity {
       likesCount: (json['likesCount'] as num?)?.toInt() ?? 0,
       commentsCount: (json['commentsCount'] as num?)?.toInt() ?? 0,
       minutesAgo: (json['minutesAgo'] as num?)?.toInt() ?? 0,
+      authorId: _extractId(json['authorId']) ??
+          (json['kind'] == 'person' ? _extractId(json['id']) ?? '' : ''),
     );
+  }
+
+  static String? _extractId(dynamic value) {
+    if (value == null) return null;
+    if (value is String) return value;
+    if (value is Map) {
+      return (value['_id'] ?? value['id'])?.toString();
+    }
+    return value.toString();
   }
 
   Map<String, dynamic> toJson() => {
@@ -49,5 +61,6 @@ class HomeModel extends HomeEntity {
     'likesCount': likesCount,
     'commentsCount': commentsCount,
     'minutesAgo': minutesAgo,
+    'authorId': authorId,
   };
 }

@@ -117,6 +117,19 @@ class AppRoutesConf {
         builder: (context, state) => const EditProfilePage(),
       ),
       GoRoute(
+        path: AppRoutes.otherProfile.path,
+        name: AppRoutes.otherProfile.name,
+        builder: (context, state) {
+          final userId = state.pathParameters['userId'] ?? '';
+          return BlocProvider<ProfileBloc>(
+            create: (_) => getIt<ProfileBloc>(),
+            child: AppShellPage(
+              body: MochiProfilePage(userId: userId),
+            ),
+          );
+        },
+      ),
+      GoRoute(
         path: AppRoutes.chatMochiChatRoom.path,
         name: AppRoutes.chatMochiChatRoom.name,
         builder: (context, state) {

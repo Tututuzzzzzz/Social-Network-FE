@@ -11,7 +11,8 @@ enum AppRoutes {
   notifications(path: '/notifications'),
   chatMochiChatRoom(path: '/chat/room/:threadId'),
   editProfile(path: '/profile/edit'),
-  profile(path: '/profile');
+  profile(path: '/profile'),
+  otherProfile(path: '/profile/:userId');
 
   final String path;
   const AppRoutes({required this.path});

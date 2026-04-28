@@ -305,20 +305,28 @@ class _MochiDirectMessagesPageState extends State<MochiDirectMessagesPage> {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Container(
-                width: 58,
-                height: 58,
-                decoration: BoxDecoration(
-                  color: _avatarColors[index % _avatarColors.length],
-                  shape: BoxShape.circle,
-                ),
-                alignment: Alignment.center,
-                child: Text(
-                  _initial(name),
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w700,
-                    color: Color(0xFF2A2B2F),
+              GestureDetector(
+                onTap: () {
+                  context.pushNamed(
+                    AppRoutes.otherProfile.name,
+                    pathParameters: {'userId': item.recipientId},
+                  );
+                },
+                child: Container(
+                  width: 58,
+                  height: 58,
+                  decoration: BoxDecoration(
+                    color: _avatarColors[index % _avatarColors.length],
+                    shape: BoxShape.circle,
+                  ),
+                  alignment: Alignment.center,
+                  child: Text(
+                    _initial(name),
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF2A2B2F),
+                    ),
                   ),
                 ),
               ),

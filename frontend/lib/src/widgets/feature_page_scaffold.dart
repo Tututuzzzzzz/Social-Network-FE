@@ -15,6 +15,7 @@ class FeaturePageScaffold extends StatelessWidget {
   final VoidCallback? onRetry;
   final String retryLabel;
   final List<Widget>? actions;
+  final Widget? leading;
   final Widget? floatingActionButton;
   final EdgeInsetsGeometry bodyPadding;
 
@@ -33,6 +34,7 @@ class FeaturePageScaffold extends StatelessWidget {
     this.onRetry,
     this.retryLabel = 'Retry',
     this.actions,
+    this.leading,
     this.floatingActionButton,
     this.bodyPadding = const EdgeInsets.all(16),
   });
@@ -66,7 +68,11 @@ class FeaturePageScaffold extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: titleWidget ?? Text(title), actions: actions),
+      appBar: AppBar(
+        title: titleWidget ?? Text(title),
+        actions: actions,
+        leading: leading,
+      ),
       floatingActionButton: floatingActionButton,
       body: SafeArea(
         child: Stack(

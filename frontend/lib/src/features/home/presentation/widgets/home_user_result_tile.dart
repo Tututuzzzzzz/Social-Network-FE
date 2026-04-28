@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 
 class HomeUserResult {
+  final String id;
   final String name;
   final String handle;
   final int mutualFriends;
   final bool isOnline;
 
   const HomeUserResult({
+    required this.id,
     required this.name,
     required this.handle,
     required this.mutualFriends,

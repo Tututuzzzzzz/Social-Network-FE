@@ -3,6 +3,8 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:frontend/src/features/post/domain/entities/post_comment_entity.dart';
 import 'package:frontend/src/features/post/domain/entities/post_entity.dart';
 import 'package:intl/intl.dart';
+import 'package:go_router/go_router.dart';
+import '../../../../routes/app_route_path.dart';
 
 class CommentsSheet extends StatefulWidget {
   const CommentsSheet({
@@ -260,17 +262,28 @@ class _CommentsSheetState extends State<CommentsSheet>
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                       children: [
-                                        CircleAvatar(
-                                          radius: 14,
-                                          backgroundColor: const Color(
-                                            0xFFE7E7E7,
-                                          ),
-                                          child: Text(
-                                            authorLabel[0].toUpperCase(),
-                                            style: const TextStyle(
-                                              fontSize: 11,
-                                              fontWeight: FontWeight.w700,
-                                              color: Colors.black87,
+                                        GestureDetector(
+                                          onTap: () {
+                                            Navigator.pop(context);
+                                            context.pushNamed(
+                                              AppRoutes.otherProfile.name,
+                                              pathParameters: {
+                                                'userId': comment.authorId,
+                                              },
+                                            );
+                                          },
+                                          child: CircleAvatar(
+                                            radius: 14,
+                                            backgroundColor: const Color(
+                                              0xFFE7E7E7,
+                                            ),
+                                            child: Text(
+                                              authorLabel[0].toUpperCase(),
+                                              style: const TextStyle(
+                                                fontSize: 11,
+                                                fontWeight: FontWeight.w700,
+                                                color: Colors.black87,
+                                              ),
                                             ),
                                           ),
                                         ),
@@ -282,12 +295,25 @@ class _CommentsSheetState extends State<CommentsSheet>
                                             children: [
                                               Row(
                                                 children: [
-                                                  Text(
-                                                    authorLabel,
-                                                    style: const TextStyle(
-                                                      fontSize: 13,
-                                                      fontWeight:
-                                                          FontWeight.w700,
+                                                  GestureDetector(
+                                                    onTap: () {
+                                                      Navigator.pop(context);
+                                                      context.pushNamed(
+                                                        AppRoutes.otherProfile
+                                                            .name,
+                                                        pathParameters: {
+                                                          'userId':
+                                                              comment.authorId,
+                                                        },
+                                                      );
+                                                    },
+                                                    child: Text(
+                                                      authorLabel,
+                                                      style: const TextStyle(
+                                                        fontSize: 13,
+                                                        fontWeight:
+                                                            FontWeight.w700,
+                                                      ),
                                                     ),
                                                   ),
                                                   const SizedBox(width: 8),
