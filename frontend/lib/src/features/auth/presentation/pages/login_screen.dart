@@ -238,11 +238,11 @@ class _LoginScreenState extends State<LoginScreen> {
                               height: 24,
                               width: 24,
                             ),
-                            label: const Padding(
-                              padding: EdgeInsets.symmetric(vertical: 12),
+                            label: Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 12),
                               child: Text(
-                                'Google',
-                                style: TextStyle(
+                                l10n.loginWithGoogle,
+                                style: const TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
                                   color: Colors.black,
@@ -272,9 +272,9 @@ class _LoginScreenState extends State<LoginScreen> {
                             GestureDetector(
                               onTap: () =>
                                   context.push(AppRoutes.register.path),
-                              child: const Text(
-                                'Register',
-                                style: TextStyle(
+                              child: Text(
+                                l10n.register,
+                                style: const TextStyle(
                                   color: Color(0xFF3797EF),
                                   fontWeight: FontWeight.w600,
                                 ),
