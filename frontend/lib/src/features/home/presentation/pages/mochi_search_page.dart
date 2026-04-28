@@ -4,6 +4,7 @@ import '../../../../configs/injector/injector_conf.dart';
 import '../../domain/entities/home_entity.dart';
 import '../bloc/home/home_bloc.dart';
 import '../widgets/home_widgets.dart';
+import '../../../../core/l10n/l10n.dart';
 
 class MochiSearchPage extends StatefulWidget {
   const MochiSearchPage({super.key});
@@ -13,8 +14,6 @@ class MochiSearchPage extends StatefulWidget {
 }
 
 class _MochiSearchPageState extends State<MochiSearchPage> {
-  static const List<String> _tabs = ['People', 'Posts', 'Photos', 'Places'];
-
   int _selectedTab = 0;
   String _query = '';
 
@@ -104,13 +103,20 @@ class _MochiSearchPageState extends State<MochiSearchPage> {
     List<HomeUserResult> people,
     List<HomeDiscoveryItem> discovery,
   ) {
+    final tabs = [
+      context.l10n.searchPeople,
+      context.l10n.searchPosts,
+      context.l10n.searchPhotos,
+      context.l10n.searchPlaces,
+    ];
+
     if (people.isEmpty && discovery.isEmpty) {
-      return const Padding(
-        padding: EdgeInsets.only(top: 60),
+      return Padding(
+        padding: const EdgeInsets.only(top: 60),
         child: Center(
           child: Text(
-            'No results found',
-            style: TextStyle(color: Colors.grey, fontSize: 16),
+            context.l10n.searchNoResults,
+            style: const TextStyle(color: Colors.grey, fontSize: 16),
           ),
         ),
       );
@@ -120,13 +126,16 @@ class _MochiSearchPageState extends State<MochiSearchPage> {
       padding: const EdgeInsets.fromLTRB(12, 0, 12, 24),
       children: [
         HomeFilterTabs(
-          tabs: _tabs,
+          tabs: tabs,
           selectedIndex: _selectedTab,
           onChanged: (value) => setState(() => _selectedTab = value),
         ),
         const SizedBox(height: 18),
         if (people.isNotEmpty) ...[
-          const HomeSectionHeader(title: 'People', actionText: 'See all'),
+          HomeSectionHeader(
+            title: context.l10n.searchPeople,
+            actionText: context.l10n.searchSeeAll,
+          ),
           const SizedBox(height: 8),
           ...people.map(
             (item) => HomeUserResultTile(

@@ -1,36 +1,45 @@
 import 'package:flutter/material.dart';
+import '../../../../core/l10n/l10n.dart';
 
 class HomeSearchInput extends StatelessWidget {
-  final String hintText;
+  final String? hintText;
   final ValueChanged<String>? onChanged;
   final VoidCallback? onSubmitted;
 
   const HomeSearchInput({
     super.key,
-    this.hintText = 'Search people, posts, places',
+    this.hintText,
     this.onChanged,
     this.onSubmitted,
   });
 
   @override
   Widget build(BuildContext context) {
-    return TextField(
-      onChanged: onChanged,
-      onSubmitted: (_) => onSubmitted?.call(),
-      textInputAction: TextInputAction.search,
-      decoration: InputDecoration(
-        hintText: hintText,
-        prefixIcon: const Icon(Icons.search),
-        suffixIcon: IconButton(
-          onPressed: onSubmitted,
-          icon: const Icon(Icons.tune),
-        ),
-        filled: true,
-        fillColor: const Color(0xFFF3F6FA),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 0),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: BorderSide.none,
+    final effectiveHint = hintText ?? context.l10n.searchHint;
+    return SizedBox(
+      height: 35,
+      child: TextField(
+        onChanged: onChanged,
+        onSubmitted: (_) => onSubmitted?.call(),
+        textInputAction: TextInputAction.search,
+        textAlignVertical: TextAlignVertical.center,
+        decoration: InputDecoration(
+          hintText: effectiveHint,
+          prefixIcon: const Icon(Icons.search, size: 20),
+          suffixIcon: IconButton(
+            onPressed: onSubmitted,
+            icon: const Icon(Icons.tune, size: 20),
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(),
+          ),
+          filled: true,
+          fillColor: const Color(0xFFF3F6FA),
+          isDense: true,
+          contentPadding: const EdgeInsets.symmetric(horizontal: 14),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(30),
+            borderSide: BorderSide.none,
+          ),
         ),
       ),
     );

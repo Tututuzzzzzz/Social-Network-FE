@@ -274,6 +274,9 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
           actions: [
             TextButton(
               onPressed: (_isSubmitting || !_canSubmit) ? null : _submitPost,
+              style: TextButton.styleFrom(
+                shape: const StadiumBorder(),
+              ),
               child: _isSubmitting
                   ? const SizedBox(
                       width: 18,
@@ -310,7 +313,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                         filled: true,
                         fillColor: const Color(0xFFF5F5F5),
                         border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(14),
+                          borderRadius: BorderRadius.circular(30),
                           borderSide: BorderSide.none,
                         ),
                         contentPadding: const EdgeInsets.all(14),
@@ -334,6 +337,9 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                         onPressed: _isPickingImages ? null : _pickFromGallery,
                         icon: const Icon(Icons.photo_library_outlined),
                         label: Text(l10n.libraryLabel),
+                        style: OutlinedButton.styleFrom(
+                          shape: const StadiumBorder(),
+                        ),
                       ),
                     ),
                     const SizedBox(width: 10),
@@ -342,6 +348,9 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                         onPressed: _isPickingImages ? null : _pickFromCamera,
                         icon: const Icon(Icons.photo_camera_outlined),
                         label: Text(l10n.cameraLabel),
+                        style: OutlinedButton.styleFrom(
+                          shape: const StadiumBorder(),
+                        ),
                       ),
                     ),
                   ],
@@ -389,6 +398,9 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
               onPressed: _isPickingImages ? null : _pickFromGallery,
               icon: const Icon(Icons.add_photo_alternate_outlined),
               label: Text(context.l10n.pickFromLibrary),
+              style: FilledButton.styleFrom(
+                shape: const StadiumBorder(),
+              ),
             ),
           ],
         ),

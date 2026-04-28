@@ -261,9 +261,7 @@ Future<PostReportReason?> showReportReasonSheet(BuildContext context) async {
                             child: OutlinedButton(
                               onPressed: () => Navigator.pop(sheetContext),
                               style: OutlinedButton.styleFrom(
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
+                                shape: const StadiumBorder(),
                               ),
                               child: Text(l10n.cancel),
                             ),
@@ -280,9 +278,7 @@ Future<PostReportReason?> showReportReasonSheet(BuildContext context) async {
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: const Color(0xFFE53935),
                                 foregroundColor: Colors.white,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
+                                shape: const StadiumBorder(),
                               ),
                               child: Text(l10n.postReportSubmit),
                             ),

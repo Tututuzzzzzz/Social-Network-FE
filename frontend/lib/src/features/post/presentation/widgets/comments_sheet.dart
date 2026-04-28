@@ -423,13 +423,13 @@ class _CommentsSheetState extends State<CommentsSheet>
                                           : 'Viet tra loi...',
                                       filled: true,
                                       fillColor: const Color(0xFFF4F4F4),
-                                      contentPadding:
-                                          const EdgeInsets.symmetric(
-                                            horizontal: 14,
-                                            vertical: 10,
-                                          ),
+                                      isDense: true,
+                                      contentPadding: const EdgeInsets.symmetric(
+                                        horizontal: 14,
+                                        vertical: 8,
+                                      ),
                                       border: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(22),
+                                        borderRadius: BorderRadius.circular(30),
                                         borderSide: BorderSide.none,
                                       ),
                                     ),

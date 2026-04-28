@@ -57,6 +57,11 @@ class HomeUserResultTile extends StatelessWidget {
       subtitle: Text('@${item.handle} · ${item.mutualFriends} mutual'),
       trailing: FilledButton.tonal(
         onPressed: onTapFollow,
+        style: FilledButton.styleFrom(
+          shape: const StadiumBorder(),
+          minimumSize: const Size(0, 32),
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+        ),
         child: const Text('Follow'),
       ),
     );

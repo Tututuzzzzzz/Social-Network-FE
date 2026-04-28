@@ -247,6 +247,9 @@ class _EditPostBottomSheetState extends State<_EditPostBottomSheet> {
                         onPressed: _isPickingImages ? null : _pickFromGallery,
                         icon: const Icon(Icons.photo_library_outlined),
                         label: const Text('Thư viện'),
+                        style: OutlinedButton.styleFrom(
+                          shape: const StadiumBorder(),
+                        ),
                       ),
                     ),
                     const SizedBox(width: 10),
@@ -255,6 +258,9 @@ class _EditPostBottomSheetState extends State<_EditPostBottomSheet> {
                         onPressed: _isPickingImages ? null : _pickFromCamera,
                         icon: const Icon(Icons.photo_camera_outlined),
                         label: const Text('Camera'),
+                        style: OutlinedButton.styleFrom(
+                          shape: const StadiumBorder(),
+                        ),
                       ),
                     ),
                   ],
@@ -265,6 +271,9 @@ class _EditPostBottomSheetState extends State<_EditPostBottomSheet> {
                     Expanded(
                       child: OutlinedButton(
                         onPressed: () => Navigator.of(context).pop(),
+                        style: OutlinedButton.styleFrom(
+                          shape: const StadiumBorder(),
+                        ),
                         child: const Text('Hủy'),
                       ),
                     ),
@@ -272,6 +281,9 @@ class _EditPostBottomSheetState extends State<_EditPostBottomSheet> {
                     Expanded(
                       child: FilledButton(
                         onPressed: _canSubmit ? _submit : null,
+                        style: FilledButton.styleFrom(
+                          shape: const StadiumBorder(),
+                        ),
                         child: const Text('Lưu thay đổi'),
                       ),
                     ),

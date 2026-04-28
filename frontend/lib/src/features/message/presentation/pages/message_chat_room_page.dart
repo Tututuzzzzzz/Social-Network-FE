@@ -656,21 +656,25 @@ class _MessageChatRoomPageState extends State<MessageChatRoomPage> {
                     child: Row(
                       children: [
                         Expanded(
-                          child: TextField(
-                            controller: _composerController,
-                            textInputAction: TextInputAction.send,
-                            onSubmitted: (_) => _onSendPressed(blocContext),
-                            decoration: InputDecoration(
-                              hintText: 'Type a message',
-                              filled: true,
-                              fillColor: const Color(0xFFF3F6FA),
-                              contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 14,
-                                vertical: 10,
-                              ),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(22),
-                                borderSide: BorderSide.none,
+                          child: SizedBox(
+                            height: 35,
+                            child: TextField(
+                              controller: _composerController,
+                              textInputAction: TextInputAction.send,
+                              onSubmitted: (_) => _onSendPressed(blocContext),
+                              textAlignVertical: TextAlignVertical.center,
+                              decoration: InputDecoration(
+                                hintText: 'Type a message',
+                                filled: true,
+                                fillColor: const Color(0xFFF3F6FA),
+                                isDense: true,
+                                contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 14,
+                                ),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(30),
+                                  borderSide: BorderSide.none,
+                                ),
                               ),
                             ),
                           ),

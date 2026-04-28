@@ -294,6 +294,30 @@ class AppLocalizationsEn extends AppLocalizations {
   String get memberRole => 'Member';
 
   @override
+  String get searchHint => 'Search people, posts, places';
+
+  @override
+  String get searchLabel => 'Search';
+
+  @override
+  String get searchPeople => 'People';
+
+  @override
+  String get searchPosts => 'Posts';
+
+  @override
+  String get searchPhotos => 'Photos';
+
+  @override
+  String get searchPlaces => 'Places';
+
+  @override
+  String get searchNoResults => 'No results found';
+
+  @override
+  String get searchSeeAll => 'See all';
+
+  @override
   String get leaveGroup => 'Leave group';
 
   @override

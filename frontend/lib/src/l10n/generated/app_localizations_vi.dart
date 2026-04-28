@@ -296,6 +296,30 @@ class AppLocalizationsVi extends AppLocalizations {
   String get memberRole => 'Thành viên';
 
   @override
+  String get searchHint => 'Tìm kiếm người dùng, bài viết, địa điểm';
+
+  @override
+  String get searchLabel => 'Tìm kiếm';
+
+  @override
+  String get searchPeople => 'Mọi người';
+
+  @override
+  String get searchPosts => 'Bài viết';
+
+  @override
+  String get searchPhotos => 'Ảnh';
+
+  @override
+  String get searchPlaces => 'Địa điểm';
+
+  @override
+  String get searchNoResults => 'Không tìm thấy kết quả';
+
+  @override
+  String get searchSeeAll => 'Xem tất cả';
+
+  @override
   String get leaveGroup => 'Rời nhóm';
 
   @override

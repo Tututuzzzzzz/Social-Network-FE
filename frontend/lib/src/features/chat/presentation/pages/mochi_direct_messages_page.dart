@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../../l10n/generated/app_localizations.dart';
+import '../../../../core/l10n/l10n.dart';
 import '../../../../configs/injector/injector_conf.dart';
 import '../../../../routes/app_route_path.dart';
 import '../../domain/entities/chat_entity.dart';
@@ -81,7 +81,7 @@ class _MochiDirectMessagesPageState extends State<MochiDirectMessagesPage> {
           alignment: Alignment.center,
           children: [
             Text(
-              AppLocalizations.of(blocContext)!.titleChat,
+              blocContext.l10n.titleChat,
               style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -98,11 +98,12 @@ class _MochiDirectMessagesPageState extends State<MochiDirectMessagesPage> {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
       child: SizedBox(
-        height: 36,
+        height: 35,
         child: TextField(
           onChanged: (value) => setState(() => _query = value.trim()),
+          textAlignVertical: TextAlignVertical.center,
           decoration: InputDecoration(
-            hintText: 'Search',
+            hintText: context.l10n.searchLabel,
             hintStyle: const TextStyle(
               color: Color(0xFF8E8E93),
               fontSize: 15,
@@ -111,14 +112,15 @@ class _MochiDirectMessagesPageState extends State<MochiDirectMessagesPage> {
             prefixIcon: const Icon(Icons.search, color: Color(0xFF8E8E93), size: 20),
             filled: true,
             fillColor: const Color(0xFFEBEBEB),
-            contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 16),
+            isDense: true,
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16),
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(30),
               borderSide: BorderSide.none,
             ),
             focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: const BorderSide(color: Color(0xFFCFD3DC)),
+              borderRadius: BorderRadius.circular(30),
+              borderSide: BorderSide.none,
             ),
           ),
         ),
@@ -205,10 +207,16 @@ class _MochiDirectMessagesPageState extends State<MochiDirectMessagesPage> {
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(false),
+              style: TextButton.styleFrom(
+                shape: const StadiumBorder(),
+              ),
               child: const Text('Hủy'),
             ),
             FilledButton(
               onPressed: () => Navigator.of(context).pop(true),
+              style: FilledButton.styleFrom(
+                shape: const StadiumBorder(),
+              ),
               child: const Text('Xóa'),
             ),
           ],

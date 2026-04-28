@@ -364,12 +364,12 @@ class _FacebookStyleActionButtons extends StatelessWidget {
           Expanded(
             child: Material(
               color: const Color(0xFF1877F2),
-              borderRadius: BorderRadius.circular(6),
+              borderRadius: BorderRadius.circular(30),
               child: InkWell(
                 onTap: () {}, // UI Only
-                borderRadius: BorderRadius.circular(6),
+                borderRadius: BorderRadius.circular(30),
                 child: Container(
-                  height: 36,
+                  height: 35,
                   alignment: Alignment.center,
                   child: const Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -395,12 +395,12 @@ class _FacebookStyleActionButtons extends StatelessWidget {
           Expanded(
             child: Material(
               color: const Color(0xFFE4E6EB),
-              borderRadius: BorderRadius.circular(6),
+              borderRadius: BorderRadius.circular(30),
               child: InkWell(
                 onTap: onEditProfile,
-                borderRadius: BorderRadius.circular(6),
+                borderRadius: BorderRadius.circular(30),
                 child: Container(
-                  height: 36,
+                  height: 35,
                   alignment: Alignment.center,
                   child: const Row(
                     mainAxisAlignment: MainAxisAlignment.center,

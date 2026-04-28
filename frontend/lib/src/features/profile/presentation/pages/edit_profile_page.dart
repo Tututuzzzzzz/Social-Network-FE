@@ -268,6 +268,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
         actions: [
           TextButton(
             onPressed: _isSaving ? null : _saveProfile,
+            style: TextButton.styleFrom(
+              shape: const StadiumBorder(),
+            ),
             child: const Text(
               'Xong',
               style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700),
@@ -388,8 +391,7 @@ class _ProfileInputTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10),
-      height: 70,
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
       decoration: const BoxDecoration(
         border: Border(bottom: BorderSide(color: Color(0xFFE6E6E8))),
       ),
@@ -400,10 +402,23 @@ class _ProfileInputTile extends StatelessWidget {
             child: Text(label, style: const TextStyle(fontSize: 16)),
           ),
           Expanded(
-            child: TextField(
-              controller: controller,
-              style: const TextStyle(fontSize: 16),
-              decoration: const InputDecoration(border: InputBorder.none),
+            child: SizedBox(
+              height: 35,
+              child: TextField(
+                controller: controller,
+                style: const TextStyle(fontSize: 16),
+                textAlignVertical: TextAlignVertical.center,
+                decoration: InputDecoration(
+                  filled: true,
+                  fillColor: const Color(0xFFF3F6FA),
+                  isDense: true,
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(30),
+                    borderSide: BorderSide.none,
+                  ),
+                ),
+              ),
             ),
           ),
         ],
