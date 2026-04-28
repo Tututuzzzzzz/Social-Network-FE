@@ -4,7 +4,7 @@ class ProfilePostPreview extends Equatable {
   final String id;
   final String mediaUrl;
 
-  ProfilePostPreview({required this.id, this.mediaUrl = ''});
+  const ProfilePostPreview({required this.id, this.mediaUrl = ''});
 
   @override
   List<Object?> get props => [id, mediaUrl];
@@ -20,7 +20,7 @@ class ProfileEntity extends Equatable {
   final int friendsCount;
   final List<ProfilePostPreview> posts;
 
-  ProfileEntity({
+  const ProfileEntity({
     required this.id,
     this.username,
     this.displayName,

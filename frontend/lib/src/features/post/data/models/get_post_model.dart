@@ -1,36 +1,22 @@
 import '../../domain/entities/post_entity.dart';
-import '../../domain/entities/post_media_entity.dart';
 import '../../domain/entities/post_comment_entity.dart';
 import 'post_media_model.dart';
 
 class PostModel extends PostEntity {
-  PostModel({
-    required String id,
-    required String authorId,
-    String? authorUsername,
-    String? authorDisplayName,
-    String? authorAvatarUrl,
-    String? content,
-    List<PostMediaEntity> media = const [],
-    List<String> likes = const [],
-    List<PostCommentEntity> comments = const [],
-    int commentsCount = 0,
-    required DateTime createdAt,
-    required DateTime updatedAt,
-  }) : super(
-         id: id,
-         authorId: authorId,
-         authorUsername: authorUsername,
-         authorDisplayName: authorDisplayName,
-         authorAvatarUrl: authorAvatarUrl,
-         content: content,
-         media: media,
-         likes: likes,
-         comments: comments,
-         commentsCount: commentsCount,
-         createdAt: createdAt,
-         updatedAt: updatedAt,
-       );
+  const PostModel({
+    required super.id,
+    required super.authorId,
+    super.authorUsername,
+    super.authorDisplayName,
+    super.authorAvatarUrl,
+    super.content,
+    super.media,
+    super.likes,
+    super.comments,
+    super.commentsCount,
+    required super.createdAt,
+    required super.updatedAt,
+  });
 
   factory PostModel.fromJson(Map<String, dynamic> json) {
     return PostModel(

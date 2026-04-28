@@ -1,25 +1,16 @@
 import '../../domain/entities/profile_entity.dart';
 
 class ProfileModel extends ProfileEntity {
-  ProfileModel({
-    required String id,
-    String? username,
-    String? displayName,
-    String? bio,
-    String? avatarUrl,
-    int postsCount = 0,
-    int friendsCount = 0,
-    List<ProfilePostPreview> posts = const [],
-  }) : super(
-         id: id,
-         username: username,
-         displayName: displayName,
-         bio: bio,
-         avatarUrl: avatarUrl,
-         postsCount: postsCount,
-         friendsCount: friendsCount,
-         posts: posts,
-       );
+  const ProfileModel({
+    required super.id,
+    super.username,
+    super.displayName,
+    super.bio,
+    super.avatarUrl,
+    super.postsCount,
+    super.friendsCount,
+    super.posts,
+  });
 
   factory ProfileModel.fromJson(Map<String, dynamic> json) {
     return ProfileModel(

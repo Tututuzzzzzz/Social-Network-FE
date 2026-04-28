@@ -108,7 +108,7 @@ class AppRoutesConf {
         name: AppRoutes.notifications.name,
         builder: (context, state) => BlocProvider<NotificationBloc>(
           create: (_) => getIt<NotificationBloc>(),
-          child: const NotificationScreen(),
+          child: NotificationScreen(),
         ),
       ),
       GoRoute(

@@ -1,7 +1,7 @@
 import '../../domain/entities/post_media_entity.dart';
 
 class PostMediaModel extends PostMediaEntity {
-  PostMediaModel({
+  const PostMediaModel({
     required super.bucket,
     required super.objectKey,
     super.mediaUrl,

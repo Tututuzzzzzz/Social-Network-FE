@@ -80,7 +80,7 @@ Future<FriendPickerUser?> showFriendPickerBottomSheet(
 
                     return ListView.separated(
                       itemCount: friends.length,
-                      separatorBuilder: (_, __) => const Divider(height: 1),
+                      separatorBuilder: (_, _) => const Divider(height: 1),
                       itemBuilder: (context, index) {
                         final friend = friends[index];
                         return ListTile(

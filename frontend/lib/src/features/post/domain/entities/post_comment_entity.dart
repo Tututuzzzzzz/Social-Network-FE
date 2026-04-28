@@ -8,7 +8,7 @@ class PostCommentEntity extends Equatable {
   final DateTime createdAt;
   final DateTime updatedAt;
 
-  PostCommentEntity({
+  const PostCommentEntity({
     required this.id,
     this.parentCommentId,
     required this.authorId,

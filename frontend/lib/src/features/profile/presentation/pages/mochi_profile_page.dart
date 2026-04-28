@@ -60,7 +60,7 @@ class _MochiProfilePageState extends State<MochiProfilePage> {
 
     await _loadCachedProfile();
     await _loadCachedUserPosts();
-
+    if (!mounted) return;
     context.read<ProfileBloc>().add(
       ProfileGetEvent(ProfileParams(userId: _currentUserId)),
     );
@@ -280,8 +280,9 @@ class _MochiProfilePageState extends State<MochiProfilePage> {
           map['user_id'];
       if (possible == null) return null;
 
-      if (possible is String && possible.trim().isNotEmpty)
+      if (possible is String && possible.trim().isNotEmpty) {
         return possible.trim();
+      }
       if (possible is num) return possible.toString();
       if (possible is Map) {
         final nested = possible['_id'] ?? possible['id'];

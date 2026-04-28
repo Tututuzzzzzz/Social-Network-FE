@@ -17,7 +17,7 @@ class PostEntity extends Equatable {
   final DateTime createdAt;
   final DateTime updatedAt;
 
-  PostEntity({
+  const PostEntity({
     required this.id,
     required this.authorId,
     this.authorUsername,

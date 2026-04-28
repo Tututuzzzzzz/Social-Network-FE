@@ -40,6 +40,7 @@ dependencies:
   flutter_secure_storage: ^10.0.0
   equatable: ^2.0.8
   flutter_bloc: ^9.1.1
+  provider: ^6.1.1
   fpdart: ^1.2.0
   internet_connection_checker: ^3.0.1
   hive_flutter: ^1.1.0
@@ -110,4 +111,3 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
-

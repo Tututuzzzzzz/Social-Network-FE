@@ -39,7 +39,7 @@ Future<PostOptionAction?> showPostOptionsSheet(
   return showModalBottomSheet<PostOptionAction>(
     context: context,
     backgroundColor: Colors.transparent,
-    barrierColor: Colors.black.withOpacity(0.18),
+    barrierColor: Colors.black.withValues(alpha: 0.18),
     isScrollControlled: false,
     builder: (sheetContext) {
       return SafeArea(
@@ -163,7 +163,7 @@ Future<PostReportReason?> showReportReasonSheet(BuildContext context) async {
   return showModalBottomSheet<PostReportReason>(
     context: context,
     backgroundColor: Colors.transparent,
-    barrierColor: Colors.black.withOpacity(0.18),
+    barrierColor: Colors.black.withValues(alpha: 0.18),
     isScrollControlled: false,
     builder: (sheetContext) {
       return StatefulBuilder(

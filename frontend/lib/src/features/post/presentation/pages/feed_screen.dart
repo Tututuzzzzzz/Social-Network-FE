@@ -144,10 +144,11 @@ class _FeedScreenState extends State<FeedScreen> {
         SnackBar(content: Text("Failed to send friend request. Please try again.")),
       );
     } finally {
-      if (!mounted) return;
-      setState(() {
-        _sendingFriendRequestAuthorIds.remove(authorId);
-      });
+      if (mounted) {
+        setState(() {
+          _sendingFriendRequestAuthorIds.remove(authorId);
+        });
+      }
     }
   }
 

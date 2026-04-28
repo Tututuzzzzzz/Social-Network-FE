@@ -41,6 +41,7 @@ class _FriendActionButtonState extends State<FriendActionButton> {
         _isPending = true;
       });
     } catch (e) {
+      if (!mounted) return;
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(const SnackBar(content: Text('Failed')));

@@ -295,7 +295,7 @@ class _EditPostBottomSheetState extends State<_EditPostBottomSheet> {
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         itemCount: _retainedMedia.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 10),
+        separatorBuilder: (_, _) => const SizedBox(width: 10),
         itemBuilder: (_, index) {
           final media = _retainedMedia[index];
           final mediaUrl = (media.mediaUrl ?? '').normalizeClientUrl();
@@ -307,7 +307,7 @@ class _EditPostBottomSheetState extends State<_EditPostBottomSheet> {
                 ? Image.network(
                     mediaUrl,
                     fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => _imageFallback(),
+                    errorBuilder: (_, _, _) => _imageFallback(),
                   )
                 : _imageFallback(),
           );
@@ -326,7 +326,7 @@ class _EditPostBottomSheetState extends State<_EditPostBottomSheet> {
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         itemCount: _newImages.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 10),
+        separatorBuilder: (_, _) => const SizedBox(width: 10),
         itemBuilder: (_, index) {
           final image = _newImages[index];
           return _mediaTile(
