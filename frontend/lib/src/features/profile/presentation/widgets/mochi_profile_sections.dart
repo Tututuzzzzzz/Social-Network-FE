@@ -11,6 +11,7 @@ class MochiProfileBody extends StatelessWidget {
   final Set<String> overlayImageUrls;
   final bool isOtherUser;
   final VoidCallback onEditProfile;
+  final VoidCallback? onFollow;
   final VoidCallback onOpenMenu;
   final Future<void> Function() onRefresh;
 
@@ -21,6 +22,7 @@ class MochiProfileBody extends StatelessWidget {
     required this.overlayImageUrls,
     this.isOtherUser = false,
     required this.onEditProfile,
+    this.onFollow,
     required this.onOpenMenu,
     required this.onRefresh,
   });
@@ -50,6 +52,7 @@ class MochiProfileBody extends StatelessWidget {
                     const SizedBox(height: 16),
                     _MochiStyleActionButtons(
                       onEditProfile: onEditProfile,
+                      onFollow: onFollow,
                       isOtherUser: isOtherUser,
                     ),
                     const SizedBox(height: 16),
@@ -230,11 +233,7 @@ class _MochiStyleTopBar extends StatelessWidget {
                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,
               ),
             ),
-          if (isOtherUser)
-            IconButton(
-              onPressed: () {}, // Search user's posts UI
-              icon: const Icon(Icons.search, color: Colors.black, size: 28),
-            ),
+
         ],
       ),
     );
@@ -370,10 +369,12 @@ class _MochiStyleInfoSection extends StatelessWidget {
 
 class _MochiStyleActionButtons extends StatelessWidget {
   final VoidCallback onEditProfile;
+  final VoidCallback? onFollow;
   final bool isOtherUser;
 
   const _MochiStyleActionButtons({
     required this.onEditProfile,
+    this.onFollow,
     required this.isOtherUser,
   });
 
@@ -389,7 +390,7 @@ class _MochiStyleActionButtons extends StatelessWidget {
               color: const Color(0xFF1877F2),
               borderRadius: BorderRadius.circular(30),
               child: InkWell(
-                onTap: () {}, // UI Only
+                onTap: isOtherUser ? onFollow : () {}, 
                 borderRadius: BorderRadius.circular(30),
                 child: Container(
                   height: 35,
@@ -404,7 +405,7 @@ class _MochiStyleActionButtons extends StatelessWidget {
                       ),
                       const SizedBox(width: 4),
                       Text(
-                        isOtherUser ? 'Thêm bạn bè' : 'Thêm vào tin',
+                        isOtherUser ? 'Theo dõi' : 'Thêm vào tin',
                         style: const TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,

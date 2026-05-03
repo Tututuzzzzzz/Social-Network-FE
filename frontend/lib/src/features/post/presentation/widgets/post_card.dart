@@ -394,7 +394,7 @@ class _PostMediaState extends State<_PostMedia> {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
-                color: Colors.black.withValues(alpha: 0.45),
+                color: Colors.black.withOpacity(0.45),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Text(
@@ -424,7 +424,7 @@ class _PostMediaState extends State<_PostMedia> {
                     shape: BoxShape.circle,
                     color: isActive
                         ? Colors.white
-                        : Colors.white.withValues(alpha: 0.6),
+                        : Colors.white.withOpacity(0.6),
                   ),
                 );
               }),

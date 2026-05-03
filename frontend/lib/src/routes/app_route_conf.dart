@@ -148,6 +148,19 @@ class AppRoutesConf {
           );
         },
       ),
+      GoRoute(
+        path: AppRoutes.stories.path,
+        name: AppRoutes.stories.name,
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>?;
+          final storyGroups = extra?['storyGroups'] as List<StoryGroupEntity>? ?? [];
+          final initialIndex = extra?['initialIndex'] as int? ?? 0;
+          return StoryViewScreen(
+            storyGroups: storyGroups,
+            initialGroupIndex: initialIndex,
+          );
+        },
+      ),
     ],
   );
 }

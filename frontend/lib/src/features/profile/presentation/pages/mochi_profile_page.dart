@@ -15,6 +15,7 @@ import '../../../auth/presentation/bloc/auth/auth_bloc.dart';
 import '../../data/models/profile_model.dart';
 import '../../domain/entities/profile_entity.dart';
 import '../../domain/usecases/get_user_posts_usecase.dart';
+import '../../../friend/domain/usecases/send_friend_request.dart';
 import '../../domain/usecases/usecase_params.dart';
 import '../bloc/profile/profile_bloc.dart';
 import '../widgets/mochi_profile_sections.dart';
@@ -321,6 +322,30 @@ class _MochiProfilePageState extends State<MochiProfilePage> {
     }
   }
 
+  Future<void> _onFollowTap() async {
+    final authorId = _targetUserId.trim();
+
+    if (authorId.isEmpty || authorId == _loggedInUserId) {
+      return;
+    }
+
+    try {
+      final useCase = getIt<SendFriendRequest>();
+      await useCase(authorId);
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Đã gửi yêu cầu theo dõi thành công")),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Không thể gửi yêu cầu: $e")),
+      );
+    }
+  }
+
   Future<void> _openMenu() async {
     final selected = await showModalBottomSheet<String>(
       context: context,
@@ -432,6 +457,7 @@ class _MochiProfilePageState extends State<MochiProfilePage> {
             overlayImageUrls: overlayUrls,
             isOtherUser: _isOtherUser,
             onEditProfile: _openEditProfile,
+            onFollow: _onFollowTap,
             onOpenMenu: _openMenu,
             onRefresh: _refresh,
           );

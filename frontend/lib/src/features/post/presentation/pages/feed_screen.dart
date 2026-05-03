@@ -12,6 +12,8 @@ import '../../../notifications/presentation/bloc/notification_bloc.dart';
 import '../../../notifications/presentation/bloc/notification_state.dart';
 import '../../../../routes/app_route_path.dart';
 import '../../../../widgets/app_shell_bottom_nav_bar.dart';
+import '../../../story/domain/entities/story_group_entity.dart';
+import '../../../story/domain/entities/story_item_entity.dart';
 import '../../domain/entities/post_entity.dart';
 import '../../domain/usecases/usecase_params.dart';
 import '../bloc/post/post_bloc.dart';
@@ -93,17 +95,16 @@ class _FeedScreenState extends State<FeedScreen> {
       isScrollControlled: true,
       useSafeArea: true,
       backgroundColor: Colors.transparent,
-      builder: (_) =>
-          CommentsSheet(
-            initialPost: initialPost,
-            currentUserId: _currentUserId.isEmpty ? null : _currentUserId,
-            onCommentsCountChanged: (count) {
-              if (!mounted) return;
-              setState(() {
-                _commentCountOverrides[initialPost.id] = count;
-              });
-            },
-          ),
+      builder: (_) => CommentsSheet(
+        initialPost: initialPost,
+        currentUserId: _currentUserId.isEmpty ? null : _currentUserId,
+        onCommentsCountChanged: (count) {
+          if (!mounted) return;
+          setState(() {
+            _commentCountOverrides[initialPost.id] = count;
+          });
+        },
+      ),
     );
   }
 
@@ -210,6 +211,34 @@ class _FeedScreenState extends State<FeedScreen> {
     }
   }
 
+  void _onStoryTap(int index, List<FeedStoryData> storyDataList) {
+    final groups = storyDataList.map((data) {
+      // Mock some stories for each user
+      return StoryGroupEntity(
+        userId: data.userId ?? 'unknown',
+        username: data.label.isEmpty ? 'Your Story' : data.label,
+        avatarUrl: data.avatarUrl,
+        stories: [
+          StoryItemEntity(
+            id: 's1_${data.userId}',
+            url: data.avatarUrl.isNotEmpty && !data.isAsset
+                ? data.avatarUrl
+                : 'https://picsum.photos/seed/${data.userId}1/1080/1920',
+          ),
+          StoryItemEntity(
+            id: 's2_${data.userId}',
+            url: 'https://picsum.photos/seed/${data.userId}2/1080/1920',
+          ),
+        ],
+      );
+    }).toList();
+
+    context.pushNamed(
+      AppRoutes.stories.name,
+      extra: {'storyGroups': groups, 'initialIndex': index},
+    );
+  }
+
   void _onBottomNavTap(int index) {
     if (index == _currentNavIndex) return;
 
@@ -276,7 +305,10 @@ class _FeedScreenState extends State<FeedScreen> {
                 '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-square-plus-icon lucide-square-plus"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M8 12h8"/><path d="M12 8v8"/></svg>',
                 width: 22,
                 height: 22,
-                colorFilter: const ColorFilter.mode(Colors.black, BlendMode.srcIn),
+                colorFilter: const ColorFilter.mode(
+                  Colors.black,
+                  BlendMode.srcIn,
+                ),
               ),
               onPressed: _openCreatePostScreen,
             ),
@@ -326,7 +358,10 @@ class _FeedScreenState extends State<FeedScreen> {
                           '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-bell-icon lucide-bell"><path d="M10.268 21a2 2 0 0 0 3.464 0"/><path d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326"/></svg>',
                           width: 22,
                           height: 22,
-                          colorFilter: const ColorFilter.mode(Colors.black, BlendMode.srcIn),
+                          colorFilter: const ColorFilter.mode(
+                            Colors.black,
+                            BlendMode.srcIn,
+                          ),
                         ),
                       ),
                       if (hasUnreadNotifications)
@@ -380,7 +415,9 @@ class _FeedScreenState extends State<FeedScreen> {
                         final isSelfPost =
                             _currentUserId.isNotEmpty &&
                             post.authorId == _currentUserId;
-                        final isAlreadyFriend = _friendIds.contains(post.authorId);
+                        final isAlreadyFriend = _friendIds.contains(
+                          post.authorId,
+                        );
                         final hasSentRequest = _sentFriendRequestAuthorIds
                             .contains(post.authorId);
                         final isSendingRequest = _sendingFriendRequestAuthorIds
@@ -388,7 +425,8 @@ class _FeedScreenState extends State<FeedScreen> {
 
                         return PostCard(
                           post: post,
-                          isLikedByMe: _currentUserId.isNotEmpty &&
+                          isLikedByMe:
+                              _currentUserId.isNotEmpty &&
                               post.likes.contains(_currentUserId),
                           commentCountOverride: _commentCountOverrides[post.id],
                           isFollowing: isAlreadyFriend,
@@ -403,7 +441,12 @@ class _FeedScreenState extends State<FeedScreen> {
                               : isSendingRequest
                               ? null
                               : () => _onFollowTap(post),
-                          onAuthorTap: _showFeatureSoon,
+                          onAuthorTap: () {
+                            context.pushNamed(
+                              AppRoutes.otherProfile.name,
+                              pathParameters: {'userId': post.authorId},
+                            );
+                          },
                           onComment: () => _openCommentsSheet(post),
                           onViewComments: () => _openCommentsSheet(post),
                           onShare: _showFeatureSoon,
@@ -442,8 +485,10 @@ class _FeedScreenState extends State<FeedScreen> {
               scrollDirection: Axis.horizontal,
               itemCount: stories.length,
               separatorBuilder: (context, index) => const SizedBox(width: 10),
-              itemBuilder: (context, index) =>
-                  FeedStoryItem(story: stories[index]),
+              itemBuilder: (context, index) => FeedStoryItem(
+                story: stories[index],
+                onTap: () => _onStoryTap(index, stories),
+              ),
             ),
           ),
         ),
@@ -455,6 +500,7 @@ class _FeedScreenState extends State<FeedScreen> {
   List<FeedStoryData> _buildStoriesData(List<PostEntity> posts) {
     final stories = <FeedStoryData>[
       const FeedStoryData(
+        userId: 'me',
         label: '',
         avatarUrl: 'assets/images/logo1.jpg',
         isAsset: true,
@@ -477,6 +523,7 @@ class _FeedScreenState extends State<FeedScreen> {
 
       stories.add(
         FeedStoryData(
+          userId: post.authorId,
           label: displayLabel,
           avatarUrl: (post.authorAvatarUrl ?? '').trim(),
         ),

@@ -12,6 +12,8 @@ enum AppRoutes {
   chatMochiChatRoom(path: '/chat/room/:threadId'),
   editProfile(path: '/profile/edit'),
   profile(path: '/profile'),
+  createPost(path: '/create-post'),
+  stories(path: '/stories'),
   otherProfile(path: '/profile/:userId');
 
   final String path;

@@ -843,7 +843,7 @@ class AppLocalizationsVi extends AppLocalizations {
   String get notificationsTitle => 'Thông báo';
 
   @override
-  String get markAllAsRead => 'Đọc tất cả';
+  String get markAllAsRead => 'Đánh dấu tất cả đã đọc';
 
   @override
   String get titleSearch => 'Tìm kiếm';
