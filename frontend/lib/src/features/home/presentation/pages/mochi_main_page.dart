@@ -135,7 +135,7 @@ class MochiMainPage extends StatelessWidget {
               ),
             ),
             body: ListView(
-              padding: const EdgeInsets.fromLTRB(12, 12, 12, 96),
+              padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
               children: [
                 HomeComposerCard(
                   onTapAvatar: () =>
@@ -147,6 +147,7 @@ class MochiMainPage extends StatelessWidget {
                 const HomeSectionHeader(title: 'Feed', actionText: 'See all'),
                 const SizedBox(height: 8),
                 ...posts.map((post) => HomeFeedPostCard(item: post)),
+                const SizedBox(height: 100),
               ],
             ),
           );

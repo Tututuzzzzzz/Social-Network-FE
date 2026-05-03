@@ -491,7 +491,7 @@ class _MochiDirectMessagesPageState extends State<MochiDirectMessagesPage> {
             );
           } else {
             listContent = ListView(
-              padding: const EdgeInsets.only(bottom: 16),
+              padding: EdgeInsets.zero,
               children: [
                 ...List.generate(activeThreads.length, (index) {
                   return _buildConversationItem(
@@ -524,23 +524,22 @@ class _MochiDirectMessagesPageState extends State<MochiDirectMessagesPage> {
                       );
                     }),
                 ],
+                const SizedBox(height: 100),
               ],
             );
           }
 
-          return Scaffold(
-            backgroundColor: Colors.white,
-            body: SafeArea(
-              child: Column(
-                children: [
-                  _buildTopBar(context),
-                  _buildSearchInput(),
-                  _buildSectionHeader(pendingThreads.length),
-                  if (state is ChatLoadingState && loadedThreads.isNotEmpty)
-                    const LinearProgressIndicator(minHeight: 2),
-                  Expanded(child: listContent),
-                ],
-              ),
+          return Material(
+            color: Colors.transparent,
+            child: Column(
+              children: [
+                _buildTopBar(context),
+                _buildSearchInput(),
+                _buildSectionHeader(pendingThreads.length),
+                if (state is ChatLoadingState && loadedThreads.isNotEmpty)
+                  const LinearProgressIndicator(minHeight: 2),
+                Expanded(child: listContent),
+              ],
             ),
           );
         },

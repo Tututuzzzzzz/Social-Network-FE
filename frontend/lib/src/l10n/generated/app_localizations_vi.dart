@@ -853,4 +853,20 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get titleChat => 'Trò chuyện';
+
+  @override
+  String get friends => 'Bạn bè';
+
+  @override
+  String get friendRequestAccepted => 'Lời mời kết bạn đã được chấp nhận';
+
+  @override
+  String get yourFriendRequestAccepted =>
+      'Lời mời kết bạn của bạn đã được chấp nhận';
+
+  @override
+  String get friendRequestReceived => 'đã gửi lời mời kết bạn cho bạn';
+
+  @override
+  String get noNotifications => 'Chưa có thông báo nào';
 }

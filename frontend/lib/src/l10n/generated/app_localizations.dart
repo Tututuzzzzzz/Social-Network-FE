@@ -1675,6 +1675,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Chat'**
   String get titleChat;
+
+  /// No description provided for @friends.
+  ///
+  /// In en, this message translates to:
+  /// **'Friends'**
+  String get friends;
+
+  /// No description provided for @friendRequestAccepted.
+  ///
+  /// In en, this message translates to:
+  /// **'Friend request accepted'**
+  String get friendRequestAccepted;
+
+  /// No description provided for @yourFriendRequestAccepted.
+  ///
+  /// In en, this message translates to:
+  /// **'Your friend request has been accepted'**
+  String get yourFriendRequestAccepted;
+
+  /// No description provided for @friendRequestReceived.
+  ///
+  /// In en, this message translates to:
+  /// **'sent you a friend request'**
+  String get friendRequestReceived;
+
+  /// No description provided for @noNotifications.
+  ///
+  /// In en, this message translates to:
+  /// **'No notifications yet'**
+  String get noNotifications;
 }
 
 class _AppLocalizationsDelegate

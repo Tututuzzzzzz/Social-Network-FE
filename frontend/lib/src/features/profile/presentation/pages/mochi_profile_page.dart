@@ -12,6 +12,8 @@ import '../../../../core/cache/secure_local_storage.dart';
 import '../../../../core/utils/url_normalizer.dart';
 import '../../../../routes/app_route_path.dart';
 import '../../../auth/presentation/bloc/auth/auth_bloc.dart';
+import '../../../chat/domain/usecases/create_direct_conversation_usecase.dart';
+import '../../../chat/domain/usecases/usecase_params.dart';
 import '../../data/models/profile_model.dart';
 import '../../domain/entities/profile_entity.dart';
 import '../../domain/usecases/get_user_posts_usecase.dart';
@@ -322,6 +324,45 @@ class _MochiProfilePageState extends State<MochiProfilePage> {
     }
   }
 
+  Future<void> _onMessageTap() async {
+    final profile = _cachedProfile;
+    if (profile == null) {
+      return;
+    }
+
+    final recipientId = profile.id.trim();
+    if (recipientId.isEmpty) {
+      return;
+    }
+
+    // Show loading
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Đang khởi tạo cuộc trò chuyện...')),
+    );
+
+    final useCase = getIt<CreateDirectConversationUseCase>();
+    final result = await useCase.call(
+      CreateDirectConversationParams(recipientId: recipientId),
+    );
+
+    if (!mounted) return;
+
+    result.fold(
+      (failure) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Không thể bắt đầu trò chuyện')),
+        );
+      },
+      (chat) {
+        context.pushNamed(
+          AppRoutes.chatMochiChatRoom.name,
+          pathParameters: {'threadId': chat.id},
+          extra: chat,
+        );
+      },
+    );
+  }
+
   Future<void> _onFollowTap() async {
     final authorId = _targetUserId.trim();
 
@@ -451,15 +492,22 @@ class _MochiProfilePageState extends State<MochiProfilePage> {
               ? _multiImageOverlayUrls
               : const <String>{};
 
-          return MochiProfileBody(
-            profile: profile,
-            images: images,
-            overlayImageUrls: overlayUrls,
-            isOtherUser: _isOtherUser,
-            onEditProfile: _openEditProfile,
-            onFollow: _onFollowTap,
-            onOpenMenu: _openMenu,
-            onRefresh: _refresh,
+          return Material(
+            color: Colors.transparent,
+            child: SafeArea(
+              bottom: false,
+              child: MochiProfileBody(
+                profile: profile,
+                images: images,
+                overlayImageUrls: overlayUrls,
+                isOtherUser: _isOtherUser,
+                onEditProfile: _openEditProfile,
+                onFollow: _onFollowTap,
+                onMessage: _onMessageTap,
+                onOpenMenu: _openMenu,
+                onRefresh: _refresh,
+              ),
+            ),
           );
         },
       ),

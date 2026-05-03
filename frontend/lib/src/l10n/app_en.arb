@@ -280,4 +280,9 @@
   ,"titleSearch": "Search"
   ,"titleReels": "Reels"
   ,"titleChat": "Chat"
+  ,"friends": "Friends"
+  ,"friendRequestAccepted": "Friend request accepted"
+  ,"yourFriendRequestAccepted": "Your friend request has been accepted"
+  ,"friendRequestReceived": "sent you a friend request"
+  ,"noNotifications": "No notifications yet"
 }

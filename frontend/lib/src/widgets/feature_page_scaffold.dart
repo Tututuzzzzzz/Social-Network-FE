@@ -67,26 +67,62 @@ class FeaturePageScaffold extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: titleWidget ?? Text(title),
-        actions: actions,
-        leading: leading,
-      ),
-      floatingActionButton: floatingActionButton,
-      body: SafeArea(
-        child: Stack(
-          children: [
-            Positioned.fill(
-              child: Padding(padding: bodyPadding, child: _buildBodyContent()),
-            ),
-            if (isLoading)
-              const Positioned.fill(
-                child: ColoredBox(
-                  color: Color(0x66000000),
-                  child: Center(child: CircularProgressIndicator()),
+    final mediaQuery = MediaQuery.of(context);
+    return Material(
+      color: Colors.transparent,
+      child: Column(
+        children: [
+          // Custom AppBar area
+          _buildCustomAppBar(context),
+          Expanded(
+            child: Stack(
+              clipBehavior: Clip.none,
+              children: [
+                Positioned.fill(
+                  child: Padding(
+                    padding: bodyPadding,
+                    child: _buildBodyContent(),
+                  ),
                 ),
-              ),
+                if (isLoading)
+                  const Positioned.fill(
+                    child: ColoredBox(
+                      color: Color(0x66000000),
+                      child: Center(child: CircularProgressIndicator()),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCustomAppBar(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        border: Border(bottom: BorderSide(color: Color(0xFFEEEEEE), width: 0.5)),
+      ),
+      child: SizedBox(
+        height: kToolbarHeight,
+        child: Row(
+          children: [
+            if (leading != null) leading!,
+            const SizedBox(width: 8),
+            Expanded(
+              child: titleWidget ??
+                  Text(
+                    title,
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                  ),
+            ),
+            if (actions != null) ...actions!,
+            const SizedBox(width: 8),
           ],
         ),
       ),
@@ -365,41 +401,42 @@ class _PrototypeScreenFallback extends StatelessWidget {
         const SizedBox(height: 12),
         ...List.generate(
           12,
-          (index) => _PreviewCard(
-            margin: const EdgeInsets.only(bottom: 10),
-            child: Row(
-              children: [
-                CircleAvatar(
-                  radius: 23,
-                  backgroundColor: colorScheme.primaryContainer,
-                  child: const Icon(Icons.person_outline),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Conversation ${index + 1}',
-                        style: Theme.of(context).textTheme.titleSmall,
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        index.isEven
-                            ? 'Typing a new message...'
-                            : 'Last message from Figma-mapped screen',
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(color: colorScheme.outline),
-                      ),
-                    ],
+          (index) => Padding(
+            padding: const EdgeInsets.only(bottom: 10),
+            child: _PreviewCard(
+              child: Row(
+                children: [
+                  CircleAvatar(
+                    backgroundColor: colorScheme.primaryContainer,
+                    child: const Icon(Icons.person_outline),
                   ),
-                ),
-                Text(
-                  '${(index + 1).toString().padLeft(2, '0')}:3${index % 10}',
-                  style: TextStyle(color: colorScheme.outline),
-                ),
-              ],
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Conversation ${index + 1}',
+                          style: Theme.of(context).textTheme.titleSmall,
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          index.isEven
+                              ? 'Typing a new message...'
+                              : 'Last message from Figma-mapped screen',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(color: colorScheme.outline),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Text(
+                    '${(index + 1).toString().padLeft(2, '0')}:3${index % 10}',
+                    style: TextStyle(color: colorScheme.outline),
+                  ),
+                ],
+              ),
             ),
           ),
         ),

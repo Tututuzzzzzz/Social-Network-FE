@@ -46,9 +46,10 @@ class AppShellPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final selectedIndex = _resolveSelectedTabIndex(context);
 
-    return Scaffold(
-      resizeToAvoidBottomInset: false,
-      body: Stack(
+    return Material(
+      color: Colors.white,
+      child: Stack(
+        clipBehavior: Clip.none,
         children: [
           Positioned.fill(child: body),
           Align(

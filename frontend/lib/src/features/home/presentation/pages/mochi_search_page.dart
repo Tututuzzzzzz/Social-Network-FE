@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+
 import '../../../../configs/injector/injector_conf.dart';
 import '../../../../routes/app_route_path.dart';
 import '../../domain/entities/home_entity.dart';
 import '../bloc/home/home_bloc.dart';
-import '../widgets/home_widgets.dart';
-import '../../../../core/l10n/l10n.dart';
+import '../widgets/home_discovery_grid.dart';
+import '../widgets/home_search_input.dart';
+import '../widgets/home_section_header.dart';
+import '../widgets/home_user_result_tile.dart';
 
 class MochiSearchPage extends StatefulWidget {
   const MochiSearchPage({super.key});
@@ -16,135 +19,55 @@ class MochiSearchPage extends StatefulWidget {
 }
 
 class _MochiSearchPageState extends State<MochiSearchPage> {
-  int _selectedTab = 0;
   String _query = '';
-  final List<String> _categories = ['Xu hướng', 'Du lịch', 'Ẩm thực', 'Âm nhạc', 'Phong cách', 'Thể thao'];
   int _selectedCategoryIndex = 0;
 
-  bool _matchesQuery(String source) {
-    if (_query.isEmpty) {
-      return true;
-    }
+  final List<String> _categories = [
+    'Xu hướng',
+    'Du lịch',
+    'Ẩm thực',
+    'Âm nhạc',
+    'Phong cảnh',
+    'Công nghệ',
+  ];
 
-    return source.toLowerCase().contains(_query.toLowerCase());
+  List<HomeEntity> _buildPeople(List<HomeEntity> items) {
+    return items.where((item) => item.kind == 'person').toList();
   }
 
-  List<HomeUserResult> _buildPeople(List<HomeEntity> items) {
-    final people = items
-        .where((item) => item.kind == 'person')
-        .where((item) {
-          final text = '${item.title} ${item.handle} ${item.subtitle}';
-          return _matchesQuery(text);
-        })
-        .map((item) {
-          return HomeUserResult(
-            id: item.id,
-            name: item.title,
-            handle: item.handle,
-            mutualFriends: item.mutualFriends,
-            isOnline: item.isOnline,
-          );
-        })
-        .toList();
-
-    if (_selectedTab == 0) {
-      return people;
-    }
-
-    return people.take(2).toList();
-  }
-
-  bool _matchesDiscoveryTab(HomeEntity item) {
-    if (_selectedTab == 0) {
-      return true;
-    }
-
-    if (_selectedTab == 1) {
-      return item.category == 'posts';
-    }
-    if (_selectedTab == 2) {
-      return item.category == 'photos';
-    }
-
-    return item.category == 'places';
-  }
-
-  IconData _iconFromKey(String iconKey) {
-    switch (iconKey) {
-      case 'food':
-        return Icons.ramen_dining_outlined;
-      case 'route':
-        return Icons.route_outlined;
-      case 'music':
-        return Icons.music_note_outlined;
-      case 'design':
-        return Icons.palette_outlined;
-      case 'photo':
-        return Icons.camera_alt_outlined;
-      case 'coffee':
-        return Icons.coffee_outlined;
-      default:
-        return Icons.explore_outlined;
-    }
-  }
-
-  List<HomeDiscoveryItem> _buildDiscovery(List<HomeEntity> items) {
-    return items
-        .where((item) => item.kind == 'discover')
-        .where(_matchesDiscoveryTab)
-        .where((item) => _matchesQuery('${item.title} ${item.subtitle}'))
-        .map((item) {
-          return HomeDiscoveryItem(
-            title: item.title,
-            subtitle: item.subtitle,
-            icon: _iconFromKey(item.iconKey),
-          );
-        })
-        .toList();
+  List<HomeEntity> _buildDiscovery(List<HomeEntity> items) {
+    return items.where((item) => item.kind == 'post').toList();
   }
 
   Widget _buildSearchResults(
     BuildContext context,
-    List<HomeUserResult> people,
-    List<HomeDiscoveryItem> discovery,
+    List<HomeEntity> people,
+    List<HomeEntity> discovery,
   ) {
-    final tabs = [
-      context.l10n.searchPeople,
-      context.l10n.searchPosts,
-      context.l10n.searchPhotos,
-      context.l10n.searchPlaces,
-    ];
+    final filteredPeople = people
+        .where((p) =>
+            (p.title.toLowerCase()).contains(_query.toLowerCase()) ||
+            (p.handle.toLowerCase()).contains(_query.toLowerCase()))
+        .toList();
 
-    if (people.isEmpty && discovery.isEmpty) {
-      return Padding(
-        padding: const EdgeInsets.only(top: 60),
-        child: Center(
-          child: Text(
-            context.l10n.searchNoResults,
-            style: const TextStyle(color: Colors.grey, fontSize: 16),
-          ),
-        ),
-      );
+    if (filteredPeople.isEmpty && discovery.isEmpty) {
+      return const Center(child: Text('No results found'));
     }
 
     return ListView(
-      padding: const EdgeInsets.fromLTRB(12, 0, 12, 24),
+      padding: const EdgeInsets.symmetric(horizontal: 12),
       children: [
-        HomeFilterTabs(
-          tabs: tabs,
-          selectedIndex: _selectedTab,
-          onChanged: (value) => setState(() => _selectedTab = value),
-        ),
-        const SizedBox(height: 18),
-        if (people.isNotEmpty) ...[
-          HomeSectionHeader(
-            title: context.l10n.searchPeople,
-            actionText: context.l10n.searchSeeAll,
-          ),
-          const SizedBox(height: 8),
-          ...people.map(
+        if (filteredPeople.isNotEmpty) ...[
+          const HomeSectionHeader(title: 'People', actionText: 'See all'),
+          ...filteredPeople.map(
             (item) => HomeUserResultTile(
-              item: item,
+              item: HomeUserResult(
+                id: item.id,
+                name: item.title,
+                handle: item.handle,
+                mutualFriends: item.mutualFriends,
+                isOnline: item.isOnline,
+              ),
               onTap: () {
                 context.pushNamed(
                   AppRoutes.otherProfile.name,
@@ -159,8 +82,17 @@ class _MochiSearchPageState extends State<MochiSearchPage> {
         if (discovery.isNotEmpty) ...[
           const HomeSectionHeader(title: 'Discover', actionText: 'Explore'),
           const SizedBox(height: 8),
-          HomeDiscoveryGrid(items: discovery),
+          HomeDiscoveryGrid(
+            items: discovery
+                .map((d) => HomeDiscoveryItem(
+                      title: d.title,
+                      subtitle: d.subtitle,
+                      icon: Icons.explore_outlined,
+                    ))
+                .toList(),
+          ),
         ],
+        const SizedBox(height: 100),
       ],
     );
   }
@@ -216,12 +148,9 @@ class _MochiSearchPageState extends State<MochiSearchPage> {
               mainAxisSpacing: 2,
               childAspectRatio: 1.0,
             ),
-            itemCount: 21, // Multiple of 3
+            itemCount: 21,
             itemBuilder: (context, index) {
-              // Special large items every 7th index to mimic Instagram staggered feel
-              // But since we use regular grid, let's just use high quality mock images
               final imageUrl = 'https://picsum.photos/seed/explore_$index/400/400';
-              
               return Container(
                 decoration: BoxDecoration(
                   color: Colors.grey.shade200,
@@ -237,6 +166,7 @@ class _MochiSearchPageState extends State<MochiSearchPage> {
               );
             },
           ),
+          const SizedBox(height: 100),
         ],
       ),
     );
@@ -257,9 +187,10 @@ class _MochiSearchPageState extends State<MochiSearchPage> {
           final isLoading =
               state is HomeInitialState || state is HomeLoadingState;
 
-          return Scaffold(
-            backgroundColor: Colors.white,
-            body: SafeArea(
+          return Material(
+            color: Colors.transparent,
+            child: SafeArea(
+              bottom: false,
               child: Column(
                 children: [
                   Padding(

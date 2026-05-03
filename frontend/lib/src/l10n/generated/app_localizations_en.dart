@@ -847,4 +847,20 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get titleChat => 'Chat';
+
+  @override
+  String get friends => 'Friends';
+
+  @override
+  String get friendRequestAccepted => 'Friend request accepted';
+
+  @override
+  String get yourFriendRequestAccepted =>
+      'Your friend request has been accepted';
+
+  @override
+  String get friendRequestReceived => 'sent you a friend request';
+
+  @override
+  String get noNotifications => 'No notifications yet';
 }

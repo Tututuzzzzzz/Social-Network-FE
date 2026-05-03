@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
+import '../../../../routes/app_route_path.dart';
 import '../../../../core/l10n/l10n.dart';
 import '../../domain/entities/notification_entity.dart';
 import '../bloc/notification_bloc.dart';
@@ -100,7 +102,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                             const SizedBox(height: 180),
                             Center(
                               child: Text(
-                                l10n.feedNotificationSoon,
+                                l10n.noNotifications,
                                 style: const TextStyle(color: Colors.black54),
                               ),
                             ),
@@ -126,12 +128,18 @@ class _NotificationScreenState extends State<NotificationScreen> {
                             final item = state.items[index];
                             return _NotificationTile(
                               item: item,
-                              showFriendRequestActions: item.isActionable,
+                              showFriendRequestActions: item.type == 'FRIEND_REQUEST',
                               isSubmitting: state.isSubmitting,
                               onTap: () {
                                 if (!item.isRead) {
                                   context.read<NotificationBloc>().add(
                                     NotificationMarkAsReadRequested(item.id),
+                                  );
+                                }
+                                if (item.actorId.isNotEmpty) {
+                                  context.pushNamed(
+                                    AppRoutes.profile.name,
+                                    pathParameters: {'userId': item.actorId},
                                   );
                                 }
                               },
@@ -175,37 +183,58 @@ class _NotificationTile extends StatelessWidget {
           ListTile(
             onTap: onTap,
             leading: CircleAvatar(
-              radius: 22,
-              backgroundColor: Colors.grey.shade300,
-              child: item.actorName.trim().isNotEmpty
-                  ? Text(
-                      item.actorName.trim().characters.first.toUpperCase(),
-                      style: const TextStyle(fontWeight: FontWeight.w700),
-                    )
-                  : const Icon(Icons.person_outline),
+              radius: 24,
+              backgroundColor: Colors.grey.shade200,
+              backgroundImage: item.actorAvatarUrl.isNotEmpty
+                  ? NetworkImage(item.actorAvatarUrl)
+                  : null,
+              child: item.actorAvatarUrl.isEmpty
+                  ? (item.actorName.trim().isNotEmpty
+                      ? Text(
+                          item.actorName.trim().characters.first.toUpperCase(),
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.blue,
+                          ),
+                        )
+                      : const Icon(Icons.person, color: Colors.grey))
+                  : null,
             ),
-            title: Text(
-              item.title,
-              maxLines: 1,
+            title: RichText(
+              maxLines: 2,
               overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                fontWeight: item.isRead ? FontWeight.w500 : FontWeight.w700,
-              ),
-            ),
-            subtitle: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 4),
-                Text(item.body, maxLines: 2, overflow: TextOverflow.ellipsis),
-                if (timeText.isNotEmpty) ...[
-                  const SizedBox(height: 6),
-                  Text(
-                    timeText,
-                    style: const TextStyle(fontSize: 12, color: Colors.black54),
+              text: TextSpan(
+                style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 15,
+                  fontWeight: item.isRead ? FontWeight.normal : FontWeight.bold,
+                ),
+                children: [
+                  TextSpan(
+                    text: '${item.actorName} ',
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  TextSpan(
+                    text: item.type == 'FRIEND_REQUEST'
+                        ? context.l10n.friendRequestReceived
+                        : item.body,
                   ),
                 ],
-              ],
+              ),
             ),
+            subtitle: timeText.isNotEmpty
+                ? Padding(
+                    padding: const EdgeInsets.only(top: 4),
+                    child: Text(
+                      timeText,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: item.isRead ? Colors.grey : Colors.blueAccent,
+                        fontWeight: item.isRead ? FontWeight.normal : FontWeight.w600,
+                      ),
+                    ),
+                  )
+                : null,
             trailing: item.isRead
                 ? null
                 : Container(

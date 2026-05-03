@@ -35,7 +35,7 @@ class AppShellBottomNavBar extends StatelessWidget {
 
     return Container(
       width: double.infinity,
-      height: navHeight + bottomInset + 12, // Added 12 for bottom margin
+      height: navHeight + bottomInset + 12,
       padding: EdgeInsets.only(bottom: bottomInset + 12),
       alignment: Alignment.bottomCenter,
       child: SizedBox(
@@ -51,15 +51,10 @@ class AppShellBottomNavBar extends StatelessWidget {
                 gradient: const LinearGradient(
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
-                  colors: [Color(0x7AFFFFFF), Color(0x63EFF2F7)],
+                  colors: [Color(0x4DFFFFFF), Color(0x33EFF2F7)],
                 ),
-                border: Border.all(color: const Color(0xFAFFFFFF), width: 0.95),
+                border: Border.all(color: const Color(0x80FFFFFF), width: 0.95),
                 boxShadow: const [
-                  BoxShadow(
-                    color: Color(0x2AFFFFFF),
-                    blurRadius: 10,
-                    offset: Offset(0, -1),
-                  ),
                   BoxShadow(
                     color: Color(0x1A000000),
                     blurRadius: 20,
@@ -67,100 +62,76 @@ class AppShellBottomNavBar extends StatelessWidget {
                   ),
                 ],
               ),
-              child: Stack(
-                children: [
-                  Positioned(
-                    left: 0,
-                    right: 0,
-                    top: 0,
-                    height: 24,
-                    child: IgnorePointer(
-                      child: DecoratedBox(
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                            colors: [
-                              Colors.white.withValues(alpha: 0.62),
-                              Colors.white.withValues(alpha: 0.02),
-                            ],
+              child: Row(
+                children: List.generate(_items.length, (index) {
+                  final item = _items[index];
+                  final isSelected = index == selectedIndex;
+
+                  return Expanded(
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(50),
+                        onTap: () => onTap(index),
+                        child: Center(
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 180),
+                            curve: Curves.easeOut,
+                            height: activeButtonSize,
+                            width: activeButtonSize,
+                            decoration: BoxDecoration(
+                              color: isSelected
+                                  ? const Color(0xFFE2E9FF)
+                                  : Colors.transparent,
+                              shape: BoxShape.circle,
+                              border: isSelected
+                                  ? Border.all(
+                                      color: const Color(0x88FFFFFF),
+                                    )
+                                  : null,
+                              boxShadow: isSelected
+                                  ? const [
+                                      BoxShadow(
+                                        color: Color(0x12000000),
+                                        blurRadius: 8,
+                                        offset: Offset(0, 2),
+                                      ),
+                                    ]
+                                  : null,
+                            ),
+                            alignment: Alignment.center,
+                            child: item.isAvatar
+                                ? ClipOval(
+                                    child: Image.asset(
+                                      'assets/images/logo1.jpg',
+                                      width: 28,
+                                      height: 28,
+                                      fit: BoxFit.cover,
+                                      errorBuilder: (context, error, stackTrace) =>
+                                          const Icon(
+                                        Icons.person,
+                                        size: 28,
+                                        color: Color(0xFF1B1B1F),
+                                      ),
+                                    ),
+                                  )
+                                : item.svgIcon != null
+                                    ? SvgPicture.string(
+                                        item.svgIcon!,
+                                        width: 28,
+                                        height: 28,
+                                        colorFilter: const ColorFilter.mode(
+                                          Color(0xFF1B1B1F),
+                                          BlendMode.srcIn,
+                                        ),
+                                      )
+                                    : const SizedBox.shrink(),
                           ),
                         ),
                       ),
                     ),
-                  ),
-                  Row(
-                    children: List.generate(_items.length, (index) {
-                      final item = _items[index];
-                      final isSelected = index == selectedIndex;
-
-                      return Expanded(
-                        child: Material(
-                          color: Colors.transparent,
-                          child: InkWell(
-                            borderRadius: BorderRadius.circular(50),
-                            onTap: () => onTap(index),
-                            child: Center(
-                              child: AnimatedContainer(
-                                duration: const Duration(milliseconds: 180),
-                                curve: Curves.easeOut,
-                                height: activeButtonSize,
-                                width: activeButtonSize,
-                                decoration: BoxDecoration(
-                                  color: isSelected
-                                      ? const Color(0xFFE2E9FF)
-                                      : Colors.transparent,
-                                  shape: BoxShape.circle,
-                                  border: isSelected
-                                      ? Border.all(
-                                          color: const Color(0x88FFFFFF),
-                                        )
-                                      : null,
-                                  boxShadow: isSelected
-                                      ? const [
-                                          BoxShadow(
-                                            color: Color(0x12000000),
-                                            blurRadius: 8,
-                                            offset: Offset(0, 2),
-                                          ),
-                                        ]
-                                      : null,
-                                ),
-                                alignment: Alignment.center,
-                                child: item.isAvatar
-                                    ? ClipOval(
-                                        child: Image.asset(
-                                          'assets/images/logo1.jpg',
-                                          width: 28,
-                                          height: 28,
-                                          fit: BoxFit.cover,
-                                          errorBuilder: (context, error, stackTrace) =>
-                                              const Icon(
-                                            Icons.person,
-                                            size: 28,
-                                            color: Color(0xFF1B1B1F),
-                                          ),
-                                        ),
-                                      )
-                                    : item.svgIcon != null
-                                        ? SvgPicture.string(
-                                            item.svgIcon!,
-                                            width: 28,
-                                            height: 28,
-                                            colorFilter: const ColorFilter.mode(
-                                              Color(0xFF1B1B1F),
-                                              BlendMode.srcIn,
-                                            ),
-                                          )
-                                        : const SizedBox.shrink(),
-                              ),
-                            ),
-                          ),
-                        ),
-                      );
-                    }),
-                  ),
-                ],
+                  );
+                }),
               ),
             ),
           ),
