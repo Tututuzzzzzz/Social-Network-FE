@@ -6,29 +6,44 @@ import '../../../../core/utils/url_normalizer.dart';
 import '../../../../routes/app_route_path.dart';
 import '../../../../core/l10n/l10n.dart';
 import '../../domain/entities/profile_entity.dart';
+import '../../../post/domain/entities/post_entity.dart';
+
+class MochiProfilePostTile {
+  final String postId;
+  final String imageUrl;
+  final bool isMulti;
+  final PostEntity? post;
+
+  const MochiProfilePostTile({
+    required this.postId,
+    required this.imageUrl,
+    this.isMulti = false,
+    this.post,
+  });
+}
 
 class MochiProfileBody extends StatelessWidget {
   final ProfileEntity profile;
-  final List<String> images;
-  final Set<String> overlayImageUrls;
+  final List<MochiProfilePostTile> postTiles;
   final bool isOtherUser;
   final VoidCallback onEditProfile;
   final VoidCallback? onFollow;
   final VoidCallback? onMessage;
   final VoidCallback onOpenMenu;
   final Future<void> Function() onRefresh;
+  final ValueChanged<MochiProfilePostTile>? onPostTap;
 
   const MochiProfileBody({
     super.key,
     required this.profile,
-    required this.images,
-    required this.overlayImageUrls,
+    required this.postTiles,
     this.isOtherUser = false,
     required this.onEditProfile,
     this.onFollow,
     this.onMessage,
     required this.onOpenMenu,
     required this.onRefresh,
+    this.onPostTap,
   });
 
   @override
@@ -54,8 +69,8 @@ class MochiProfileBody extends StatelessWidget {
           _MochiProfileStats(profile: profile),
           const Divider(height: 32),
           _MochiProfilePhotosGrid(
-            images: images,
-            overlayImageUrls: overlayImageUrls,
+            postTiles: postTiles,
+            onPostTap: onPostTap,
           ),
           const SizedBox(height: 100),
         ],
@@ -226,17 +241,17 @@ class _MochiProfileStats extends StatelessWidget {
 }
 
 class _MochiProfilePhotosGrid extends StatelessWidget {
-  final List<String> images;
-  final Set<String> overlayImageUrls;
+  final List<MochiProfilePostTile> postTiles;
+  final ValueChanged<MochiProfilePostTile>? onPostTap;
 
   const _MochiProfilePhotosGrid({
-    required this.images,
-    required this.overlayImageUrls,
+    required this.postTiles,
+    this.onPostTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    if (images.isEmpty) {
+    if (postTiles.isEmpty) {
       return const Center(child: Text('Chưa có ảnh nào'));
     }
     return GridView.builder(
@@ -248,13 +263,17 @@ class _MochiProfilePhotosGrid extends StatelessWidget {
         crossAxisSpacing: 8,
         mainAxisSpacing: 8,
       ),
-      itemCount: images.length,
+      itemCount: postTiles.length,
       itemBuilder: (context, index) {
+        final tile = postTiles[index];
         return Stack(
           fit: StackFit.expand,
           children: [
-            Image.network(images[index], fit: BoxFit.cover),
-            if (overlayImageUrls.contains(images[index]))
+            GestureDetector(
+              onTap: onPostTap == null ? null : () => onPostTap!(tile),
+              child: Image.network(tile.imageUrl, fit: BoxFit.cover),
+            ),
+            if (tile.isMulti)
               const Positioned(
                 top: 4,
                 right: 4,

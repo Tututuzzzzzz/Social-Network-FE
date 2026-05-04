@@ -4,7 +4,7 @@ class ApiConstants {
   static String get baseUrl {
     // Android emulator cannot reach host services via localhost.
     if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
-      return 'http://10.0.2.2:3001/api';
+      return '';
     }
     return '';
   }
@@ -26,6 +26,7 @@ class ApiConstants {
   static const String messagesGroupMedia = '/messages/group/media';
   static const String posts = '/posts';
   static const String postsFeed = '/posts/feed';
+  static const String mediaUpload = '/media/upload';
   static const String notifications = '/notifications';
   static const String notificationsReadAll = '/notifications/read-all';
 

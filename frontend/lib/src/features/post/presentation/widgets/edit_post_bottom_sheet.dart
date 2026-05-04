@@ -11,12 +11,12 @@ class EditPostDraft {
   const EditPostDraft({
     required this.content,
     required this.retainedMedia,
-    required this.newImagePaths,
+    required this.newImages,
   });
 
   final String content;
   final List<PostMediaEntity> retainedMedia;
-  final List<String> newImagePaths;
+  final List<XFile> newImages;
 }
 
 Future<EditPostDraft?> showEditPostBottomSheet({
@@ -147,10 +147,7 @@ class _EditPostBottomSheetState extends State<_EditPostBottomSheet> {
       EditPostDraft(
         content: content,
         retainedMedia: List<PostMediaEntity>.from(_retainedMedia),
-        newImagePaths: _newImages
-            .map((item) => item.path)
-            .where((path) => path.trim().isNotEmpty)
-            .toList(growable: false),
+        newImages: List<XFile>.from(_newImages),
       ),
     );
   }
