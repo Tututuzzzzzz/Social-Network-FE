@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:frontend/src/core/l10n/l10n.dart';
 import 'package:frontend/src/core/utils/url_normalizer.dart';
 import 'package:frontend/src/widgets/follow_status_chip.dart';
@@ -17,6 +18,7 @@ class PostCard extends StatelessWidget {
     this.isVerified = false,
     this.isLikedByMe = false,
     this.likeCountOverride,
+    this.commentCountOverride,
     this.onLike,
     this.onComment,
     this.onShare,
@@ -26,6 +28,7 @@ class PostCard extends StatelessWidget {
     this.followingLabel,
     this.followLabel,
     this.isFollowing = true,
+    this.showFollowButton = true,
     this.onFollowTap,
     this.onAuthorTap,
   });
@@ -38,6 +41,7 @@ class PostCard extends StatelessWidget {
   final bool isVerified;
   final bool isLikedByMe;
   final int? likeCountOverride;
+  final int? commentCountOverride;
   final VoidCallback? onLike;
   final VoidCallback? onComment;
   final VoidCallback? onShare;
@@ -47,6 +51,7 @@ class PostCard extends StatelessWidget {
   final String? followingLabel;
   final String? followLabel;
   final bool isFollowing;
+  final bool showFollowButton;
   final VoidCallback? onFollowTap;
   final VoidCallback? onAuthorTap;
 
@@ -54,7 +59,7 @@ class PostCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final likesCount = likeCountOverride ?? post.likes.length;
-    final commentCount = post.commentsCount;
+    final commentCount = commentCountOverride ?? post.commentsCount;
     final imageUrls = _resolveImageUrls();
 
     final displayName = (authorName != null && authorName!.trim().isNotEmpty)
@@ -142,13 +147,16 @@ class PostCard extends StatelessWidget {
                     ),
                   ),
                 ),
-                FollowStatusChip(
-                  isFollowing: isFollowing,
-                  followingText: followingLabel ?? context.l10n.followingStatus,
-                  followText: followLabel ?? context.l10n.followAction,
-                  onTap: onFollowTap,
-                ),
-                const SizedBox(width: 4),
+                if (showFollowButton) ...[
+                  FollowStatusChip(
+                    isFollowing: isFollowing,
+                    followingText:
+                        followingLabel ?? context.l10n.followingStatus,
+                    followText: followLabel ?? context.l10n.followAction,
+                    onTap: onFollowTap,
+                  ),
+                  const SizedBox(width: 4),
+                ],
                 IconButton(
                   visualDensity: VisualDensity.compact,
                   splashRadius: 18,
@@ -189,7 +197,11 @@ class PostCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 12),
-                _ActionIcon(icon: Icons.send_outlined, onTap: onShare),
+                _SvgActionIcon(
+                  svgData:
+                      '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-send-icon lucide-send"><path d="M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z"/><path d="m21.854 2.147-10.94 10.939"/></svg>',
+                  onTap: onShare,
+                ),
                 const Spacer(),
                 _ActionIcon(icon: Icons.bookmark_border, onTap: onSave),
               ],
@@ -328,7 +340,9 @@ class _PostMediaState extends State<_PostMedia> {
       setState(() {
         _currentIndex = 0;
       });
-      _pageController.jumpToPage(0);
+      if (_pageController.hasClients) {
+        _pageController.jumpToPage(0);
+      }
     }
   }
 
@@ -382,7 +396,7 @@ class _PostMediaState extends State<_PostMedia> {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
-                color: Colors.black.withValues(alpha: 0.45),
+                color: Colors.black.withOpacity(0.45),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Text(
@@ -412,7 +426,7 @@ class _PostMediaState extends State<_PostMedia> {
                     shape: BoxShape.circle,
                     color: isActive
                         ? Colors.white
-                        : Colors.white.withValues(alpha: 0.6),
+                        : Colors.white.withOpacity(0.6),
                   ),
                 );
               }),
@@ -465,6 +479,30 @@ class _ActionIcon extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(4),
         child: Icon(icon, size: 24, color: color ?? Colors.black),
+      ),
+    );
+  }
+}
+
+class _SvgActionIcon extends StatelessWidget {
+  const _SvgActionIcon({required this.svgData, this.onTap});
+
+  final String svgData;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkResponse(
+      radius: 20,
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.all(4),
+        child: SvgPicture.string(
+          svgData,
+          width: 24,
+          height: 24,
+          colorFilter: const ColorFilter.mode(Colors.black, BlendMode.srcIn),
+        ),
       ),
     );
   }

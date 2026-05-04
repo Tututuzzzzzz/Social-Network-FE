@@ -98,6 +98,14 @@
   "youSuffix": "you",
   "adminRole": "Admin",
   "memberRole": "Member",
+  "searchHint": "Search people, posts, places",
+  "searchLabel": "Search",
+  "searchPeople": "People",
+  "searchPosts": "Posts",
+  "searchPhotos": "Photos",
+  "searchPlaces": "Places",
+  "searchNoResults": "No results found",
+  "searchSeeAll": "See all",
   "leaveGroup": "Leave group",
   "lastAdminCannotLeave": "You are the last admin. Transfer admin rights before leaving.",
   "groupChatFallback": "Group chat",
@@ -269,4 +277,12 @@
   ,"rejectFriendRequest": "Reject"
   ,"notificationsTitle": "Notifications"
   ,"markAllAsRead": "Read all"
+  ,"titleSearch": "Search"
+  ,"titleReels": "Reels"
+  ,"titleChat": "Chat"
+  ,"friends": "Friends"
+  ,"friendRequestAccepted": "Friend request accepted"
+  ,"yourFriendRequestAccepted": "Your friend request has been accepted"
+  ,"friendRequestReceived": "sent you a friend request"
+  ,"noNotifications": "No notifications yet"
 }

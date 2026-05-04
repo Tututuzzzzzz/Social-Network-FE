@@ -1,36 +1,22 @@
 import '../../domain/entities/post_entity.dart';
-import '../../domain/entities/post_media_entity.dart';
 import '../../domain/entities/post_comment_entity.dart';
 import 'post_media_model.dart';
 
 class PostModel extends PostEntity {
-  PostModel({
-    required String id,
-    required String authorId,
-    String? authorUsername,
-    String? authorDisplayName,
-    String? authorAvatarUrl,
-    String? content,
-    List<PostMediaEntity> media = const [],
-    List<String> likes = const [],
-    List<PostCommentEntity> comments = const [],
-    int commentsCount = 0,
-    required DateTime createdAt,
-    required DateTime updatedAt,
-  }) : super(
-         id: id,
-         authorId: authorId,
-         authorUsername: authorUsername,
-         authorDisplayName: authorDisplayName,
-         authorAvatarUrl: authorAvatarUrl,
-         content: content,
-         media: media,
-         likes: likes,
-         comments: comments,
-         commentsCount: commentsCount,
-         createdAt: createdAt,
-         updatedAt: updatedAt,
-       );
+  const PostModel({
+    required super.id,
+    required super.authorId,
+    super.authorUsername,
+    super.authorDisplayName,
+    super.authorAvatarUrl,
+    super.content,
+    super.media,
+    super.likes,
+    super.comments,
+    super.commentsCount,
+    required super.createdAt,
+    required super.updatedAt,
+  });
 
   factory PostModel.fromJson(Map<String, dynamic> json) {
     return PostModel(
@@ -56,7 +42,23 @@ class PostModel extends PostEntity {
                 (e) => PostCommentEntity(
                   id: e['id'] as String,
                   parentCommentId: e['parentCommentId'] as String?,
-                  authorId: e['authorId'] as String,
+              authorId: e['authorId'] is Map
+                ? ((e['authorId'] as Map)['_id'] ??
+                    (e['authorId'] as Map)['id'] ??
+                    '')
+                  .toString()
+                : e['authorId'] as String,
+              authorUsername: e['authorId'] is Map
+                ? (e['authorId'] as Map)['username']?.toString()
+                : null,
+              authorDisplayName: e['authorId'] is Map
+                ? ((e['authorId'] as Map)['displayName'] ??
+                    (e['authorId'] as Map)['fullName'])
+                  ?.toString()
+                : null,
+              authorAvatarUrl: e['authorId'] is Map
+                ? (e['authorId'] as Map)['avatarUrl']?.toString()
+                : null,
                   content: e['content'] as String,
                   createdAt: DateTime.parse(e['createdAt'] as String),
                   updatedAt: DateTime.parse(e['updatedAt'] as String),

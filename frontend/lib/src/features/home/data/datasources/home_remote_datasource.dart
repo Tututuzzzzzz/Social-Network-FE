@@ -13,7 +13,7 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
 
   static const List<HomeModel> _mockItems = [
     HomeModel(
-      id: 'p_1',
+      id: '65f1a2b3c4d5e6f7a8b9c0d1',
       kind: 'person',
       category: 'people',
       title: 'Linh Vo',
@@ -21,9 +21,10 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
       handle: 'linhvo',
       mutualFriends: 18,
       isOnline: true,
+      authorId: '65f1a2b3c4d5e6f7a8b9c0d1',
     ),
     HomeModel(
-      id: 'p_2',
+      id: '65f1a2b3c4d5e6f7a8b9c0d2',
       kind: 'person',
       category: 'people',
       title: 'Khoa Tran',
@@ -31,9 +32,10 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
       handle: 'khoatran',
       mutualFriends: 11,
       isOnline: false,
+      authorId: '65f1a2b3c4d5e6f7a8b9c0d2',
     ),
     HomeModel(
-      id: 'p_3',
+      id: '65f1a2b3c4d5e6f7a8b9c0d3',
       kind: 'person',
       category: 'people',
       title: 'Mina Le',
@@ -41,9 +43,10 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
       handle: 'minale',
       mutualFriends: 26,
       isOnline: true,
+      authorId: '65f1a2b3c4d5e6f7a8b9c0d3',
     ),
     HomeModel(
-      id: 'p_4',
+      id: '65f1a2b3c4d5e6f7a8b9c0d4',
       kind: 'person',
       category: 'people',
       title: 'Tuan Pham',
@@ -51,9 +54,10 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
       handle: 'tuanpham',
       mutualFriends: 7,
       isOnline: false,
+      authorId: '65f1a2b3c4d5e6f7a8b9c0d4',
     ),
     HomeModel(
-      id: 'p_5',
+      id: '65f1a2b3c4d5e6f7a8b9c0d5',
       kind: 'person',
       category: 'people',
       title: 'Hana Nguyen',
@@ -61,6 +65,7 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
       handle: 'hanang',
       mutualFriends: 9,
       isOnline: true,
+      authorId: '65f1a2b3c4d5e6f7a8b9c0d5',
     ),
     HomeModel(
       id: 'd_1',
@@ -69,6 +74,7 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
       title: 'Street Food',
       subtitle: '1.2k posts this week',
       iconKey: 'food',
+      authorId: '65f1a2b3c4d5e6f7a8b9c0d1',
     ),
     HomeModel(
       id: 'd_2',
@@ -77,6 +83,7 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
       title: 'City Walks',
       subtitle: 'Nearby routes and photos',
       iconKey: 'route',
+      authorId: '65f1a2b3c4d5e6f7a8b9c0d2',
     ),
     HomeModel(
       id: 'd_3',
@@ -85,6 +92,7 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
       title: 'Live Music',
       subtitle: 'Tonight around you',
       iconKey: 'music',
+      authorId: '65f1a2b3c4d5e6f7a8b9c0d3',
     ),
     HomeModel(
       id: 'd_4',
@@ -93,6 +101,7 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
       title: 'Design Meetups',
       subtitle: '8 events this month',
       iconKey: 'design',
+      authorId: '65f1a2b3c4d5e6f7a8b9c0d4',
     ),
     HomeModel(
       id: 'd_5',
@@ -101,6 +110,7 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
       title: 'Photo Spots',
       subtitle: 'Top-rated corners',
       iconKey: 'photo',
+      authorId: '65f1a2b3c4d5e6f7a8b9c0d5',
     ),
     HomeModel(
       id: 'd_6',
@@ -109,6 +119,7 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
       title: 'Coffee Labs',
       subtitle: 'Trending cafes',
       iconKey: 'coffee',
+      authorId: '65f1a2b3c4d5e6f7a8b9c0d1',
     ),
     HomeModel(
       id: 'post_1',
@@ -120,6 +131,7 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
       likesCount: 42,
       commentsCount: 6,
       minutesAgo: 8,
+      authorId: '65f1a2b3c4d5e6f7a8b9c0d1',
     ),
     HomeModel(
       id: 'post_2',
@@ -131,6 +143,7 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
       likesCount: 28,
       commentsCount: 3,
       minutesAgo: 19,
+      authorId: '65f1a2b3c4d5e6f7a8b9c0d2',
     ),
   ];
 
@@ -197,7 +210,7 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
       if (authorId.isNotEmpty && seenAuthors.add(authorId)) {
         people.add(
           HomeModel(
-            id: 'person_$authorId',
+            id: authorId,
             kind: 'person',
             category: 'people',
             title: authorLabel,
@@ -205,6 +218,7 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
             handle: username,
             mutualFriends: (item['likesCount'] as num?)?.toInt() ?? 0,
             isOnline: false,
+            authorId: authorId,
           ),
         );
       }
@@ -228,7 +242,7 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
 
       discoveries.add(
         HomeModel(
-          id: 'discover_$postId',
+          id: postId,
           kind: 'discover',
           category: 'posts',
           title: content.isNotEmpty
@@ -236,12 +250,13 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
               : (hasMedia ? 'Photo update' : 'New post'),
           subtitle: 'By $authorLabel',
           iconKey: hasMedia ? 'photo' : 'circle',
+          authorId: authorId,
         ),
       );
 
       posts.add(
         HomeModel(
-          id: 'post_$postId',
+          id: postId,
           kind: 'post',
           category: 'feed',
           title: authorLabel,
@@ -250,6 +265,7 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
           likesCount: likesCount,
           commentsCount: commentsCount,
           minutesAgo: _minutesAgo(createdAt),
+          authorId: authorId,
         ),
       );
     }

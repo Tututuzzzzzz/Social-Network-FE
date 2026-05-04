@@ -294,6 +294,30 @@ class AppLocalizationsEn extends AppLocalizations {
   String get memberRole => 'Member';
 
   @override
+  String get searchHint => 'Search people, posts, places';
+
+  @override
+  String get searchLabel => 'Search';
+
+  @override
+  String get searchPeople => 'People';
+
+  @override
+  String get searchPosts => 'Posts';
+
+  @override
+  String get searchPhotos => 'Photos';
+
+  @override
+  String get searchPlaces => 'Places';
+
+  @override
+  String get searchNoResults => 'No results found';
+
+  @override
+  String get searchSeeAll => 'See all';
+
+  @override
   String get leaveGroup => 'Leave group';
 
   @override
@@ -793,4 +817,50 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get recentSearchTitle => 'Recent';
+
+  @override
+  String get friendRequestSent => 'Sent';
+
+  @override
+  String get friendRequestSendSuccess => 'Friend request sent';
+
+  @override
+  String get friendRequestSendError => 'Cannot send friend request';
+
+  @override
+  String get acceptFriendRequest => 'Accept';
+
+  @override
+  String get rejectFriendRequest => 'Reject';
+
+  @override
+  String get notificationsTitle => 'Notifications';
+
+  @override
+  String get markAllAsRead => 'Read all';
+
+  @override
+  String get titleSearch => 'Search';
+
+  @override
+  String get titleReels => 'Reels';
+
+  @override
+  String get titleChat => 'Chat';
+
+  @override
+  String get friends => 'Friends';
+
+  @override
+  String get friendRequestAccepted => 'Friend request accepted';
+
+  @override
+  String get yourFriendRequestAccepted =>
+      'Your friend request has been accepted';
+
+  @override
+  String get friendRequestReceived => 'sent you a friend request';
+
+  @override
+  String get noNotifications => 'No notifications yet';
 }

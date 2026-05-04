@@ -14,9 +14,11 @@ class HomeEntity extends Equatable {
   final int likesCount;
   final int commentsCount;
   final int minutesAgo;
+  final String authorId;
 
   const HomeEntity({
     required this.id,
+    this.authorId = '',
     this.kind = 'item',
     this.category = 'all',
     this.title = '',
@@ -46,5 +48,6 @@ class HomeEntity extends Equatable {
     likesCount,
     commentsCount,
     minutesAgo,
+    authorId,
   ];
 }

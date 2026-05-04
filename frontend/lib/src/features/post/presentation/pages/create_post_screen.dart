@@ -2,16 +2,17 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:dio/dio.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../../../configs/injector/injector_conf.dart';
 import '../../../../core/l10n/l10n.dart';
+import '../../../../core/utils/failure_converter.dart';
 import '../../../../routes/app_route_path.dart';
 import '../../../../widgets/app_shell_bottom_nav_bar.dart';
-import '../../data/models/upload_media_response_model.dart';
 import '../../domain/entities/post_media_entity.dart';
+import '../../domain/entities/post_media_upload_file.dart';
 import '../../domain/usecases/usecase_params.dart';
+import '../../domain/usecases/upload_post_media_usecase.dart';
 import '../bloc/post/post_bloc.dart';
 
 class CreatePostScreen extends StatefulWidget {
@@ -137,6 +138,11 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
 
       if (!mounted) return;
 
+      if (uploadedMedia == null) {
+        setState(() => _isSubmitting = false);
+        return;
+      }
+
       context.read<PostBloc>().add(
         PostCreateEvent(
           CreatePostParams(
@@ -154,59 +160,36 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
     }
   }
 
-  Future<List<PostMediaEntity>> _uploadSelectedImages() async {
+  Future<List<PostMediaEntity>?> _uploadSelectedImages() async {
     if (_selectedImages.isEmpty) {
       return const [];
     }
 
-    final dio = getIt<Dio>();
-    final multipartFiles = <MultipartFile>[];
+    final files = <PostMediaUploadFile>[];
 
     for (final image in _selectedImages) {
       if (kIsWeb) {
         final bytes = await image.readAsBytes();
-        multipartFiles.add(
-          MultipartFile.fromBytes(
-            bytes,
-            filename: image.name,
-            contentType: DioMediaType.parse('image/jpeg'),
-          ),
-        );
+        files.add(PostMediaUploadFile(name: image.name, bytes: bytes));
       } else {
-        multipartFiles.add(
-          await MultipartFile.fromFile(image.path, filename: image.name),
-        );
+        files.add(PostMediaUploadFile(name: image.name, path: image.path));
       }
     }
 
-    final formData = FormData.fromMap({
-      'purpose': 'post',
-      'files': multipartFiles,
-    });
+    final useCase = getIt<UploadPostMediaUseCase>();
+    final result = await useCase.call(UploadPostMediaParams(files: files));
 
-    final response = await dio.post(
-      '/media/upload',
-      data: formData,
-      options: Options(contentType: 'multipart/form-data'),
+    if (!mounted) return null;
+
+    return result.fold(
+      (failure) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(mapFailureToMessage(failure))));
+        return null;
+      },
+      (media) => media,
     );
-
-    if (response.statusCode != 201 && response.statusCode != 200) {
-      throw Exception('Upload media failed');
-    }
-
-    final payload = response.data;
-    if (payload is! Map) {
-      throw Exception('Invalid media payload');
-    }
-
-    final uploadResponse = UploadMediaResponseModel.fromJson(
-      Map<String, dynamic>.from(payload),
-    );
-
-    return uploadResponse
-        .toEntities()
-        .where((item) => item.bucket.isNotEmpty && item.objectKey.isNotEmpty)
-        .toList();
   }
 
   void _onBottomNavTap(int index) {
@@ -219,7 +202,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
         context.go(AppRoutes.home.path);
         break;
       case 1:
-        context.go(AppRoutes.reels.path);
+        context.go(AppRoutes.homeSearch.path);
         break;
       case 2:
         context.go(AppRoutes.chat.path);
@@ -274,6 +257,9 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
           actions: [
             TextButton(
               onPressed: (_isSubmitting || !_canSubmit) ? null : _submitPost,
+              style: TextButton.styleFrom(
+                shape: const StadiumBorder(),
+              ),
               child: _isSubmitting
                   ? const SizedBox(
                       width: 18,
@@ -310,7 +296,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                         filled: true,
                         fillColor: const Color(0xFFF5F5F5),
                         border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(14),
+                          borderRadius: BorderRadius.circular(30),
                           borderSide: BorderSide.none,
                         ),
                         contentPadding: const EdgeInsets.all(14),
@@ -334,6 +320,9 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                         onPressed: _isPickingImages ? null : _pickFromGallery,
                         icon: const Icon(Icons.photo_library_outlined),
                         label: Text(l10n.libraryLabel),
+                        style: OutlinedButton.styleFrom(
+                          shape: const StadiumBorder(),
+                        ),
                       ),
                     ),
                     const SizedBox(width: 10),
@@ -342,6 +331,9 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                         onPressed: _isPickingImages ? null : _pickFromCamera,
                         icon: const Icon(Icons.photo_camera_outlined),
                         label: Text(l10n.cameraLabel),
+                        style: OutlinedButton.styleFrom(
+                          shape: const StadiumBorder(),
+                        ),
                       ),
                     ),
                   ],
@@ -389,6 +381,9 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
               onPressed: _isPickingImages ? null : _pickFromGallery,
               icon: const Icon(Icons.add_photo_alternate_outlined),
               label: Text(context.l10n.pickFromLibrary),
+              style: FilledButton.styleFrom(
+                shape: const StadiumBorder(),
+              ),
             ),
           ],
         ),

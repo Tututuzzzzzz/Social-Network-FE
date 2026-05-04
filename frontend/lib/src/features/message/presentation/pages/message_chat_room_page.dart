@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../../../configs/injector/injector_conf.dart';
 import '../../../../core/realtime/realtime_socket_service.dart';
@@ -68,6 +69,8 @@ class _MessageChatRoomPageState extends State<MessageChatRoomPage> {
   }
 
   Future<void> _setupRealtime() async {
+    // ensureConnected() đã được gọi tại AppShellPage.
+    // Chat room chỉ cần join conversation room + listen stream.
     await _realtimeSocketService.ensureConnected();
 
     _realtimeSocketService.joinConversation(widget.thread.id);
@@ -655,21 +658,25 @@ class _MessageChatRoomPageState extends State<MessageChatRoomPage> {
                     child: Row(
                       children: [
                         Expanded(
-                          child: TextField(
-                            controller: _composerController,
-                            textInputAction: TextInputAction.send,
-                            onSubmitted: (_) => _onSendPressed(blocContext),
-                            decoration: InputDecoration(
-                              hintText: 'Type a message',
-                              filled: true,
-                              fillColor: const Color(0xFFF3F6FA),
-                              contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 14,
-                                vertical: 10,
-                              ),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(22),
-                                borderSide: BorderSide.none,
+                          child: SizedBox(
+                            height: 35,
+                            child: TextField(
+                              controller: _composerController,
+                              textInputAction: TextInputAction.send,
+                              onSubmitted: (_) => _onSendPressed(blocContext),
+                              textAlignVertical: TextAlignVertical.center,
+                              decoration: InputDecoration(
+                                hintText: 'Type a message',
+                                filled: true,
+                                fillColor: const Color(0xFFF3F6FA),
+                                isDense: true,
+                                contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 14,
+                                ),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(30),
+                                  borderSide: BorderSide.none,
+                                ),
                               ),
                             ),
                           ),
@@ -688,7 +695,12 @@ class _MessageChatRoomPageState extends State<MessageChatRoomPage> {
                                     color: Colors.white,
                                   ),
                                 )
-                              : const Icon(Icons.send_rounded),
+                              : SvgPicture.string(
+                                  '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-send-icon lucide-send"><path d="M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z"/><path d="m21.854 2.147-10.94 10.939"/></svg>',
+                                  width: 20,
+                                  height: 20,
+                                  colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+                                ),
                         ),
                       ],
                     ),

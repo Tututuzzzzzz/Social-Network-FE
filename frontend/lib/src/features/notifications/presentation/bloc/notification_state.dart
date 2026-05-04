@@ -4,6 +4,7 @@ import '../../domain/entities/notification_entity.dart';
 
 class NotificationState extends Equatable {
   final List<NotificationEntity> items;
+  final List<String> handledFriendRequestIds;
   final int page;
   final bool hasMore;
   final bool unreadOnly;
@@ -15,6 +16,7 @@ class NotificationState extends Equatable {
 
   const NotificationState({
     this.items = const [],
+    this.handledFriendRequestIds = const [],
     this.page = 1,
     this.hasMore = false,
     this.unreadOnly = false,
@@ -27,6 +29,7 @@ class NotificationState extends Equatable {
 
   NotificationState copyWith({
     List<NotificationEntity>? items,
+    List<String>? handledFriendRequestIds,
     int? page,
     bool? hasMore,
     bool? unreadOnly,
@@ -39,6 +42,8 @@ class NotificationState extends Equatable {
   }) {
     return NotificationState(
       items: items ?? this.items,
+      handledFriendRequestIds:
+          handledFriendRequestIds ?? this.handledFriendRequestIds,
       page: page ?? this.page,
       hasMore: hasMore ?? this.hasMore,
       unreadOnly: unreadOnly ?? this.unreadOnly,
@@ -53,6 +58,7 @@ class NotificationState extends Equatable {
   @override
   List<Object?> get props => [
     items,
+    handledFriendRequestIds,
     page,
     hasMore,
     unreadOnly,

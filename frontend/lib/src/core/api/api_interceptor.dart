@@ -1,7 +1,9 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 
+import '../../configs/injector/injector_conf.dart';
 import '../cache/secure_local_storage.dart';
+import '../realtime/realtime_socket_service.dart';
 import '../utils/logger.dart';
 import 'api_constants.dart';
 
@@ -9,9 +11,10 @@ final ValueNotifier<bool> forceLogoutNotifier = ValueNotifier<bool>(false);
 
 class ApiInterceptor extends Interceptor {
   final SecureLocalStorage _secureLocalStorage;
-  const ApiInterceptor(this._secureLocalStorage);
+  ApiInterceptor(this._secureLocalStorage);
 
   static const _retryFlagKey = '__retried_after_refresh__';
+  Future<String>? _refreshFuture;
 
   @override
   Future<void> onRequest(
@@ -64,14 +67,13 @@ class ApiInterceptor extends Interceptor {
         return;
       }
 
-      final retryDio = Dio(
-        BaseOptions(
-          baseUrl: ApiConstants.baseUrl,
-          headers: {'Authorization': 'Bearer $refreshedAccessToken'},
-        ),
-      );
+      final retryDio = Dio(BaseOptions(baseUrl: ApiConstants.baseUrl));
+
+      final nextHeaders = Map<String, dynamic>.from(options.headers);
+      nextHeaders['Authorization'] = 'Bearer $refreshedAccessToken';
 
       final nextOptions = options.copyWith(
+        headers: nextHeaders,
         extra: {...options.extra, _retryFlagKey: true},
       );
 
@@ -83,7 +85,20 @@ class ApiInterceptor extends Interceptor {
     }
   }
 
-  Future<String> _refreshAccessToken() async {
+  Future<String> _refreshAccessToken() {
+    final inFlight = _refreshFuture;
+    if (inFlight != null) {
+      return inFlight;
+    }
+
+    final future = _performRefreshAccessToken();
+    _refreshFuture = future.whenComplete(() {
+      _refreshFuture = null;
+    });
+    return _refreshFuture!;
+  }
+
+  Future<String> _performRefreshAccessToken() async {
     final refreshToken = await _secureLocalStorage.load(key: 'refresh_token');
     if (refreshToken.trim().isEmpty) {
       return '';
@@ -120,6 +135,9 @@ class ApiInterceptor extends Interceptor {
   }
 
   Future<void> _clearSession() async {
+    // Disconnect socket trước khi xóa credentials
+    getIt<RealtimeSocketService>().disconnect();
+
     await _secureLocalStorage.delete(key: 'access_token');
     await _secureLocalStorage.delete(key: 'refresh_token');
     await _secureLocalStorage.delete(key: 'user_id');

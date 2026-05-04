@@ -1,10 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import '../../../../routes/app_route_path.dart';
 
 class HomeStoryItem {
+  final String id;
   final String name;
   final bool hasUnread;
 
-  const HomeStoryItem({required this.name, required this.hasUnread});
+  const HomeStoryItem({
+    required this.id,
+    required this.name,
+    required this.hasUnread,
+  });
 }
 
 class HomeStoriesStrip extends StatelessWidget {
@@ -29,7 +36,15 @@ class HomeStoriesStrip extends StatelessWidget {
 
           return InkWell(
             borderRadius: BorderRadius.circular(8),
-            onTap: onTapStory != null ? () => onTapStory!(index) : null,
+            onTap: () {
+              if (onTapStory != null) {
+                onTapStory!(index);
+              }
+              context.pushNamed(
+                AppRoutes.otherProfile.name,
+                pathParameters: {'userId': item.id},
+              );
+            },
             child: SizedBox(
               width: 74,
               child: Column(

@@ -87,15 +87,7 @@ class AppRoutesConf {
       GoRoute(
         path: AppRoutes.homeSearch.path,
         name: AppRoutes.homeSearch.name,
-        builder: (context, state) => BlocProvider<PostBloc>(
-          create: (_) => getIt<PostBloc>(),
-          child: const FeedScreen(),
-        ),
-      ),
-      GoRoute(
-        path: AppRoutes.reels.path,
-        name: AppRoutes.reels.name,
-        builder: (context, state) => const AppShellPage(body: MochiReelsPage()),
+        builder: (context, state) => const AppShellPage(body: MochiSearchPage()),
       ),
       GoRoute(
         path: AppRoutes.chat.path,
@@ -108,7 +100,7 @@ class AppRoutesConf {
         name: AppRoutes.notifications.name,
         builder: (context, state) => BlocProvider<NotificationBloc>(
           create: (_) => getIt<NotificationBloc>(),
-          child: const NotificationScreen(),
+          child: NotificationScreen(),
         ),
       ),
       GoRoute(
@@ -123,6 +115,19 @@ class AppRoutesConf {
         path: AppRoutes.editProfile.path,
         name: AppRoutes.editProfile.name,
         builder: (context, state) => const EditProfilePage(),
+      ),
+      GoRoute(
+        path: AppRoutes.otherProfile.path,
+        name: AppRoutes.otherProfile.name,
+        builder: (context, state) {
+          final userId = state.pathParameters['userId'] ?? '';
+          return BlocProvider<ProfileBloc>(
+            create: (_) => getIt<ProfileBloc>(),
+            child: AppShellPage(
+              body: MochiProfilePage(userId: userId),
+            ),
+          );
+        },
       ),
       GoRoute(
         path: AppRoutes.chatMochiChatRoom.path,
@@ -140,6 +145,19 @@ class AppRoutesConf {
           return BlocProvider<MessageBloc>(
             create: (_) => getIt<MessageBloc>(),
             child: MessageChatRoomPage(thread: thread),
+          );
+        },
+      ),
+      GoRoute(
+        path: AppRoutes.stories.path,
+        name: AppRoutes.stories.name,
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>?;
+          final storyGroups = extra?['storyGroups'] as List<StoryGroupEntity>? ?? [];
+          final initialIndex = extra?['initialIndex'] as int? ?? 0;
+          return StoryViewScreen(
+            storyGroups: storyGroups,
+            initialGroupIndex: initialIndex,
           );
         },
       ),

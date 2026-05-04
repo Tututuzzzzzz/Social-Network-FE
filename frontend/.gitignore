@@ -47,7 +47,7 @@ app.*.map.json
 build/
 frontend/build/
 
-.env
+.env.*
 
 # Generated prototype mapping artifacts
 /prototype-*.json

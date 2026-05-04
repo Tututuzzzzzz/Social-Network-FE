@@ -1,152 +1,86 @@
 import 'package:flutter/material.dart';
-
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../core/api/api_constants.dart';
 import '../../../../core/utils/url_normalizer.dart';
+import '../../../../routes/app_route_path.dart';
+import '../../../../core/l10n/l10n.dart';
 import '../../domain/entities/profile_entity.dart';
+import '../../../post/domain/entities/post_entity.dart';
+
+class MochiProfilePostTile {
+  final String postId;
+  final String imageUrl;
+  final bool isMulti;
+  final PostEntity? post;
+
+  const MochiProfilePostTile({
+    required this.postId,
+    required this.imageUrl,
+    this.isMulti = false,
+    this.post,
+  });
+}
 
 class MochiProfileBody extends StatelessWidget {
   final ProfileEntity profile;
-  final List<String> images;
-  final Set<String> overlayImageUrls;
+  final List<MochiProfilePostTile> postTiles;
+  final bool isOtherUser;
   final VoidCallback onEditProfile;
+  final VoidCallback? onFollow;
+  final VoidCallback? onMessage;
   final VoidCallback onOpenMenu;
   final Future<void> Function() onRefresh;
+  final ValueChanged<MochiProfilePostTile>? onPostTap;
 
   const MochiProfileBody({
     super.key,
     required this.profile,
-    required this.images,
-    required this.overlayImageUrls,
+    required this.postTiles,
+    this.isOtherUser = false,
     required this.onEditProfile,
+    this.onFollow,
+    this.onMessage,
     required this.onOpenMenu,
     required this.onRefresh,
+    this.onPostTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF6F6F7),
-      body: SafeArea(
-        child: RefreshIndicator(
-          onRefresh: onRefresh,
-          child: CustomScrollView(
-            physics: const AlwaysScrollableScrollPhysics(),
-            slivers: [
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(14, 10, 14, 0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _MochiProfileTopBar(
-                        profile: profile,
-                        onOpenMenu: onOpenMenu,
-                      ),
-                      const SizedBox(height: 14),
-                      _MochiProfileHeader(profile: profile),
-                      const SizedBox(height: 12),
-                      if ((profile.displayName ?? '').trim().isNotEmpty)
-                        Text(
-                          profile.displayName!.trim(),
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w700,
-                            color: Color(0xFF171718),
-                          ),
-                        ),
-                      if ((profile.displayName ?? '').trim().isNotEmpty)
-                        const SizedBox(height: 6),
-                      Text(
-                        (profile.bio ?? '').trim().isNotEmpty
-                            ? profile.bio!.trim()
-                            : 'No bio yet',
-                        style: const TextStyle(
-                          fontSize: 16,
-                          color: Color(0xFF141414),
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      const SizedBox(height: 14),
-                      _MochiActionButtons(onEditProfile: onEditProfile),
-                      const SizedBox(height: 16),
-                      const _MochiHighlights(),
-                      const SizedBox(height: 14),
-                    ],
-                  ),
-                ),
-              ),
-              const SliverToBoxAdapter(
-                child: Divider(
-                  height: 1,
-                  thickness: 1,
-                  color: Color(0xFFE4E4E7),
-                ),
-              ),
-              const SliverToBoxAdapter(child: _MochiProfileTabBar()),
-              if (images.isEmpty)
-                const SliverToBoxAdapter(
-                  child: Padding(
-                    padding: EdgeInsets.fromLTRB(16, 28, 16, 130),
-                    child: Center(
-                      child: Text(
-                        'Chưa có ảnh bài đăng',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Color(0xFF7F8085),
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ),
-                  ),
-                )
-              else
-                SliverPadding(
-                  padding: const EdgeInsets.only(bottom: 130),
-                  sliver: SliverGrid.builder(
-                    itemCount: images.length,
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 3,
-                          crossAxisSpacing: 1,
-                          mainAxisSpacing: 1,
-                          childAspectRatio: 1,
-                        ),
-                    itemBuilder: (context, index) {
-                      final imageUrl = images[index];
-                      return Stack(
-                        fit: StackFit.expand,
-                        children: [
-                          Image.network(
-                            imageUrl,
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) =>
-                                Container(color: Colors.grey.shade300),
-                          ),
-                          if (overlayImageUrls.contains(imageUrl))
-                            const Positioned(
-                              top: 8,
-                              right: 8,
-                              child: Icon(
-                                Icons.copy_rounded,
-                                size: 18,
-                                color: Colors.white,
-                              ),
-                            ),
-                        ],
-                      );
-                    },
-                  ),
-                ),
-            ],
+    return RefreshIndicator(
+      onRefresh: onRefresh,
+      child: ListView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        children: [
+          _MochiProfileHeader(
+            profile: profile,
+            onOpenMenu: onOpenMenu,
+            isOtherUser: isOtherUser,
           ),
-        ),
+          _MochiProfileInfo(profile: profile),
+          _MochiProfileActions(
+            onEditProfile: onEditProfile,
+            onFollow: onFollow,
+            onMessage: onMessage,
+            isOtherUser: isOtherUser,
+          ),
+          const SizedBox(height: 16),
+          _MochiProfileStats(profile: profile),
+          const Divider(height: 32),
+          _MochiProfilePhotosGrid(
+            postTiles: postTiles,
+            onPostTap: onPostTap,
+          ),
+          const SizedBox(height: 100),
+        ],
       ),
     );
   }
 }
 
 class MochiProfileErrorView extends StatelessWidget {
-  final Future<void> Function() onRetry;
+  final VoidCallback onRetry;
 
   const MochiProfileErrorView({super.key, required this.onRetry});
 
@@ -168,301 +102,196 @@ class MochiProfileErrorView extends StatelessWidget {
   }
 }
 
-class _MochiProfileTopBar extends StatelessWidget {
-  final ProfileEntity profile;
-  final VoidCallback onOpenMenu;
-
-  const _MochiProfileTopBar({required this.profile, required this.onOpenMenu});
-
-  @override
-  Widget build(BuildContext context) {
-    final username = (profile.username ?? '').trim().isNotEmpty
-        ? profile.username!.trim()
-        : 'username';
-
-    return Row(
-      children: [
-        const Icon(Icons.lock, size: 14, color: Color(0xFF161616)),
-        const SizedBox(width: 6),
-        Expanded(
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Flexible(
-                child: Text(
-                  username,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.w700,
-                    color: Color(0xFF121212),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 3),
-              const Icon(Icons.keyboard_arrow_down_rounded, size: 22),
-            ],
-          ),
-        ),
-        const SizedBox(width: 8),
-        IconButton(
-          onPressed: onOpenMenu,
-          icon: const Icon(Icons.menu_rounded, size: 28),
-          tooltip: 'Tùy chọn',
-        ),
-      ],
-    );
-  }
-}
-
 class _MochiProfileHeader extends StatelessWidget {
   final ProfileEntity profile;
+  final VoidCallback onOpenMenu;
+  final bool isOtherUser;
 
-  const _MochiProfileHeader({required this.profile});
-
-  @override
-  Widget build(BuildContext context) {
-    final followers = profile.friendsCount;
-    final following = profile.friendsCount;
-    final avatarUrl = _normalizeClientMediaUrl(
-      (profile.avatarUrl ?? '').trim(),
-    );
-
-    return Row(
-      children: [
-        Container(
-          width: 96,
-          height: 96,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            border: Border.all(color: const Color(0xFFCFCFD1), width: 2),
-          ),
-          child: ClipOval(
-            child: avatarUrl.isNotEmpty
-                ? Image.network(
-                    avatarUrl,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) =>
-                        const _AvatarPlaceholder(),
-                  )
-                : const _AvatarPlaceholder(),
-          ),
-        ),
-        const SizedBox(width: 22),
-        Expanded(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              _StatColumn(value: '${profile.postsCount}', label: 'bài viết'),
-              _StatColumn(value: '$followers', label: 'người theo dõi'),
-              _StatColumn(value: '$following', label: 'đang theo dõi'),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-String _normalizeClientMediaUrl(String input) {
-  final raw = input.trim();
-  if (raw.isEmpty) {
-    return '';
-  }
-
-  final apiUri = Uri.parse(ApiConstants.baseUrl);
-  var normalized = raw;
-
-  if (!raw.startsWith('http://') && !raw.startsWith('https://')) {
-    final origin =
-        '${apiUri.scheme}://${apiUri.host}${apiUri.hasPort ? ':${apiUri.port}' : ''}';
-    normalized = raw.startsWith('/') ? '$origin$raw' : '$origin/$raw';
-  }
-
-  return normalizeClientNetworkUrl(normalized);
-}
-
-class _AvatarPlaceholder extends StatelessWidget {
-  const _AvatarPlaceholder();
+  const _MochiProfileHeader({
+    required this.profile,
+    required this.onOpenMenu,
+    required this.isOtherUser,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return const ColoredBox(
-      color: Color(0xFFE5E5E6),
-      child: Center(child: Icon(Icons.person, size: 48, color: Colors.white)),
-    );
-  }
-}
+    final avatarUrl = _normalizeClientMediaUrl(profile.avatarUrl);
 
-class _MochiActionButtons extends StatelessWidget {
-  final VoidCallback onEditProfile;
-
-  const _MochiActionButtons({required this.onEditProfile});
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Expanded(
-          child: _ActionPillButton(label: 'Chỉnh sửa', onTap: onEditProfile),
-        ),
-        SizedBox(width: 8),
-        const Expanded(
-          child: _ActionPillButton(label: 'Chia sẻ trang cá nhân'),
-        ),
-      ],
-    );
-  }
-}
-
-class _MochiHighlights extends StatelessWidget {
-  const _MochiHighlights();
-
-  @override
-  Widget build(BuildContext context) {
-    return const SizedBox(
-      height: 106,
+    return Container(
+      padding: const EdgeInsets.all(16),
       child: Row(
-        children: [_HighlightItem(icon: Icons.add, label: 'Mới')],
-      ),
-    );
-  }
-}
-
-class _MochiProfileTabBar extends StatelessWidget {
-  const _MochiProfileTabBar();
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        const SizedBox(height: 8),
-        const Row(
-          children: [
-            Expanded(
-              child: Center(child: Icon(Icons.grid_on_rounded, size: 28)),
+        children: [
+          if (isOtherUser)
+            IconButton(
+              onPressed: () => Navigator.of(context).pop(),
+              icon: const Icon(Icons.arrow_back),
             ),
-            Expanded(
-              child: Center(
-                child: Icon(
-                  Icons.account_box_outlined,
-                  size: 28,
-                  color: Color(0xFF9FA0A4),
+          CircleAvatar(
+            radius: 40,
+            backgroundImage: avatarUrl.isNotEmpty ? NetworkImage(avatarUrl) : null,
+            child: avatarUrl.isEmpty ? const Icon(Icons.person, size: 40) : null,
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  profile.displayName ?? profile.username ?? 'Mochi User',
+                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 8),
-        Row(
-          children: [
-            Expanded(
-              child: Container(height: 2, color: const Color(0xFF1E1E20)),
-            ),
-            const Expanded(child: SizedBox(height: 2)),
-          ],
-        ),
-      ],
-    );
-  }
-}
-
-class _StatColumn extends StatelessWidget {
-  final String value;
-  final String label;
-
-  const _StatColumn({required this.value, required this.label});
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Text(
-          value,
-          style: const TextStyle(
-            fontSize: 28,
-            fontWeight: FontWeight.w700,
-            color: Color(0xFF111112),
-          ),
-        ),
-        Text(
-          label,
-          textAlign: TextAlign.center,
-          style: const TextStyle(fontSize: 13, color: Color(0xFF2A2A2D)),
-        ),
-      ],
-    );
-  }
-}
-
-class _ActionPillButton extends StatelessWidget {
-  final String label;
-  final VoidCallback? onTap;
-
-  const _ActionPillButton({required this.label, this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: const Color(0xFFE8E8EA),
-      borderRadius: BorderRadius.circular(22),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(22),
-        child: SizedBox(
-          height: 44,
-          child: Center(
-            child: Text(
-              label,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.w700,
-                color: Color(0xFF101010),
-              ),
+                Text('@${profile.username ?? ''}'),
+              ],
             ),
           ),
-        ),
+          if (!isOtherUser)
+            IconButton(
+              onPressed: onOpenMenu,
+              icon: const Icon(Icons.settings),
+            ),
+        ],
       ),
     );
   }
 }
 
-class _HighlightItem extends StatelessWidget {
-  final IconData? icon;
-  final String label;
+class _MochiProfileInfo extends StatelessWidget {
+  final ProfileEntity profile;
 
-  const _HighlightItem({this.icon, required this.label});
+  const _MochiProfileInfo({required this.profile});
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-          width: 74,
-          height: 74,
-          padding: const EdgeInsets.all(2),
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            border: Border.all(color: const Color(0xFFCFCFD2)),
-          ),
-          child: ClipOval(
-            child: Container(
-              color: const Color(0xFFF4F4F5),
-              child: Icon(icon ?? Icons.add, size: 36),
+    if ((profile.bio ?? '').isEmpty) return const SizedBox.shrink();
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Text(profile.bio!),
+    );
+  }
+}
+
+class _MochiProfileActions extends StatelessWidget {
+  final VoidCallback onEditProfile;
+  final VoidCallback? onFollow;
+  final VoidCallback? onMessage;
+  final bool isOtherUser;
+
+  const _MochiProfileActions({
+    required this.onEditProfile,
+    this.onFollow,
+    this.onMessage,
+    required this.isOtherUser,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Row(
+        children: [
+          Expanded(
+            child: ElevatedButton(
+              onPressed: isOtherUser ? onFollow : onEditProfile,
+              child: Text(
+                isOtherUser
+                    ? context.l10n.followAction
+                    : context.l10n.editProfileTitle,
+              ),
             ),
           ),
-        ),
-        const SizedBox(height: 6),
-        Text(
-          label,
-          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
-        ),
+          if (isOtherUser) ...[
+            const SizedBox(width: 8),
+            Expanded(
+              child: OutlinedButton(
+                onPressed: onMessage,
+                child: Text(context.l10n.messagesTitle),
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _MochiProfileStats extends StatelessWidget {
+  final ProfileEntity profile;
+
+  const _MochiProfileStats({required this.profile});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: [
+        _buildStat(context.l10n.postsLabel, profile.postsCount),
+        _buildStat(context.l10n.friends, profile.friendsCount),
       ],
     );
   }
+
+  Widget _buildStat(String label, int count) {
+    return Column(
+      children: [
+        Text(count.toString(), style: const TextStyle(fontWeight: FontWeight.bold)),
+        Text(label),
+      ],
+    );
+  }
+}
+
+class _MochiProfilePhotosGrid extends StatelessWidget {
+  final List<MochiProfilePostTile> postTiles;
+  final ValueChanged<MochiProfilePostTile>? onPostTap;
+
+  const _MochiProfilePhotosGrid({
+    required this.postTiles,
+    this.onPostTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    if (postTiles.isEmpty) {
+      return const Center(child: Text('Chưa có ảnh nào'));
+    }
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 3,
+        crossAxisSpacing: 8,
+        mainAxisSpacing: 8,
+      ),
+      itemCount: postTiles.length,
+      itemBuilder: (context, index) {
+        final tile = postTiles[index];
+        return Stack(
+          fit: StackFit.expand,
+          children: [
+            GestureDetector(
+              onTap: onPostTap == null ? null : () => onPostTap!(tile),
+              child: Image.network(tile.imageUrl, fit: BoxFit.cover),
+            ),
+            if (tile.isMulti)
+              const Positioned(
+                top: 4,
+                right: 4,
+                child: Icon(Icons.copy, color: Colors.white, size: 16),
+              ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+String _normalizeClientMediaUrl(String? url) {
+  final raw = (url ?? '').trim();
+  if (raw.isEmpty) return '';
+  if (raw.startsWith('http')) return normalizeClientNetworkUrl(raw);
+  final apiUri = Uri.parse(ApiConstants.baseUrl);
+  final origin = '${apiUri.scheme}://${apiUri.host}${apiUri.hasPort ? ':${apiUri.port}' : ''}';
+  final full = raw.startsWith('/') ? '$origin$raw' : '$origin/$raw';
+  return normalizeClientNetworkUrl(full);
 }

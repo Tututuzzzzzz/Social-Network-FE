@@ -41,6 +41,7 @@ class _FriendActionButtonState extends State<FriendActionButton> {
         _isPending = true;
       });
     } catch (e) {
+      if (!mounted) return;
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(const SnackBar(content: Text('Failed')));
@@ -64,9 +65,17 @@ class _FriendActionButtonState extends State<FriendActionButton> {
     }
 
     if (_isPending) {
-      return TextButton(onPressed: null, child: const Text('Pending'));
+      return TextButton(
+        onPressed: null,
+        style: TextButton.styleFrom(shape: const StadiumBorder()),
+        child: const Text('Pending'),
+      );
     }
 
-    return ElevatedButton(onPressed: _sendRequest, child: const Text('Add'));
+    return ElevatedButton(
+      onPressed: _sendRequest,
+      style: ElevatedButton.styleFrom(shape: const StadiumBorder()),
+      child: const Text('Add'),
+    );
   }
 }

@@ -3,14 +3,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/l10n/l10n.dart';
 import '../../../../configs/injector/injector_conf.dart';
-import '../../../../core/api/api_constants.dart';
-import '../../../../core/api/api_helper.dart';
-import '../../../friend/presentation/pages/friend_picker_bottom_sheet.dart';
 import '../../../../routes/app_route_path.dart';
 import '../../domain/entities/chat_entity.dart';
-import '../../domain/usecases/create_direct_conversation_usecase.dart';
-import '../../domain/usecases/usecase_params.dart';
 import '../bloc/chat/chat_bloc.dart';
 
 class MochiDirectMessagesPage extends StatefulWidget {
@@ -22,7 +18,6 @@ class MochiDirectMessagesPage extends StatefulWidget {
 }
 
 class _MochiDirectMessagesPageState extends State<MochiDirectMessagesPage> {
-  static const String _username = 'hoangtu_1';
   static const List<Color> _avatarColors = [
     Color(0xFFE8EBF4),
     Color(0xFFEDE4EC),
@@ -34,96 +29,8 @@ class _MochiDirectMessagesPageState extends State<MochiDirectMessagesPage> {
   String _query = '';
   bool _showPendingThreads = true;
 
-  Future<void> _createConversationAndOpen(
-    FriendPickerUser friend,
-    BuildContext blocContext,
-  ) async {
-    final messenger = ScaffoldMessenger.of(context);
-    final chatBloc = blocContext.read<ChatBloc>();
-    final router = GoRouter.of(blocContext);
 
-    ChatEntity? chatEntity;
 
-    try {
-      if (getIt.isRegistered<CreateDirectConversationUseCase>()) {
-        final useCase = getIt<CreateDirectConversationUseCase>();
-        final result = await useCase(
-          CreateDirectConversationParams(recipientId: friend.id),
-        );
-
-        result.fold(
-          (_) {
-            chatEntity = null;
-          },
-          (chat) {
-            chatEntity = chat;
-          },
-        );
-      } else {
-        chatEntity = await _createConversationFallback(friend);
-      }
-    } catch (_) {
-      chatEntity = await _createConversationFallback(friend);
-    }
-
-    if (!mounted || !blocContext.mounted) {
-      return;
-    }
-
-    if (chatEntity == null || chatEntity!.id.trim().isEmpty) {
-      messenger.showSnackBar(
-        const SnackBar(content: Text('Khong tao duoc cuoc tro chuyen')),
-      );
-      return;
-    }
-
-    chatBloc.add(const ChatFetchedEvent());
-    await router.pushNamed(
-      AppRoutes.chatMochiChatRoom.name,
-      pathParameters: {'threadId': chatEntity!.id},
-      extra: chatEntity,
-    );
-  }
-
-  Future<ChatEntity?> _createConversationFallback(
-    FriendPickerUser friend,
-  ) async {
-    final apiHelper = getIt<ApiHelper>();
-    final result = await apiHelper.execute(
-      method: Method.post,
-      url: ApiConstants.conversations,
-      data: {'type': 'direct', 'recipientId': friend.id},
-    );
-
-    final raw = result['conversation'];
-    if (raw is! Map) {
-      return null;
-    }
-
-    final map = Map<String, dynamic>.from(raw);
-    final id = (map['_id'] ?? map['id'] ?? '').toString();
-    if (id.isEmpty) {
-      return null;
-    }
-
-    return ChatEntity(
-      id: id,
-      recipientId: friend.id,
-      senderName: friend.name,
-      messagePreview: 'Start chatting...',
-      timeLabel: 'now',
-      isGroup: false,
-      fullConversation: '${friend.name}: Start chatting...',
-    );
-  }
-
-  Future<void> _openFriendsPicker(BuildContext blocContext) async {
-    final selectedFriend = await showFriendPickerBottomSheet(context);
-    if (!mounted || !blocContext.mounted || selectedFriend == null) {
-      return;
-    }
-    await _createConversationAndOpen(selectedFriend, blocContext);
-  }
 
   List<ChatEntity> _visibleThreads(List<ChatEntity> threads) {
     final keyword = _query.toLowerCase();
@@ -167,37 +74,18 @@ class _MochiDirectMessagesPageState extends State<MochiDirectMessagesPage> {
 
   Widget _buildTopBar(BuildContext blocContext) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(8, 8, 8, 6),
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
       child: SizedBox(
         height: 44,
         child: Stack(
           alignment: Alignment.center,
           children: [
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: const [
-                Text(
-                  _username,
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFF111113),
-                  ),
-                ),
-                SizedBox(width: 2),
-                Icon(
-                  Icons.keyboard_arrow_down_rounded,
-                  size: 20,
-                  color: Color(0xFF111113),
-                ),
-              ],
-            ),
-            Positioned(
-              right: 0,
-              child: IconButton(
-                onPressed: () => _openFriendsPicker(blocContext),
-                icon: const Icon(Icons.add, size: 24),
-                color: const Color(0xFF111113),
+            Text(
+              blocContext.l10n.titleChat,
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
               ),
             ),
           ],
@@ -208,27 +96,32 @@ class _MochiDirectMessagesPageState extends State<MochiDirectMessagesPage> {
 
   Widget _buildSearchInput() {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: TextField(
-        onChanged: (value) => setState(() => _query = value.trim()),
-        decoration: InputDecoration(
-          hintText: 'Search',
-          hintStyle: const TextStyle(
-            color: Color(0xFF8E8E93),
-            fontSize: 14,
-            fontWeight: FontWeight.w500,
-          ),
-          prefixIcon: const Icon(Icons.search, color: Color(0xFF8E8E93)),
-          filled: true,
-          fillColor: const Color(0xFFF2F2F5),
-          contentPadding: const EdgeInsets.symmetric(vertical: 14),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(18),
-            borderSide: BorderSide.none,
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(18),
-            borderSide: const BorderSide(color: Color(0xFFCFD3DC)),
+      padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
+      child: SizedBox(
+        height: 35,
+        child: TextField(
+          onChanged: (value) => setState(() => _query = value.trim()),
+          textAlignVertical: TextAlignVertical.center,
+          decoration: InputDecoration(
+            hintText: context.l10n.searchLabel,
+            hintStyle: const TextStyle(
+              color: Color(0xFF8E8E93),
+              fontSize: 15,
+              fontWeight: FontWeight.w400,
+            ),
+            prefixIcon: const Icon(Icons.search, color: Color(0xFF8E8E93), size: 20),
+            filled: true,
+            fillColor: const Color(0xFFEBEBEB),
+            isDense: true,
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(30),
+              borderSide: BorderSide.none,
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(30),
+              borderSide: BorderSide.none,
+            ),
           ),
         ),
       ),
@@ -237,15 +130,15 @@ class _MochiDirectMessagesPageState extends State<MochiDirectMessagesPage> {
 
   Widget _buildSectionHeader(int pendingCount) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 14, 16, 2),
+      padding: const EdgeInsets.fromLTRB(16, 10, 16, 6),
       child: Row(
         children: [
           const Text(
             'Tin nhắn',
             style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.w700,
-              color: Color(0xFF111113),
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: Colors.black,
             ),
           ),
           const Spacer(),
@@ -261,11 +154,9 @@ class _MochiDirectMessagesPageState extends State<MochiDirectMessagesPage> {
               minimumSize: Size.zero,
               tapTargetSize: MaterialTapTargetSize.shrinkWrap,
             ),
-            child: Text(
-              pendingCount == 0
-                  ? 'Tin nhắn đang chờ'
-                  : 'Tin nhắn đang chờ ($pendingCount)',
-              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+            child: const Text(
+              'Tin nhắn đang chờ',
+              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w400),
             ),
           ),
         ],
@@ -316,10 +207,16 @@ class _MochiDirectMessagesPageState extends State<MochiDirectMessagesPage> {
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(false),
+              style: TextButton.styleFrom(
+                shape: const StadiumBorder(),
+              ),
               child: const Text('Hủy'),
             ),
             FilledButton(
               onPressed: () => Navigator.of(context).pop(true),
+              style: FilledButton.styleFrom(
+                shape: const StadiumBorder(),
+              ),
               child: const Text('Xóa'),
             ),
           ],
@@ -404,32 +301,36 @@ class _MochiDirectMessagesPageState extends State<MochiDirectMessagesPage> {
       child: InkWell(
         onTap: () => _openChatThread(item, context),
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Container(
-                width: 52,
-                height: 52,
-                decoration: BoxDecoration(
-                  color: _avatarColors[index % _avatarColors.length],
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: const Color(0xFFDCDDDF),
-                    width: 1.1,
+              GestureDetector(
+                onTap: () {
+                  context.pushNamed(
+                    AppRoutes.otherProfile.name,
+                    pathParameters: {'userId': item.recipientId},
+                  );
+                },
+                child: Container(
+                  width: 58,
+                  height: 58,
+                  decoration: BoxDecoration(
+                    color: _avatarColors[index % _avatarColors.length],
+                    shape: BoxShape.circle,
                   ),
-                ),
-                alignment: Alignment.center,
-                child: Text(
-                  _initial(name),
-                  style: const TextStyle(
-                    fontSize: 17,
-                    fontWeight: FontWeight.w700,
-                    color: Color(0xFF2A2B2F),
+                  alignment: Alignment.center,
+                  child: Text(
+                    _initial(name),
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF2A2B2F),
+                    ),
                   ),
                 ),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: 14),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -442,9 +343,9 @@ class _MochiDirectMessagesPageState extends State<MochiDirectMessagesPage> {
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: const TextStyle(
-                              fontSize: 17,
+                              fontSize: 15,
                               fontWeight: FontWeight.w600,
-                              color: Color(0xFF1A1A1D),
+                              color: Colors.black,
                               height: 1,
                             ),
                           ),
@@ -452,8 +353,8 @@ class _MochiDirectMessagesPageState extends State<MochiDirectMessagesPage> {
                         if (item.isOnline)
                           Container(
                             margin: const EdgeInsets.only(left: 6),
-                            width: 7,
-                            height: 7,
+                            width: 8,
+                            height: 8,
                             decoration: const BoxDecoration(
                               color: Color(0xFF1EC85D),
                               shape: BoxShape.circle,
@@ -470,32 +371,37 @@ class _MochiDirectMessagesPageState extends State<MochiDirectMessagesPage> {
                           ),
                       ],
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      _displayPreview(item),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        color: Color(0xFF7C7E84),
-                        fontWeight: FontWeight.w400,
-                        height: 1.1,
-                      ),
+                    const SizedBox(height: 6),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.baseline,
+                      textBaseline: TextBaseline.alphabetic,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            _displayPreview(item),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              fontSize: 14,
+                              color: Color(0xFF8E8E93),
+                              fontWeight: FontWeight.w400,
+                              height: 1.1,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          _displayTimeLabel(item),
+                          style: const TextStyle(
+                            fontSize: 13,
+                            color: Color(0xFF8E8E93),
+                            fontWeight: FontWeight.w400,
+                            height: 1.1,
+                          ),
+                        ),
+                      ],
                     ),
                   ],
-                ),
-              ),
-              const SizedBox(width: 8),
-              Padding(
-                padding: const EdgeInsets.only(top: 2),
-                child: Text(
-                  _displayTimeLabel(item),
-                  style: const TextStyle(
-                    fontSize: 13,
-                    color: Color(0xFF9A9CA2),
-                    fontWeight: FontWeight.w400,
-                    height: 1,
-                  ),
                 ),
               ),
             ],
@@ -585,7 +491,7 @@ class _MochiDirectMessagesPageState extends State<MochiDirectMessagesPage> {
             );
           } else {
             listContent = ListView(
-              padding: const EdgeInsets.only(bottom: 16),
+              padding: EdgeInsets.zero,
               children: [
                 ...List.generate(activeThreads.length, (index) {
                   return _buildConversationItem(
@@ -618,23 +524,22 @@ class _MochiDirectMessagesPageState extends State<MochiDirectMessagesPage> {
                       );
                     }),
                 ],
+                const SizedBox(height: 100),
               ],
             );
           }
 
-          return Scaffold(
-            backgroundColor: Colors.white,
-            body: SafeArea(
-              child: Column(
-                children: [
-                  _buildTopBar(context),
-                  _buildSearchInput(),
-                  _buildSectionHeader(pendingThreads.length),
-                  if (state is ChatLoadingState && loadedThreads.isNotEmpty)
-                    const LinearProgressIndicator(minHeight: 2),
-                  Expanded(child: listContent),
-                ],
-              ),
+          return Material(
+            color: Colors.transparent,
+            child: Column(
+              children: [
+                _buildTopBar(context),
+                _buildSearchInput(),
+                _buildSectionHeader(pendingThreads.length),
+                if (state is ChatLoadingState && loadedThreads.isNotEmpty)
+                  const LinearProgressIndicator(minHeight: 2),
+                Expanded(child: listContent),
+              ],
             ),
           );
         },

@@ -12,15 +12,23 @@ import '../../../../core/cache/secure_local_storage.dart';
 import '../../../../core/utils/url_normalizer.dart';
 import '../../../../routes/app_route_path.dart';
 import '../../../auth/presentation/bloc/auth/auth_bloc.dart';
+import '../../../chat/domain/usecases/create_direct_conversation_usecase.dart';
+import '../../../chat/domain/usecases/usecase_params.dart';
 import '../../data/models/profile_model.dart';
 import '../../domain/entities/profile_entity.dart';
 import '../../domain/usecases/get_user_posts_usecase.dart';
+import '../../../friend/domain/usecases/send_friend_request.dart';
+import '../../../post/data/models/get_post_model.dart';
+import '../../../post/domain/entities/post_entity.dart';
+import '../../../post/presentation/bloc/post/post_bloc.dart';
+import '../../../post/presentation/pages/post_detail_screen.dart';
 import '../../domain/usecases/usecase_params.dart';
 import '../bloc/profile/profile_bloc.dart';
 import '../widgets/mochi_profile_sections.dart';
 
 class MochiProfilePage extends StatefulWidget {
-  const MochiProfilePage({super.key});
+  final String? userId;
+  const MochiProfilePage({super.key, this.userId});
 
   @override
   State<MochiProfilePage> createState() => _MochiProfilePageState();
@@ -28,9 +36,11 @@ class MochiProfilePage extends StatefulWidget {
 
 class _MochiProfilePageState extends State<MochiProfilePage> {
   ProfileEntity? _cachedProfile;
-  String _currentUserId = '';
-  List<String> _userPostImages = const [];
-  Set<String> _multiImageOverlayUrls = const {};
+  String _targetUserId = '';
+  String _loggedInUserId = '';
+  bool _isOtherUser = false;
+  List<MochiProfilePostTile> _postTiles = const [];
+  Map<String, PostEntity> _postById = {};
 
   @override
   void initState() {
@@ -38,31 +48,44 @@ class _MochiProfilePageState extends State<MochiProfilePage> {
     WidgetsBinding.instance.addPostFrameCallback((_) => _loadProfile());
   }
 
+  @override
+  void didUpdateWidget(covariant MochiProfilePage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.userId != widget.userId) {
+      _targetUserId = ''; // Reset to force re-resolution
+      _postTiles = const [];
+      _postById = {};
+      WidgetsBinding.instance.addPostFrameCallback((_) => _loadProfile());
+    }
+  }
+
   Future<void> _loadProfile() async {
     if (!mounted) {
       return;
     }
 
-    if (_currentUserId.trim().isEmpty) {
-      _currentUserId = await _resolveCurrentUserId();
+    if (_targetUserId.trim().isEmpty) {
+      _loggedInUserId = await _resolveCurrentUserId();
+      _targetUserId = widget.userId ?? _loggedInUserId;
+      _isOtherUser = _targetUserId != _loggedInUserId;
     }
 
     if (!mounted) {
       return;
     }
 
-    if (_currentUserId.isEmpty) {
+    if (_targetUserId.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Không tìm thấy user_id đăng nhập')),
+        const SnackBar(content: Text('Không tìm thấy user_id')),
       );
       return;
     }
 
     await _loadCachedProfile();
     await _loadCachedUserPosts();
-
+    if (!mounted) return;
     context.read<ProfileBloc>().add(
-      ProfileGetEvent(ProfileParams(userId: _currentUserId)),
+      ProfileGetEvent(ProfileParams(userId: _targetUserId)),
     );
 
     unawaited(_loadUserPosts());
@@ -71,7 +94,7 @@ class _MochiProfilePageState extends State<MochiProfilePage> {
   Future<void> _loadCachedProfile() async {
     final localStorage = getIt<HiveLocalStorage>();
     final cached = await localStorage.load(
-      key: 'profile_$_currentUserId',
+      key: 'profile_$_targetUserId',
       boxName: 'cache',
     );
 
@@ -92,7 +115,7 @@ class _MochiProfilePageState extends State<MochiProfilePage> {
   Future<void> _loadCachedUserPosts() async {
     final localStorage = getIt<HiveLocalStorage>();
     final cached = await localStorage.load(
-      key: 'user_posts_${_currentUserId}_1_60',
+      key: 'user_posts_${_targetUserId}_1_60',
       boxName: 'cache',
     );
 
@@ -104,22 +127,23 @@ class _MochiProfilePageState extends State<MochiProfilePage> {
         .whereType<Map>()
         .map((e) => Map<String, dynamic>.from(e))
         .toList();
+    final posts = postMaps
+        .map(PostModel.fromJson)
+        .cast<PostEntity>()
+        .toList(growable: false);
 
-    final (images, overlays) = _extractRepresentativeImages(postMaps);
-    if (images.isEmpty && overlays.isEmpty) {
-      return;
-    }
+    final tiles = _buildPostTilesFromPosts(posts);
 
     setState(() {
-      _userPostImages = images;
-      _multiImageOverlayUrls = overlays;
+      _postById = {for (final post in posts) post.id: post};
+      _postTiles = tiles;
     });
   }
 
   Future<void> _loadUserPosts() async {
     final useCase = getIt<GetUserPostsUseCase>();
     final result = await useCase.call(
-      GetUserPostsParams(userId: _currentUserId, page: 1, limit: 60),
+      GetUserPostsParams(userId: _targetUserId, page: 1, limit: 60),
     );
 
     if (!mounted) {
@@ -127,64 +151,51 @@ class _MochiProfilePageState extends State<MochiProfilePage> {
     }
 
     result.fold((_) {}, (posts) {
-      final postMaps = posts
-          .map(
-            (post) => {
-              'media': post.media
-                  .map((m) => {'mimeType': m.mimeType, 'mediaUrl': m.mediaUrl})
-                  .toList(),
-            },
-          )
-          .toList();
-
-      final (repImages, multiUrls) = _extractRepresentativeImages(postMaps);
+      final tiles = _buildPostTilesFromPosts(posts);
 
       setState(() {
-        _userPostImages = repImages;
-        _multiImageOverlayUrls = multiUrls;
+        _postById = {for (final post in posts) post.id: post};
+        _postTiles = tiles;
       });
     });
   }
 
-  (List<String>, Set<String>) _extractRepresentativeImages(
-    List<Map<String, dynamic>> postMaps,
+  List<MochiProfilePostTile> _buildPostTilesFromPosts(
+    List<PostEntity> posts,
   ) {
-    final List<String> repImages = <String>[];
-    final Set<String> multiUrls = <String>{};
+    final tiles = <MochiProfilePostTile>[];
 
-    for (final post in postMaps) {
-      final medias =
-          (post['media'] as List?)
-              ?.whereType<Map>()
-              .map((e) => Map<String, dynamic>.from(e))
-              .toList() ??
-          const <Map<String, dynamic>>[];
-
-      final postImageUrls = medias
+    for (final post in posts) {
+      final postImageUrls = post.media
           .where(
             (media) =>
-                (media['mimeType']?.toString().toLowerCase().startsWith(
-                      'image/',
-                    ) ??
-                    false) ||
-                _isLikelyImageUrl(media['mediaUrl']?.toString()),
+                media.mimeType.toLowerCase().startsWith('image/') ||
+                _isLikelyImageUrl(media.mediaUrl ?? media.objectKey),
           )
-          .map((media) => (media['mediaUrl'] ?? '').toString().trim())
+          .map((media) => (media.mediaUrl ?? media.objectKey).trim())
           .where((raw) => raw.isNotEmpty)
           .toList();
 
-      if (postImageUrls.isEmpty) continue;
+      if (postImageUrls.isEmpty) {
+        continue;
+      }
 
       final first = _normalizeMediaUrl(postImageUrls.first);
-      if (first.isEmpty) continue;
-
-      repImages.add(first);
-      if (postImageUrls.length > 1) {
-        multiUrls.add(first);
+      if (first.isEmpty) {
+        continue;
       }
+
+      tiles.add(
+        MochiProfilePostTile(
+          postId: post.id,
+          imageUrl: first,
+          isMulti: postImageUrls.length > 1,
+          post: post,
+        ),
+      );
     }
 
-    return (repImages, multiUrls);
+    return tiles;
   }
 
   bool _isLikelyImageUrl(String? input) {
@@ -280,8 +291,9 @@ class _MochiProfilePageState extends State<MochiProfilePage> {
           map['user_id'];
       if (possible == null) return null;
 
-      if (possible is String && possible.trim().isNotEmpty)
+      if (possible is String && possible.trim().isNotEmpty) {
         return possible.trim();
+      }
       if (possible is num) return possible.toString();
       if (possible is Map) {
         final nested = possible['_id'] ?? possible['id'];
@@ -303,6 +315,99 @@ class _MochiProfilePageState extends State<MochiProfilePage> {
     final updated = await context.pushNamed<bool>(AppRoutes.editProfile.name);
     if (updated == true && mounted) {
       await _refresh();
+    }
+  }
+
+  Future<void> _onMessageTap() async {
+    final profile = _cachedProfile;
+    if (profile == null) {
+      return;
+    }
+
+    final recipientId = profile.id.trim();
+    if (recipientId.isEmpty) {
+      return;
+    }
+
+    // Show loading
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Đang khởi tạo cuộc trò chuyện...')),
+    );
+
+    final useCase = getIt<CreateDirectConversationUseCase>();
+    final result = await useCase.call(
+      CreateDirectConversationParams(recipientId: recipientId),
+    );
+
+    if (!mounted) return;
+
+    result.fold(
+      (failure) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Không thể bắt đầu trò chuyện')),
+        );
+      },
+      (chat) {
+        context.pushNamed(
+          AppRoutes.chatMochiChatRoom.name,
+          pathParameters: {'threadId': chat.id},
+          extra: chat,
+        );
+      },
+    );
+  }
+
+  void _onPostTileTap(MochiProfilePostTile tile) {
+    final post = tile.post ?? _postById[tile.postId];
+    if (post == null) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Đang tải bài viết...')),
+      );
+      return;
+    }
+
+    Navigator.of(context)
+        .push(
+          MaterialPageRoute(
+            builder: (_) => BlocProvider<PostBloc>(
+              create: (_) => getIt<PostBloc>(),
+              child: PostDetailScreen(
+                initialPost: post,
+                currentUserId:
+                    _loggedInUserId.isEmpty ? null : _loggedInUserId,
+              ),
+            ),
+          ),
+        )
+        .then((value) {
+          if (value == true && mounted) {
+            _refresh();
+          }
+        });
+  }
+
+  Future<void> _onFollowTap() async {
+    final authorId = _targetUserId.trim();
+
+    if (authorId.isEmpty || authorId == _loggedInUserId) {
+      return;
+    }
+
+    try {
+      final useCase = getIt<SendFriendRequest>();
+      await useCase(authorId);
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Đã gửi yêu cầu theo dõi thành công")),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Không thể gửi yêu cầu: $e")),
+      );
     }
   }
 
@@ -358,15 +463,17 @@ class _MochiProfilePageState extends State<MochiProfilePage> {
         BlocListener<AuthBloc, AuthState>(
           listener: (context, state) {
             if (state is AuthLogoutFailureState) {
-              ScaffoldMessenger.of(
-                context,
-              ).showSnackBar(SnackBar(content: Text(state.message)));
+              try {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text(state.message)),
+                );
+              } catch (_) {
+                // Scaffold may not be available
+              }
             }
 
             if (state is AuthLogoutSuccessState) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Đăng xuất thành công')),
-              );
+              // Không showSnackBar ở đây vì navigate sẽ destroy Scaffold
               context.go(AppRoutes.login.path);
             }
           },
@@ -397,27 +504,37 @@ class _MochiProfilePageState extends State<MochiProfilePage> {
             return const Center(child: CircularProgressIndicator());
           }
 
-          final profilePreviewImages = profile.posts
-              .map((item) => _normalizeMediaUrl(item.mediaUrl))
-              .where((url) => url.trim().isNotEmpty)
+          final previewTiles = profile.posts
+              .map(
+                (item) => MochiProfilePostTile(
+                  postId: item.id,
+                  imageUrl: _normalizeMediaUrl(item.mediaUrl),
+                ),
+              )
+              .where((tile) => tile.imageUrl.trim().isNotEmpty)
               .toList();
-          final usingRealPostImages = _userPostImages.isNotEmpty;
-          final images = usingRealPostImages
-              ? _userPostImages
-              : (profilePreviewImages.isNotEmpty
-                    ? profilePreviewImages
-                    : const <String>[]);
-          final overlayUrls = usingRealPostImages
-              ? _multiImageOverlayUrls
-              : const <String>{};
+          final tiles = _postTiles.isNotEmpty
+              ? _postTiles
+              : (previewTiles.isNotEmpty
+                    ? previewTiles
+                    : const <MochiProfilePostTile>[]);
 
-          return MochiProfileBody(
-            profile: profile,
-            images: images,
-            overlayImageUrls: overlayUrls,
-            onEditProfile: _openEditProfile,
-            onOpenMenu: _openMenu,
-            onRefresh: _refresh,
+          return Material(
+            color: Colors.transparent,
+            child: SafeArea(
+              bottom: false,
+              child: MochiProfileBody(
+                profile: profile,
+                postTiles: tiles,
+                isOtherUser: _isOtherUser,
+                onEditProfile: _openEditProfile,
+                onFollow: _onFollowTap,
+                onMessage: _onMessageTap,
+                onOpenMenu: _openMenu,
+                onRefresh: _refresh,
+                onPostTap: _onPostTileTap,
+              ),
+            ),
           );
         },
       ),

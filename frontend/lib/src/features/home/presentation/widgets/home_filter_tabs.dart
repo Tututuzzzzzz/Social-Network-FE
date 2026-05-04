@@ -26,6 +26,9 @@ class HomeFilterTabs extends StatelessWidget {
                 selected: i == selectedIndex,
                 onSelected: (_) => onChanged(i),
                 showCheckmark: false,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30),
+                ),
               ),
             ),
         ],

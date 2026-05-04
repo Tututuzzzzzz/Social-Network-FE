@@ -7,7 +7,7 @@ class PostMediaEntity extends Equatable {
   final String mimeType;
   final int size;
 
-  PostMediaEntity({
+  const PostMediaEntity({
     required this.bucket,
     required this.objectKey,
     this.mediaUrl,

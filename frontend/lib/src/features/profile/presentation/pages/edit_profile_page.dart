@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../../../configs/injector/injector_conf.dart';
+import '../../../../core/api/api_helper.dart';
 import '../../../../core/api/api_constants.dart';
 import '../../../../core/cache/hive_local_storage.dart';
 import '../../../../core/cache/secure_local_storage.dart';
@@ -65,6 +66,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
     }
 
     _currentUserId = userId;
+    await _loadUserMetaFromApi();
     await _loadCachedUserMeta();
     await _loadProfile();
 
@@ -78,13 +80,48 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
     if (cachedUser is Map) {
       final map = cachedUser.map((key, value) => MapEntry('$key', value));
-      _username = (map['username'] ?? '').toString();
-      _email = (map['email'] ?? '').toString();
-      _phoneController.text = (map['phone'] ?? '').toString();
+      if (_username.trim().isEmpty) {
+        _username = (map['username'] ?? '').toString();
+      }
+      if (_email.trim().isEmpty) {
+        _email = (map['email'] ?? '').toString();
+      }
+      if (_phoneController.text.trim().isEmpty) {
+        _phoneController.text = (map['phone'] ?? '').toString();
+      }
       final cachedGender = (map['gender'] ?? '').toString();
       if (cachedGender.trim().isNotEmpty) {
         _gender = cachedGender;
       }
+    }
+  }
+
+  Future<void> _loadUserMetaFromApi() async {
+    try {
+      final apiHelper = getIt<ApiHelper>();
+      final result = await apiHelper.execute(method: Method.get, url: ApiConstants.profile);
+
+      final userRaw = result['user'];
+      if (userRaw is! Map) {
+        return;
+      }
+
+      final user = Map<String, dynamic>.from(userRaw);
+      final username = (user['username'] ?? '').toString().trim();
+      final email = (user['email'] ?? '').toString().trim();
+      final phone = (user['phone'] ?? '').toString().trim();
+
+      if (username.isNotEmpty) {
+        _username = username;
+      }
+      if (email.isNotEmpty) {
+        _email = email;
+      }
+      if (phone.isNotEmpty) {
+        _phoneController.text = phone;
+      }
+    } catch (_) {
+      // API may fail temporarily; cache fallback still applies.
     }
   }
 
@@ -268,6 +305,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
         actions: [
           TextButton(
             onPressed: _isSaving ? null : _saveProfile,
+            style: TextButton.styleFrom(
+              shape: const StadiumBorder(),
+            ),
             child: const Text(
               'Xong',
               style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700),
@@ -320,10 +360,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 controller: _displayNameController,
               ),
               _ProfileReadOnlyTile(label: 'Tên người dùng', value: _username),
-              const _ProfileReadOnlyTile(
-                label: 'Liên kết',
-                value: 'Thêm liên kết',
-              ),
               _ProfileInputTile(label: 'Tiểu sử', controller: _bioController),
               const SizedBox(height: 8),
               const Divider(height: 1),
@@ -388,8 +424,7 @@ class _ProfileInputTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10),
-      height: 70,
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
       decoration: const BoxDecoration(
         border: Border(bottom: BorderSide(color: Color(0xFFE6E6E8))),
       ),
@@ -400,10 +435,23 @@ class _ProfileInputTile extends StatelessWidget {
             child: Text(label, style: const TextStyle(fontSize: 16)),
           ),
           Expanded(
-            child: TextField(
-              controller: controller,
-              style: const TextStyle(fontSize: 16),
-              decoration: const InputDecoration(border: InputBorder.none),
+            child: SizedBox(
+              height: 35,
+              child: TextField(
+                controller: controller,
+                style: const TextStyle(fontSize: 16),
+                textAlignVertical: TextAlignVertical.center,
+                decoration: InputDecoration(
+                  filled: true,
+                  fillColor: const Color(0xFFF3F6FA),
+                  isDense: true,
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(30),
+                    borderSide: BorderSide.none,
+                  ),
+                ),
+              ),
             ),
           ),
         ],

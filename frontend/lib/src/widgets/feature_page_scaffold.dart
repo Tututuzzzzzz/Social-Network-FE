@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class FeaturePageScaffold extends StatelessWidget {
   final String title;
@@ -14,6 +15,7 @@ class FeaturePageScaffold extends StatelessWidget {
   final VoidCallback? onRetry;
   final String retryLabel;
   final List<Widget>? actions;
+  final Widget? leading;
   final Widget? floatingActionButton;
   final EdgeInsetsGeometry bodyPadding;
 
@@ -32,6 +34,7 @@ class FeaturePageScaffold extends StatelessWidget {
     this.onRetry,
     this.retryLabel = 'Retry',
     this.actions,
+    this.leading,
     this.floatingActionButton,
     this.bodyPadding = const EdgeInsets.all(16),
   });
@@ -64,22 +67,62 @@ class FeaturePageScaffold extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: titleWidget ?? Text(title), actions: actions),
-      floatingActionButton: floatingActionButton,
-      body: SafeArea(
-        child: Stack(
-          children: [
-            Positioned.fill(
-              child: Padding(padding: bodyPadding, child: _buildBodyContent()),
-            ),
-            if (isLoading)
-              const Positioned.fill(
-                child: ColoredBox(
-                  color: Color(0x66000000),
-                  child: Center(child: CircularProgressIndicator()),
+    final mediaQuery = MediaQuery.of(context);
+    return Material(
+      color: Colors.transparent,
+      child: Column(
+        children: [
+          // Custom AppBar area
+          _buildCustomAppBar(context),
+          Expanded(
+            child: Stack(
+              clipBehavior: Clip.none,
+              children: [
+                Positioned.fill(
+                  child: Padding(
+                    padding: bodyPadding,
+                    child: _buildBodyContent(),
+                  ),
                 ),
-              ),
+                if (isLoading)
+                  const Positioned.fill(
+                    child: ColoredBox(
+                      color: Color(0x66000000),
+                      child: Center(child: CircularProgressIndicator()),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCustomAppBar(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        border: Border(bottom: BorderSide(color: Color(0xFFEEEEEE), width: 0.5)),
+      ),
+      child: SizedBox(
+        height: kToolbarHeight,
+        child: Row(
+          children: [
+            if (leading != null) leading!,
+            const SizedBox(width: 8),
+            Expanded(
+              child: titleWidget ??
+                  Text(
+                    title,
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                  ),
+            ),
+            if (actions != null) ...actions!,
+            const SizedBox(width: 8),
           ],
         ),
       ),
@@ -317,7 +360,11 @@ class _PrototypeScreenFallback extends StatelessWidget {
                         icon: Icons.chat_bubble_outline,
                         label: 'Comment',
                       ),
-                      _PreviewAction(icon: Icons.send_outlined, label: 'Share'),
+                      _SvgPreviewAction(
+                        svgData:
+                            '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-send-icon lucide-send"><path d="M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z"/><path d="m21.854 2.147-10.94 10.939"/></svg>',
+                        label: 'Share',
+                      ),
                     ],
                   ),
                 ],
@@ -354,41 +401,42 @@ class _PrototypeScreenFallback extends StatelessWidget {
         const SizedBox(height: 12),
         ...List.generate(
           12,
-          (index) => _PreviewCard(
-            margin: const EdgeInsets.only(bottom: 10),
-            child: Row(
-              children: [
-                CircleAvatar(
-                  radius: 23,
-                  backgroundColor: colorScheme.primaryContainer,
-                  child: const Icon(Icons.person_outline),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Conversation ${index + 1}',
-                        style: Theme.of(context).textTheme.titleSmall,
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        index.isEven
-                            ? 'Typing a new message...'
-                            : 'Last message from Figma-mapped screen',
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(color: colorScheme.outline),
-                      ),
-                    ],
+          (index) => Padding(
+            padding: const EdgeInsets.only(bottom: 10),
+            child: _PreviewCard(
+              child: Row(
+                children: [
+                  CircleAvatar(
+                    backgroundColor: colorScheme.primaryContainer,
+                    child: const Icon(Icons.person_outline),
                   ),
-                ),
-                Text(
-                  '${(index + 1).toString().padLeft(2, '0')}:3${index % 10}',
-                  style: TextStyle(color: colorScheme.outline),
-                ),
-              ],
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Conversation ${index + 1}',
+                          style: Theme.of(context).textTheme.titleSmall,
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          index.isEven
+                              ? 'Typing a new message...'
+                              : 'Last message from Figma-mapped screen',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(color: colorScheme.outline),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Text(
+                    '${(index + 1).toString().padLeft(2, '0')}:3${index % 10}',
+                    style: TextStyle(color: colorScheme.outline),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -458,7 +506,11 @@ class _PrototypeScreenFallback extends StatelessWidget {
                         label: '1.2k',
                       ),
                       SizedBox(height: 12),
-                      _ReelsAction(icon: Icons.send_outlined, label: 'Share'),
+                      _SvgReelsAction(
+                        svgData:
+                            '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-send-icon lucide-send"><path d="M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z"/><path d="m21.854 2.147-10.94 10.939"/></svg>',
+                        label: 'Share',
+                      ),
                     ],
                   ),
                 ),
@@ -629,6 +681,53 @@ class _ReelsAction extends StatelessWidget {
     return Column(
       children: [
         Icon(icon, color: Colors.white),
+        const SizedBox(height: 4),
+        Text(label, style: const TextStyle(color: Colors.white)),
+      ],
+    );
+  }
+}
+
+class _SvgPreviewAction extends StatelessWidget {
+  final String svgData;
+  final String label;
+
+  const _SvgPreviewAction({required this.svgData, required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        SvgPicture.string(
+          svgData,
+          width: 18,
+          height: 18,
+          colorFilter: const ColorFilter.mode(Colors.black, BlendMode.srcIn),
+        ),
+        const SizedBox(width: 5),
+        Text(label),
+      ],
+    );
+  }
+}
+
+class _SvgReelsAction extends StatelessWidget {
+  final String svgData;
+  final String label;
+
+  const _SvgReelsAction({required this.svgData, required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        SvgPicture.string(
+          svgData,
+          width: 24,
+          height: 24,
+          colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+        ),
         const SizedBox(height: 4),
         Text(label, style: const TextStyle(color: Colors.white)),
       ],

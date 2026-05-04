@@ -4,6 +4,7 @@ class HomeComposerCard extends StatelessWidget {
   final String avatarInitial;
   final String promptText;
   final VoidCallback? onTapPrompt;
+  final VoidCallback? onTapAvatar;
   final VoidCallback? onTapImage;
 
   const HomeComposerCard({
@@ -11,6 +12,7 @@ class HomeComposerCard extends StatelessWidget {
     this.avatarInitial = 'Y',
     this.promptText = 'What is happening today?',
     this.onTapPrompt,
+    this.onTapAvatar,
     this.onTapImage,
   });
 
@@ -24,7 +26,10 @@ class HomeComposerCard extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         child: Row(
           children: [
-            CircleAvatar(radius: 18, child: Text(avatarInitial)),
+            GestureDetector(
+              onTap: onTapAvatar,
+              child: CircleAvatar(radius: 18, child: Text(avatarInitial)),
+            ),
             const SizedBox(width: 10),
             Expanded(
               child: InkWell(

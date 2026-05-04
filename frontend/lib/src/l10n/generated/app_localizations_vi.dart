@@ -296,6 +296,30 @@ class AppLocalizationsVi extends AppLocalizations {
   String get memberRole => 'Thành viên';
 
   @override
+  String get searchHint => 'Tìm kiếm người dùng, bài viết, địa điểm';
+
+  @override
+  String get searchLabel => 'Tìm kiếm';
+
+  @override
+  String get searchPeople => 'Mọi người';
+
+  @override
+  String get searchPosts => 'Bài viết';
+
+  @override
+  String get searchPhotos => 'Ảnh';
+
+  @override
+  String get searchPlaces => 'Địa điểm';
+
+  @override
+  String get searchNoResults => 'Không tìm thấy kết quả';
+
+  @override
+  String get searchSeeAll => 'Xem tất cả';
+
+  @override
   String get leaveGroup => 'Rời nhóm';
 
   @override
@@ -799,4 +823,50 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get recentSearchTitle => 'Gần đây';
+
+  @override
+  String get friendRequestSent => 'Đã gửi';
+
+  @override
+  String get friendRequestSendSuccess => 'Đã gửi lời mời kết bạn';
+
+  @override
+  String get friendRequestSendError => 'Không thể gửi lời mời kết bạn';
+
+  @override
+  String get acceptFriendRequest => 'Chấp nhận';
+
+  @override
+  String get rejectFriendRequest => 'Từ chối';
+
+  @override
+  String get notificationsTitle => 'Thông báo';
+
+  @override
+  String get markAllAsRead => 'Đánh dấu tất cả đã đọc';
+
+  @override
+  String get titleSearch => 'Tìm kiếm';
+
+  @override
+  String get titleReels => 'Reels';
+
+  @override
+  String get titleChat => 'Trò chuyện';
+
+  @override
+  String get friends => 'Bạn bè';
+
+  @override
+  String get friendRequestAccepted => 'Lời mời kết bạn đã được chấp nhận';
+
+  @override
+  String get yourFriendRequestAccepted =>
+      'Lời mời kết bạn của bạn đã được chấp nhận';
+
+  @override
+  String get friendRequestReceived => 'đã gửi lời mời kết bạn cho bạn';
+
+  @override
+  String get noNotifications => 'Chưa có thông báo nào';
 }

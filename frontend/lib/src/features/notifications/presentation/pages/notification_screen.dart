@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
+import '../../../../routes/app_route_path.dart';
 import '../../../../core/l10n/l10n.dart';
 import '../../domain/entities/notification_entity.dart';
 import '../bloc/notification_bloc.dart';
@@ -72,11 +74,11 @@ class _NotificationScreenState extends State<NotificationScreen> {
       },
       builder: (context, state) {
         final l10n = context.l10n;
-        
+
         return Scaffold(
           backgroundColor: const Color(0xFFF3F3F3),
           appBar: AppBar(
-            title: Text("Notifications"),
+            title: Text(l10n.notificationsTitle),
             actions: [
               TextButton(
                 onPressed: state.unreadCount == 0 || state.isSubmitting
@@ -86,7 +88,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                           NotificationMarkAllAsReadRequested(),
                         );
                       },
-                child: Text("Mark all as read"),
+                child: Text(l10n.markAllAsRead),
               ),
             ],
           ),
@@ -100,7 +102,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                             const SizedBox(height: 180),
                             Center(
                               child: Text(
-                                l10n.feedNotificationSoon,
+                                l10n.noNotifications,
                                 style: const TextStyle(color: Colors.black54),
                               ),
                             ),
@@ -126,10 +128,18 @@ class _NotificationScreenState extends State<NotificationScreen> {
                             final item = state.items[index];
                             return _NotificationTile(
                               item: item,
+                              showFriendRequestActions: item.type == 'FRIEND_REQUEST',
+                              isSubmitting: state.isSubmitting,
                               onTap: () {
                                 if (!item.isRead) {
                                   context.read<NotificationBloc>().add(
                                     NotificationMarkAsReadRequested(item.id),
+                                  );
+                                }
+                                if (item.actorId.isNotEmpty) {
+                                  context.pushNamed(
+                                    AppRoutes.profile.name,
+                                    pathParameters: {'userId': item.actorId},
                                   );
                                 }
                               },
@@ -145,9 +155,16 @@ class _NotificationScreenState extends State<NotificationScreen> {
 
 class _NotificationTile extends StatelessWidget {
   final NotificationEntity item;
+  final bool showFriendRequestActions;
+  final bool isSubmitting;
   final VoidCallback onTap;
 
-  const _NotificationTile({required this.item, required this.onTap});
+  const _NotificationTile({
+    required this.item,
+    required this.showFriendRequestActions,
+    required this.isSubmitting,
+    required this.onTap,
+  });
 
   bool get _isFriendRequestNotification => item.type == 'FRIEND_REQUEST';
 
@@ -166,37 +183,58 @@ class _NotificationTile extends StatelessWidget {
           ListTile(
             onTap: onTap,
             leading: CircleAvatar(
-              radius: 22,
-              backgroundColor: Colors.grey.shade300,
-              child: item.actorName.trim().isNotEmpty
-                  ? Text(
-                      item.actorName.trim().characters.first.toUpperCase(),
-                      style: const TextStyle(fontWeight: FontWeight.w700),
-                    )
-                  : const Icon(Icons.person_outline),
+              radius: 24,
+              backgroundColor: Colors.grey.shade200,
+              backgroundImage: item.actorAvatarUrl.isNotEmpty
+                  ? NetworkImage(item.actorAvatarUrl)
+                  : null,
+              child: item.actorAvatarUrl.isEmpty
+                  ? (item.actorName.trim().isNotEmpty
+                      ? Text(
+                          item.actorName.trim().characters.first.toUpperCase(),
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.blue,
+                          ),
+                        )
+                      : const Icon(Icons.person, color: Colors.grey))
+                  : null,
             ),
-            title: Text(
-              item.title,
-              maxLines: 1,
+            title: RichText(
+              maxLines: 2,
               overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                fontWeight: item.isRead ? FontWeight.w500 : FontWeight.w700,
-              ),
-            ),
-            subtitle: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 4),
-                Text(item.body, maxLines: 2, overflow: TextOverflow.ellipsis),
-                if (timeText.isNotEmpty) ...[
-                  const SizedBox(height: 6),
-                  Text(
-                    timeText,
-                    style: const TextStyle(fontSize: 12, color: Colors.black54),
+              text: TextSpan(
+                style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 15,
+                  fontWeight: item.isRead ? FontWeight.normal : FontWeight.bold,
+                ),
+                children: [
+                  TextSpan(
+                    text: '${item.actorName} ',
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  TextSpan(
+                    text: item.type == 'FRIEND_REQUEST'
+                        ? context.l10n.friendRequestReceived
+                        : item.body,
                   ),
                 ],
-              ],
+              ),
             ),
+            subtitle: timeText.isNotEmpty
+                ? Padding(
+                    padding: const EdgeInsets.only(top: 4),
+                    child: Text(
+                      timeText,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: item.isRead ? Colors.grey : Colors.blueAccent,
+                        fontWeight: item.isRead ? FontWeight.normal : FontWeight.w600,
+                      ),
+                    ),
+                  )
+                : null,
             trailing: item.isRead
                 ? null
                 : Container(
@@ -207,36 +245,43 @@ class _NotificationTile extends StatelessWidget {
                       shape: BoxShape.circle,
                     ),
                   ),
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 8,
+            ),
           ),
-          if (_isFriendRequestNotification && item.entityId != null)
+          if (_isFriendRequestNotification && showFriendRequestActions)
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   TextButton(
-                    onPressed: () {
-                      context.read<NotificationBloc>().add(
-                        NotificationRejectFriendRequestRequested(
-                          item.entityId!,
-                          item.id,
-                        ),
-                      );
-                    },
-                    child: Text("Reject"),
+                    onPressed: isSubmitting
+                        ? null
+                        : () {
+                            context.read<NotificationBloc>().add(
+                              NotificationRejectFriendRequestRequested(
+                                item.entityId!,
+                                item.id,
+                              ),
+                            );
+                          },
+                    child: Text(context.l10n.rejectFriendRequest),
                   ),
                   const SizedBox(width: 8),
                   FilledButton(
-                    onPressed: () {
-                      context.read<NotificationBloc>().add(
-                        NotificationAcceptFriendRequestRequested(
-                          item.entityId!,
-                          item.id,
-                        ),
-                      );
-                    },
-                    child: Text("Accept"),
+                    onPressed: isSubmitting
+                        ? null
+                        : () {
+                            context.read<NotificationBloc>().add(
+                              NotificationAcceptFriendRequestRequested(
+                                item.entityId!,
+                                item.id,
+                              ),
+                            );
+                          },
+                    child: Text(context.l10n.acceptFriendRequest),
                   ),
                 ],
               ),

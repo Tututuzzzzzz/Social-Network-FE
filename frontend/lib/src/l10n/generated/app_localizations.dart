@@ -650,6 +650,54 @@ abstract class AppLocalizations {
   /// **'Member'**
   String get memberRole;
 
+  /// No description provided for @searchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search people, posts, places'**
+  String get searchHint;
+
+  /// No description provided for @searchLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Search'**
+  String get searchLabel;
+
+  /// No description provided for @searchPeople.
+  ///
+  /// In en, this message translates to:
+  /// **'People'**
+  String get searchPeople;
+
+  /// No description provided for @searchPosts.
+  ///
+  /// In en, this message translates to:
+  /// **'Posts'**
+  String get searchPosts;
+
+  /// No description provided for @searchPhotos.
+  ///
+  /// In en, this message translates to:
+  /// **'Photos'**
+  String get searchPhotos;
+
+  /// No description provided for @searchPlaces.
+  ///
+  /// In en, this message translates to:
+  /// **'Places'**
+  String get searchPlaces;
+
+  /// No description provided for @searchNoResults.
+  ///
+  /// In en, this message translates to:
+  /// **'No results found'**
+  String get searchNoResults;
+
+  /// No description provided for @searchSeeAll.
+  ///
+  /// In en, this message translates to:
+  /// **'See all'**
+  String get searchSeeAll;
+
   /// No description provided for @leaveGroup.
   ///
   /// In en, this message translates to:
@@ -1567,6 +1615,96 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Recent'**
   String get recentSearchTitle;
+
+  /// No description provided for @friendRequestSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent'**
+  String get friendRequestSent;
+
+  /// No description provided for @friendRequestSendSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Friend request sent'**
+  String get friendRequestSendSuccess;
+
+  /// No description provided for @friendRequestSendError.
+  ///
+  /// In en, this message translates to:
+  /// **'Cannot send friend request'**
+  String get friendRequestSendError;
+
+  /// No description provided for @acceptFriendRequest.
+  ///
+  /// In en, this message translates to:
+  /// **'Accept'**
+  String get acceptFriendRequest;
+
+  /// No description provided for @rejectFriendRequest.
+  ///
+  /// In en, this message translates to:
+  /// **'Reject'**
+  String get rejectFriendRequest;
+
+  /// No description provided for @notificationsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications'**
+  String get notificationsTitle;
+
+  /// No description provided for @markAllAsRead.
+  ///
+  /// In en, this message translates to:
+  /// **'Read all'**
+  String get markAllAsRead;
+
+  /// No description provided for @titleSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Search'**
+  String get titleSearch;
+
+  /// No description provided for @titleReels.
+  ///
+  /// In en, this message translates to:
+  /// **'Reels'**
+  String get titleReels;
+
+  /// No description provided for @titleChat.
+  ///
+  /// In en, this message translates to:
+  /// **'Chat'**
+  String get titleChat;
+
+  /// No description provided for @friends.
+  ///
+  /// In en, this message translates to:
+  /// **'Friends'**
+  String get friends;
+
+  /// No description provided for @friendRequestAccepted.
+  ///
+  /// In en, this message translates to:
+  /// **'Friend request accepted'**
+  String get friendRequestAccepted;
+
+  /// No description provided for @yourFriendRequestAccepted.
+  ///
+  /// In en, this message translates to:
+  /// **'Your friend request has been accepted'**
+  String get yourFriendRequestAccepted;
+
+  /// No description provided for @friendRequestReceived.
+  ///
+  /// In en, this message translates to:
+  /// **'sent you a friend request'**
+  String get friendRequestReceived;
+
+  /// No description provided for @noNotifications.
+  ///
+  /// In en, this message translates to:
+  /// **'No notifications yet'**
+  String get noNotifications;
 }
 
 class _AppLocalizationsDelegate

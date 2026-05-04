@@ -8,6 +8,12 @@ class FriendRepositoryImpl implements FriendRepository {
   FriendRepositoryImpl({required this.remoteDataSource});
 
   @override
+  Future<List<String>> getAllFriendIds() async {
+    final friends = await remoteDataSource.fetchFriends();
+    return friends.map((friend) => friend.id).where((id) => id.isNotEmpty).toList();
+  }
+
+  @override
   Future<List<FriendRequest>> getFriendRequests() async {
     final models = await remoteDataSource.fetchFriendRequests();
     return models

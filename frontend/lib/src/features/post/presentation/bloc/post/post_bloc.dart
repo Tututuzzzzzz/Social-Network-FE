@@ -8,6 +8,7 @@ import '../../../domain/entities/post_entity.dart';
 import '../../../domain/usecases/create_post_usecase.dart';
 import '../../../domain/usecases/delete_post_usecase.dart';
 import '../../../domain/usecases/get_post_usecase.dart';
+import '../../../domain/usecases/toggle_like_post_usecase.dart';
 import '../../../domain/usecases/update_post_usecase.dart';
 import '../../../domain/usecases/usecase_params.dart';
 
@@ -19,17 +20,20 @@ class PostBloc extends Bloc<PostEvent, PostState> {
   final CreatePostUseCase _createPostUseCase;
   final UpdatePostUseCase _updatePostUseCase;
   final DeletePostUseCase _deletePostUseCase;
+  final ToggleLikePostUseCase _toggleLikePostUseCase;
 
   PostBloc(
     this._createPostUseCase,
     this._deletePostUseCase,
     this._getPostUseCase,
     this._updatePostUseCase,
+    this._toggleLikePostUseCase,
   ) : super(PostInitialState()) {
     on<PostLoadEvent>(_onLoad);
     on<PostCreateEvent>(_onCreate);
     on<PostUpdateEvent>(_onUpdate);
     on<PostDeleteEvent>(_onDelete);
+    on<PostLikeToggleEvent>(_onLikeToggle);
   }
 
   Future<void> _onLoad(PostLoadEvent event, Emitter<PostState> emit) async {
@@ -69,6 +73,22 @@ class PostBloc extends Bloc<PostEvent, PostState> {
     emit(PostActionLoadingState());
 
     final result = await _deletePostUseCase.call(event.params);
+
+    result.fold(
+      (l) => emit(PostActionFailureState(mapFailureToMessage(l))),
+      (r) => add(PostLoadEvent()),
+    );
+  }
+
+  Future<void> _onLikeToggle(
+    PostLikeToggleEvent event,
+    Emitter<PostState> emit,
+  ) async {
+    emit(PostActionLoadingState());
+
+    final result = await _toggleLikePostUseCase.call(
+      ToggleLikePostParams(postId: event.postId),
+    );
 
     result.fold(
       (l) => emit(PostActionFailureState(mapFailureToMessage(l))),

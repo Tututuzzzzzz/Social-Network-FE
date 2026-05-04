@@ -1,8 +1,12 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../configs/injector/injector_conf.dart';
 import '../../../../core/l10n/l10n.dart';
+import '../../../../core/cache/secure_local_storage.dart';
+import '../../../friend/data/repositories/friend_repository_impl.dart';
 import '../../../friend/domain/usecases/send_friend_request.dart';
 import '../../../notifications/presentation/bloc/notification_bloc.dart';
 import '../../../notifications/presentation/bloc/notification_state.dart';
@@ -15,6 +19,7 @@ import '../widgets/feed_story_item.dart';
 import '../widgets/feed_widgets.dart';
 import '../widgets/post_options_sheet.dart';
 import 'create_post_screen.dart';
+import 'post_detail_screen.dart';
 
 class FeedScreen extends StatefulWidget {
   const FeedScreen({super.key});
@@ -27,7 +32,10 @@ class _FeedScreenState extends State<FeedScreen> {
   final ScrollController _scrollController = ScrollController();
 
   List<PostEntity> _posts = const [];
+  final Map<String, int> _commentCountOverrides = <String, int>{};
   int _currentNavIndex = 0;
+  String _currentUserId = '';
+  final Set<String> _friendIds = <String>{};
   final Set<String> _sendingFriendRequestAuthorIds = <String>{};
   final Set<String> _sentFriendRequestAuthorIds = <String>{};
 
@@ -36,8 +44,48 @@ class _FeedScreenState extends State<FeedScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      context.read<PostBloc>().add(PostLoadEvent());
+      _bootstrapFeed();
     });
+  }
+
+  Future<void> _bootstrapFeed() async {
+    await _resolveCurrentUserId();
+    await _resolveFriendIds();
+    if (!mounted) return;
+    context.read<PostBloc>().add(PostLoadEvent());
+  }
+
+  Future<void> _resolveCurrentUserId() async {
+    if (_currentUserId.trim().isNotEmpty) return;
+
+    final secureStorage = getIt<SecureLocalStorage>();
+    final storedUserId = await secureStorage.load(key: 'user_id');
+    final normalized = storedUserId.trim();
+    if (normalized.isNotEmpty) {
+      if (!mounted) return;
+      setState(() {
+        _currentUserId = normalized;
+      });
+    }
+  }
+
+  Future<void> _resolveFriendIds() async {
+    if (_friendIds.isNotEmpty || _currentUserId.trim().isEmpty) {
+      return;
+    }
+
+    try {
+      final repository = getIt<FriendRepositoryImpl>();
+      final friendIds = await repository.getAllFriendIds();
+      if (!mounted) return;
+      setState(() {
+        _friendIds
+          ..clear()
+          ..addAll(friendIds);
+      });
+    } catch (_) {
+      // Keep feed usable even if the friend list fails to load.
+    }
   }
 
   Future<void> _openCommentsSheet(PostEntity initialPost) async {
@@ -47,7 +95,16 @@ class _FeedScreenState extends State<FeedScreen> {
       useSafeArea: true,
       backgroundColor: Colors.transparent,
       builder: (_) =>
-          CommentsSheet(initialPost: initialPost, currentUserId: null),
+          CommentsSheet(
+            initialPost: initialPost,
+            currentUserId: _currentUserId.isEmpty ? null : _currentUserId,
+            onCommentsCountChanged: (count) {
+              if (!mounted) return;
+              setState(() {
+                _commentCountOverrides[initialPost.id] = count;
+              });
+            },
+          ),
     );
   }
 
@@ -111,7 +168,7 @@ class _FeedScreenState extends State<FeedScreen> {
 
   Future<void> _onFollowTap(PostEntity post) async {
     final authorId = post.authorId.trim();
-    
+
     if (authorId.isEmpty) {
       return;
     }
@@ -135,19 +192,22 @@ class _FeedScreenState extends State<FeedScreen> {
         _sentFriendRequestAuthorIds.add(authorId);
       });
 
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text("Friend request sent successfully")));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Friend request sent successfully")),
+      );
     } catch (_) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Failed to send friend request. Please try again.")),
+        SnackBar(
+          content: Text("Failed to send friend request. Please try again."),
+        ),
       );
     } finally {
-      if (!mounted) return;
-      setState(() {
-        _sendingFriendRequestAuthorIds.remove(authorId);
-      });
+      if (mounted) {
+        setState(() {
+          _sendingFriendRequestAuthorIds.remove(authorId);
+        });
+      }
     }
   }
 
@@ -161,7 +221,7 @@ class _FeedScreenState extends State<FeedScreen> {
         context.go(AppRoutes.home.path);
         break;
       case 1:
-        context.go(AppRoutes.reels.path);
+        context.go(AppRoutes.homeSearch.path);
         break;
       case 2:
         context.go(AppRoutes.chat.path);
@@ -213,16 +273,17 @@ class _FeedScreenState extends State<FeedScreen> {
             elevation: 0,
             surfaceTintColor: Colors.white,
             leading: IconButton(
-              icon: const Icon(
-                Icons.add_box_outlined,
-                color: Colors.black,
-                size: 22,
+              icon: SvgPicture.string(
+                '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-square-plus-icon lucide-square-plus"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M8 12h8"/><path d="M12 8v8"/></svg>',
+                width: 22,
+                height: 22,
+                colorFilter: const ColorFilter.mode(Colors.black, BlendMode.srcIn),
               ),
               onPressed: _openCreatePostScreen,
             ),
             title: Image.asset(
               'assets/images/logo.jpg',
-              height: 34,
+              height: 64,
               fit: BoxFit.contain,
               filterQuality: FilterQuality.medium,
               errorBuilder: (context, error, stackTrace) {
@@ -233,7 +294,7 @@ class _FeedScreenState extends State<FeedScreen> {
                       'Mochi',
                       style: TextStyle(
                         color: Colors.black,
-                        fontSize: 30,
+                        fontSize: 36,
                         fontStyle: FontStyle.italic,
                         fontWeight: FontWeight.w800,
                         letterSpacing: -1,
@@ -242,7 +303,7 @@ class _FeedScreenState extends State<FeedScreen> {
                     SizedBox(width: 2),
                     Icon(
                       Icons.keyboard_arrow_down,
-                      size: 18,
+                      size: 20,
                       color: Colors.black,
                     ),
                   ],
@@ -253,17 +314,20 @@ class _FeedScreenState extends State<FeedScreen> {
             actions: [
               BlocBuilder<NotificationBloc, NotificationState>(
                 builder: (context, notificationState) {
-                  final hasUnreadNotifications = notificationState.unreadCount > 0;
-                  
+                  final hasUnreadNotifications =
+                      notificationState.unreadCount > 0;
+
                   return Stack(
                     clipBehavior: Clip.none,
                     children: [
                       IconButton(
-                        onPressed: () => context.push(AppRoutes.notifications.path),
-                        icon: const Icon(
-                          Icons.notifications_none,
-                          color: Colors.black,
-                          size: 22,
+                        onPressed: () =>
+                            context.push(AppRoutes.notifications.path),
+                        icon: SvgPicture.string(
+                          '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-bell-icon lucide-bell"><path d="M10.268 21a2 2 0 0 0 3.464 0"/><path d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326"/></svg>',
+                          width: 22,
+                          height: 22,
+                          colorFilter: const ColorFilter.mode(Colors.black, BlendMode.srcIn),
                         ),
                       ),
                       if (hasUnreadNotifications)
@@ -314,17 +378,47 @@ class _FeedScreenState extends State<FeedScreen> {
                         }
 
                         final post = visiblePosts[index - 1];
+                        final isSelfPost =
+                            _currentUserId.isNotEmpty &&
+                            post.authorId == _currentUserId;
+                        final isAlreadyFriend = _friendIds.contains(post.authorId);
                         final hasSentRequest = _sentFriendRequestAuthorIds
                             .contains(post.authorId);
                         final isSendingRequest = _sendingFriendRequestAuthorIds
                             .contains(post.authorId);
 
-                        return PostCard(
-                          post: post,
-                          isLikedByMe: false,
-                          isFollowing: hasSentRequest,
-                          onLike: _showFeatureSoon,
-                          onFollowTap: isSendingRequest
+                        return GestureDetector(
+                          behavior: HitTestBehavior.opaque,
+                          onTap: () {
+                            final postBloc = context.read<PostBloc>();
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (_) => BlocProvider.value(
+                                  value: postBloc,
+                                  child: PostDetailScreen(
+                                    initialPost: post,
+                                    currentUserId:
+                                        _currentUserId.isEmpty ? null : _currentUserId,
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                          child: PostCard(
+                            post: post,
+                          isLikedByMe: _currentUserId.isNotEmpty &&
+                              post.likes.contains(_currentUserId),
+                          commentCountOverride: _commentCountOverrides[post.id],
+                          isFollowing: isAlreadyFriend,
+                          showFollowButton: !isSelfPost,
+                          onLike: () {
+                            context.read<PostBloc>().add(
+                              PostLikeToggleEvent(post.id),
+                            );
+                          },
+                          onFollowTap: isSelfPost || isAlreadyFriend
+                              ? null
+                              : isSendingRequest
                               ? null
                               : () => _onFollowTap(post),
                           onAuthorTap: _showFeatureSoon,
@@ -333,9 +427,12 @@ class _FeedScreenState extends State<FeedScreen> {
                           onShare: _showFeatureSoon,
                           onSave: _showFeatureSoon,
                           onMore: () => _showPostOptionsSheet(post),
-                          followingLabel: hasSentRequest
+                          followingLabel: isAlreadyFriend
+                              ? "Friends"
+                              : hasSentRequest
                               ? "Following"
                               : "Follow",
+                          ),
                         );
                       },
                     ),

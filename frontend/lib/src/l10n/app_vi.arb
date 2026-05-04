@@ -98,6 +98,14 @@
   "youSuffix": "bạn",
   "adminRole": "Quản trị viên",
   "memberRole": "Thành viên",
+  "searchHint": "Tìm kiếm người dùng, bài viết, địa điểm",
+  "searchLabel": "Tìm kiếm",
+  "searchPeople": "Mọi người",
+  "searchPosts": "Bài viết",
+  "searchPhotos": "Ảnh",
+  "searchPlaces": "Địa điểm",
+  "searchNoResults": "Không tìm thấy kết quả",
+  "searchSeeAll": "Xem tất cả",
   "leaveGroup": "Rời nhóm",
   "lastAdminCannotLeave": "Bạn là quản trị viên cuối cùng. Hãy chuyển quyền admin trước khi rời nhóm.",
   "groupChatFallback": "Nhóm chat",
@@ -268,5 +276,13 @@
   ,"acceptFriendRequest": "Chấp nhận"
   ,"rejectFriendRequest": "Từ chối"
   ,"notificationsTitle": "Thông báo"
-  ,"markAllAsRead": "Đọc tất cả"
+  ,"markAllAsRead": "Đánh dấu tất cả đã đọc"
+  ,"titleSearch": "Tìm kiếm"
+  ,"titleReels": "Reels"
+  ,"titleChat": "Trò chuyện"
+  ,"friends": "Bạn bè"
+  ,"friendRequestAccepted": "Lời mời kết bạn đã được chấp nhận"
+  ,"yourFriendRequestAccepted": "Lời mời kết bạn của bạn đã được chấp nhận"
+  ,"friendRequestReceived": "đã gửi lời mời kết bạn cho bạn"
+  ,"noNotifications": "Chưa có thông báo nào"
 }

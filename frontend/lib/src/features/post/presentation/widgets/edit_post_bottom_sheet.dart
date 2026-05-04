@@ -11,12 +11,12 @@ class EditPostDraft {
   const EditPostDraft({
     required this.content,
     required this.retainedMedia,
-    required this.newImagePaths,
+    required this.newImages,
   });
 
   final String content;
   final List<PostMediaEntity> retainedMedia;
-  final List<String> newImagePaths;
+  final List<XFile> newImages;
 }
 
 Future<EditPostDraft?> showEditPostBottomSheet({
@@ -147,10 +147,7 @@ class _EditPostBottomSheetState extends State<_EditPostBottomSheet> {
       EditPostDraft(
         content: content,
         retainedMedia: List<PostMediaEntity>.from(_retainedMedia),
-        newImagePaths: _newImages
-            .map((item) => item.path)
-            .where((path) => path.trim().isNotEmpty)
-            .toList(growable: false),
+        newImages: List<XFile>.from(_newImages),
       ),
     );
   }
@@ -247,6 +244,9 @@ class _EditPostBottomSheetState extends State<_EditPostBottomSheet> {
                         onPressed: _isPickingImages ? null : _pickFromGallery,
                         icon: const Icon(Icons.photo_library_outlined),
                         label: const Text('Thư viện'),
+                        style: OutlinedButton.styleFrom(
+                          shape: const StadiumBorder(),
+                        ),
                       ),
                     ),
                     const SizedBox(width: 10),
@@ -255,6 +255,9 @@ class _EditPostBottomSheetState extends State<_EditPostBottomSheet> {
                         onPressed: _isPickingImages ? null : _pickFromCamera,
                         icon: const Icon(Icons.photo_camera_outlined),
                         label: const Text('Camera'),
+                        style: OutlinedButton.styleFrom(
+                          shape: const StadiumBorder(),
+                        ),
                       ),
                     ),
                   ],
@@ -265,6 +268,9 @@ class _EditPostBottomSheetState extends State<_EditPostBottomSheet> {
                     Expanded(
                       child: OutlinedButton(
                         onPressed: () => Navigator.of(context).pop(),
+                        style: OutlinedButton.styleFrom(
+                          shape: const StadiumBorder(),
+                        ),
                         child: const Text('Hủy'),
                       ),
                     ),
@@ -272,6 +278,9 @@ class _EditPostBottomSheetState extends State<_EditPostBottomSheet> {
                     Expanded(
                       child: FilledButton(
                         onPressed: _canSubmit ? _submit : null,
+                        style: FilledButton.styleFrom(
+                          shape: const StadiumBorder(),
+                        ),
                         child: const Text('Lưu thay đổi'),
                       ),
                     ),
@@ -295,7 +304,7 @@ class _EditPostBottomSheetState extends State<_EditPostBottomSheet> {
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         itemCount: _retainedMedia.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 10),
+        separatorBuilder: (_, _) => const SizedBox(width: 10),
         itemBuilder: (_, index) {
           final media = _retainedMedia[index];
           final mediaUrl = (media.mediaUrl ?? '').normalizeClientUrl();
@@ -307,7 +316,7 @@ class _EditPostBottomSheetState extends State<_EditPostBottomSheet> {
                 ? Image.network(
                     mediaUrl,
                     fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => _imageFallback(),
+                    errorBuilder: (_, _, _) => _imageFallback(),
                   )
                 : _imageFallback(),
           );
@@ -326,7 +335,7 @@ class _EditPostBottomSheetState extends State<_EditPostBottomSheet> {
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         itemCount: _newImages.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 10),
+        separatorBuilder: (_, _) => const SizedBox(width: 10),
         itemBuilder: (_, index) {
           final image = _newImages[index];
           return _mediaTile(

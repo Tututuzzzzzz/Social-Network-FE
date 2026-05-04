@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 
 class HomeUserResult {
+  final String id;
   final String name;
   final String handle;
   final int mutualFriends;
   final bool isOnline;
 
   const HomeUserResult({
+    required this.id,
     required this.name,
     required this.handle,
     required this.mutualFriends,
@@ -57,6 +59,11 @@ class HomeUserResultTile extends StatelessWidget {
       subtitle: Text('@${item.handle} · ${item.mutualFriends} mutual'),
       trailing: FilledButton.tonal(
         onPressed: onTapFollow,
+        style: FilledButton.styleFrom(
+          shape: const StadiumBorder(),
+          minimumSize: const Size(0, 32),
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+        ),
         child: const Text('Follow'),
       ),
     );

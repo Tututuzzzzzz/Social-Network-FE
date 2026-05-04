@@ -4,7 +4,11 @@ import '../../../../core/cache/hive_local_storage.dart';
 import '../../../../core/errors/exceptions.dart';
 import '../../../../core/errors/failures.dart';
 import '../../../../core/network/network_checker.dart';
+import '../../domain/entities/post_comment_entity.dart';
 import '../../domain/entities/post_entity.dart';
+import '../../domain/entities/post_comments_entity.dart';
+import '../../domain/entities/post_media_entity.dart';
+import '../../domain/entities/post_media_upload_file.dart';
 import '../../domain/repositories/post_repository.dart';
 import '../../domain/usecases/usecase_params.dart';
 import '../datasources/post_local_datasource.dart';
@@ -111,6 +115,87 @@ class PostRepositoryImpl implements PostRepository {
 
     try {
       final result = await _postRemoteDatasource.deletePost(params.postId);
+      return Right(result);
+    } on ServerException {
+      return Left(ServerFailure());
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<PostMediaEntity>>> uploadMedia(
+    List<PostMediaUploadFile> files,
+  ) async {
+    if (files.isEmpty) {
+      return const Right(<PostMediaEntity>[]);
+    }
+
+    if (!await _networkInfo.checkIsConnected) {
+      return Left(CacheFailure());
+    }
+
+    try {
+      final result = await _postRemoteDatasource.uploadMedia(files);
+      return Right(result);
+    } on ServerException {
+      return Left(ServerFailure());
+    }
+  }
+
+  @override
+  Future<Either<Failure, PostEntity>> toggleLike(String postId) async {
+    if (postId.trim().isEmpty) {
+      return Left(EmptyFailure());
+    }
+
+    if (!await _networkInfo.checkIsConnected) {
+      return Left(CacheFailure());
+    }
+
+    try {
+      final result = await _postRemoteDatasource.toggleLike(postId);
+      return Right(result);
+    } on ServerException {
+      return Left(ServerFailure());
+    }
+  }
+
+  @override
+  Future<Either<Failure, PostCommentEntity>> createComment(
+    String postId,
+    String content, {
+    String? parentCommentId,
+  }) async {
+    if (postId.trim().isEmpty || content.trim().isEmpty) {
+      return Left(EmptyFailure());
+    }
+
+    if (!await _networkInfo.checkIsConnected) {
+      return Left(CacheFailure());
+    }
+
+    try {
+      final result = await _postRemoteDatasource.createComment(
+        postId,
+        CreateCommentModel(content: content, parentCommentId: parentCommentId),
+      );
+      return Right(result);
+    } on ServerException {
+      return Left(ServerFailure());
+    }
+  }
+
+  @override
+  Future<Either<Failure, PostCommentsEntity>> getComments(String postId) async {
+    if (postId.trim().isEmpty) {
+      return Left(EmptyFailure());
+    }
+
+    if (!await _networkInfo.checkIsConnected) {
+      return Left(CacheFailure());
+    }
+
+    try {
+      final result = await _postRemoteDatasource.getComments(postId);
       return Right(result);
     } on ServerException {
       return Left(ServerFailure());
