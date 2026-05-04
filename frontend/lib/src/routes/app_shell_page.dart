@@ -1,13 +1,32 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../configs/injector/injector_conf.dart';
+import '../core/realtime/realtime_socket_service.dart';
 import '../widgets/app_shell_bottom_nav_bar.dart';
 import 'app_route_path.dart';
 
-class AppShellPage extends StatelessWidget {
+/// Shell chung cho các trang đã login.
+///
+/// Kết nối socket ngay khi mount (= sau login thành công).
+/// Không disconnect khi dispose vì singleton sống xuyên suốt session.
+class AppShellPage extends StatefulWidget {
   final Widget body;
 
   const AppShellPage({super.key, required this.body});
+
+  @override
+  State<AppShellPage> createState() => _AppShellPageState();
+}
+
+class _AppShellPageState extends State<AppShellPage> {
+  @override
+  void initState() {
+    super.initState();
+    // Socket connect ngay sau login — chạy 1 lần duy nhất.
+    // ensureConnected() tự skip nếu đã connected.
+    getIt<RealtimeSocketService>().ensureConnected();
+  }
 
   int _resolveSelectedTabIndex(BuildContext context) {
     final location = GoRouterState.of(context).uri.path;
@@ -51,7 +70,7 @@ class AppShellPage extends StatelessWidget {
       child: Stack(
         clipBehavior: Clip.none,
         children: [
-          Positioned.fill(child: body),
+          Positioned.fill(child: widget.body),
           Align(
             alignment: Alignment.bottomCenter,
             child: AppShellBottomNavBar(

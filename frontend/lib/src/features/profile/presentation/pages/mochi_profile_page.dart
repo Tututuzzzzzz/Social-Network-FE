@@ -439,15 +439,17 @@ class _MochiProfilePageState extends State<MochiProfilePage> {
         BlocListener<AuthBloc, AuthState>(
           listener: (context, state) {
             if (state is AuthLogoutFailureState) {
-              ScaffoldMessenger.of(
-                context,
-              ).showSnackBar(SnackBar(content: Text(state.message)));
+              try {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text(state.message)),
+                );
+              } catch (_) {
+                // Scaffold may not be available
+              }
             }
 
             if (state is AuthLogoutSuccessState) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Đăng xuất thành công')),
-              );
+              // Không showSnackBar ở đây vì navigate sẽ destroy Scaffold
               context.go(AppRoutes.login.path);
             }
           },
