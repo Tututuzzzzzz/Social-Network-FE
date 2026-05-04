@@ -6,7 +6,7 @@ class ApiConstants {
     if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
       return 'http://10.0.2.2:3001/api';
     }
-    return '';
+    return 'http://42.96.22.73:3001/api';
   }
 
   static const String login = '/auth/login';

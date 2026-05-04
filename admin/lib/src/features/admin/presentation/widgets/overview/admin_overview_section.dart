@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
+import '../../../../post/presentation/widgets/admin_posts_table.dart';
 import '../../../domain/entities/admin_dashboard_snapshot.dart';
 import '../admin_metric_tile.dart';
-import '../posts/admin_posts_table.dart';
 
 class AdminOverviewSection extends StatelessWidget {
   final AdminDashboardSnapshot snapshot;
@@ -21,6 +21,7 @@ class AdminOverviewSection extends StatelessWidget {
                 : width >= 760
                 ? 2
                 : 1;
+            final metricTileExtent = crossAxisCount == 1 ? 184.0 : 204.0;
 
             return GridView(
               shrinkWrap: true,
@@ -29,7 +30,7 @@ class AdminOverviewSection extends StatelessWidget {
                 crossAxisCount: crossAxisCount,
                 crossAxisSpacing: 14,
                 mainAxisSpacing: 14,
-                childAspectRatio: crossAxisCount == 1 ? 1.8 : 2.15,
+                mainAxisExtent: metricTileExtent,
               ),
               children: [
                 AdminMetricTile(

@@ -3,12 +3,19 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../bloc/dashboard/admin_dashboard_cubit.dart';
 import '../bloc/dashboard/admin_dashboard_state.dart';
-import '../widgets/shell/admin_bottom_navigation.dart';
 import '../widgets/shell/admin_compact_layout.dart';
+import '../widgets/shell/admin_sidebar.dart';
 import '../widgets/shell/admin_wide_layout.dart';
 
-class AdminShellPage extends StatelessWidget {
+class AdminShellPage extends StatefulWidget {
   const AdminShellPage({super.key});
+
+  @override
+  State<AdminShellPage> createState() => _AdminShellPageState();
+}
+
+class _AdminShellPageState extends State<AdminShellPage> {
+  bool _sidebarExpanded = true;
 
   @override
   Widget build(BuildContext context) {
@@ -30,12 +37,31 @@ class AdminShellPage extends StatelessWidget {
             final compact = constraints.maxWidth < 920;
 
             return Scaffold(
-              body: compact
-                  ? AdminCompactLayout(state: state)
-                  : AdminWideLayout(state: state),
-              bottomNavigationBar: compact
-                  ? AdminBottomNavigation(section: state.section)
+              drawer: compact
+                  ? Drawer(
+                      width: 248,
+                      child: AdminSidebar(
+                        section: state.section,
+                        onSectionSelected: () =>
+                            Navigator.of(context).maybePop(),
+                      ),
+                    )
                   : null,
+              body: compact
+                  ? Builder(
+                      builder: (scaffoldContext) => AdminCompactLayout(
+                        state: state,
+                        onMenuPressed: () =>
+                            Scaffold.of(scaffoldContext).openDrawer(),
+                      ),
+                    )
+                  : AdminWideLayout(
+                      state: state,
+                      sidebarExpanded: _sidebarExpanded,
+                      onToggleSidebar: () => setState(() {
+                        _sidebarExpanded = !_sidebarExpanded;
+                      }),
+                    ),
             );
           },
         );
