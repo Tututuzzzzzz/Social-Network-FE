@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:frontend/src/features/post/data/models/models.dart';
 
 import '../../../../core/api/api_helper.dart';
@@ -5,12 +6,15 @@ import '../../../../core/api/api_constants.dart';
 import '../../../../core/errors/exceptions.dart';
 import '../../../../core/utils/logger.dart';
 import '../../domain/entities/post_comment_entity.dart';
+import '../../domain/entities/post_media_entity.dart';
+import '../../domain/entities/post_media_upload_file.dart';
 
 sealed class PostRemoteDatasource {
   Future<List<PostModel>> fetchPosts();
   Future<void> createPost(CreatePostModel post);
   Future<void> updatePost(UpdatePostModel post);
   Future<void> deletePost(String postId);
+  Future<List<PostMediaEntity>> uploadMedia(List<PostMediaUploadFile> files);
   Future<PostModel> toggleLike(String postId);
   Future<PostCommentEntity> createComment(
     String postId,
@@ -80,6 +84,61 @@ class PostRemoteDatasourceImpl implements PostRemoteDatasource {
         url: ApiConstants.postById(postId),
       );
       return;
+    } catch (e, st) {
+      logger.e(e, stackTrace: st);
+      throw ServerException();
+    }
+  }
+
+  @override
+  Future<List<PostMediaEntity>> uploadMedia(
+    List<PostMediaUploadFile> files,
+  ) async {
+    try {
+      if (files.isEmpty) {
+        return const [];
+      }
+
+      final multipartFiles = <MultipartFile>[];
+
+      for (final file in files) {
+        if (file.hasBytes) {
+          multipartFiles.add(
+            MultipartFile.fromBytes(
+              file.bytes!,
+              filename: file.name,
+            ),
+          );
+          continue;
+        }
+
+        if (file.hasPath) {
+          multipartFiles.add(
+            await MultipartFile.fromFile(file.path!, filename: file.name),
+          );
+        }
+      }
+
+      if (multipartFiles.isEmpty) {
+        return const [];
+      }
+
+      final formData = FormData.fromMap({
+        'purpose': 'post',
+        'files': multipartFiles,
+      });
+
+      final result = await _apiHelper.execute(
+        method: Method.post,
+        url: ApiConstants.mediaUpload,
+        data: formData,
+      );
+
+      final uploadResponse = UploadMediaResponseModel.fromJson(result);
+      return uploadResponse
+          .toEntities()
+          .where((item) => item.bucket.isNotEmpty && item.objectKey.isNotEmpty)
+          .toList();
     } catch (e, st) {
       logger.e(e, stackTrace: st);
       throw ServerException();
