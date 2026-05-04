@@ -12,6 +12,7 @@ import '../domain/usecases/delete_post_usecase.dart';
 import '../domain/usecases/get_comments_usecase.dart';
 import '../domain/usecases/get_post_usecase.dart';
 import '../domain/usecases/toggle_like_post_usecase.dart';
+import '../domain/usecases/upload_post_media_usecase.dart';
 import '../domain/usecases/update_post_usecase.dart';
 import '../presentation/bloc/post/post_bloc.dart';
 import '../presentation/bloc/post_form/post_form_bloc.dart';
@@ -65,6 +66,10 @@ class PostDepedency {
 
     getIt.registerLazySingleton(
       () => ToggleLikePostUseCase(getIt<PostRepository>()),
+    );
+
+    getIt.registerLazySingleton(
+      () => UploadPostMediaUseCase(getIt<PostRepository>()),
     );
 
     getIt.registerLazySingleton(

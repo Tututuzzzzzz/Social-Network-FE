@@ -340,7 +340,9 @@ class _PostMediaState extends State<_PostMedia> {
       setState(() {
         _currentIndex = 0;
       });
-      _pageController.jumpToPage(0);
+      if (_pageController.hasClients) {
+        _pageController.jumpToPage(0);
+      }
     }
   }
 
