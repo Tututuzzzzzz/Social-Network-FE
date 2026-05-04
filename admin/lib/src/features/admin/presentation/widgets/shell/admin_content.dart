@@ -1,20 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../../widgets/admin_empty_state.dart';
+import '../../../../post/presentation/widgets/admin_posts_table.dart';
+import '../../../../report/presentation/widgets/admin_reports_table.dart';
+import '../../../../user/presentation/widgets/admin_users_table.dart';
 import '../../../domain/entities/admin_dashboard_snapshot.dart';
 import '../../bloc/dashboard/admin_dashboard_cubit.dart';
 import '../../bloc/dashboard/admin_dashboard_state.dart';
-import '../admin_empty_state.dart';
 import '../overview/admin_overview_section.dart';
-import '../posts/admin_posts_table.dart';
-import '../reports/admin_reports_table.dart';
-import '../users/admin_users_table.dart';
 import 'admin_header.dart';
 
 class AdminContent extends StatelessWidget {
   final AdminDashboardState state;
+  final VoidCallback? onMenuPressed;
 
-  const AdminContent({super.key, required this.state});
+  const AdminContent({super.key, required this.state, this.onMenuPressed});
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +24,9 @@ class AdminContent extends StatelessWidget {
         onRefresh: context.read<AdminDashboardCubit>().load,
         child: CustomScrollView(
           slivers: [
-            SliverToBoxAdapter(child: AdminHeader(state: state)),
+            SliverToBoxAdapter(
+              child: AdminHeader(state: state, onMenuPressed: onMenuPressed),
+            ),
             SliverPadding(
               padding: const EdgeInsets.fromLTRB(28, 0, 28, 32),
               sliver: SliverToBoxAdapter(child: _AdminBody(state: state)),

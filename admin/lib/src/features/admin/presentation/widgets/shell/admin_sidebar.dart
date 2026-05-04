@@ -8,8 +8,17 @@ import '../../bloc/dashboard/admin_dashboard_state.dart';
 
 class AdminSidebar extends StatelessWidget {
   final AdminSection section;
+  final bool expanded;
+  final VoidCallback? onToggle;
+  final VoidCallback? onSectionSelected;
 
-  const AdminSidebar({super.key, required this.section});
+  const AdminSidebar({
+    super.key,
+    required this.section,
+    this.expanded = true,
+    this.onToggle,
+    this.onSectionSelected,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -18,104 +27,175 @@ class AdminSidebar extends StatelessWidget {
       (cubit) => _AdminSessionView.fromState(cubit.state),
     );
 
-    return Container(
-      width: 248,
+    void selectSection(AdminSection target) {
+      context.read<AdminDashboardCubit>().selectSection(target);
+      onSectionSelected?.call();
+    }
+
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 180),
+      curve: Curves.easeOutCubic,
+      width: expanded ? 248 : 82,
       color: Colors.white,
-      padding: const EdgeInsets.fromLTRB(18, 18, 18, 22),
+      padding: EdgeInsets.fromLTRB(
+        expanded ? 18 : 12,
+        18,
+        expanded ? 18 : 12,
+        22,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Container(
-                width: 42,
-                height: 42,
-                decoration: BoxDecoration(
-                  color: const Color(0xFF0F766E),
-                  borderRadius: BorderRadius.circular(8),
+          expanded
+              ? Row(
+                  children: [
+                    const _BrandMark(),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        'Mochi Admin',
+                        style: textTheme.titleLarge,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    if (onToggle != null)
+                      IconButton(
+                        tooltip: 'Thu g\u1ECDn menu',
+                        onPressed: onToggle,
+                        icon: const Icon(Icons.chevron_left),
+                      ),
+                  ],
+                )
+              : Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    const Center(child: _BrandMark()),
+                    if (onToggle != null) ...[
+                      const SizedBox(height: 10),
+                      IconButton(
+                        tooltip: 'M\u1EDF r\u1ED9ng menu',
+                        onPressed: onToggle,
+                        icon: const Icon(Icons.chevron_right),
+                      ),
+                    ],
+                  ],
                 ),
-                child: const Icon(Icons.shield, color: Colors.white),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  'Mochi Admin',
-                  style: textTheme.titleLarge,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 28),
+          SizedBox(height: expanded ? 28 : 20),
           _SectionButton(
             icon: Icons.dashboard_outlined,
-            label: 'Tổng quan',
+            label: 'T\u1ED5ng quan',
+            expanded: expanded,
             selected: section == AdminSection.overview,
-            onTap: () => context.read<AdminDashboardCubit>().selectSection(
-              AdminSection.overview,
-            ),
+            onTap: () => selectSection(AdminSection.overview),
           ),
           _SectionButton(
             icon: Icons.people_alt_outlined,
-            label: 'Người dùng',
+            label: 'Ng\u01B0\u1EDDi d\u00F9ng',
+            expanded: expanded,
             selected: section == AdminSection.users,
-            onTap: () => context.read<AdminDashboardCubit>().selectSection(
-              AdminSection.users,
-            ),
+            onTap: () => selectSection(AdminSection.users),
           ),
           _SectionButton(
             icon: Icons.article_outlined,
-            label: 'Bài viết',
+            label: 'B\u00E0i vi\u1EBFt',
+            expanded: expanded,
             selected: section == AdminSection.posts,
-            onTap: () => context.read<AdminDashboardCubit>().selectSection(
-              AdminSection.posts,
-            ),
+            onTap: () => selectSection(AdminSection.posts),
           ),
           _SectionButton(
             icon: Icons.flag_outlined,
-            label: 'Báo cáo',
+            label: 'B\u00E1o c\u00E1o',
+            expanded: expanded,
             selected: section == AdminSection.reports,
-            onTap: () => context.read<AdminDashboardCubit>().selectSection(
-              AdminSection.reports,
-            ),
+            onTap: () => selectSection(AdminSection.reports),
           ),
           const Spacer(),
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(14),
-            decoration: BoxDecoration(
-              color: const Color(0xFFF7F5EF),
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: const Color(0xFFE6E0D5)),
-            ),
-            child: Row(
-              children: [
-                CircleAvatar(
-                  radius: 17,
-                  backgroundColor: const Color(0xFF17211D),
-                  child: Text(
-                    session.initial,
-                    style: const TextStyle(color: Colors.white),
+          expanded
+              ? Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF7F5EF),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: const Color(0xFFE6E0D5)),
+                  ),
+                  child: Row(
+                    children: [
+                      CircleAvatar(
+                        radius: 17,
+                        backgroundColor: const Color(0xFF17211D),
+                        child: Text(
+                          session.initial,
+                          style: const TextStyle(color: Colors.white),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          session.username,
+                          style: textTheme.labelLarge,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      IconButton(
+                        tooltip: '\u0110\u0103ng xu\u1EA5t',
+                        onPressed: () =>
+                            context.read<AdminAuthCubit>().logout(),
+                        icon: const Icon(Icons.logout, size: 20),
+                      ),
+                    ],
+                  ),
+                )
+              : Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF7F5EF),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: const Color(0xFFE6E0D5)),
+                  ),
+                  child: Column(
+                    children: [
+                      Tooltip(
+                        message: session.username,
+                        child: CircleAvatar(
+                          radius: 17,
+                          backgroundColor: const Color(0xFF17211D),
+                          child: Text(
+                            session.initial,
+                            style: const TextStyle(color: Colors.white),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      IconButton(
+                        tooltip: '\u0110\u0103ng xu\u1EA5t',
+                        onPressed: () =>
+                            context.read<AdminAuthCubit>().logout(),
+                        icon: const Icon(Icons.logout, size: 20),
+                      ),
+                    ],
                   ),
                 ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Text(
-                    session.username,
-                    style: textTheme.labelLarge,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-                IconButton(
-                  tooltip: 'Đăng xuất',
-                  onPressed: () => context.read<AdminAuthCubit>().logout(),
-                  icon: const Icon(Icons.logout, size: 20),
-                ),
-              ],
-            ),
-          ),
         ],
       ),
+    );
+  }
+}
+
+class _BrandMark extends StatelessWidget {
+  const _BrandMark();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 42,
+      height: 42,
+      decoration: BoxDecoration(
+        color: const Color(0xFF0F766E),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: const Icon(Icons.shield, color: Colors.white),
     );
   }
 }
@@ -123,12 +203,14 @@ class AdminSidebar extends StatelessWidget {
 class _SectionButton extends StatelessWidget {
   final IconData icon;
   final String label;
+  final bool expanded;
   final bool selected;
   final VoidCallback onTap;
 
   const _SectionButton({
     required this.icon,
     required this.label,
+    required this.expanded,
     required this.selected,
     required this.onTap,
   });
@@ -138,35 +220,42 @@ class _SectionButton extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
     final foreground = selected ? colorScheme.primary : const Color(0xFF56645E);
 
-    return Padding(
+    final button = Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: InkWell(
         borderRadius: BorderRadius.circular(8),
         onTap: onTap,
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 160),
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+          width: double.infinity,
+          padding: expanded
+              ? const EdgeInsets.symmetric(horizontal: 12, vertical: 12)
+              : const EdgeInsets.symmetric(vertical: 12),
           decoration: BoxDecoration(
             color: selected ? colorScheme.primary.withValues(alpha: .1) : null,
             borderRadius: BorderRadius.circular(8),
           ),
-          child: Row(
-            children: [
-              Icon(icon, size: 20, color: foreground),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  label,
-                  style: Theme.of(
-                    context,
-                  ).textTheme.labelLarge?.copyWith(color: foreground),
-                ),
-              ),
-            ],
-          ),
+          child: expanded
+              ? Row(
+                  children: [
+                    Icon(icon, size: 20, color: foreground),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        label,
+                        style: Theme.of(
+                          context,
+                        ).textTheme.labelLarge?.copyWith(color: foreground),
+                      ),
+                    ),
+                  ],
+                )
+              : Center(child: Icon(icon, size: 20, color: foreground)),
         ),
       ),
     );
+
+    return expanded ? button : Tooltip(message: label, child: button);
   }
 }
 

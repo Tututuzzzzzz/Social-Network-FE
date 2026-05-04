@@ -1,7 +1,7 @@
 import '../../domain/entities/admin_dashboard_snapshot.dart';
-import '../../domain/entities/admin_post.dart';
-import '../../domain/entities/admin_report.dart';
-import '../../domain/entities/admin_user.dart';
+import '../../../post/domain/entities/admin_post.dart';
+import '../../../report/domain/entities/admin_report.dart';
+import '../../../user/domain/entities/admin_user.dart';
 import 'admin_dashboard_metrics_model.dart';
 
 class AdminDashboardSnapshotModel extends AdminDashboardSnapshot {

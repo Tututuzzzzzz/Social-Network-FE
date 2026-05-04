@@ -43,18 +43,24 @@ class AdminAuthRemoteDataSourceImpl implements AdminAuthRemoteDataSource {
       throw const ApiException('Backend khong tra access token');
     }
 
-    await _sessionStorage.saveAccessToken(session.accessToken);
+    await _sessionStorage.saveTokens(
+      accessToken: session.accessToken,
+      refreshToken: session.refreshToken,
+    );
     return session;
   }
 
   @override
   Future<AdminSessionModel?> restoreSession() async {
-    final token = await _sessionStorage.readAccessToken();
-    if (token == null) {
+    final tokens = await _sessionStorage.readTokens();
+    if (tokens == null) {
       return null;
     }
 
-    return AdminSessionModel.fromToken(token);
+    return AdminSessionModel.fromToken(
+      tokens.accessToken,
+      refreshToken: tokens.refreshToken,
+    );
   }
 
   @override
