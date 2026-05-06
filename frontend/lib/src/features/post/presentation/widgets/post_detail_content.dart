@@ -181,7 +181,7 @@ class _PostStatsRow extends StatelessWidget {
             ],
           ),
         ),
-        const Icon(Icons.share_outlined, size: 20),
+        const Icon(Icons.send_rounded, size: 20),
         const Spacer(),
         const Icon(Icons.bookmark_border, size: 20),
       ],

@@ -105,17 +105,30 @@ class ApiInterceptor extends Interceptor {
     final dio = Dio(BaseOptions(baseUrl: ApiConstants.baseUrl));
     final response = await dio.post(
       ApiConstants.refresh,
-      data: {'refreshToken': refreshToken},
+      data: {'refreshToken': refreshToken.trim()},
     );
 
-    final data = response.data;
-    if (data is! Map) {
+    final payload = response.data;
+    if (payload is! Map) {
       return '';
     }
 
-    final map = Map<String, dynamic>.from(data);
-    final accessToken = map['accessToken']?.toString() ?? '';
-    final nextRefreshToken = map['refreshToken']?.toString() ?? '';
+    final map = Map<String, dynamic>.from(payload);
+    final data = map['data'];
+    final tokenMap = data is Map<String, dynamic>
+        ? data
+        : data is Map
+        ? Map<String, dynamic>.from(data)
+        : map;
+
+    final accessToken =
+        tokenMap['accessToken']?.toString() ??
+        tokenMap['access_token']?.toString() ??
+        '';
+    final nextRefreshToken =
+        tokenMap['refreshToken']?.toString() ??
+        tokenMap['refresh_token']?.toString() ??
+        '';
 
     if (accessToken.isEmpty) {
       return '';

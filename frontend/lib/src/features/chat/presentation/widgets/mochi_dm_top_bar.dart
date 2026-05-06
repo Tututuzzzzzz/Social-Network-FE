@@ -18,35 +18,36 @@ class MochiDmTopBar extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(8, 8, 8, 6),
       child: SizedBox(
         height: 44,
-        child: Stack(
-          alignment: Alignment.center,
+        child: Row(
           children: [
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  username,
-                  style: const TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.w600,
-                    color: MochiDmStyles.primaryText,
-                  ),
+            const SizedBox(width: 44),
+            Expanded(
+              child: Center(
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      username,
+                      style: const TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.w600,
+                        color: MochiDmStyles.primaryText,
+                      ),
+                    ),
+                    const SizedBox(width: 2),
+                    const Icon(
+                      Icons.keyboard_arrow_down_rounded,
+                      size: 20,
+                      color: MochiDmStyles.primaryText,
+                    ),
+                  ],
                 ),
-                const SizedBox(width: 2),
-                const Icon(
-                  Icons.keyboard_arrow_down_rounded,
-                  size: 20,
-                  color: MochiDmStyles.primaryText,
-                ),
-              ],
-            ),
-            Positioned(
-              right: 0,
-              child: IconButton(
-                onPressed: onAddPressed,
-                icon: const Icon(Icons.add, size: 24),
-                color: MochiDmStyles.primaryText,
               ),
+            ),
+            IconButton(
+              onPressed: onAddPressed,
+              icon: const Icon(Icons.add, size: 24),
+              color: MochiDmStyles.primaryText,
             ),
           ],
         ),

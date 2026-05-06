@@ -19,7 +19,7 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     try {
       final result = await _apiHelper.execute(
         method: Method.get,
-        url: ApiConstants.conversations,  
+        url: ApiConstants.conversations,
       );
       return _mapConversationsToChatItems(result);
     } catch (e, st) {

@@ -105,8 +105,21 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         data: {'refreshToken': refreshToken.trim()},
       );
 
-      final accessToken = result['accessToken']?.toString() ?? '';
-      final nextRefreshToken = result['refreshToken']?.toString() ?? '';
+      final payload = result['data'];
+      final tokenMap = payload is Map<String, dynamic>
+          ? payload
+          : payload is Map
+          ? Map<String, dynamic>.from(payload)
+          : result;
+
+      final accessToken =
+          tokenMap['accessToken']?.toString() ??
+          tokenMap['access_token']?.toString() ??
+          '';
+      final nextRefreshToken =
+          tokenMap['refreshToken']?.toString() ??
+          tokenMap['refresh_token']?.toString() ??
+          '';
 
       if (accessToken.isEmpty) {
         throw AuthException();

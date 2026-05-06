@@ -1,6 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../configs/injector/injector_conf.dart';
+import '../../../../core/cache/hive_local_storage.dart';
 import '../../../../core/usecases/usecase.dart';
 import '../../../../core/utils/failure_converter.dart';
 import '../../../friend/domain/usecases/accept_friend_request.dart';
@@ -13,6 +14,10 @@ import 'notification_event.dart';
 import 'notification_state.dart';
 
 class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
+  static const String _handledFriendRequestIdsKey =
+      'handled_friend_request_ids';
+  static const String _handledFriendRequestIdsBox = 'cache';
+
   final GetNotificationsUseCase _getNotificationsUseCase;
   final MarkNotificationAsReadUseCase _markNotificationAsReadUseCase;
   final MarkAllNotificationsAsReadUseCase _markAllNotificationsAsReadUseCase;
@@ -26,8 +31,12 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
     on<NotificationLoadMoreRequested>(_onLoadMoreRequested);
     on<NotificationMarkAsReadRequested>(_onMarkAsReadRequested);
     on<NotificationMarkAllAsReadRequested>(_onMarkAllAsReadRequested);
-    on<NotificationAcceptFriendRequestRequested>(_onAcceptFriendRequestRequested);
-    on<NotificationRejectFriendRequestRequested>(_onRejectFriendRequestRequested);
+    on<NotificationAcceptFriendRequestRequested>(
+      _onAcceptFriendRequestRequested,
+    );
+    on<NotificationRejectFriendRequestRequested>(
+      _onRejectFriendRequestRequested,
+    );
   }
 
   List<NotificationEntity> _filterHandledFriendRequests(
@@ -39,27 +48,79 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
     }
 
     return items.where((item) {
-      final entityId = item.entityId;
-      if (entityId == null || entityId.isEmpty) {
-        return true;
-      }
-
       if (item.type != 'FRIEND_REQUEST') {
         return true;
       }
 
-      return !handledRequestIds.contains(entityId);
+      final entityId = item.entityId?.trim() ?? '';
+      final notificationId = item.id.trim();
+      final isHandledByEntity =
+          entityId.isNotEmpty && handledRequestIds.contains(entityId);
+      final isHandledByNotification =
+          notificationId.isNotEmpty &&
+          handledRequestIds.contains(notificationId);
+
+      return !(isHandledByEntity || isHandledByNotification);
     }).toList();
+  }
+
+  bool _matchesFriendRequestNotification(
+    NotificationEntity item,
+    String requestId,
+    String notificationId,
+  ) {
+    if (item.type != 'FRIEND_REQUEST') {
+      return false;
+    }
+
+    final entityId = item.entityId?.trim() ?? '';
+    return item.id == notificationId || entityId == requestId;
+  }
+
+  Future<List<String>> _readHandledFriendRequestIds() async {
+    if (state.handledFriendRequestIds.isNotEmpty) {
+      return state.handledFriendRequestIds;
+    }
+
+    final storage = getIt<HiveLocalStorage>();
+    final raw = await storage.load(
+      key: _handledFriendRequestIdsKey,
+      boxName: _handledFriendRequestIdsBox,
+    );
+
+    if (raw is! List) {
+      return const [];
+    }
+
+    return raw
+        .map((id) => id?.toString().trim() ?? '')
+        .where((id) => id.isNotEmpty)
+        .toList();
+  }
+
+  Future<void> _persistHandledFriendRequestIds(Set<String> ids) async {
+    final storage = getIt<HiveLocalStorage>();
+    await storage.save(
+      key: _handledFriendRequestIdsKey,
+      boxName: _handledFriendRequestIdsBox,
+      value: ids.toList(),
+    );
   }
 
   Future<void> _onLoadRequested(
     NotificationLoadRequested event,
     Emitter<NotificationState> emit,
   ) async {
+    final handledIds = await _readHandledFriendRequestIds();
+    final effectiveHandledIds = handledIds.isNotEmpty
+        ? handledIds
+        : state.handledFriendRequestIds;
+
     emit(
       state.copyWith(
         isLoading: true,
         unreadOnly: event.unreadOnly,
+        handledFriendRequestIds: effectiveHandledIds,
         clearError: true,
       ),
     );
@@ -80,7 +141,7 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
       (data) {
         final filteredItems = _filterHandledFriendRequests(
           data.items,
-          state.handledFriendRequestIds,
+          effectiveHandledIds,
         );
         emit(
           state.copyWith(
@@ -88,6 +149,7 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
             page: data.page,
             hasMore: data.hasMore,
             unreadCount: data.unreadCount,
+            handledFriendRequestIds: effectiveHandledIds,
             isLoading: false,
             clearError: true,
           ),
@@ -103,6 +165,11 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
     if (state.isLoading || state.isLoadingMore || !state.hasMore) {
       return;
     }
+
+    final handledIds = await _readHandledFriendRequestIds();
+    final effectiveHandledIds = handledIds.isNotEmpty
+        ? handledIds
+        : state.handledFriendRequestIds;
 
     emit(state.copyWith(isLoadingMore: true, clearError: true));
 
@@ -127,7 +194,7 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
       (data) {
         final incoming = _filterHandledFriendRequests(
           data.items,
-          state.handledFriendRequestIds,
+          effectiveHandledIds,
         );
 
         final merged = List<NotificationEntity>.from(state.items)
@@ -139,6 +206,7 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
             page: data.page,
             hasMore: data.hasMore,
             unreadCount: data.unreadCount,
+            handledFriendRequestIds: effectiveHandledIds,
             isLoadingMore: false,
             clearError: true,
           ),
@@ -248,15 +316,36 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
       final useCase = getIt<AcceptFriendRequest>();
       await useCase(event.requestId);
 
+      Set<String>? handledIds;
       if (!isClosed) {
-        final handledIds = <String>{...state.handledFriendRequestIds}
-          ..add(event.requestId);
+        handledIds = <String>{...state.handledFriendRequestIds};
+        if (event.requestId.trim().isNotEmpty) {
+          handledIds.add(event.requestId);
+        }
+        if (event.notificationId.trim().isNotEmpty) {
+          handledIds.add(event.notificationId);
+        }
+
         final removedUnreadCount = state.items
-            .where((item) => item.entityId == event.requestId && !item.isRead)
+            .where(
+              (item) =>
+                  _matchesFriendRequestNotification(
+                    item,
+                    event.requestId,
+                    event.notificationId,
+                  ) &&
+                  !item.isRead,
+            )
             .length;
         final nextUnreadCount = state.unreadCount - removedUnreadCount;
         final updatedItems = state.items
-            .where((item) => item.entityId != event.requestId)
+            .where(
+              (item) => !_matchesFriendRequestNotification(
+                item,
+                event.requestId,
+                event.notificationId,
+              ),
+            )
             .toList();
 
         emit(
@@ -269,14 +358,13 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
           ),
         );
       }
+
+      if (handledIds != null) {
+        await _persistHandledFriendRequestIds(handledIds);
+      }
     } catch (e) {
       if (!isClosed) {
-        emit(
-          state.copyWith(
-            isSubmitting: false,
-            errorMessage: e.toString(),
-          ),
-        );
+        emit(state.copyWith(isSubmitting: false, errorMessage: e.toString()));
       }
     }
   }
@@ -291,15 +379,36 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
       final useCase = getIt<RejectFriendRequest>();
       await useCase(event.requestId);
 
+      Set<String>? handledIds;
       if (!isClosed) {
-        final handledIds = <String>{...state.handledFriendRequestIds}
-          ..add(event.requestId);
+        handledIds = <String>{...state.handledFriendRequestIds};
+        if (event.requestId.trim().isNotEmpty) {
+          handledIds.add(event.requestId);
+        }
+        if (event.notificationId.trim().isNotEmpty) {
+          handledIds.add(event.notificationId);
+        }
+
         final removedUnreadCount = state.items
-            .where((item) => item.entityId == event.requestId && !item.isRead)
+            .where(
+              (item) =>
+                  _matchesFriendRequestNotification(
+                    item,
+                    event.requestId,
+                    event.notificationId,
+                  ) &&
+                  !item.isRead,
+            )
             .length;
         final nextUnreadCount = state.unreadCount - removedUnreadCount;
         final updatedItems = state.items
-            .where((item) => item.entityId != event.requestId)
+            .where(
+              (item) => !_matchesFriendRequestNotification(
+                item,
+                event.requestId,
+                event.notificationId,
+              ),
+            )
             .toList();
 
         emit(
@@ -312,14 +421,13 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
           ),
         );
       }
+
+      if (handledIds != null) {
+        await _persistHandledFriendRequestIds(handledIds);
+      }
     } catch (e) {
       if (!isClosed) {
-        emit(
-          state.copyWith(
-            isSubmitting: false,
-            errorMessage: e.toString(),
-          ),
-        );
+        emit(state.copyWith(isSubmitting: false, errorMessage: e.toString()));
       }
     }
   }
