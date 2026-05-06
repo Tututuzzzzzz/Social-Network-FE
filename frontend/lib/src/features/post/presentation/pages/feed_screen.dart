@@ -428,7 +428,7 @@ class _FeedScreenState extends State<FeedScreen> {
                           onSave: _showFeatureSoon,
                           onMore: () => _showPostOptionsSheet(post),
                           followingLabel: isAlreadyFriend
-                              ? "Friends"
+                              ? "Bạn bè"
                               : hasSentRequest
                               ? "Following"
                               : "Follow",
