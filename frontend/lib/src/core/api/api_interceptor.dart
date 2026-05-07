@@ -1,7 +1,9 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 
+import '../../configs/injector/injector_conf.dart';
 import '../cache/secure_local_storage.dart';
+import '../realtime/realtime_socket_service.dart';
 import '../utils/logger.dart';
 import 'api_constants.dart';
 
@@ -146,6 +148,9 @@ class ApiInterceptor extends Interceptor {
   }
 
   Future<void> _clearSession() async {
+    // Disconnect socket trước khi xóa credentials
+    getIt<RealtimeSocketService>().disconnect();
+
     await _secureLocalStorage.delete(key: 'access_token');
     await _secureLocalStorage.delete(key: 'refresh_token');
     await _secureLocalStorage.delete(key: 'user_id');

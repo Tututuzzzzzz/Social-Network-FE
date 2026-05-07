@@ -1,8 +1,8 @@
 import 'package:equatable/equatable.dart';
+import '../../../post/domain/entities/admin_post.dart';
+import '../../../report/domain/entities/admin_report.dart';
+import '../../../user/domain/entities/admin_user.dart';
 import 'admin_dashboard_metrics.dart';
-import 'admin_post.dart';
-import 'admin_report.dart';
-import 'admin_user.dart';
 
 class AdminDashboardSnapshot extends Equatable {
   final AdminDashboardMetrics metrics;

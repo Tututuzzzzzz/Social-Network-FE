@@ -1,6 +1,8 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../../configs/injector/injector_conf.dart';
+import '../../../../../core/realtime/realtime_socket_service.dart';
 import '../../../../../core/usecases/usecase.dart';
 import '../../../../../core/utils/failure_converter.dart';
 import '../../../../../core/utils/logger.dart';
@@ -50,6 +52,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
   Future _logout(AuthLogoutEvent event, Emitter emit) async {
     emit(AuthLogoutLoadingState());
+
+    // Disconnect socket trước khi xóa token
+    getIt<RealtimeSocketService>().disconnect();
 
     final result = await _logoutUseCase.call(NoParams());
 

@@ -69,6 +69,8 @@ class _MessageChatRoomPageState extends State<MessageChatRoomPage> {
   }
 
   Future<void> _setupRealtime() async {
+    // ensureConnected() đã được gọi tại AppShellPage.
+    // Chat room chỉ cần join conversation room + listen stream.
     await _realtimeSocketService.ensureConnected();
 
     _realtimeSocketService.joinConversation(widget.thread.id);

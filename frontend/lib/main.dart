@@ -29,3 +29,4 @@ Future<void> main() async {
   await _applyRememberMePolicy();
   runApp(App());
 }
+

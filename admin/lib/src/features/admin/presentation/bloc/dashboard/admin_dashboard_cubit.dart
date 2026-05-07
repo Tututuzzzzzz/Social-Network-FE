@@ -1,8 +1,8 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../domain/usecases/delete_admin_post_usecase.dart';
+import '../../../../post/domain/usecases/delete_admin_post_usecase.dart';
+import '../../../../report/domain/usecases/resolve_admin_report_usecase.dart';
 import '../../../domain/usecases/get_admin_dashboard_usecase.dart';
-import '../../../domain/usecases/resolve_admin_report_usecase.dart';
 import 'admin_dashboard_state.dart';
 
 class AdminDashboardCubit extends Cubit<AdminDashboardState> {
