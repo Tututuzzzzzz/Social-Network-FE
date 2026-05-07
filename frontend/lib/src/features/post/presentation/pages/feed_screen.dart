@@ -1,24 +1,18 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../configs/injector/injector_conf.dart';
 import '../../../../core/l10n/l10n.dart';
 import '../../../../core/cache/secure_local_storage.dart';
 import '../../../friend/data/repositories/friend_repository_impl.dart';
 import '../../../friend/domain/usecases/send_friend_request.dart';
-import '../../../notifications/presentation/bloc/notification_bloc.dart';
-import '../../../notifications/presentation/bloc/notification_state.dart';
 import '../../../../routes/app_route_path.dart';
-import '../../../../widgets/app_shell_bottom_nav_bar.dart';
 import '../../domain/entities/post_entity.dart';
 import '../../domain/usecases/usecase_params.dart';
 import '../bloc/post/post_bloc.dart';
-import '../widgets/feed_story_item.dart';
 import '../widgets/feed_widgets.dart';
 import '../widgets/post_options_sheet.dart';
-import 'create_post_screen.dart';
 import 'post_detail_screen.dart';
 
 class FeedScreen extends StatefulWidget {
@@ -33,7 +27,6 @@ class _FeedScreenState extends State<FeedScreen> {
 
   List<PostEntity> _posts = const [];
   final Map<String, int> _commentCountOverrides = <String, int>{};
-  int _currentNavIndex = 0;
   String _currentUserId = '';
   final Set<String> _friendIds = <String>{};
   final Set<String> _sendingFriendRequestAuthorIds = <String>{};
@@ -108,17 +101,12 @@ class _FeedScreenState extends State<FeedScreen> {
     );
   }
 
-  Future<void> _openCreatePostScreen() async {
-    final postBloc = context.read<PostBloc>();
+  void _openSearchScreen() {
+    context.go(AppRoutes.homeSearch.path);
+  }
 
-    await Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => BlocProvider.value(
-          value: postBloc,
-          child: const CreatePostScreen(),
-        ),
-      ),
-    );
+  void _openChatScreen() {
+    context.go(AppRoutes.chat.path);
   }
 
   void _showFeatureSoon() {
@@ -211,27 +199,6 @@ class _FeedScreenState extends State<FeedScreen> {
     }
   }
 
-  void _onBottomNavTap(int index) {
-    if (index == _currentNavIndex) return;
-
-    setState(() => _currentNavIndex = index);
-
-    switch (index) {
-      case 0:
-        context.go(AppRoutes.home.path);
-        break;
-      case 1:
-        context.go(AppRoutes.homeSearch.path);
-        break;
-      case 2:
-        context.go(AppRoutes.chat.path);
-        break;
-      case 3:
-        context.go(AppRoutes.profile.path);
-        break;
-    }
-  }
-
   @override
   void dispose() {
     _scrollController.dispose();
@@ -269,89 +236,61 @@ class _FeedScreenState extends State<FeedScreen> {
           backgroundColor: const Color(0xFFF3F3F3),
           resizeToAvoidBottomInset: false,
           appBar: AppBar(
-            backgroundColor: Colors.white,
+            systemOverlayStyle: SystemUiOverlayStyle.light,
+            backgroundColor: const Color(0xFF2FC48F),
             elevation: 0,
-            surfaceTintColor: Colors.white,
-            leading: IconButton(
-              icon: SvgPicture.string(
-                '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-square-plus-icon lucide-square-plus"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M8 12h8"/><path d="M12 8v8"/></svg>',
-                width: 22,
-                height: 22,
-                colorFilter: const ColorFilter.mode(Colors.black, BlendMode.srcIn),
-              ),
-              onPressed: _openCreatePostScreen,
-            ),
-            title: Image.asset(
-              'assets/images/logo.jpg',
-              height: 64,
-              fit: BoxFit.contain,
-              filterQuality: FilterQuality.medium,
-              errorBuilder: (context, error, stackTrace) {
-                return Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: const [
-                    Text(
+            shadowColor: Colors.transparent,
+            surfaceTintColor: const Color(0xFF2FC48F),
+            toolbarHeight: 72,
+            leadingWidth: 168,
+            automaticallyImplyLeading: false,
+            titleSpacing: 0,
+            leading: Padding(
+              padding: const EdgeInsets.only(left: 10),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Image.asset(
+                  'assets/images/logo.jpg',
+                  height: 50,
+                  fit: BoxFit.contain,
+                  filterQuality: FilterQuality.medium,
+                  errorBuilder: (context, error, stackTrace) {
+                    return const Text(
                       'Mochi',
                       style: TextStyle(
                         color: Colors.black,
-                        fontSize: 36,
+                        fontSize: 32,
                         fontStyle: FontStyle.italic,
                         fontWeight: FontWeight.w800,
                         letterSpacing: -1,
                       ),
-                    ),
-                    SizedBox(width: 2),
-                    Icon(
-                      Icons.keyboard_arrow_down,
-                      size: 20,
-                      color: Colors.black,
-                    ),
-                  ],
-                );
-              },
+                    );
+                  },
+                ),
+              ),
             ),
-            centerTitle: true,
             actions: [
-              BlocBuilder<NotificationBloc, NotificationState>(
-                builder: (context, notificationState) {
-                  final hasUnreadNotifications =
-                      notificationState.unreadCount > 0;
-
-                  return Stack(
-                    clipBehavior: Clip.none,
-                    children: [
-                      IconButton(
-                        onPressed: () =>
-                            context.push(AppRoutes.notifications.path),
-                        icon: SvgPicture.string(
-                          '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-bell-icon lucide-bell"><path d="M10.268 21a2 2 0 0 0 3.464 0"/><path d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326"/></svg>',
-                          width: 22,
-                          height: 22,
-                          colorFilter: const ColorFilter.mode(Colors.black, BlendMode.srcIn),
-                        ),
-                      ),
-                      if (hasUnreadNotifications)
-                        Positioned(
-                          top: 8,
-                          right: 8,
-                          child: Container(
-                            width: 10,
-                            height: 10,
-                            decoration: const BoxDecoration(
-                              color: Colors.red,
-                              shape: BoxShape.circle,
-                            ),
-                          ),
-                        ),
-                    ],
-                  );
-                },
+              IconButton(
+                onPressed: _openSearchScreen,
+                icon: const Icon(
+                  Icons.search_rounded,
+                  color: Colors.black,
+                  size: 29,
+                ),
+              ),
+              const SizedBox(width: 4),
+              Padding(
+                padding: const EdgeInsets.only(right: 10),
+                child: IconButton(
+                  onPressed: _openChatScreen,
+                  icon: const Icon(
+                    Icons.wechat_outlined,
+                    color: Colors.black,
+                    size: 26,
+                  ),
+                ),
               ),
             ],
-            bottom: PreferredSize(
-              preferredSize: const Size.fromHeight(0.8),
-              child: Container(height: 0.8, color: Colors.grey.shade200),
-            ),
           ),
           body: MediaQuery.removeViewInsets(
             context: context,
@@ -371,13 +310,9 @@ class _FeedScreenState extends State<FeedScreen> {
                       controller: _scrollController,
                       physics: const AlwaysScrollableScrollPhysics(),
                       padding: const EdgeInsets.only(top: 6, bottom: 4),
-                      itemCount: 1 + visiblePosts.length,
+                      itemCount: visiblePosts.length,
                       itemBuilder: (context, index) {
-                        if (index == 0) {
-                          return _buildStoriesStrip(visiblePosts);
-                        }
-
-                        final post = visiblePosts[index - 1];
+                        final post = visiblePosts[index];
                         final isSelfPost =
                             _currentUserId.isNotEmpty &&
                             post.authorId == _currentUserId;
@@ -438,72 +373,8 @@ class _FeedScreenState extends State<FeedScreen> {
                     ),
                   ),
           ),
-          bottomNavigationBar: AppShellBottomNavBar(
-            selectedIndex: _currentNavIndex,
-            onTap: _onBottomNavTap,
-          ),
         );
       },
     );
-  }
-
-  Widget _buildStoriesStrip(List<PostEntity> posts) {
-    final stories = _buildStoriesData(posts);
-
-    return Column(
-      children: [
-        Container(
-          color: Colors.white,
-          padding: const EdgeInsets.fromLTRB(8, 8, 8, 7),
-          child: SizedBox(
-            height: 94,
-            child: ListView.separated(
-              scrollDirection: Axis.horizontal,
-              itemCount: stories.length,
-              separatorBuilder: (context, index) => const SizedBox(width: 10),
-              itemBuilder: (context, index) =>
-                  FeedStoryItem(story: stories[index]),
-            ),
-          ),
-        ),
-        const SizedBox(height: 4),
-      ],
-    );
-  }
-
-  List<FeedStoryData> _buildStoriesData(List<PostEntity> posts) {
-    final stories = <FeedStoryData>[
-      const FeedStoryData(
-        label: '',
-        avatarUrl: 'assets/images/logo1.jpg',
-        isAsset: true,
-        showPlusBadge: true,
-      ),
-    ];
-
-    final usedIds = <String>{};
-    for (final post in posts) {
-      if (usedIds.contains(post.authorId)) continue;
-      usedIds.add(post.authorId);
-
-      final username = (post.authorUsername ?? '').trim();
-      final displayLabel = username.isNotEmpty
-          ? username
-          : post.authorId.substring(
-              0,
-              post.authorId.length > 8 ? 8 : post.authorId.length,
-            );
-
-      stories.add(
-        FeedStoryData(
-          label: displayLabel,
-          avatarUrl: (post.authorAvatarUrl ?? '').trim(),
-        ),
-      );
-
-      if (stories.length >= 8) break;
-    }
-
-    return stories;
   }
 }
