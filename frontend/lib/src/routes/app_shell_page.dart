@@ -12,10 +12,10 @@ class AppShellPage extends StatelessWidget {
   int _resolveSelectedTabIndex(BuildContext context) {
     final location = GoRouterState.of(context).uri.path;
 
-    if (location.startsWith(AppRoutes.homeSearch.path)) {
+    if (location.startsWith(AppRoutes.createPost.path)) {
       return 1;
     }
-    if (location.startsWith(AppRoutes.chat.path)) {
+    if (location.startsWith(AppRoutes.notifications.path)) {
       return 2;
     }
     if (location.startsWith(AppRoutes.profile.path)) {
@@ -25,16 +25,22 @@ class AppShellPage extends StatelessWidget {
     return 0; // default home
   }
 
+  bool _shouldShowBottomNav(BuildContext context) {
+    final location = GoRouterState.of(context).uri.path;
+    return !location.startsWith(AppRoutes.homeSearch.path) &&
+        !location.startsWith(AppRoutes.chat.path);
+  }
+
   void _onDestinationSelected(BuildContext context, int index) {
     switch (index) {
       case 0:
         context.go(AppRoutes.home.path);
         break;
       case 1:
-        context.go(AppRoutes.homeSearch.path);
+        context.go(AppRoutes.createPost.path);
         break;
       case 2:
-        context.go(AppRoutes.chat.path);
+        context.go(AppRoutes.notifications.path);
         break;
       case 3:
         context.go(AppRoutes.profile.path);
@@ -44,22 +50,18 @@ class AppShellPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (!_shouldShowBottomNav(context)) {
+      return body;
+    }
+
     final selectedIndex = _resolveSelectedTabIndex(context);
 
-    return Material(
-      color: Colors.white,
-      child: Stack(
-        clipBehavior: Clip.none,
-        children: [
-          Positioned.fill(child: body),
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: AppShellBottomNavBar(
-              selectedIndex: selectedIndex,
-              onTap: (index) => _onDestinationSelected(context, index),
-            ),
-          ),
-        ],
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: body,
+      bottomNavigationBar: AppShellBottomNavBar(
+        selectedIndex: selectedIndex,
+        onTap: (index) => _onDestinationSelected(context, index),
       ),
     );
   }

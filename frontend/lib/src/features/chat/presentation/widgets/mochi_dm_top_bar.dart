@@ -4,11 +4,13 @@ import 'mochi_dm_styles.dart';
 
 class MochiDmTopBar extends StatelessWidget {
   final String username;
+  final VoidCallback onBackPressed;
   final VoidCallback onAddPressed;
 
   const MochiDmTopBar({
     super.key,
     required this.username,
+    required this.onBackPressed,
     required this.onAddPressed,
   });
 
@@ -20,7 +22,18 @@ class MochiDmTopBar extends StatelessWidget {
         height: 44,
         child: Row(
           children: [
-            const SizedBox(width: 44),
+            SizedBox(
+              width: 44,
+              height: 44,
+              child: IconButton(
+                onPressed: onBackPressed,
+                icon: const Icon(Icons.arrow_back_rounded, size: 24),
+                color: MochiDmStyles.primaryText,
+                tooltip: 'Quay lại',
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
+              ),
+            ),
             Expanded(
               child: Center(
                 child: Row(
@@ -44,10 +57,17 @@ class MochiDmTopBar extends StatelessWidget {
                 ),
               ),
             ),
-            IconButton(
-              onPressed: onAddPressed,
-              icon: const Icon(Icons.add, size: 24),
-              color: MochiDmStyles.primaryText,
+            SizedBox(
+              width: 44,
+              height: 44,
+              child: IconButton(
+                onPressed: onAddPressed,
+                icon: const Icon(Icons.add, size: 24),
+                color: MochiDmStyles.primaryText,
+                tooltip: 'Tạo đoạn chat mới',
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
+              ),
             ),
           ],
         ),

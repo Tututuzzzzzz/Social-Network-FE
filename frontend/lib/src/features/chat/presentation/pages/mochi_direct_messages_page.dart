@@ -124,6 +124,13 @@ class _MochiDirectMessagesPageState extends State<MochiDirectMessagesPage> {
     await _createConversationAndOpen(selectedFriend, blocContext);
   }
 
+  Future<void> _handleBackPressed() async {
+    final didPop = await Navigator.of(context).maybePop();
+    if (!didPop && mounted) {
+      context.go(AppRoutes.home.path);
+    }
+  }
+
   List<ChatEntity> _visibleThreads(List<ChatEntity> threads) {
     final keyword = _query.toLowerCase();
     if (keyword.isEmpty) {
@@ -342,6 +349,7 @@ class _MochiDirectMessagesPageState extends State<MochiDirectMessagesPage> {
                 children: [
                   MochiDmTopBar(
                     username: _username,
+                    onBackPressed: _handleBackPressed,
                     onAddPressed: () => _openFriendsPicker(context),
                   ),
                   MochiDmSearchInput(

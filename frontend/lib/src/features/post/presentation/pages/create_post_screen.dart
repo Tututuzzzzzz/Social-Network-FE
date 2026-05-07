@@ -8,7 +8,6 @@ import '../../../../configs/injector/injector_conf.dart';
 import '../../../../core/l10n/l10n.dart';
 import '../../../../core/utils/failure_converter.dart';
 import '../../../../routes/app_route_path.dart';
-import '../../../../widgets/app_shell_bottom_nav_bar.dart';
 import '../../domain/entities/post_media_entity.dart';
 import '../../domain/entities/post_media_upload_file.dart';
 import '../../domain/usecases/usecase_params.dart';
@@ -29,7 +28,6 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
 
   List<XFile> _selectedImages = const [];
   int _currentImageIndex = 0;
-  int _currentNavIndex = 0;
   bool _isPickingImages = false;
   bool _isSubmitting = false;
 
@@ -192,27 +190,6 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
     );
   }
 
-  void _onBottomNavTap(int index) {
-    if (index == _currentNavIndex) return;
-
-    setState(() => _currentNavIndex = index);
-
-    switch (index) {
-      case 0:
-        context.go(AppRoutes.home.path);
-        break;
-      case 1:
-        context.go(AppRoutes.homeSearch.path);
-        break;
-      case 2:
-        context.go(AppRoutes.chat.path);
-        break;
-      case 3:
-        context.go(AppRoutes.profile.path);
-        break;
-    }
-  }
-
   @override
   void dispose() {
     _captionController.dispose();
@@ -236,7 +213,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
           ).showSnackBar(SnackBar(content: Text(state.message)));
         } else if (state is PostLoadedState) {
           setState(() => _isSubmitting = false);
-          Navigator.of(context).pop();
+          context.go(AppRoutes.home.path);
         }
       },
       child: Scaffold(
@@ -247,7 +224,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
           surfaceTintColor: Colors.white,
           leading: IconButton(
             icon: const Icon(Icons.close, color: Colors.black),
-            onPressed: () => Navigator.of(context).pop(),
+            onPressed: () => context.go(AppRoutes.home.path),
           ),
           title: Text(
             l10n.createPostTitle,
@@ -341,10 +318,6 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
               ),
             ),
           ],
-        ),
-        bottomNavigationBar: AppShellBottomNavBar(
-          selectedIndex: _currentNavIndex,
-          onTap: _onBottomNavTap,
         ),
       ),
     );
