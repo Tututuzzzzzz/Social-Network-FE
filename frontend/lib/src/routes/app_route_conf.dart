@@ -113,44 +113,9 @@ class AppRoutesConf {
         ],
       ),
       GoRoute(
-        path: AppRoutes.home.path,
-        name: AppRoutes.home.name,
-        builder: (context, state) => BlocProvider<PostBloc>(
-          create: (_) => getIt<PostBloc>(),
-          child: const FeedScreen(),
-        ),
-      ),
-      GoRoute(
-        path: AppRoutes.homeSearch.path,
-        name: AppRoutes.homeSearch.name,
-        builder: (context, state) => const AppShellPage(body: MochiSearchPage()),
-      ),
-      GoRoute(
-        path: AppRoutes.chat.path,
-        name: AppRoutes.chat.name,
-        builder: (context, state) =>
-            const AppShellPage(body: MochiDirectMessagesPage()),
-      ),
-      GoRoute(
         path: AppRoutes.chatNewConversation.path,
         name: AppRoutes.chatNewConversation.name,
         builder: (context, state) => const MochiNewConversationPage(),
-      ),
-      GoRoute(
-        path: AppRoutes.notifications.path,
-        name: AppRoutes.notifications.name,
-        builder: (context, state) => BlocProvider<NotificationBloc>(
-          create: (_) => getIt<NotificationBloc>(),
-          child: NotificationScreen(),
-        ),
-      ),
-      GoRoute(
-        path: AppRoutes.profile.path,
-        name: AppRoutes.profile.name,
-        builder: (context, state) => BlocProvider<ProfileBloc>(
-          create: (_) => getIt<ProfileBloc>(),
-          child: const AppShellPage(body: MochiProfilePage()),
-        ),
       ),
       GoRoute(
         path: AppRoutes.editProfile.path,
