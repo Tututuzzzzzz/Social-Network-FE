@@ -40,6 +40,8 @@ class _MessageChatRoomPageState extends State<MessageChatRoomPage> {
   bool _hasMoreHistory = true;
   bool _isLoadingOlderHistory = false;
   bool _isBootstrappingHistory = false;
+  bool _hasMarkedRead = false;
+  String? _lastMarkedMessageId;
   double _previousMaxScrollExtentBeforeOlderLoad = 0.0;
 
   @override
@@ -65,6 +67,7 @@ class _MessageChatRoomPageState extends State<MessageChatRoomPage> {
   Future<void> _initializeRoomState() async {
     _currentUserId = await _realtimeSocketService.getCurrentUserId();
     _bootstrapHistory();
+    _requestMarkAllRead();
     await _setupRealtime();
   }
 
@@ -100,6 +103,27 @@ class _MessageChatRoomPageState extends State<MessageChatRoomPage> {
       fallbackAuthor: widget.thread.senderName.trim().isNotEmpty
           ? widget.thread.senderName
           : 'Friend',
+    );
+
+    final senderId = message.senderId.trim();
+    if (_currentUserId.isNotEmpty && senderId != _currentUserId) {
+      _requestMarkAllRead(lastMessageId: message.id);
+    }
+  }
+
+  void _requestMarkAllRead({String? lastMessageId}) {
+    final normalizedLastId = lastMessageId?.trim();
+    if (_hasMarkedRead && normalizedLastId == _lastMarkedMessageId) {
+      return;
+    }
+
+    _hasMarkedRead = true;
+    _lastMarkedMessageId = normalizedLastId;
+    context.read<MessageBloc>().add(
+      MessageMarkAllReadRequested(
+        conversationId: widget.thread.id,
+        lastMessageId: normalizedLastId,
+      ),
     );
   }
 
@@ -391,6 +415,7 @@ class _MessageChatRoomPageState extends State<MessageChatRoomPage> {
       messagePreview: preview,
       timeLabel: 'now',
       fullConversation: fullConversation,
+      unreadCount: 0,
     );
   }
 
@@ -401,6 +426,13 @@ class _MessageChatRoomPageState extends State<MessageChatRoomPage> {
   void _onSendPressed(BuildContext blocContext) {
     final text = _composerController.text.trim();
     if (text.isEmpty) {
+      return;
+    }
+
+    if (widget.thread.isGroup) {
+      blocContext.read<MessageBloc>().add(
+        SendGroupTextEvent(conversationId: widget.thread.id, content: text),
+      );
       return;
     }
 
@@ -528,6 +560,11 @@ class _MessageChatRoomPageState extends State<MessageChatRoomPage> {
                 _hasMoreHistory = state.page.hasMore;
                 _scrollToLatestAfterHydration();
               }
+              _requestMarkAllRead(
+                lastMessageId: state.page.messages.isNotEmpty
+                    ? state.page.messages.last.id
+                    : null,
+              );
             }
 
             if (state is MessageHistoryRemoteHydrated) {
@@ -536,6 +573,11 @@ class _MessageChatRoomPageState extends State<MessageChatRoomPage> {
               _hasMoreHistory = state.page.hasMore;
               _scrollToLatestAfterHydration();
               _requestPersistHistoryCache(limit: state.page.limit);
+              _requestMarkAllRead(
+                lastMessageId: state.page.messages.isNotEmpty
+                    ? state.page.messages.last.id
+                    : null,
+              );
             }
 
             if (state is MessageHistoryOlderLoading) {

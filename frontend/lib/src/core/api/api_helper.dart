@@ -37,7 +37,11 @@ class ApiHelper {
     } on SocketException {
       throw FetchDataException('No Internet connection');
     } on DioException catch (e) {
-      return _returnResponse(e.response!);
+
+      if (e.response != null) {
+        return _returnResponse(e.response!);
+      }
+      rethrow;
     }
   }
 

@@ -32,7 +32,7 @@ class MochiDmSectionHeader extends StatelessWidget {
           TextButton(
             onPressed: canTogglePending ? onTogglePending : null,
             style: TextButton.styleFrom(
-              foregroundColor: MochiDmStyles.actionBlue,
+              foregroundColor: MochiDmStyles.actionGreen,
               padding: EdgeInsets.zero,
               minimumSize: Size.zero,
               tapTargetSize: MaterialTapTargetSize.shrinkWrap,

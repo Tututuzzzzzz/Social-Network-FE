@@ -3,30 +3,38 @@ import 'package:fpdart/fpdart.dart';
 
 import '../../domain/usecases/fetch_conversation_history_usecase.dart';
 import '../../domain/usecases/load_cached_conversation_history_usecase.dart';
+import '../../domain/usecases/mark_all_messages_as_read_usecase.dart';
 import '../../domain/usecases/save_cached_conversation_history_usecase.dart';
 import '../../domain/usecases/send_direct_text_usecase.dart';
+import '../../domain/usecases/send_group_text_usecase.dart';
 import '../../domain/usecases/usecase_params.dart';
 import 'message_event.dart';
 import 'message_state.dart';
 
 class MessageBloc extends Bloc<MessageEvent, MessageState> {
   final SendDirectTextUseCase _sendDirectTextUseCase;
+  final SendGroupTextUseCase _sendGroupTextUseCase;
   final FetchConversationHistoryUseCase _fetchConversationHistoryUseCase;
   final LoadCachedConversationHistoryUseCase
   _loadCachedConversationHistoryUseCase;
   final SaveCachedConversationHistoryUseCase
   _saveCachedConversationHistoryUseCase;
+  final MarkAllMessagesAsReadUseCase _markAllMessagesAsReadUseCase;
 
   MessageBloc(
     this._sendDirectTextUseCase,
+    this._sendGroupTextUseCase,
     this._fetchConversationHistoryUseCase,
     this._loadCachedConversationHistoryUseCase,
     this._saveCachedConversationHistoryUseCase,
+    this._markAllMessagesAsReadUseCase,
   ) : super(MessageInitial()) {
     on<SendDirectTextEvent>(_onSendDirectText);
+    on<SendGroupTextEvent>(_onSendGroupText);
     on<MessageHistoryBootstrapRequested>(_onHistoryBootstrapRequested);
     on<MessageHistoryLoadOlderRequested>(_onHistoryLoadOlderRequested);
     on<MessageHistoryCacheSaveRequested>(_onHistoryCacheSaveRequested);
+    on<MessageMarkAllReadRequested>(_onMarkAllReadRequested);
   }
 
   Future<void> _onSendDirectText(
@@ -42,6 +50,26 @@ class MessageBloc extends Bloc<MessageEvent, MessageState> {
     );
 
     final Either result = await _sendDirectTextUseCase(params);
+
+    result.match(
+      (l) => emit(const MessageError('Failed to send message')),
+      (r) => emit(MessageSent(r)),
+    );
+  }
+
+  Future<void> _onSendGroupText(
+    SendGroupTextEvent event,
+    Emitter<MessageState> emit,
+  ) async {
+    emit(MessageSending());
+
+    final params = SendTextMessageParams(
+      conversationId: event.conversationId,
+      recipientId: '',
+      content: event.content,
+    );
+
+    final Either result = await _sendGroupTextUseCase(params);
 
     result.match(
       (l) => emit(const MessageError('Failed to send message')),
@@ -131,6 +159,18 @@ class MessageBloc extends Bloc<MessageEvent, MessageState> {
       SaveConversationHistoryCacheParams(
         conversationId: event.conversationId,
         page: event.page,
+      ),
+    );
+  }
+
+  Future<void> _onMarkAllReadRequested(
+    MessageMarkAllReadRequested event,
+    Emitter<MessageState> emit,
+  ) async {
+    await _markAllMessagesAsReadUseCase(
+      MarkAllMessagesAsReadParams(
+        conversationId: event.conversationId,
+        lastMessageId: event.lastMessageId,
       ),
     );
   }

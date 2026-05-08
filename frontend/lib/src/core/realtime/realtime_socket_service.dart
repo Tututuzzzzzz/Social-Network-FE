@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:dio/dio.dart';
 import 'package:socket_io_client/socket_io_client.dart' as io;
 
 import '../cache/secure_local_storage.dart';
@@ -33,6 +34,7 @@ class RealtimeSocketService {
 
   io.Socket? _socket;
   bool _coreListenersBound = false;
+  bool _isRefreshing = false;
   String _cachedUserId = '';
 
   // ── Streams cho từng event type ──────────────────────
@@ -206,8 +208,19 @@ class RealtimeSocketService {
       _safeAdd(_connectionStateController, true);
     });
 
-    _socket?.onConnectError((error) {
+    _socket?.onConnectError((error) async {
       logger.e('Socket connect error: $error');
+
+      // Nếu lỗi do token hết hạn → refresh rồi reconnect
+      final errMsg = error?.toString() ?? '';
+      final isTokenExpired =
+          errMsg.contains('het han') ||
+          errMsg.contains('khong hop le') ||
+          errMsg.contains('Access token');
+
+      if (isTokenExpired && !_isRefreshing) {
+        await _refreshAndReconnect();
+      }
     });
 
     _socket?.onError((error) {
@@ -280,6 +293,65 @@ class RealtimeSocketService {
       return map['userId']?.toString() ?? '';
     } catch (_) {
       return '';
+    }
+  }
+
+  // ── Private: token refresh for socket ───────────────
+
+  /// Gọi HTTP refresh-token rồi reconnect socket với access token mới.
+  Future<void> _refreshAndReconnect() async {
+    _isRefreshing = true;
+    try {
+      final refreshToken =
+          await _secureLocalStorage.load(key: 'refresh_token');
+      if (refreshToken.trim().isEmpty) {
+        logger.w('Socket refresh skipped: no refresh token stored');
+        return;
+      }
+
+      final dio = Dio(BaseOptions(baseUrl: EnvConfig.apiBaseUrl));
+      final response = await dio.post(
+        '/auth/refresh-token',
+        data: {'refreshToken': refreshToken.trim()},
+      );
+
+      final body = response.data;
+      if (body is! Map) return;
+
+      final map = Map<String, dynamic>.from(body);
+      final newAccessToken = map['accessToken']?.toString() ?? '';
+      final newRefreshToken = map['refreshToken']?.toString() ?? '';
+
+      if (newAccessToken.isEmpty) {
+        logger.e('Socket refresh: empty access token in response');
+        return;
+      }
+
+      await _secureLocalStorage.save(
+        key: 'access_token',
+        value: newAccessToken,
+      );
+      if (newRefreshToken.isNotEmpty) {
+        await _secureLocalStorage.save(
+          key: 'refresh_token',
+          value: newRefreshToken,
+        );
+      }
+
+      logger.i('Socket token refreshed — reconnecting...');
+
+      // Dispose socket cũ rồi reconnect với token mới
+      _socket?.disconnect();
+      _socket?.dispose();
+      _socket = null;
+      _coreListenersBound = false;
+      _cachedUserId = '';
+
+      await ensureConnected();
+    } catch (e) {
+      logger.e('Socket refresh failed: $e');
+    } finally {
+      _isRefreshing = false;
     }
   }
 }

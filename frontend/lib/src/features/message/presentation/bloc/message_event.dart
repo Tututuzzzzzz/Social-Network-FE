@@ -24,6 +24,19 @@ class SendDirectTextEvent extends MessageEvent {
   List<Object?> get props => [conversationId, recipientId, content];
 }
 
+class SendGroupTextEvent extends MessageEvent {
+  final String conversationId;
+  final String content;
+
+  const SendGroupTextEvent({
+    required this.conversationId,
+    required this.content,
+  });
+
+  @override
+  List<Object?> get props => [conversationId, content];
+}
+
 class MessageHistoryBootstrapRequested extends MessageEvent {
   final String conversationId;
   final int limit;
@@ -63,4 +76,17 @@ class MessageHistoryCacheSaveRequested extends MessageEvent {
 
   @override
   List<Object?> get props => [conversationId, page];
+}
+
+class MessageMarkAllReadRequested extends MessageEvent {
+  final String conversationId;
+  final String? lastMessageId;
+
+  const MessageMarkAllReadRequested({
+    required this.conversationId,
+    this.lastMessageId,
+  });
+
+  @override
+  List<Object?> get props => [conversationId, lastMessageId];
 }

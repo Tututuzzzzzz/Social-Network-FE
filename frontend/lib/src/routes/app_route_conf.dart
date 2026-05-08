@@ -96,6 +96,11 @@ class AppRoutesConf {
             const AppShellPage(body: MochiDirectMessagesPage()),
       ),
       GoRoute(
+        path: AppRoutes.chatNewConversation.path,
+        name: AppRoutes.chatNewConversation.name,
+        builder: (context, state) => const MochiNewConversationPage(),
+      ),
+      GoRoute(
         path: AppRoutes.notifications.path,
         name: AppRoutes.notifications.name,
         builder: (context, state) => BlocProvider<NotificationBloc>(

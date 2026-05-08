@@ -39,7 +39,9 @@ class ApiInterceptor extends Interceptor {
     final statusCode = err.response?.statusCode;
     logger.e(statusCode);
 
-    if (statusCode != 401) {
+    // Backend trả 401 (token thiếu/sai format) HOẶC 403 (token hết hạn)
+    final isTokenError = statusCode == 401 || statusCode == 403;
+    if (!isTokenError) {
       super.onError(err, handler);
       return;
     }
@@ -47,6 +49,8 @@ class ApiInterceptor extends Interceptor {
     final options = err.requestOptions;
     final path = options.path;
     final hasRetried = options.extra[_retryFlagKey] == true;
+
+    // Không retry nếu chính request refresh/login/logout bị lỗi
     final isAuthFlow =
         path.contains(ApiConstants.login) ||
         path.contains(ApiConstants.register) ||

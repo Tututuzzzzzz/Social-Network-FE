@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 
 import '../../domain/entities/chat_entity.dart';
+import '../../../../core/utils/url_normalizer.dart';
 import 'mochi_dm_styles.dart';
 
 class MochiDmConversationItem extends StatelessWidget {
@@ -36,6 +37,8 @@ class MochiDmConversationItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final avatarColor =
         MochiDmStyles.avatarColors[index % MochiDmStyles.avatarColors.length];
+    final normalizedAvatar = item.avatarUrl.normalizeClientUrl();
+    final hasAvatar = normalizedAvatar.isNotEmpty;
 
     return Slidable(
       key: ValueKey(item.id),
@@ -45,7 +48,7 @@ class MochiDmConversationItem extends StatelessWidget {
         children: [
           SlidableAction(
             onPressed: (_) => onPinToggle(),
-            backgroundColor: const Color(0xFF4B8EFF),
+            backgroundColor: MochiDmStyles.primaryGreen,
             foregroundColor: Colors.white,
             icon: item.isPinned ? Icons.push_pin : Icons.push_pin_outlined,
             label: item.isPinned ? 'Bo ghim' : 'Ghim',
@@ -89,14 +92,23 @@ class MochiDmConversationItem extends StatelessWidget {
                     ),
                   ),
                   alignment: Alignment.center,
-                  child: Text(
-                    initial,
-                    style: const TextStyle(
-                      fontSize: 17,
-                      fontWeight: FontWeight.w700,
-                      color: Color(0xFF2A2B2F),
-                    ),
-                  ),
+                  child: hasAvatar
+                      ? ClipOval(
+                          child: Image.network(
+                            normalizedAvatar,
+                            width: 52,
+                            height: 52,
+                            fit: BoxFit.cover,
+                          ),
+                        )
+                      : Text(
+                          initial,
+                          style: const TextStyle(
+                            fontSize: 17,
+                            fontWeight: FontWeight.w700,
+                            color: Color(0xFF2A2B2F),
+                          ),
+                        ),
                 ),
               ),
               const SizedBox(width: 12),
@@ -127,7 +139,7 @@ class MochiDmConversationItem extends StatelessWidget {
                             width: 7,
                             height: 7,
                             decoration: const BoxDecoration(
-                              color: Color(0xFF1EC85D),
+                              color: MochiDmStyles.primaryGreen,
                               shape: BoxShape.circle,
                             ),
                           ),
@@ -137,7 +149,7 @@ class MochiDmConversationItem extends StatelessWidget {
                             child: Icon(
                               Icons.push_pin,
                               size: 14,
-                              color: Color(0xFF4B8EFF),
+                              color: MochiDmStyles.primaryGreenDark,
                             ),
                           ),
                       ],
@@ -186,7 +198,7 @@ class MochiDmConversationItem extends StatelessWidget {
                         vertical: 2,
                       ),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF4C8DFF),
+                        color: MochiDmStyles.primaryGreen,
                         borderRadius: BorderRadius.circular(999),
                       ),
                       alignment: Alignment.center,
