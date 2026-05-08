@@ -1,5 +1,6 @@
 import '../../../configs/injector/injector_conf.dart';
 import '../../../core/api/api_helper.dart';
+import '../../../core/cache/secure_local_storage.dart';
 import '../data/datasources/chat_local_datasource.dart';
 import '../data/datasources/chat_remote_datasource.dart';
 import '../data/repositories/chat_repository_impl.dart';
@@ -38,7 +39,10 @@ class ChatDependency {
 
     if (!getIt.isRegistered<ChatRemoteDataSourceImpl>()) {
       getIt.registerLazySingleton(
-        () => ChatRemoteDataSourceImpl(getIt<ApiHelper>()),
+        () => ChatRemoteDataSourceImpl(
+          getIt<ApiHelper>(),
+          getIt<SecureLocalStorage>(),
+        ),
       );
     }
 

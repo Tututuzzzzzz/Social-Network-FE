@@ -12,6 +12,8 @@ class ChatModel extends ChatEntity {
     super.isHidden,
     super.isOnline,
     super.isGroup,
+    super.participantCount,
+    super.avatarUrl,
     super.fullConversation,
   });
 
@@ -27,6 +29,8 @@ class ChatModel extends ChatEntity {
       isHidden: json['isHidden'] == true,
       isOnline: json['isOnline'] == true,
       isGroup: json['isGroup'] == true,
+      participantCount: (json['participantCount'] as num?)?.toInt() ?? 0,
+      avatarUrl: json['avatarUrl']?.toString() ?? '',
       fullConversation: json['fullConversation']?.toString() ?? '',
     );
   }
@@ -42,6 +46,8 @@ class ChatModel extends ChatEntity {
     'isHidden': isHidden,
     'isOnline': isOnline,
     'isGroup': isGroup,
+    'participantCount': participantCount,
+    'avatarUrl': avatarUrl,
     'fullConversation': fullConversation,
   };
 }

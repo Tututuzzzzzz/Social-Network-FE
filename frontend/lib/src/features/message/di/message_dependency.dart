@@ -27,9 +27,11 @@ class MessageDependency {
       getIt.registerFactory(
         () => MessageBloc(
           getIt<SendDirectTextUseCase>(),
+          getIt<SendGroupTextUseCase>(),
           getIt<FetchConversationHistoryUseCase>(),
           getIt<LoadCachedConversationHistoryUseCase>(),
           getIt<SaveCachedConversationHistoryUseCase>(),
+          getIt<MarkAllMessagesAsReadUseCase>(),
         ),
       );
     }

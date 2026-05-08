@@ -3,20 +3,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../configs/injector/injector_conf.dart';
-import '../../../../core/api/api_constants.dart';
-import '../../../../core/api/api_helper.dart';
 import '../../../../routes/app_route_path.dart';
-import '../../../friend/presentation/pages/friend_picker_bottom_sheet.dart';
 import '../../domain/entities/chat_entity.dart';
-import '../../domain/usecases/create_direct_conversation_usecase.dart';
-import '../../domain/usecases/usecase_params.dart';
 import '../bloc/chat/chat_bloc.dart';
 import '../widgets/mochi_dm_conversation_item.dart';
-import '../widgets/mochi_dm_pending_header.dart';
-import '../widgets/mochi_dm_search_input.dart';
-import '../widgets/mochi_dm_section_header.dart';
 import '../widgets/mochi_dm_status_view.dart';
 import '../widgets/mochi_dm_styles.dart';
+import '../widgets/mochi_dm_tab_switcher.dart';
 import '../widgets/mochi_dm_top_bar.dart';
 
 class MochiDirectMessagesPage extends StatefulWidget {
@@ -28,100 +21,26 @@ class MochiDirectMessagesPage extends StatefulWidget {
 }
 
 class _MochiDirectMessagesPageState extends State<MochiDirectMessagesPage> {
-  static const String _username = 'Tin Nhắn';
-
   String _query = '';
-  bool _showPendingThreads = true;
+  int _tabIndex = 0;
 
-  Future<void> _createConversationAndOpen(
-    FriendPickerUser friend,
-    BuildContext blocContext,
-  ) async {
-    final messenger = ScaffoldMessenger.of(context);
-    final chatBloc = blocContext.read<ChatBloc>();
-    final router = GoRouter.of(blocContext);
-
-    ChatEntity? chatEntity;
-
-    try {
-      if (getIt.isRegistered<CreateDirectConversationUseCase>()) {
-        final useCase = getIt<CreateDirectConversationUseCase>();
-        final result = await useCase(
-          CreateDirectConversationParams(recipientId: friend.id),
-        );
-
-        result.fold(
-          (_) {
-            chatEntity = null;
-          },
-          (chat) {
-            chatEntity = chat;
-          },
-        );
-      } else {
-        chatEntity = await _createConversationFallback(friend);
-      }
-    } catch (_) {
-      chatEntity = await _createConversationFallback(friend);
-    }
+  Future<void> _openNewConversationPage(BuildContext blocContext) async {
+    final result = await blocContext.pushNamed(
+      AppRoutes.chatNewConversation.name,
+    );
 
     if (!mounted || !blocContext.mounted) {
       return;
     }
 
-    if (chatEntity == null || chatEntity!.id.trim().isEmpty) {
-      messenger.showSnackBar(
-        const SnackBar(content: Text('Khong tao duoc cuoc tro chuyen')),
+    if (result is ChatEntity) {
+      blocContext.read<ChatBloc>().add(const ChatFetchedEvent());
+      await blocContext.pushNamed(
+        AppRoutes.chatMochiChatRoom.name,
+        pathParameters: {'threadId': result.id},
+        extra: result,
       );
-      return;
     }
-
-    chatBloc.add(const ChatFetchedEvent());
-    await router.pushNamed(
-      AppRoutes.chatMochiChatRoom.name,
-      pathParameters: {'threadId': chatEntity!.id},
-      extra: chatEntity,
-    );
-  }
-
-  Future<ChatEntity?> _createConversationFallback(
-    FriendPickerUser friend,
-  ) async {
-    final apiHelper = getIt<ApiHelper>();
-    final result = await apiHelper.execute(
-      method: Method.post,
-      url: ApiConstants.conversations,
-      data: {'type': 'direct', 'recipientId': friend.id},
-    );
-
-    final raw = result['conversation'];
-    if (raw is! Map) {
-      return null;
-    }
-
-    final map = Map<String, dynamic>.from(raw);
-    final id = (map['_id'] ?? map['id'] ?? '').toString();
-    if (id.isEmpty) {
-      return null;
-    }
-
-    return ChatEntity(
-      id: id,
-      recipientId: friend.id,
-      senderName: friend.name,
-      messagePreview: 'Start chatting...',
-      timeLabel: 'now',
-      isGroup: false,
-      fullConversation: '${friend.name}: Start chatting...',
-    );
-  }
-
-  Future<void> _openFriendsPicker(BuildContext blocContext) async {
-    final selectedFriend = await showFriendPickerBottomSheet(context);
-    if (!mounted || !blocContext.mounted || selectedFriend == null) {
-      return;
-    }
-    await _createConversationAndOpen(selectedFriend, blocContext);
   }
 
   Future<void> _handleBackPressed() async {
@@ -200,6 +119,7 @@ class _MochiDirectMessagesPageState extends State<MochiDirectMessagesPage> {
     BuildContext blocContext,
   ) async {
     final chatBloc = blocContext.read<ChatBloc>();
+    chatBloc.add(ChatThreadUnreadClearedEvent(item.id));
     final result = await blocContext.pushNamed(
       AppRoutes.chatMochiChatRoom.name,
       pathParameters: {'threadId': item.id},
@@ -225,12 +145,10 @@ class _MochiDirectMessagesPageState extends State<MochiDirectMessagesPage> {
               ? state.items
               : const <ChatEntity>[];
           final visibleThreads = _visibleThreads(loadedThreads);
-          final activeThreads = visibleThreads
-              .where((item) => !item.isHidden)
+          final groupThreads = visibleThreads
+              .where((item) => item.isGroup)
               .toList();
-          final pendingThreads = visibleThreads
-              .where((item) => item.isHidden)
-              .toList();
+          final displayThreads = _tabIndex == 0 ? visibleThreads : groupThreads;
           final isInitialLoading =
               (state is ChatInitialState || state is ChatLoadingState) &&
               loadedThreads.isEmpty;
@@ -246,7 +164,7 @@ class _MochiDirectMessagesPageState extends State<MochiDirectMessagesPage> {
             );
           } else if (isInitialLoading) {
             listContent = const Center(child: CircularProgressIndicator());
-          } else if (activeThreads.isEmpty && pendingThreads.isEmpty) {
+          } else if (visibleThreads.isEmpty) {
             listContent = const MochiDmStatusView(
               icon: Icons.search_off_outlined,
               title: 'Khong tim thay doan chat',
@@ -256,8 +174,8 @@ class _MochiDirectMessagesPageState extends State<MochiDirectMessagesPage> {
             listContent = ListView(
               padding: const EdgeInsets.only(bottom: 16),
               children: [
-                ...List.generate(activeThreads.length, (index) {
-                  final item = activeThreads[index];
+                ...List.generate(displayThreads.length, (index) {
+                  final item = displayThreads[index];
                   final name = _displayName(item);
                   return MochiDmConversationItem(
                     item: item,
@@ -286,58 +204,20 @@ class _MochiDirectMessagesPageState extends State<MochiDirectMessagesPage> {
                     },
                   );
                 }),
-                if (activeThreads.isEmpty)
-                  const Padding(
-                    padding: EdgeInsets.fromLTRB(16, 8, 16, 6),
+                if (displayThreads.isEmpty)
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 6),
                     child: Text(
-                      'Khong co tin nhan trong hop chinh.',
-                      style: TextStyle(
+                      _tabIndex == 0
+                          ? 'Chua co doan chat phu hop.'
+                          : 'Chua co nhom chat.',
+                      style: const TextStyle(
                         fontSize: 13,
-                        color: MochiDmStyles.searchHint,
+                        color: MochiDmStyles.secondaryText,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
                   ),
-                if (pendingThreads.isNotEmpty) ...[
-                  const SizedBox(height: 4),
-                  MochiDmPendingHeader(
-                    showPending: _showPendingThreads,
-                    onToggle: () => setState(
-                      () => _showPendingThreads = !_showPendingThreads,
-                    ),
-                  ),
-                  if (_showPendingThreads)
-                    ...List.generate(pendingThreads.length, (index) {
-                      final item = pendingThreads[index];
-                      final name = _displayName(item);
-                      return MochiDmConversationItem(
-                        item: item,
-                        index: activeThreads.length + index,
-                        name: name,
-                        preview: _displayPreview(item),
-                        timeLabel: _displayTimeLabel(item),
-                        initial: _initial(name),
-                        onTap: () => _openChatThread(item, context),
-                        onPinToggle: () => context.read<ChatBloc>().add(
-                          ChatThreadPinToggledEvent(item.id),
-                        ),
-                        onHiddenToggle: () => context.read<ChatBloc>().add(
-                          ChatThreadHiddenChangedEvent(
-                            item.id,
-                            isHidden: !item.isHidden,
-                          ),
-                        ),
-                        onDelete: () async {
-                          final chatBloc = context.read<ChatBloc>();
-                          final confirmed = await _confirmDeleteDialog(name);
-                          if (!mounted || !confirmed) {
-                            return;
-                          }
-                          chatBloc.add(ChatThreadDeletedEvent(item.id));
-                        },
-                      );
-                    }),
-                ],
               ],
             );
           }
@@ -348,19 +228,13 @@ class _MochiDirectMessagesPageState extends State<MochiDirectMessagesPage> {
               child: Column(
                 children: [
                   MochiDmTopBar(
-                    username: _username,
-                    onBackPressed: _handleBackPressed,
-                    onAddPressed: () => _openFriendsPicker(context),
+                    onSearchChanged: (value) =>
+                        setState(() => _query = value.trim()),
+                    onEditPressed: () => _openNewConversationPage(context),
                   ),
-                  MochiDmSearchInput(
-                    onChanged: (value) => setState(() => _query = value.trim()),
-                  ),
-                  MochiDmSectionHeader(
-                    pendingCount: pendingThreads.length,
-                    canTogglePending: pendingThreads.isNotEmpty,
-                    onTogglePending: () => setState(
-                      () => _showPendingThreads = !_showPendingThreads,
-                    ),
+                  MochiDmTabSwitcher(
+                    currentIndex: _tabIndex,
+                    onChanged: (value) => setState(() => _tabIndex = value),
                   ),
                   if (state is ChatLoadingState && loadedThreads.isNotEmpty)
                     const LinearProgressIndicator(minHeight: 2),
