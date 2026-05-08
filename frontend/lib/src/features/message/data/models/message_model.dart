@@ -5,6 +5,7 @@ class MessageModel extends MessageEntity {
     required super.id,
     super.conversationId,
     super.senderId,
+    super.senderName,
     super.senderAvatarUrl,
     super.content,
     super.media,
@@ -48,6 +49,7 @@ class MessageModel extends MessageEntity {
 
     final senderRaw = map['senderId'];
     String senderId = '';
+    String senderName = map['senderName']?.toString() ?? '';
     String senderAvatarUrl =
         map['senderAvatarUrl']?.toString() ??
         map['senderAvatar']?.toString() ??
@@ -55,6 +57,13 @@ class MessageModel extends MessageEntity {
     if (senderRaw is Map) {
       senderId = (senderRaw['_id'] ?? senderRaw['id'] ?? '').toString();
       final senderMap = Map<String, dynamic>.from(senderRaw);
+      senderName =
+          senderMap['name']?.toString() ??
+          senderMap['fullName']?.toString() ??
+          senderMap['username']?.toString() ??
+          senderMap['displayName']?.toString() ??
+          senderMap['senderName']?.toString() ??
+          senderName;
       senderAvatarUrl =
           senderMap['avatarUrl']?.toString() ??
           senderMap['avatar']?.toString() ??
@@ -71,6 +80,7 @@ class MessageModel extends MessageEntity {
       id: (map['_id'] ?? map['id'] ?? '').toString(),
       conversationId: conversationId,
       senderId: senderId,
+      senderName: senderName,
       senderAvatarUrl: senderAvatarUrl,
       content: map['content']?.toString() ?? '',
       media: mediaItems,
@@ -84,6 +94,7 @@ class MessageModel extends MessageEntity {
       id: entity.id,
       conversationId: entity.conversationId,
       senderId: entity.senderId,
+      senderName: entity.senderName,
       senderAvatarUrl: entity.senderAvatarUrl,
       content: entity.content,
       media: entity.media,
@@ -96,6 +107,7 @@ class MessageModel extends MessageEntity {
     'id': id,
     'conversationId': conversationId,
     'senderId': senderId,
+    'senderName': senderName,
     'senderAvatarUrl': senderAvatarUrl,
     'content': content,
     'media': media

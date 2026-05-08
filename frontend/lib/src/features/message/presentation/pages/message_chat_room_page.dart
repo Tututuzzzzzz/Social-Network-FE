@@ -172,6 +172,20 @@ class _MessageChatRoomPageState extends State<MessageChatRoomPage> {
     );
   }
 
+  String _resolvePeerAvatarUrl(MessageChatRoomState? chatState) {
+    final messages = chatState?.messages ?? const <MessageLine>[];
+
+    for (var index = messages.length - 1; index >= 0; index -= 1) {
+      final line = messages[index];
+      final avatarUrl = line.senderAvatarUrl.trim();
+      if (!line.fromMe && avatarUrl.isNotEmpty) {
+        return avatarUrl;
+      }
+    }
+
+    return widget.thread.avatarUrl.trim();
+  }
+
   void _closeWithResult() {
     final currentState = context.read<MessageBloc>().state;
     final chatState = currentState is MessageChatRoomState
@@ -185,6 +199,11 @@ class _MessageChatRoomPageState extends State<MessageChatRoomPage> {
     final threadName = widget.thread.senderName.trim().isEmpty
         ? 'Conversation'
         : widget.thread.senderName.trim();
+    final currentState = context.watch<MessageBloc>().state;
+    final chatState = currentState is MessageChatRoomState
+        ? currentState
+        : _previousChatState;
+    final threadAvatarUrl = _resolvePeerAvatarUrl(chatState);
 
     return PopScope<ChatEntity>(
       canPop: false,
@@ -198,6 +217,7 @@ class _MessageChatRoomPageState extends State<MessageChatRoomPage> {
         backgroundColor: _pageBackground,
         appBar: MessageChatRoomAppBar(
           title: threadName,
+          avatarUrl: threadAvatarUrl,
           accentColor: _accentGreen,
           onBack: _closeWithResult,
         ),

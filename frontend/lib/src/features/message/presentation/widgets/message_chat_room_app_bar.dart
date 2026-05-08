@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/utils/url_normalizer.dart';
+
 class MessageChatRoomAppBar extends StatelessWidget
     implements PreferredSizeWidget {
   const MessageChatRoomAppBar({
     super.key,
     required this.title,
+    this.avatarUrl = '',
     required this.accentColor,
     required this.onBack,
     this.onCall,
@@ -12,6 +15,7 @@ class MessageChatRoomAppBar extends StatelessWidget
   });
 
   final String title;
+  final String avatarUrl;
   final Color accentColor;
   final VoidCallback onBack;
   final VoidCallback? onCall;
@@ -24,6 +28,8 @@ class MessageChatRoomAppBar extends StatelessWidget
   Widget build(BuildContext context) {
     final displayTitle = title.trim().isEmpty ? 'Conversation' : title;
     final leadingChar = displayTitle.isNotEmpty ? displayTitle[0] : '?';
+    final normalizedAvatarUrl = avatarUrl.normalizeClientUrl();
+    final hasAvatar = normalizedAvatarUrl.isNotEmpty;
 
     return AppBar(
       backgroundColor: accentColor,
@@ -40,10 +46,18 @@ class MessageChatRoomAppBar extends StatelessWidget
           CircleAvatar(
             radius: 16,
             backgroundColor: Colors.white,
-            child: Text(
-              leadingChar,
-              style: TextStyle(color: accentColor, fontWeight: FontWeight.w700),
-            ),
+            backgroundImage: hasAvatar
+                ? NetworkImage(normalizedAvatarUrl)
+                : null,
+            child: hasAvatar
+                ? null
+                : Text(
+                    leadingChar,
+                    style: TextStyle(
+                      color: accentColor,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
           ),
           const SizedBox(width: 10),
           Expanded(

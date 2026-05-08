@@ -577,11 +577,16 @@ class MessageBloc extends Bloc<MessageEvent, MessageState> {
         senderId.isNotEmpty &&
         senderId == _currentUserId;
 
+    final senderName = message.senderName.trim();
+    final author = fromMe
+        ? 'You'
+        : (senderName.isNotEmpty ? senderName : fallbackAuthor);
+
     return MessageLine(
       id: message.id.trim(),
       senderId: senderId,
       senderAvatarUrl: message.senderAvatarUrl,
-      author: fromMe ? 'You' : fallbackAuthor,
+      author: author,
       text: text,
       fromMe: fromMe,
       createdAt: message.createdAt?.toLocal(),

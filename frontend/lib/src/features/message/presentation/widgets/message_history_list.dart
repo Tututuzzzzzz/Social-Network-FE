@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/utils/url_normalizer.dart';
 import '../bloc/message_state.dart';
 
 class MessageHistoryList extends StatelessWidget {
@@ -27,7 +28,7 @@ class MessageHistoryList extends StatelessWidget {
       controller: controller,
       padding: const EdgeInsets.fromLTRB(14, 16, 14, 18),
       itemCount: items.length,
-      separatorBuilder: (_, __) => const SizedBox(height: 6),
+      separatorBuilder: (_, index) => const SizedBox(height: 6),
       itemBuilder: (context, index) {
         final item = items[index];
 
@@ -36,7 +37,7 @@ class MessageHistoryList extends StatelessWidget {
         }
 
         final message = item.message!;
-        final showAvatar = item.showAvatar;
+        final showAvatar = item.showAvatar && !message.fromMe;
         final avatar = _AvatarSlot(
           showAvatar: showAvatar,
           avatarUrl: message.senderAvatarUrl,
@@ -46,20 +47,16 @@ class MessageHistoryList extends StatelessWidget {
           alignment: message.fromMe
               ? Alignment.centerRight
               : Alignment.centerLeft,
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: message.fromMe
-                ? [
-                    _MessageBubble(
-                      message: message,
-                      accentColor: accentColor,
-                      peerBubbleColor: peerBubbleColor,
-                    ),
-                    const SizedBox(width: _avatarGap),
-                    avatar,
-                  ]
-                : [
+          child: message.fromMe
+              ? _MessageBubble(
+                  message: message,
+                  accentColor: accentColor,
+                  peerBubbleColor: peerBubbleColor,
+                )
+              : Row(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
                     avatar,
                     const SizedBox(width: _avatarGap),
                     _MessageBubble(
@@ -68,7 +65,7 @@ class MessageHistoryList extends StatelessWidget {
                       peerBubbleColor: peerBubbleColor,
                     ),
                   ],
-          ),
+                ),
         );
       },
     );
@@ -248,13 +245,15 @@ class _AvatarSlot extends StatelessWidget {
         ? trimmedLabel.substring(0, 1).toUpperCase()
         : '?';
 
+    final normalizedAvatarUrl = avatarUrl.normalizeClientUrl();
+
     return CircleAvatar(
       radius: MessageHistoryList._avatarSize / 2,
       backgroundColor: const Color(0xFFD1D5DB),
-      backgroundImage: avatarUrl.trim().isNotEmpty
-          ? NetworkImage(avatarUrl)
+      backgroundImage: normalizedAvatarUrl.isNotEmpty
+          ? NetworkImage(normalizedAvatarUrl)
           : null,
-      child: avatarUrl.trim().isNotEmpty
+      child: normalizedAvatarUrl.isNotEmpty
           ? null
           : Text(
               initial,
