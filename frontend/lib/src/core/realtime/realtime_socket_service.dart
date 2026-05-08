@@ -267,8 +267,14 @@ class RealtimeSocketService {
     dynamic payload,
   ) {
     if (controller.isClosed) return;
-    if (payload is Map) {
-      controller.add(Map<String, dynamic>.from(payload));
+
+    // Socket.IO trên Flutter Web đôi khi wrap payload thành List([{...}]).
+    // Unwrap phần tử đầu tiên nếu cần.
+    final dynamic data =
+        (payload is List && payload.isNotEmpty) ? payload.first : payload;
+
+    if (data is Map) {
+      controller.add(Map<String, dynamic>.from(data));
     }
   }
 

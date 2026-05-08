@@ -5,14 +5,20 @@ class MessageModel extends MessageEntity {
     required super.id,
     super.conversationId,
     super.senderId,
+    super.senderAvatarUrl,
     super.content,
     super.media,
     super.createdAt,
     super.updatedAt,
   });
 
-  factory MessageModel.fromJson(Map<String, dynamic> json) {
-    final rawMedia = json['media'];
+  factory MessageModel.fromJson(dynamic json) {
+    if (json is! Map) {
+      return const MessageModel(id: '');
+    }
+
+    final map = Map<String, dynamic>.from(json);
+    final rawMedia = map['media'];
     final mediaItems = <MessageMediaEntity>[];
 
     if (rawMedia is List) {
@@ -31,7 +37,7 @@ class MessageModel extends MessageEntity {
       }
     }
 
-    final conversationRaw = json['conversationId'];
+    final conversationRaw = map['conversationId'];
     String conversationId = '';
     if (conversationRaw is Map) {
       conversationId = (conversationRaw['_id'] ?? conversationRaw['id'] ?? '')
@@ -40,22 +46,36 @@ class MessageModel extends MessageEntity {
       conversationId = conversationRaw?.toString() ?? '';
     }
 
-    final senderRaw = json['senderId'];
+    final senderRaw = map['senderId'];
     String senderId = '';
+    String senderAvatarUrl =
+        map['senderAvatarUrl']?.toString() ??
+        map['senderAvatar']?.toString() ??
+        '';
     if (senderRaw is Map) {
       senderId = (senderRaw['_id'] ?? senderRaw['id'] ?? '').toString();
+      final senderMap = Map<String, dynamic>.from(senderRaw);
+      senderAvatarUrl =
+          senderMap['avatarUrl']?.toString() ??
+          senderMap['avatar']?.toString() ??
+          senderMap['photo']?.toString() ??
+          senderMap['photoUrl']?.toString() ??
+          senderMap['profilePicture']?.toString() ??
+          senderMap['profilePictureUrl']?.toString() ??
+          senderAvatarUrl;
     } else {
       senderId = senderRaw?.toString() ?? '';
     }
 
     return MessageModel(
-      id: (json['_id'] ?? json['id'] ?? '').toString(),
+      id: (map['_id'] ?? map['id'] ?? '').toString(),
       conversationId: conversationId,
       senderId: senderId,
-      content: json['content']?.toString() ?? '',
+      senderAvatarUrl: senderAvatarUrl,
+      content: map['content']?.toString() ?? '',
       media: mediaItems,
-      createdAt: DateTime.tryParse(json['createdAt']?.toString() ?? ''),
-      updatedAt: DateTime.tryParse(json['updatedAt']?.toString() ?? ''),
+      createdAt: DateTime.tryParse(map['createdAt']?.toString() ?? ''),
+      updatedAt: DateTime.tryParse(map['updatedAt']?.toString() ?? ''),
     );
   }
 
@@ -64,6 +84,7 @@ class MessageModel extends MessageEntity {
       id: entity.id,
       conversationId: entity.conversationId,
       senderId: entity.senderId,
+      senderAvatarUrl: entity.senderAvatarUrl,
       content: entity.content,
       media: entity.media,
       createdAt: entity.createdAt,
@@ -75,6 +96,7 @@ class MessageModel extends MessageEntity {
     'id': id,
     'conversationId': conversationId,
     'senderId': senderId,
+    'senderAvatarUrl': senderAvatarUrl,
     'content': content,
     'media': media
         .map(

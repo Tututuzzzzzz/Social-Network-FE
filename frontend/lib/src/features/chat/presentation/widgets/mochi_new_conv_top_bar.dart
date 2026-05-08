@@ -32,7 +32,7 @@ class MochiNewConvTopBar extends StatelessWidget {
               ),
               const Expanded(
                 child: Text(
-                  'Tao cuoc tro chuyen',
+                  'Tạo cuộc trò chuyện mới',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 18,
@@ -52,7 +52,7 @@ class MochiNewConvTopBar extends StatelessWidget {
             iconColor: MochiDmStyles.searchIcon,
             focusedBorderColor: MochiDmStyles.primaryGreenSoft,
             borderRadius: 16,
-            hintText: 'Tim ban be',
+            hintText: 'Tìm bạn bè',
             dense: true,
           ),
         ],

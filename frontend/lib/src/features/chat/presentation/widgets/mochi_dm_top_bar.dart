@@ -42,7 +42,7 @@ class MochiDmTopBar extends StatelessWidget {
                 iconColor: MochiDmStyles.searchIcon,
                 focusedBorderColor: MochiDmStyles.primaryGreenSoft,
                 borderRadius: 16,
-                hintText: 'Tim kiem tin nhan',
+                hintText: 'Tìm kiếm trong tin nhắn',
                 dense: true,
               ),
             ),

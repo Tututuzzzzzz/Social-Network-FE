@@ -15,7 +15,7 @@ class MochiNewConvGroupRow extends StatelessWidget {
     return FilledButton.icon(
       onPressed: onCreateGroup,
       icon: const Icon(Icons.group_add_outlined, size: 18),
-      label: const Text('Tao nhom'),
+      label: const Text('Tạo nhóm'),
       style: FilledButton.styleFrom(
         backgroundColor: MochiDmStyles.primaryGreen,
         foregroundColor: Colors.white,
@@ -42,7 +42,7 @@ class MochiNewConvGroupRow extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
-                  'Tao nhom chat',
+                  'Tạo nhóm chat',
                   style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w700,
@@ -62,7 +62,7 @@ class MochiNewConvGroupRow extends StatelessWidget {
             children: [
               const Expanded(
                 child: Text(
-                  'Tao nhom chat',
+                  'Tạo nhóm chat',
                   style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w700,

@@ -171,54 +171,46 @@ class _MochiDirectMessagesPageState extends State<MochiDirectMessagesPage> {
               subtitle: 'Thu tim voi tu khoa khac.',
             );
           } else {
-            listContent = ListView(
+            listContent = ListView.separated(
               padding: const EdgeInsets.only(bottom: 16),
-              children: [
-                ...List.generate(displayThreads.length, (index) {
-                  final item = displayThreads[index];
-                  final name = _displayName(item);
-                  return MochiDmConversationItem(
-                    item: item,
-                    index: index,
-                    name: name,
-                    preview: _displayPreview(item),
-                    timeLabel: _displayTimeLabel(item),
-                    initial: _initial(name),
-                    onTap: () => _openChatThread(item, context),
-                    onPinToggle: () => context.read<ChatBloc>().add(
-                      ChatThreadPinToggledEvent(item.id),
-                    ),
-                    onHiddenToggle: () => context.read<ChatBloc>().add(
-                      ChatThreadHiddenChangedEvent(
-                        item.id,
-                        isHidden: !item.isHidden,
-                      ),
-                    ),
-                    onDelete: () async {
-                      final chatBloc = context.read<ChatBloc>();
-                      final confirmed = await _confirmDeleteDialog(name);
-                      if (!mounted || !confirmed) {
-                        return;
-                      }
-                      chatBloc.add(ChatThreadDeletedEvent(item.id));
-                    },
-                  );
-                }),
-                if (displayThreads.isEmpty)
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 6),
-                    child: Text(
-                      _tabIndex == 0
-                          ? 'Chua co doan chat phu hop.'
-                          : 'Chua co nhom chat.',
-                      style: const TextStyle(
-                        fontSize: 13,
-                        color: MochiDmStyles.secondaryText,
-                        fontWeight: FontWeight.w500,
-                      ),
+              itemCount: displayThreads.length,
+              itemBuilder: (context, index) {
+                final item = displayThreads[index];
+                final name = _displayName(item);
+                return MochiDmConversationItem(
+                  item: item,
+                  index: index,
+                  name: name,
+                  preview: _displayPreview(item),
+                  timeLabel: _displayTimeLabel(item),
+                  initial: _initial(name),
+                  onTap: () => _openChatThread(item, context),
+                  onPinToggle: () => context.read<ChatBloc>().add(
+                    ChatThreadPinToggledEvent(item.id),
+                  ),
+                  onHiddenToggle: () => context.read<ChatBloc>().add(
+                    ChatThreadHiddenChangedEvent(
+                      item.id,
+                      isHidden: !item.isHidden,
                     ),
                   ),
-              ],
+                  onDelete: () async {
+                    final chatBloc = context.read<ChatBloc>();
+                    final confirmed = await _confirmDeleteDialog(name);
+                    if (!mounted || !confirmed) {
+                      return;
+                    }
+                    chatBloc.add(ChatThreadDeletedEvent(item.id));
+                  },
+                );
+              },
+              separatorBuilder: (context, index) {
+                return const Divider(
+                  height: 1,
+                  thickness: 0.6,
+                  color: Color(0xFFD0D0D0),
+                );
+              },
             );
           }
 
@@ -231,6 +223,7 @@ class _MochiDirectMessagesPageState extends State<MochiDirectMessagesPage> {
                     onSearchChanged: (value) =>
                         setState(() => _query = value.trim()),
                     onEditPressed: () => _openNewConversationPage(context),
+                    onBackPressed: _handleBackPressed,
                   ),
                   MochiDmTabSwitcher(
                     currentIndex: _tabIndex,
