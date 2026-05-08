@@ -43,6 +43,13 @@ class _MochiDirectMessagesPageState extends State<MochiDirectMessagesPage> {
     }
   }
 
+  Future<void> _handleBackPressed() async {
+    final didPop = await Navigator.of(context).maybePop();
+    if (!didPop && mounted) {
+      context.go(AppRoutes.home.path);
+    }
+  }
+
   List<ChatEntity> _visibleThreads(List<ChatEntity> threads) {
     final keyword = _query.toLowerCase();
     if (keyword.isEmpty) {

@@ -61,6 +61,7 @@ class PostCard extends StatelessWidget {
     final likesCount = likeCountOverride ?? post.likes.length;
     final commentCount = commentCountOverride ?? post.commentsCount;
     final imageUrls = _resolveImageUrls();
+    final content = post.content?.trim();
 
     final displayName = (authorName != null && authorName!.trim().isNotEmpty)
         ? authorName!.trim()
@@ -69,13 +70,7 @@ class PostCard extends StatelessWidget {
               ? post.authorDisplayName!.trim()
               : _formatFallbackName(post.authorId));
 
-    final username =
-        (authorUsername != null && authorUsername!.trim().isNotEmpty)
-        ? authorUsername!.trim()
-        : ((post.authorUsername != null &&
-                  post.authorUsername!.trim().isNotEmpty)
-              ? post.authorUsername!.trim()
-              : _formatFallbackUsername(post.authorId));
+
 
     final avatarUrl =
         (authorAvatarUrl != null && authorAvatarUrl!.trim().isNotEmpty)
@@ -107,7 +102,7 @@ class PostCard extends StatelessWidget {
                         Row(
                           children: [
                             Text(
-                              username,
+                              displayName,
                               style: theme.textTheme.titleSmall?.copyWith(
                                 fontWeight: FontWeight.w800,
                                 color: Colors.black,
@@ -133,17 +128,16 @@ class PostCard extends StatelessWidget {
                               fontSize: 12,
                             ),
                           )
-                        else
+                        else        
                           Text(
-                            displayName,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
+                            DateFormat('d MMMM', 'vi').format(post.createdAt),
                             style: theme.textTheme.bodySmall?.copyWith(
-                              color: const Color(0xFF6A6A70),
-                              fontSize: 12,
+                              color: const Color(0xFFA2A2A8),
+                              fontSize: 11,
                             ),
                           ),
                       ],
+                      
                     ),
                   ),
                 ),
@@ -166,91 +160,85 @@ class PostCard extends StatelessWidget {
               ],
             ),
           ),
-          _PostMedia(imageUrls: imageUrls),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(8, 7, 8, 0),
-            child: Row(
-              children: [
-                _ActionIcon(
-                  icon: isLikedByMe ? Icons.favorite : Icons.favorite_border,
-                  color: isLikedByMe ? Colors.red : Colors.black,
-                  onTap: onLike,
-                ),
-                const SizedBox(width: 2),
-                Text(
-                  _formatCount(likesCount),
-                  style: const TextStyle(
-                    fontSize: 22 / 2,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.black,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                _ActionIcon(icon: Icons.chat_bubble_outline, onTap: onComment),
-                const SizedBox(width: 2),
-                Text(
-                  _formatCount(commentCount),
-                  style: const TextStyle(
-                    fontSize: 22 / 2,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.black,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                _SvgActionIcon(
-                  svgData:
-                      '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-send-icon lucide-send"><path d="M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z"/><path d="m21.854 2.147-10.94 10.939"/></svg>',
-                  onTap: onShare,
-                ),
-                const Spacer(),
-                _ActionIcon(icon: Icons.bookmark_border, onTap: onSave),
-              ],
-            ),
-          ),
-          if (commentCount > 0)
+          
+          if (content != null && content.isNotEmpty)
             Padding(
-              padding: const EdgeInsets.fromLTRB(14, 4, 14, 0),
-              child: InkWell(
-                onTap: onViewComments ?? onComment,
-                child: Text(
-                  context.l10n.viewAllComments(_formatCount(commentCount)),
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: const Color(0xFF6E6E74),
-                    fontSize: 13,
-                  ),
-                ),
+              padding: EdgeInsets.fromLTRB(
+                14,
+                0,
+                14,
+                imageUrls.isEmpty ? 10 : 8,
               ),
-            ),
-          if (post.content != null && post.content!.trim().isNotEmpty)
-            Padding(
-              padding: EdgeInsets.fromLTRB(14, commentCount > 0 ? 5 : 8, 14, 0),
-              child: RichText(
-                text: TextSpan(
+              child: Text.rich(
+                TextSpan(
                   style: theme.textTheme.bodyMedium?.copyWith(
-                    color: Colors.black,
-                    height: 1.3,
+                    color: const Color(0xFF1F1F25),
+                    height: 1.45,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w400,
                   ),
                   children: [
-                    TextSpan(
-                      text: '$username ',
-                      style: const TextStyle(fontWeight: FontWeight.w700),
-                    ),
-                    TextSpan(text: post.content!.trim()),
+                    TextSpan(text: content),
                   ],
                 ),
               ),
             ),
+          _PostMedia(imageUrls: imageUrls),
           Padding(
-            padding: const EdgeInsets.fromLTRB(14, 6, 14, 8),
-            child: Row(
+            padding: const EdgeInsets.fromLTRB(14, 10, 14, 0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  DateFormat('MMMM d').format(post.createdAt),
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: const Color(0xFFA2A2A8),
-                    fontSize: 11,
-                    letterSpacing: 0.2,
-                  ),
+                Row(
+                  children: [
+                    Text(
+                      '${_formatCount(likesCount)} lượt thích',
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: Colors.black,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    const Spacer(),
+                    Text(
+                      '${_formatCount(commentCount)} bình luận',
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: Colors.black,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    const Spacer(),
+                    Text(
+                      '1 lượt chia sẻ',
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: Colors.black,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                Divider(height: 1, thickness: 1, color: Colors.grey.shade100),
+                const SizedBox(height: 8),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    _BottomAction(
+                      icon: isLikedByMe ? Icons.favorite : Icons.favorite_border,
+                      color: isLikedByMe ? Colors.red : Colors.black,
+                      label: 'Thích',
+                      onTap: onLike,
+                    ),
+                    _BottomAction(
+                      icon: Icons.chat_bubble_outline,
+                      label: 'Bình luận',
+                      onTap: onComment,
+                    ),
+                    _BottomAction(
+                      icon: Icons.send,
+                      label: 'Chia sẻ',
+                      onTap: onShare,
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -438,28 +426,31 @@ class _PostMediaState extends State<_PostMedia> {
   }
 
   Widget _buildNetworkImage(String imageUrl) {
-    return Image.network(
-      imageUrl,
-      fit: BoxFit.cover,
-      loadingBuilder: (context, child, loadingProgress) {
-        if (loadingProgress == null) return child;
-        return Container(
-          color: const Color(0xFFF1F1F1),
-          child: const Center(child: CircularProgressIndicator(strokeWidth: 2)),
-        );
-      },
-      errorBuilder: (context, error, stackTrace) {
-        return Container(
-          color: const Color(0xFFF1F1F1),
-          child: const Center(
-            child: Icon(
-              Icons.broken_image_outlined,
-              size: 48,
-              color: Colors.black26,
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(12),
+      child: Image.network(
+        imageUrl,
+        fit: BoxFit.cover,
+        loadingBuilder: (context, child, loadingProgress) {
+          if (loadingProgress == null) return child;
+          return Container(
+            color: const Color(0xFFF1F1F1),
+            child: const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+          );
+        },
+        errorBuilder: (context, error, stackTrace) {
+          return Container(
+            color: const Color(0xFFF1F1F1),
+            child: const Center(
+              child: Icon(
+                Icons.broken_image_outlined,
+                size: 48,
+                color: Colors.black26,
+              ),
             ),
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 }
@@ -524,7 +515,7 @@ class _UserAvatar extends StatelessWidget {
 
     if (!hasNetwork) {
       return CircleAvatar(
-        radius: 16,
+        radius: 23,
         backgroundColor: const Color(0xFFDADADA),
         child: Text(
           initial,
@@ -538,11 +529,40 @@ class _UserAvatar extends StatelessWidget {
     }
 
     return CircleAvatar(
-      radius: 16,
+      radius: 23,
       backgroundColor: const Color(0xFFDADADA),
       backgroundImage: NetworkImage(normalizedAvatarUrl!),
       onBackgroundImageError: (exception, stackTrace) {},
       child: null,
+    );
+  }
+}
+
+class _BottomAction extends StatelessWidget {
+  const _BottomAction({required this.icon, this.color, required this.label, this.onTap});
+
+  final IconData icon;
+  final Color? color;
+  final String label;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 26, color: color ?? Colors.black),
+          const SizedBox(height: 6),
+          Text(
+            label,
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: const Color(0xFF6E6E74),
+                ),
+          ),
+        ],
+      ),
     );
   }
 }
