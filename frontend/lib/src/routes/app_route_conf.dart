@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../configs/injector/injector_conf.dart';
 import '../features/chat/domain/entities/chat_entity.dart';
 import '../features/message/presentation/bloc/message_bloc.dart';
+import '../features/message/presentation/pages/conversation_management_page.dart';
 import '../features/notifications/presentation/bloc/notification_bloc.dart';
 import '../features/post/presentation/bloc/post/post_bloc.dart';
 import '../features/profile/presentation/bloc/profile/profile_bloc.dart';
@@ -91,17 +92,7 @@ class AppRoutesConf {
               child: const MochiProfilePage(),
             ),
           ),
-          GoRoute(
-            path: AppRoutes.otherProfile.path,
-            name: AppRoutes.otherProfile.name,
-            builder: (context, state) {
-              final userId = state.pathParameters['userId'] ?? '';
-              return BlocProvider(
-                create: (_) => getIt<ProfileBloc>(),
-                child: MochiProfilePage(userId: userId),
-              );
-            },
-          ),
+
           GoRoute(
             path: AppRoutes.notifications.path,
             name: AppRoutes.notifications.name,
@@ -123,6 +114,17 @@ class AppRoutesConf {
         builder: (context, state) => const EditProfilePage(),
       ),
       GoRoute(
+        path: AppRoutes.otherProfile.path,
+        name: AppRoutes.otherProfile.name,
+        builder: (context, state) {
+          final userId = state.pathParameters['userId'] ?? '';
+          return BlocProvider(
+            create: (_) => getIt<ProfileBloc>(),
+            child: MochiProfilePage(userId: userId),
+          );
+        },
+      ),
+      GoRoute(
         path: AppRoutes.chatMochiChatRoom.path,
         name: AppRoutes.chatMochiChatRoom.name,
         builder: (context, state) {
@@ -139,6 +141,22 @@ class AppRoutesConf {
             create: (_) => getIt<MessageBloc>(),
             child: MessageChatRoomPage(thread: thread),
           );
+        },
+      ),
+      GoRoute(
+        path: AppRoutes.chatConversationManage.path,
+        name: AppRoutes.chatConversationManage.name,
+        builder: (context, state) {
+          final threadId = state.pathParameters['threadId'] ?? '';
+          final extra = state.extra;
+          final thread = extra is ChatEntity
+              ? extra
+              : ChatEntity(
+                  id: threadId,
+                  senderName: 'Conversation',
+                  messagePreview: 'Start chatting',
+                );
+          return ConversationManagementPage(thread: thread);
         },
       ),
     ],

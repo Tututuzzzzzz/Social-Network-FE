@@ -12,6 +12,7 @@ class MessageChatRoomAppBar extends StatelessWidget
     required this.onBack,
     this.onCall,
     this.onVideoCall,
+    this.onManage,
   });
 
   final String title;
@@ -20,6 +21,7 @@ class MessageChatRoomAppBar extends StatelessWidget
   final VoidCallback onBack;
   final VoidCallback? onCall;
   final VoidCallback? onVideoCall;
+  final VoidCallback? onManage;
 
   @override
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
@@ -41,34 +43,40 @@ class MessageChatRoomAppBar extends StatelessWidget
       ),
       centerTitle: false,
       titleSpacing: 0,
-      title: Row(
-        children: [
-          CircleAvatar(
-            radius: 16,
-            backgroundColor: Colors.white,
-            backgroundImage: hasAvatar
-                ? NetworkImage(normalizedAvatarUrl)
-                : null,
-            child: hasAvatar
-                ? null
-                : Text(
-                    leadingChar,
-                    style: TextStyle(
-                      color: accentColor,
-                      fontWeight: FontWeight.w700,
+      title: GestureDetector(
+        onTap: onManage,
+        child: Row(
+          children: [
+            CircleAvatar(
+              radius: 16,
+              backgroundColor: Colors.white,
+              backgroundImage: hasAvatar
+                  ? NetworkImage(normalizedAvatarUrl)
+                  : null,
+              child: hasAvatar
+                  ? null
+                  : Text(
+                      leadingChar,
+                      style: TextStyle(
+                        color: accentColor,
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
-                  ),
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Text(
-              displayTitle,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
             ),
-          ),
-        ],
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                displayTitle,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
       actions: [
         IconButton(

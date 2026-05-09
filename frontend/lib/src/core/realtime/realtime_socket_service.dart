@@ -34,8 +34,14 @@ class RealtimeSocketService {
 
   io.Socket? _socket;
   bool _coreListenersBound = false;
-  bool _isRefreshing = false;
   String _cachedUserId = '';
+
+  /// Số lần refresh liên tiếp thất bại. Reset về 0 khi connect thành công.
+  int _refreshAttempts = 0;
+
+  /// Giới hạn tối đa số lần refresh token liên tiếp.
+  static const int _maxRefreshAttempts = 3;
+  Completer<bool>? _refreshCompleter;
 
   // ── Streams cho từng event type ──────────────────────
 
@@ -122,6 +128,7 @@ class RealtimeSocketService {
           .setReconnectionAttempts(10)
           .setReconnectionDelay(2000)
           .setReconnectionDelayMax(10000)
+          .enableForceNew()
           .setAuth({'token': token})
           .build(),
     );
@@ -133,6 +140,8 @@ class RealtimeSocketService {
   /// Ngắt kết nối socket. Gọi khi logout.
   void disconnect() {
     _cachedUserId = '';
+    _refreshAttempts = 0;
+    _refreshCompleter = null;
     _socket?.disconnect();
     _socket?.dispose();
     _socket = null;
@@ -195,6 +204,8 @@ class RealtimeSocketService {
     // Connection lifecycle
     _socket?.onConnect((_) {
       logger.i('Socket connected: ${_socket?.id ?? 'unknown'}');
+      // Reset refresh counter khi connect thành công
+      _refreshAttempts = 0;
       _safeAdd(_connectionStateController, true);
     });
 
@@ -205,6 +216,7 @@ class RealtimeSocketService {
 
     _socket?.onReconnect((_) {
       logger.i('Socket reconnected: ${_socket?.id ?? 'unknown'}');
+      _refreshAttempts = 0;
       _safeAdd(_connectionStateController, true);
     });
 
@@ -218,7 +230,22 @@ class RealtimeSocketService {
           errMsg.contains('khong hop le') ||
           errMsg.contains('Access token');
 
-      if (isTokenExpired && !_isRefreshing) {
+      if (isTokenExpired) {
+        // Đã vượt quá số lần refresh cho phép → dừng hẳn, không retry nữa
+        if (_refreshAttempts >= _maxRefreshAttempts) {
+          logger.e(
+            'Socket refresh: đã thử $_refreshAttempts lần, '
+            'dừng reconnect để tránh vòng lặp vô hạn',
+          );
+          // Tắt socket auto-reconnect và disconnect sạch
+          _socket?.disconnect();
+          _socket?.dispose();
+          _socket = null;
+          _coreListenersBound = false;
+          _safeAdd(_connectionStateController, false);
+          return;
+        }
+
         await _refreshAndReconnect();
       }
     });
@@ -305,13 +332,33 @@ class RealtimeSocketService {
   // ── Private: token refresh for socket ───────────────
 
   /// Gọi HTTP refresh-token rồi reconnect socket với access token mới.
+  ///
+  /// Dùng [Completer] để deduplicate: nếu nhiều onConnectError fire
+  /// cùng lúc, chỉ 1 lần gọi API thật sự, các lần khác chờ kết quả.
   Future<void> _refreshAndReconnect() async {
-    _isRefreshing = true;
+    // Nếu đã có 1 refresh đang chạy → chờ nó xong, không gọi thêm
+    if (_refreshCompleter != null) {
+      logger.i('Socket refresh: đã có refresh đang chạy, chờ kết quả…');
+      await _refreshCompleter!.future;
+      return;
+    }
+
+    _refreshAttempts++;
+    _refreshCompleter = Completer<bool>();
+
     try {
+      // Tắt auto-reconnect của socket cũ trước khi refresh
+      // để tránh socket.io tự retry với token hết hạn
+      _socket?.disconnect();
+      _socket?.dispose();
+      _socket = null;
+      _coreListenersBound = false;
+
       final refreshToken =
           await _secureLocalStorage.load(key: 'refresh_token');
       if (refreshToken.trim().isEmpty) {
-        logger.w('Socket refresh skipped: no refresh token stored');
+        logger.e('Socket refresh: refresh token rỗng, không thể refresh');
+        _refreshCompleter!.complete(false);
         return;
       }
 
@@ -322,7 +369,11 @@ class RealtimeSocketService {
       );
 
       final body = response.data;
-      if (body is! Map) return;
+      if (body is! Map) {
+        logger.e('Socket refresh: response body không phải Map');
+        _refreshCompleter!.complete(false);
+        return;
+      }
 
       final map = Map<String, dynamic>.from(body);
       final newAccessToken = map['accessToken']?.toString() ?? '';
@@ -330,6 +381,7 @@ class RealtimeSocketService {
 
       if (newAccessToken.isEmpty) {
         logger.e('Socket refresh: empty access token in response');
+        _refreshCompleter!.complete(false);
         return;
       }
 
@@ -344,20 +396,18 @@ class RealtimeSocketService {
         );
       }
 
-      logger.i('Socket token refreshed — reconnecting...');
-
-      // Dispose socket cũ rồi reconnect với token mới
-      _socket?.disconnect();
-      _socket?.dispose();
-      _socket = null;
-      _coreListenersBound = false;
       _cachedUserId = '';
 
+      logger.i('Socket refresh thành công, reconnecting…');
+      _refreshCompleter!.complete(true);
+      _refreshCompleter = null;
+
+      // Reconnect với token mới
       await ensureConnected();
     } catch (e) {
       logger.e('Socket refresh failed: $e');
-    } finally {
-      _isRefreshing = false;
+      _refreshCompleter?.complete(false);
+      _refreshCompleter = null;
     }
   }
 }

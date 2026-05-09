@@ -58,10 +58,10 @@ class MessageModel extends MessageEntity {
       senderId = (senderRaw['_id'] ?? senderRaw['id'] ?? '').toString();
       final senderMap = Map<String, dynamic>.from(senderRaw);
       senderName =
+          senderMap['displayName']?.toString() ??
           senderMap['name']?.toString() ??
           senderMap['fullName']?.toString() ??
           senderMap['username']?.toString() ??
-          senderMap['displayName']?.toString() ??
           senderMap['senderName']?.toString() ??
           senderName;
       senderAvatarUrl =

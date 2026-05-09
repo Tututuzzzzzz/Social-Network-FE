@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../chat/domain/entities/chat_entity.dart';
+import '../../../../routes/app_route_path.dart';
 import '../bloc/message_bloc.dart';
 import '../bloc/message_event.dart';
 import '../bloc/message_state.dart';
@@ -220,6 +222,13 @@ class _MessageChatRoomPageState extends State<MessageChatRoomPage> {
           avatarUrl: threadAvatarUrl,
           accentColor: _accentGreen,
           onBack: _closeWithResult,
+          onManage: () {
+            context.pushNamed(
+              AppRoutes.chatConversationManage.name,
+              pathParameters: {'threadId': widget.thread.id},
+              extra: widget.thread,
+            );
+          },
         ),
         body: BlocConsumer<MessageBloc, MessageState>(
           listener: (context, state) {

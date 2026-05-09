@@ -38,6 +38,8 @@ class MessageHistoryList extends StatelessWidget {
 
         final message = item.message!;
         final showAvatar = item.showAvatar && !message.fromMe;
+        final showAuthorName = item.showAuthorName && !message.fromMe;
+        
         final avatar = _AvatarSlot(
           showAvatar: showAvatar,
           avatarUrl: message.senderAvatarUrl,
@@ -53,16 +55,35 @@ class MessageHistoryList extends StatelessWidget {
                   accentColor: accentColor,
                   peerBubbleColor: peerBubbleColor,
                 )
-              : Row(
+              : Column(
                   mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.end,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    avatar,
-                    const SizedBox(width: _avatarGap),
-                    _MessageBubble(
-                      message: message,
-                      accentColor: accentColor,
-                      peerBubbleColor: peerBubbleColor,
+                    if (showAuthorName)
+                      Padding(
+                        padding: const EdgeInsets.only(
+                            left: _avatarSize + _avatarGap + 4, bottom: 4),
+                        child: Text(
+                          message.author.trim().isNotEmpty ? message.author.trim() : 'Unknown',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: Color(0xFF6B7280),
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        avatar,
+                        const SizedBox(width: _avatarGap),
+                        _MessageBubble(
+                          message: message,
+                          accentColor: accentColor,
+                          peerBubbleColor: peerBubbleColor,
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -92,6 +113,7 @@ class MessageHistoryList extends StatelessWidget {
         _MessageListItem.message(
           message,
           showAvatar: _shouldShowAvatar(index, messages),
+          showAuthorName: _shouldShowAuthorName(index, messages),
         ),
       );
     }
@@ -109,6 +131,19 @@ class MessageHistoryList extends StatelessWidget {
 
     final sameSender = _isSameSender(current, next);
     final sameDay = _isSameDay(current.createdAt, next.createdAt);
+    return !(sameSender && sameDay);
+  }
+
+  bool _shouldShowAuthorName(int index, List<MessageLine> messages) {
+    if (index == 0) {
+      return true;
+    }
+
+    final current = messages[index];
+    final prev = messages[index - 1];
+
+    final sameSender = _isSameSender(current, prev);
+    final sameDay = _isSameDay(current.createdAt, prev.createdAt);
     return !(sameSender && sameDay);
   }
 
@@ -144,7 +179,7 @@ class MessageHistoryList extends StatelessWidget {
     final today = DateUtils.dateOnly(DateTime.now());
     final target = DateUtils.dateOnly(date);
     if (DateUtils.isSameDay(today, target)) {
-      return 'Hom nay';
+      return 'Hôm nay';
     }
 
     final day = date.day.toString().padLeft(2, '0');
@@ -158,18 +193,24 @@ class _MessageListItem {
   final MessageLine? message;
   final String? header;
   final bool showAvatar;
+  final bool showAuthorName;
 
   const _MessageListItem._({
     this.message,
     this.header,
     this.showAvatar = false,
+    this.showAuthorName = false,
   });
 
   factory _MessageListItem.message(
     MessageLine message, {
     required bool showAvatar,
+    required bool showAuthorName,
   }) {
-    return _MessageListItem._(message: message, showAvatar: showAvatar);
+    return _MessageListItem._(
+        message: message,
+        showAvatar: showAvatar,
+        showAuthorName: showAuthorName);
   }
 
   factory _MessageListItem.header(String header) {
