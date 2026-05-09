@@ -367,11 +367,11 @@ class _MochiProfilePageState extends State<MochiProfilePage> {
       return;
     }
 
-    Navigator.of(context)
+    Navigator.of(context, rootNavigator: true)
         .push(
           MaterialPageRoute(
-            builder: (_) => BlocProvider<PostBloc>(
-              create: (_) => getIt<PostBloc>(),
+            builder: (_) => BlocProvider.value(
+              value: getIt<PostBloc>(),
               child: PostDetailScreen(
                 initialPost: post,
                 currentUserId:

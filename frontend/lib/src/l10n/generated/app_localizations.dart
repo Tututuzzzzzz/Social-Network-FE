@@ -1019,7 +1019,7 @@ abstract class AppLocalizations {
   /// No description provided for @captionHint.
   ///
   /// In en, this message translates to:
-  /// **'Write a caption for your post...\nTip: add hashtags for better reach.'**
+  /// **'What are you thinking?'**
   String get captionHint;
 
   /// No description provided for @addMediaForPost.
@@ -1037,7 +1037,7 @@ abstract class AppLocalizations {
   /// No description provided for @libraryLabel.
   ///
   /// In en, this message translates to:
-  /// **'Library'**
+  /// **'Photos'**
   String get libraryLabel;
 
   /// No description provided for @cameraLabel.
@@ -1045,6 +1045,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Camera'**
   String get cameraLabel;
+
+  /// No description provided for @templateLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Template'**
+  String get templateLabel;
+
+  /// No description provided for @templateSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Templates will be added later.'**
+  String get templateSoon;
 
   /// No description provided for @friendsSearchHint.
   ///

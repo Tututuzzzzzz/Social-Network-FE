@@ -44,3 +44,36 @@ class PostLikeToggleEvent extends PostEvent {
   @override
   List<Object?> get props => [postId];
 }
+
+class PostCommentsChangedEvent extends PostEvent {
+  final String postId;
+  final List<PostCommentEntity> comments;
+  final int commentsCount;
+
+  const PostCommentsChangedEvent({
+    required this.postId,
+    required this.comments,
+    required this.commentsCount,
+  });
+
+  @override
+  List<Object?> get props => [postId, comments, commentsCount];
+}
+
+class PostLocalPostChangedEvent extends PostEvent {
+  final PostEntity post;
+
+  const PostLocalPostChangedEvent(this.post);
+
+  @override
+  List<Object?> get props => [post];
+}
+
+class PostLocalPostDeletedEvent extends PostEvent {
+  final String postId;
+
+  const PostLocalPostDeletedEvent(this.postId);
+
+  @override
+  List<Object?> get props => [postId];
+}

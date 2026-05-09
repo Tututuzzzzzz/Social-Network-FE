@@ -8,11 +8,12 @@ import '../../../../core/cache/secure_local_storage.dart';
 import '../../../friend/data/repositories/friend_repository_impl.dart';
 import '../../../friend/domain/usecases/send_friend_request.dart';
 import '../../../../routes/app_route_path.dart';
+import '../../domain/entities/post_comments_entity.dart';
 import '../../domain/entities/post_entity.dart';
 import '../../domain/usecases/usecase_params.dart';
 import '../bloc/post/post_bloc.dart';
 import '../widgets/feed_widgets.dart';
-import '../widgets/post_options_sheet.dart';
+import '../widgets/feed_screen/post_options_sheet.dart';
 import 'post_detail_screen.dart';
 
 class FeedScreen extends StatefulWidget {
@@ -45,7 +46,11 @@ class _FeedScreenState extends State<FeedScreen> {
     await _resolveCurrentUserId();
     await _resolveFriendIds();
     if (!mounted) return;
-    context.read<PostBloc>().add(PostLoadEvent());
+
+    final postState = context.read<PostBloc>().state;
+    if (postState is PostInitialState || postState is PostFailureState) {
+      context.read<PostBloc>().add(PostLoadEvent());
+    }
   }
 
   Future<void> _resolveCurrentUserId() async {
@@ -87,17 +92,35 @@ class _FeedScreenState extends State<FeedScreen> {
       isScrollControlled: true,
       useSafeArea: true,
       backgroundColor: Colors.transparent,
-      builder: (_) =>
-          CommentsSheet(
-            initialPost: initialPost,
-            currentUserId: _currentUserId.isEmpty ? null : _currentUserId,
-            onCommentsCountChanged: (count) {
-              if (!mounted) return;
-              setState(() {
-                _commentCountOverrides[initialPost.id] = count;
-              });
-            },
-          ),
+      builder: (_) => CommentsSheet(
+        initialPost: initialPost,
+        currentUserId: _currentUserId.isEmpty ? null : _currentUserId,
+        onCommentsChanged: (comments) =>
+            _syncPostComments(initialPost.id, comments),
+      ),
+    );
+  }
+
+  void _syncPostComments(String postId, PostCommentsEntity comments) {
+    if (!mounted) return;
+
+    setState(() {
+      _commentCountOverrides[postId] = comments.commentsCount;
+      _posts = _posts.map((post) {
+        if (post.id != postId) return post;
+        return post.copyWith(
+          comments: comments.comments,
+          commentsCount: comments.commentsCount,
+        );
+      }).toList();
+    });
+
+    context.read<PostBloc>().add(
+      PostCommentsChangedEvent(
+        postId: postId,
+        comments: comments.comments,
+        commentsCount: comments.commentsCount,
+      ),
     );
   }
 
@@ -316,7 +339,9 @@ class _FeedScreenState extends State<FeedScreen> {
                         final isSelfPost =
                             _currentUserId.isNotEmpty &&
                             post.authorId == _currentUserId;
-                        final isAlreadyFriend = _friendIds.contains(post.authorId);
+                        final isAlreadyFriend = _friendIds.contains(
+                          post.authorId,
+                        );
                         final hasSentRequest = _sentFriendRequestAuthorIds
                             .contains(post.authorId);
                         final isSendingRequest = _sendingFriendRequestAuthorIds
@@ -324,49 +349,58 @@ class _FeedScreenState extends State<FeedScreen> {
 
                         return GestureDetector(
                           behavior: HitTestBehavior.opaque,
-                          onTap: () {
+                          onTap: () async {
                             final postBloc = context.read<PostBloc>();
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (_) => BlocProvider.value(
-                                  value: postBloc,
-                                  child: PostDetailScreen(
-                                    initialPost: post,
-                                    currentUserId:
-                                        _currentUserId.isEmpty ? null : _currentUserId,
+                            final deleted = await Navigator.of(
+                              context,
+                              rootNavigator: true,
+                            )
+                                .push<bool>(
+                                  MaterialPageRoute(
+                                    builder: (_) => BlocProvider.value(
+                                      value: postBloc,
+                                      child: PostDetailScreen(
+                                        initialPost: post,
+                                        currentUserId: _currentUserId.isEmpty
+                                            ? null
+                                            : _currentUserId,
+                                      ),
+                                    ),
                                   ),
-                                ),
-                              ),
-                            );
+                                );
+                            if (!mounted || deleted != true) return;
+                            postBloc.add(PostLocalPostDeletedEvent(post.id));
                           },
                           child: PostCard(
                             post: post,
-                          isLikedByMe: _currentUserId.isNotEmpty &&
-                              post.likes.contains(_currentUserId),
-                          commentCountOverride: _commentCountOverrides[post.id],
-                          isFollowing: isAlreadyFriend,
-                          showFollowButton: !isSelfPost,
-                          onLike: () {
-                            context.read<PostBloc>().add(
-                              PostLikeToggleEvent(post.id),
-                            );
-                          },
-                          onFollowTap: isSelfPost || isAlreadyFriend
-                              ? null
-                              : isSendingRequest
-                              ? null
-                              : () => _onFollowTap(post),
-                          onAuthorTap: _showFeatureSoon,
-                          onComment: () => _openCommentsSheet(post),
-                          onViewComments: () => _openCommentsSheet(post),
-                          onShare: _showFeatureSoon,
-                          onSave: _showFeatureSoon,
-                          onMore: () => _showPostOptionsSheet(post),
-                          followingLabel: isAlreadyFriend
-                              ? "Bạn bè"
-                              : hasSentRequest
-                              ? "Following"
-                              : "Follow",
+                            isLikedByMe:
+                                _currentUserId.isNotEmpty &&
+                                post.likes.contains(_currentUserId),
+                            commentCountOverride:
+                                _commentCountOverrides[post.id],
+                            isFollowing: isAlreadyFriend,
+                            showFollowButton: !isSelfPost,
+                            onLike: () {
+                              context.read<PostBloc>().add(
+                                PostLikeToggleEvent(post.id),
+                              );
+                            },
+                            onFollowTap: isSelfPost || isAlreadyFriend
+                                ? null
+                                : isSendingRequest
+                                ? null
+                                : () => _onFollowTap(post),
+                            onAuthorTap: _showFeatureSoon,
+                            onComment: () => _openCommentsSheet(post),
+                            onViewComments: () => _openCommentsSheet(post),
+                            onShare: _showFeatureSoon,
+                            onSave: _showFeatureSoon,
+                            onMore: () => _showPostOptionsSheet(post),
+                            followingLabel: isAlreadyFriend
+                                ? "Bạn bè"
+                                : hasSentRequest
+                                ? "Following"
+                                : "Follow",
                           ),
                         );
                       },

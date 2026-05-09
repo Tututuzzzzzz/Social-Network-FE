@@ -6,12 +6,12 @@ class GetCommentsModel extends PostCommentsEntity {
 
   factory GetCommentsModel.fromJson(Map<String, dynamic> json) {
     final dataRaw = json['data'];
-    final data = dataRaw is Map
-        ? Map<String, dynamic>.from(dataRaw)
-        : json;
+    final data = dataRaw is Map ? Map<String, dynamic>.from(dataRaw) : json;
 
     final flatRaw = data['flatComments'];
-    final source = flatRaw is List ? flatRaw : (data['comments'] as List? ?? const []);
+    final source = flatRaw is List
+        ? flatRaw
+        : (data['comments'] as List? ?? const []);
 
     final comments = source
         .whereType<Map>()
@@ -21,28 +21,55 @@ class GetCommentsModel extends PostCommentsEntity {
 
     return GetCommentsModel(
       comments: comments,
-      commentsCount: (data['commentsCount'] as num?)?.toInt() ?? comments.length,
+      commentsCount:
+          (data['commentsCount'] as num?)?.toInt() ?? comments.length,
     );
   }
 }
 
 PostCommentEntity _commentFromJson(Map<String, dynamic> json) {
   final authorRaw = json['authorId'];
-  final authorId = authorRaw is Map
-      ? (authorRaw['_id'] ?? authorRaw['id'] ?? '').toString()
+  final authorMap = authorRaw is Map
+      ? Map<String, dynamic>.from(authorRaw)
+      : null;
+  final authorId = authorMap != null
+      ? (authorMap['_id'] ?? authorMap['id'] ?? '').toString()
       : authorRaw?.toString() ?? '';
 
   return PostCommentEntity(
     id: (json['_id'] ?? json['id'] ?? '').toString(),
     parentCommentId: json['parentCommentId']?.toString(),
     authorId: authorId,
-    authorUsername: authorRaw is Map ? authorRaw['username']?.toString() : null,
-    authorDisplayName: authorRaw is Map
-        ? ((authorRaw['displayName'] ?? authorRaw['fullName'])?.toString())
-        : null,
-    authorAvatarUrl: authorRaw is Map ? authorRaw['avatarUrl']?.toString() : null,
+    authorUsername: _firstNonEmpty([
+      json['authorUsername'],
+      authorMap?['username'],
+    ]),
+    authorDisplayName: _firstNonEmpty([
+      json['authorDisplayName'],
+      authorMap?['displayName'],
+      authorMap?['fullName'],
+    ]),
+    authorAvatarUrl: _firstNonEmpty([
+      json['authorAvatarUrl'],
+      json['avatarUrl'],
+      authorMap?['avatarUrl'],
+      authorMap?['avatar'],
+    ]),
     content: json['content']?.toString() ?? '',
-    createdAt: DateTime.tryParse(json['createdAt']?.toString() ?? '') ?? DateTime.now(),
-    updatedAt: DateTime.tryParse(json['updatedAt']?.toString() ?? '') ?? DateTime.now(),
+    createdAt:
+        DateTime.tryParse(json['createdAt']?.toString() ?? '') ??
+        DateTime.now(),
+    updatedAt:
+        DateTime.tryParse(json['updatedAt']?.toString() ?? '') ??
+        DateTime.now(),
   );
+}
+
+String? _firstNonEmpty(List<Object?> values) {
+  for (final value in values) {
+    final text = value?.toString().trim() ?? '';
+    if (text.isNotEmpty) return text;
+  }
+
+  return null;
 }

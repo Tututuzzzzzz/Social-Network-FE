@@ -1,4 +1,5 @@
 import '../../../configs/injector/injector_conf.dart';
+import '../../../core/cache/secure_local_storage.dart';
 import '../../../core/cache/hive_local_storage.dart';
 import '../../../core/api/api_helper.dart';
 import '../../../core/network/network_checker.dart';
@@ -8,11 +9,14 @@ import '../data/repositories/post_repository_impl.dart';
 import '../domain/repositories/post_repository.dart';
 import '../domain/usecases/create_post_usecase.dart';
 import '../domain/usecases/create_comment_usecase.dart';
+import '../domain/usecases/delete_comment_usecase.dart';
 import '../domain/usecases/delete_post_usecase.dart';
 import '../domain/usecases/get_comments_usecase.dart';
+import '../domain/usecases/get_post_by_id_usecase.dart';
 import '../domain/usecases/get_post_usecase.dart';
 import '../domain/usecases/toggle_like_post_usecase.dart';
 import '../domain/usecases/upload_post_media_usecase.dart';
+import '../domain/usecases/update_comment_usecase.dart';
 import '../domain/usecases/update_post_usecase.dart';
 import '../presentation/bloc/post/post_bloc.dart';
 import '../presentation/bloc/post_form/post_form_bloc.dart';
@@ -21,13 +25,14 @@ class PostDepedency {
   PostDepedency._();
 
   static void init() {
-    getIt.registerFactory(
+    getIt.registerLazySingleton<PostBloc>(
       () => PostBloc(
         getIt<CreatePostUseCase>(),
         getIt<DeletePostUseCase>(),
         getIt<GetPostUseCase>(),
         getIt<UpdatePostUseCase>(),
         getIt<ToggleLikePostUseCase>(),
+        getIt<SecureLocalStorage>(),
       ),
     );
 
@@ -53,6 +58,10 @@ class PostDepedency {
     getIt.registerLazySingleton(() => GetPostUseCase(getIt<PostRepository>()));
 
     getIt.registerLazySingleton(
+      () => GetPostByIdUseCase(getIt<PostRepository>()),
+    );
+
+    getIt.registerLazySingleton(
       () => CreatePostUseCase(getIt<PostRepository>()),
     );
 
@@ -74,6 +83,14 @@ class PostDepedency {
 
     getIt.registerLazySingleton(
       () => CreateCommentUseCase(getIt<PostRepository>()),
+    );
+
+    getIt.registerLazySingleton(
+      () => UpdateCommentUseCase(getIt<PostRepository>()),
+    );
+
+    getIt.registerLazySingleton(
+      () => DeleteCommentUseCase(getIt<PostRepository>()),
     );
 
     getIt.registerLazySingleton(

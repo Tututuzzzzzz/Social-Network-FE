@@ -60,17 +60,9 @@ class AppRoutesConf {
           GoRoute(
             path: AppRoutes.home.path,
             name: AppRoutes.home.name,
-            builder: (context, state) => BlocProvider(
-              create: (_) => getIt<PostBloc>(),
+            builder: (context, state) => BlocProvider.value(
+              value: getIt<PostBloc>(),
               child: const FeedScreen(),
-            ),
-          ),
-          GoRoute(
-            path: AppRoutes.createPost.path,
-            name: AppRoutes.createPost.name,
-            builder: (context, state) => BlocProvider(
-              create: (_) => getIt<PostBloc>(),
-              child: const CreatePostScreen(),
             ),
           ),
           GoRoute(
@@ -111,6 +103,17 @@ class AppRoutesConf {
             ),
           ),
         ],
+      ),
+      GoRoute(
+        path: AppRoutes.createPost.path,
+        name: AppRoutes.createPost.name,
+        builder: (context, state) => MultiBlocProvider(
+          providers: [
+            BlocProvider.value(value: getIt<PostBloc>()),
+            BlocProvider(create: (_) => getIt<ProfileBloc>()),
+          ],
+          child: const CreatePostScreen(),
+        ),
       ),
       GoRoute(
         path: AppRoutes.chatNewConversation.path,
