@@ -55,13 +55,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get forgotPasswordDescription =>
-      'Enter the email linked to your account to receive a reset code.';
+      'Enter the email linked to your account to receive a new password sent directly to your inbox.';
 
   @override
   String get enterEmailHint => 'Enter email';
 
   @override
-  String get sendVerificationCode => 'Send verification code';
+  String get sendVerificationCode => 'Send new password';
 
   @override
   String get pleaseEnterEmail => 'Please enter email';

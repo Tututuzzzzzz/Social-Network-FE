@@ -191,7 +191,7 @@ abstract class AppLocalizations {
   /// No description provided for @forgotPasswordDescription.
   ///
   /// In en, this message translates to:
-  /// **'Enter the email linked to your account to receive a reset code.'**
+  /// **'Enter the email linked to your account to receive a new password sent directly to your inbox.'**
   String get forgotPasswordDescription;
 
   /// No description provided for @enterEmailHint.
@@ -203,7 +203,7 @@ abstract class AppLocalizations {
   /// No description provided for @sendVerificationCode.
   ///
   /// In en, this message translates to:
-  /// **'Send verification code'**
+  /// **'Send new password'**
   String get sendVerificationCode;
 
   /// No description provided for @pleaseEnterEmail.

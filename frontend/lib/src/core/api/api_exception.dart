@@ -44,3 +44,7 @@ class UnprocessableEntityException extends ApiException {
 class InvalidInputException extends ApiException {
   InvalidInputException(String message) : super(message, 'Invalid Input: ');
 }
+
+class ConflictException extends ApiException {
+  ConflictException(String message) : super(message, 'Conflict: ');
+}

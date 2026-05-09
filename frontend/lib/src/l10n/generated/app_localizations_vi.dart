@@ -55,13 +55,13 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get forgotPasswordDescription =>
-      'Nhập email liên kết với tài khoản để được gửi mã đặt lại mật khẩu của bạn';
+      'Nhập email liên kết với tài khoản để nhận mật khẩu mới được gửi trực tiếp qua hòm thư của bạn';
 
   @override
   String get enterEmailHint => 'Nhập email';
 
   @override
-  String get sendVerificationCode => 'Gửi mã xác nhận';
+  String get sendVerificationCode => 'Gửi mật khẩu mới';
 
   @override
   String get pleaseEnterEmail => 'Vui lòng nhập email';

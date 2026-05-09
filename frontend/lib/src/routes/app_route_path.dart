@@ -1,5 +1,6 @@
 enum AppRoutes {
   welcome(path: '/'),
+  onboarding(path: '/onboarding'),
   login(path: '/login'),
   register(path: '/register'),
   auth(path: '/auth'),
@@ -16,6 +17,10 @@ enum AppRoutes {
   profile(path: '/profile'),
   createPost(path: '/create-post'),
   stories(path: '/stories'),
+  forgotPassword(path: '/forgot-password'),
+  verificationCode(path: '/verification-code'),
+  resetPassword(path: '/reset-password'),
+  registerSuccess(path: '/register-success'),
   otherProfile(path: '/profile/:userId');
 
   final String path;

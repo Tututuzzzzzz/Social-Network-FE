@@ -63,6 +63,8 @@ class ApiHelper {
         throw ForbiddenException(response.data['message'].toString());
       case 404:
         throw NotFoundException(response.data['message'].toString());
+      case 409:
+        throw ConflictException(response.data['message'].toString());
       case 422:
         throw UnprocessableEntityException(response.data['message'].toString());
       case 500:

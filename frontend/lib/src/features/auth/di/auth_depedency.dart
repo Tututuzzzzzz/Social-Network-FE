@@ -9,6 +9,7 @@ import '../domain/usecases/check_signin_status_usecase.dart';
 import '../domain/usecases/login_usecase.dart';
 import '../domain/usecases/logout_usecase.dart';
 import '../domain/usecases/register_usecase.dart';
+import '../domain/usecases/forgot_password_usecase.dart';
 import '../presentation/bloc/auth/auth_bloc.dart';
 import '../presentation/bloc/auth_login_form/auth_login_form_bloc.dart';
 import '../presentation/bloc/auth_register_form/auth_register_form_bloc.dart';
@@ -23,6 +24,7 @@ class AuthDepedency {
         getIt<AuthLogoutUseCase>(),
         getIt<AuthRegisterUseCase>(),
         getIt<AuthCheckSignInStatusUseCase>(),
+        getIt<AuthForgotPasswordUseCase>(),
       ),
     );
 
@@ -44,6 +46,10 @@ class AuthDepedency {
 
     getIt.registerLazySingleton(
       () => AuthCheckSignInStatusUseCase(getIt<AuthRepositoryImpl>()),
+    );
+
+    getIt.registerLazySingleton(
+      () => AuthForgotPasswordUseCase(getIt<AuthRepositoryImpl>()),
     );
 
     getIt.registerLazySingleton(
