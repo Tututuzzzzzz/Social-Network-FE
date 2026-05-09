@@ -17,3 +17,12 @@ class ProfileGetEvent extends ProfileEvent {
   @override
   List<Object?> get props => [params];
 }
+
+class ProfilePostLikeToggleEvent extends ProfileEvent {
+  final String postId;
+
+  const ProfilePostLikeToggleEvent(this.postId);
+
+  @override
+  List<Object?> get props => [postId];
+}

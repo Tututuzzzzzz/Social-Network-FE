@@ -70,14 +70,14 @@ class _AppShellPageState extends State<AppShellPage> {
   @override
   Widget build(BuildContext context) {
     if (!_shouldShowBottomNav(context)) {
-      return body;
+      return widget.body;
     }
 
     final selectedIndex = _resolveSelectedTabIndex(context);
 
     return Scaffold(
       backgroundColor: Colors.white,
-      body: body,
+      body: widget.body,
       bottomNavigationBar: AppShellBottomNavBar(
         selectedIndex: selectedIndex,
         onTap: (index) => _onDestinationSelected(context, index),

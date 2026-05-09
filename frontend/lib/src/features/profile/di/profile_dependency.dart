@@ -2,6 +2,7 @@ import '../../../configs/injector/injector_conf.dart';
 import '../../../core/cache/hive_local_storage.dart';
 import '../../../core/network/network_checker.dart';
 import '../../../core/api/api_helper.dart';
+import '../../post/domain/usecases/toggle_like_post_usecase.dart';
 import '../data/datasources/profile_local_datasource.dart';
 import '../data/datasources/profile_remote_datasource.dart';
 import '../data/repositories/profile_repository_impl.dart';
@@ -16,7 +17,13 @@ class ProfileDependency {
   ProfileDependency._();
 
   static void init() {
-    getIt.registerFactory(() => ProfileBloc(getIt<GetProfileUseCase>()));
+    getIt.registerFactory(
+      () => ProfileBloc(
+        getIt<GetProfileUseCase>(),
+        getIt<GetUserPostsUseCase>(),
+        getIt<ToggleLikePostUseCase>(),
+      ),
+    );
 
     getIt.registerLazySingleton<ProfileRemoteDataSource>(
       () => ProfileRemoteDataSourceImpl(getIt<ApiHelper>()),

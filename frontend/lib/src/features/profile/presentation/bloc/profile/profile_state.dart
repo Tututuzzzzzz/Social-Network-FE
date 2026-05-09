@@ -13,11 +13,44 @@ class ProfileLoadingState extends ProfileState {}
 
 class ProfileLoadedState extends ProfileState {
   final ProfileEntity profile;
+  final List<PostEntity> posts;
+  final String? postsErrorMessage;
+  final String? actionErrorMessage;
 
-  const ProfileLoadedState(this.profile);
+  const ProfileLoadedState(
+    this.profile, {
+    this.posts = const [],
+    this.postsErrorMessage,
+    this.actionErrorMessage,
+  });
+
+  ProfileLoadedState copyWith({
+    ProfileEntity? profile,
+    List<PostEntity>? posts,
+    String? postsErrorMessage,
+    String? actionErrorMessage,
+    bool clearPostsErrorMessage = false,
+    bool clearActionErrorMessage = false,
+  }) {
+    return ProfileLoadedState(
+      profile ?? this.profile,
+      posts: posts ?? this.posts,
+      postsErrorMessage: clearPostsErrorMessage
+          ? null
+          : postsErrorMessage ?? this.postsErrorMessage,
+      actionErrorMessage: clearActionErrorMessage
+          ? null
+          : actionErrorMessage ?? this.actionErrorMessage,
+    );
+  }
 
   @override
-  List<Object?> get props => [profile];
+  List<Object?> get props => [
+    profile,
+    posts,
+    postsErrorMessage,
+    actionErrorMessage,
+  ];
 }
 
 class ProfileFailureState extends ProfileState {
