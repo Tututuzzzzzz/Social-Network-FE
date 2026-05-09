@@ -90,7 +90,6 @@ class _AuthorRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final showFollow = currentUserId.isNotEmpty && authorId != currentUserId;
 
     return Row(
       children: [
@@ -108,18 +107,6 @@ class _AuthorRow extends StatelessWidget {
             style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
           ),
         ),
-        // if (showFollow)
-        //   GestureDetector(
-        //     onTap: isFollowing || sendingFollowRequest ? null : onFollowTap,
-        //     child: Text(
-        //       isFollowing ? 'Following' : 'Follow',
-        //       style: TextStyle(
-        //         fontSize: 13,
-        //         fontWeight: FontWeight.w600,
-        //         color: isFollowing ? Colors.black54 : const Color(0xFF246BCE),
-        //       ),
-        //     ),
-        //   ),
       ],
     );
   }
