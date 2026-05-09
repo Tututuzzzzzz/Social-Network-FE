@@ -495,8 +495,7 @@ class AppLocalizationsVi extends AppLocalizations {
   String get postAction => 'Đăng';
 
   @override
-  String get captionHint =>
-      'Viết caption cho bài viết...\nGợi ý: thêm hashtag để tiếp cận tốt hơn.';
+  String get captionHint => 'Bạn đang nghĩ gì?';
 
   @override
   String get addMediaForPost => 'Thêm ảnh/video cho bài viết';
@@ -505,10 +504,16 @@ class AppLocalizationsVi extends AppLocalizations {
   String get pickFromLibrary => 'Chọn từ thư viện';
 
   @override
-  String get libraryLabel => 'Thư viện';
+  String get libraryLabel => 'Hình ảnh';
 
   @override
   String get cameraLabel => 'Camera';
+
+  @override
+  String get templateLabel => 'Template';
+
+  @override
+  String get templateSoon => 'Template sẽ được thêm sau.';
 
   @override
   String get friendsSearchHint => 'Search';

@@ -10,6 +10,7 @@ import '../usecases/usecase_params.dart';
 
 abstract class PostRepository {
   Future<Either<Failure, List<PostEntity>>> getAll();
+  Future<Either<Failure, PostEntity>> getById(String postId);
   Future<Either<Failure, void>> create(CreatePostParams params);
   Future<Either<Failure, void>> update(UpdatePostParams params);
   Future<Either<Failure, void>> delete(DeletePostParams params);
@@ -22,5 +23,11 @@ abstract class PostRepository {
     String content, {
     String? parentCommentId,
   });
+  Future<Either<Failure, PostCommentEntity>> updateComment(
+    String postId,
+    String commentId,
+    String content,
+  );
+  Future<Either<Failure, void>> deleteComment(String postId, String commentId);
   Future<Either<Failure, PostCommentsEntity>> getComments(String postId);
 }

@@ -489,8 +489,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get postAction => 'Post';
 
   @override
-  String get captionHint =>
-      'Write a caption for your post...\nTip: add hashtags for better reach.';
+  String get captionHint => 'What are you thinking?';
 
   @override
   String get addMediaForPost => 'Add photo/video to your post';
@@ -499,10 +498,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get pickFromLibrary => 'Pick from library';
 
   @override
-  String get libraryLabel => 'Library';
+  String get libraryLabel => 'Photos';
 
   @override
   String get cameraLabel => 'Camera';
+
+  @override
+  String get templateLabel => 'Template';
+
+  @override
+  String get templateSoon => 'Templates will be added later.';
 
   @override
   String get friendsSearchHint => 'Search';

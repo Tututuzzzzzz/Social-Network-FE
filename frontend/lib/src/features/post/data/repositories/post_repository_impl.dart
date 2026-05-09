@@ -53,6 +53,37 @@ class PostRepositoryImpl implements PostRepository {
   );
 
   @override
+  Future<Either<Failure, PostEntity>> getById(String postId) async {
+    final normalizedPostId = postId.trim();
+    if (normalizedPostId.isEmpty) {
+      return Left(EmptyFailure());
+    }
+
+    if (await _networkInfo.checkIsConnected) {
+      try {
+        final result = await _postRemoteDatasource.fetchPostById(
+          normalizedPostId,
+        );
+        return Right(result);
+      } on ServerException {
+        return Left(ServerFailure());
+      }
+    }
+
+    try {
+      final cached = await _postLocalDatasource.getAllPosts();
+      for (final post in cached) {
+        if (post.id == normalizedPostId) {
+          return Right(post);
+        }
+      }
+      return Left(CacheFailure());
+    } on CacheException {
+      return Left(CacheFailure());
+    }
+  }
+
+  @override
   Future<Either<Failure, void>> create(CreatePostParams params) async {
     final hasContent = params.content?.trim().isNotEmpty ?? false;
     final hasMedia = params.media.isNotEmpty;
@@ -177,6 +208,58 @@ class PostRepositoryImpl implements PostRepository {
       final result = await _postRemoteDatasource.createComment(
         postId,
         CreateCommentModel(content: content, parentCommentId: parentCommentId),
+      );
+      return Right(result);
+    } on ServerException {
+      return Left(ServerFailure());
+    }
+  }
+
+  @override
+  Future<Either<Failure, PostCommentEntity>> updateComment(
+    String postId,
+    String commentId,
+    String content,
+  ) async {
+    if (postId.trim().isEmpty ||
+        commentId.trim().isEmpty ||
+        content.trim().isEmpty) {
+      return Left(EmptyFailure());
+    }
+
+    if (!await _networkInfo.checkIsConnected) {
+      return Left(CacheFailure());
+    }
+
+    try {
+      final result = await _postRemoteDatasource.updateComment(
+        postId,
+        commentId,
+        UpdateCommentModel(content: content),
+      );
+      return Right(result);
+    } on ServerException {
+      return Left(ServerFailure());
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> deleteComment(
+    String postId,
+    String commentId,
+  ) async {
+    if (postId.trim().isEmpty || commentId.trim().isEmpty) {
+      return Left(EmptyFailure());
+    }
+
+    if (!await _networkInfo.checkIsConnected) {
+      return Left(CacheFailure());
+    }
+
+    try {
+      final result = await _postRemoteDatasource.deleteComment(
+        postId,
+        commentId,
       );
       return Right(result);
     } on ServerException {

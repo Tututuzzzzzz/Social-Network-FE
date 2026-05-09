@@ -11,6 +11,7 @@ import '../../domain/entities/post_media_upload_file.dart';
 
 sealed class PostRemoteDatasource {
   Future<List<PostModel>> fetchPosts();
+  Future<PostModel> fetchPostById(String postId);
   Future<void> createPost(CreatePostModel post);
   Future<void> updatePost(UpdatePostModel post);
   Future<void> deletePost(String postId);
@@ -20,6 +21,12 @@ sealed class PostRemoteDatasource {
     String postId,
     CreateCommentModel comment,
   );
+  Future<PostCommentEntity> updateComment(
+    String postId,
+    String commentId,
+    UpdateCommentModel comment,
+  );
+  Future<void> deleteComment(String postId, String commentId);
   Future<GetCommentsModel> getComments(String postId);
 }
 
@@ -29,6 +36,25 @@ class PostRemoteDatasourceImpl implements PostRemoteDatasource {
 
   @override
   Future<List<PostModel>> fetchPosts() => fetchPostsFromUrl("");
+
+  @override
+  Future<PostModel> fetchPostById(String postId) async {
+    try {
+      final result = await _apiHelper.execute(
+        method: Method.get,
+        url: ApiConstants.postById(postId),
+      );
+
+      final map = _extractPostMap(result);
+      if (map.isEmpty) {
+        throw ServerException();
+      }
+      return PostModel.fromJson(_normalizePostMap(map));
+    } catch (e, st) {
+      logger.e(e, stackTrace: st);
+      throw ServerException();
+    }
+  }
 
   Future<List<PostModel>> fetchPostsFromUrl(String url) async {
     try {
@@ -104,10 +130,7 @@ class PostRemoteDatasourceImpl implements PostRemoteDatasource {
       for (final file in files) {
         if (file.hasBytes) {
           multipartFiles.add(
-            MultipartFile.fromBytes(
-              file.bytes!,
-              filename: file.name,
-            ),
+            MultipartFile.fromBytes(file.bytes!, filename: file.name),
           );
           continue;
         }
@@ -178,27 +201,41 @@ class PostRemoteDatasourceImpl implements PostRemoteDatasource {
         url: ApiConstants.postComments(postId),
         data: comment.toJson(),
       );
+      return _commentFromResponse(result);
+    } catch (e, st) {
+      logger.e(e, stackTrace: st);
+      throw ServerException();
+    }
+  }
 
-      final data = result['data'];
-      final map = data is Map
-          ? Map<String, dynamic>.from(data)
-          : result is Map
-          ? Map<String, dynamic>.from(result)
-          : <String, dynamic>{};
-
-      final authorRaw = map['authorId'];
-      final authorId = authorRaw is Map
-          ? (authorRaw['_id'] ?? authorRaw['id'] ?? '').toString()
-          : authorRaw?.toString() ?? '';
-
-      return PostCommentEntity(
-        id: (map['_id'] ?? map['id'] ?? '').toString(),
-        parentCommentId: map['parentCommentId']?.toString(),
-        authorId: authorId,
-        content: map['content']?.toString() ?? '',
-        createdAt: DateTime.tryParse(map['createdAt']?.toString() ?? '') ?? DateTime.now(),
-        updatedAt: DateTime.tryParse(map['updatedAt']?.toString() ?? '') ?? DateTime.now(),
+  @override
+  Future<PostCommentEntity> updateComment(
+    String postId,
+    String commentId,
+    UpdateCommentModel comment,
+  ) async {
+    try {
+      final result = await _apiHelper.execute(
+        method: Method.patch,
+        url: ApiConstants.postCommentById(postId, commentId),
+        data: comment.toJson(),
       );
+
+      return _commentFromResponse(result);
+    } catch (e, st) {
+      logger.e(e, stackTrace: st);
+      throw ServerException();
+    }
+  }
+
+  @override
+  Future<void> deleteComment(String postId, String commentId) async {
+    try {
+      await _apiHelper.execute(
+        method: Method.delete,
+        url: ApiConstants.postCommentById(postId, commentId),
+      );
+      return;
     } catch (e, st) {
       logger.e(e, stackTrace: st);
       throw ServerException();
@@ -218,6 +255,54 @@ class PostRemoteDatasourceImpl implements PostRemoteDatasource {
       logger.e(e, stackTrace: st);
       throw ServerException();
     }
+  }
+
+  PostCommentEntity _commentFromResponse(Map<String, dynamic> result) {
+    final data = result['data'];
+    final map = data is Map
+        ? Map<String, dynamic>.from(data)
+        : result is Map
+        ? Map<String, dynamic>.from(result)
+        : <String, dynamic>{};
+    return _commentFromMap(map);
+  }
+
+  PostCommentEntity _commentFromMap(Map<String, dynamic> map) {
+    final authorRaw = map['authorId'];
+    final authorMap = authorRaw is Map
+        ? Map<String, dynamic>.from(authorRaw)
+        : null;
+    final authorId = authorMap != null
+        ? (authorMap['_id'] ?? authorMap['id'] ?? '').toString()
+        : authorRaw?.toString() ?? '';
+
+    return PostCommentEntity(
+      id: (map['_id'] ?? map['id'] ?? '').toString(),
+      parentCommentId: map['parentCommentId']?.toString(),
+      authorId: authorId,
+      authorUsername: _firstNonEmpty([
+        map['authorUsername'],
+        authorMap?['username'],
+      ]),
+      authorDisplayName: _firstNonEmpty([
+        map['authorDisplayName'],
+        authorMap?['displayName'],
+        authorMap?['fullName'],
+      ]),
+      authorAvatarUrl: _firstNonEmpty([
+        map['authorAvatarUrl'],
+        map['avatarUrl'],
+        authorMap?['avatarUrl'],
+        authorMap?['avatar'],
+      ]),
+      content: map['content']?.toString() ?? '',
+      createdAt:
+          DateTime.tryParse(map['createdAt']?.toString() ?? '') ??
+          DateTime.now(),
+      updatedAt:
+          DateTime.tryParse(map['updatedAt']?.toString() ?? '') ??
+          DateTime.now(),
+    );
   }
 
   List<Map<String, dynamic>> _extractPostMaps(Map<String, dynamic> result) {
@@ -257,6 +342,42 @@ class PostRemoteDatasourceImpl implements PostRemoteDatasource {
     }
 
     return const [];
+  }
+
+  Map<String, dynamic> _extractPostMap(Map<String, dynamic> result) {
+    final data = result['data'];
+    if (data is Map) {
+      final map = Map<String, dynamic>.from(data);
+      final post = map['post'];
+      if (post is Map) {
+        return Map<String, dynamic>.from(post);
+      }
+
+      final item = map['item'];
+      if (item is Map) {
+        return Map<String, dynamic>.from(item);
+      }
+
+      if (map.containsKey('_id') || map.containsKey('id')) {
+        return map;
+      }
+    }
+
+    final post = result['post'];
+    if (post is Map) {
+      return Map<String, dynamic>.from(post);
+    }
+
+    final item = result['item'];
+    if (item is Map) {
+      return Map<String, dynamic>.from(item);
+    }
+
+    if (result.containsKey('_id') || result.containsKey('id')) {
+      return result;
+    }
+
+    return const <String, dynamic>{};
   }
 
   Map<String, dynamic> _normalizePostMap(Map<String, dynamic> raw) {
@@ -312,11 +433,21 @@ class PostRemoteDatasourceImpl implements PostRemoteDatasource {
                 'id': (e['id'] ?? e['_id'] ?? '').toString(),
                 'parentCommentId': e['parentCommentId']?.toString(),
                 'authorId': commentAuthorId,
-                'authorUsername': commentAuthorMap?['username']?.toString(),
-                'authorDisplayName': (commentAuthorMap?['displayName'] ??
-                        commentAuthorMap?['fullName'])
-                    ?.toString(),
-                'authorAvatarUrl': commentAuthorMap?['avatarUrl']?.toString(),
+                'authorUsername': _firstNonEmpty([
+                  e['authorUsername'],
+                  commentAuthorMap?['username'],
+                ]),
+                'authorDisplayName': _firstNonEmpty([
+                  e['authorDisplayName'],
+                  commentAuthorMap?['displayName'],
+                  commentAuthorMap?['fullName'],
+                ]),
+                'authorAvatarUrl': _firstNonEmpty([
+                  e['authorAvatarUrl'],
+                  e['avatarUrl'],
+                  commentAuthorMap?['avatarUrl'],
+                  commentAuthorMap?['avatar'],
+                ]),
                 'content': (e['content'] ?? '').toString(),
                 'createdAt': _toIsoString(e['createdAt']),
                 'updatedAt': _toIsoString(e['updatedAt']),
@@ -358,5 +489,14 @@ class PostRemoteDatasourceImpl implements PostRemoteDatasource {
       return value;
     }
     return DateTime.now().toIso8601String();
+  }
+
+  String? _firstNonEmpty(List<Object?> values) {
+    for (final value in values) {
+      final text = value?.toString().trim() ?? '';
+      if (text.isNotEmpty) return text;
+    }
+
+    return null;
   }
 }
