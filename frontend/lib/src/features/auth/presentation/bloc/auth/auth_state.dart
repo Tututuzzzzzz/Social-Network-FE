@@ -87,3 +87,23 @@ class AuthCheckSignInStatusFailureState extends AuthState {
   @override
   List<Object?> get props => [message];
 }
+
+class AuthForgotPasswordLoadingState extends AuthState {}
+
+class AuthForgotPasswordSuccessState extends AuthState {
+  final String message;
+
+  const AuthForgotPasswordSuccessState(this.message);
+
+  @override
+  List<Object?> get props => [message];
+}
+
+class AuthForgotPasswordFailureState extends AuthState {
+  final String message;
+
+  const AuthForgotPasswordFailureState(this.message);
+
+  @override
+  List<Object?> get props => [message];
+}

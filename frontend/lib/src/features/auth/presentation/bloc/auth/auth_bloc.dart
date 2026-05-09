@@ -11,6 +11,7 @@ import '../../../domain/usecases/check_signin_status_usecase.dart';
 import '../../../domain/usecases/login_usecase.dart';
 import '../../../domain/usecases/logout_usecase.dart';
 import '../../../domain/usecases/register_usecase.dart';
+import '../../../domain/usecases/forgot_password_usecase.dart';
 import '../../../domain/usecases/usecase_params.dart';
 
 part 'auth_event.dart';
@@ -21,16 +22,19 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final AuthRegisterUseCase _registerUseCase;
   final AuthLogoutUseCase _logoutUseCase;
   final AuthCheckSignInStatusUseCase _checkSignInStatusUseCase;
+  final AuthForgotPasswordUseCase _forgotPasswordUseCase;
   AuthBloc(
     this._loginUseCase,
     this._logoutUseCase,
     this._registerUseCase,
     this._checkSignInStatusUseCase,
+    this._forgotPasswordUseCase,
   ) : super(AuthInitialState()) {
     on<AuthLoginEvent>(_login);
     on<AuthLogoutEvent>(_logout);
     on<AuthRegisterEvent>(_register);
     on<AuthCheckSignInStatusEvent>(_checkSignInStatus);
+    on<AuthForgotPasswordEvent>(_forgotPassword);
   }
 
   Future _login(AuthLoginEvent event, Emitter emit) async {
@@ -95,6 +99,22 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     result.fold(
       (l) => emit(AuthCheckSignInStatusFailureState(mapFailureToMessage(l))),
       (r) => emit(AuthCheckSignInStatusSuccessState(r)),
+    );
+  }
+
+  Future _forgotPassword(
+    AuthForgotPasswordEvent event,
+    Emitter emit,
+  ) async {
+    emit(AuthForgotPasswordLoadingState());
+
+    final result = await _forgotPasswordUseCase.call(event.email);
+
+    result.fold(
+      (l) => emit(AuthForgotPasswordFailureState(mapFailureToMessage(l))),
+      (r) => emit(const AuthForgotPasswordSuccessState(
+        "Mật khẩu mới đã được gửi đến email của bạn!",
+      )),
     );
   }
 

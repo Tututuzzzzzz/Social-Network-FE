@@ -49,3 +49,12 @@ class AuthRegisterEvent extends AuthEvent {
 class AuthLogoutEvent extends AuthEvent {}
 
 class AuthCheckSignInStatusEvent extends AuthEvent {}
+
+class AuthForgotPasswordEvent extends AuthEvent {
+  final String email;
+
+  const AuthForgotPasswordEvent(this.email);
+
+  @override
+  List<Object?> get props => [email];
+}
