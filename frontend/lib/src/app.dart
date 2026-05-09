@@ -22,7 +22,9 @@ class App extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider<AuthBloc>(create: (_) => getIt<AuthBloc>()),
-        BlocProvider<NotificationBloc>(create: (_) => getIt<NotificationBloc>()),
+        BlocProvider<NotificationBloc>(
+          create: (_) => getIt<NotificationBloc>(),
+        ),
         BlocProvider<LanguageBloc>(
           create: (_) => getIt<LanguageBloc>()..add(LanguageStarted()),
         ),
@@ -52,14 +54,13 @@ class App extends StatelessWidget {
                   supportedLocales: AppLocalizations.supportedLocales,
                   locale: languageState.locale,
                   localeResolutionCallback: (locale, supportedLocales) {
-                    if (locale == null) return const Locale('en');
+                    if (locale == null) return const Locale('vi');
                     for (var supportedLocale in supportedLocales) {
-                      if (supportedLocale.languageCode ==
-                          locale.languageCode) {
+                      if (supportedLocale.languageCode == locale.languageCode) {
                         return supportedLocale;
                       }
                     }
-                    return const Locale('en');
+                    return const Locale('vi');
                   },
                 );
               },

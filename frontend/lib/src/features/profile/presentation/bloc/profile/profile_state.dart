@@ -11,26 +11,51 @@ class ProfileInitialState extends ProfileState {}
 
 class ProfileLoadingState extends ProfileState {}
 
+enum ProfileFriendRequestStatus { idle, sending, sent, friends, failure }
+
+enum ProfileDirectMessageStatus { idle, opening, failure }
+
 class ProfileLoadedState extends ProfileState {
   final ProfileEntity profile;
   final List<PostEntity> posts;
   final String? postsErrorMessage;
   final String? actionErrorMessage;
+  final ProfileFriendRequestStatus? _friendRequestStatus;
+  final ProfileDirectMessageStatus? _directMessageStatus;
+  final ChatEntity? openedChat;
+  final String? directMessageErrorMessage;
 
   const ProfileLoadedState(
     this.profile, {
     this.posts = const [],
     this.postsErrorMessage,
     this.actionErrorMessage,
-  });
+    ProfileFriendRequestStatus? friendRequestStatus,
+    ProfileDirectMessageStatus? directMessageStatus,
+    this.openedChat,
+    this.directMessageErrorMessage,
+  }) : _friendRequestStatus = friendRequestStatus,
+       _directMessageStatus = directMessageStatus;
+
+  ProfileFriendRequestStatus get friendRequestStatus =>
+      _friendRequestStatus ?? ProfileFriendRequestStatus.idle;
+
+  ProfileDirectMessageStatus get directMessageStatus =>
+      _directMessageStatus ?? ProfileDirectMessageStatus.idle;
 
   ProfileLoadedState copyWith({
     ProfileEntity? profile,
     List<PostEntity>? posts,
     String? postsErrorMessage,
     String? actionErrorMessage,
+    ProfileFriendRequestStatus? friendRequestStatus,
+    ProfileDirectMessageStatus? directMessageStatus,
+    ChatEntity? openedChat,
+    String? directMessageErrorMessage,
     bool clearPostsErrorMessage = false,
     bool clearActionErrorMessage = false,
+    bool clearOpenedChat = false,
+    bool clearDirectMessageErrorMessage = false,
   }) {
     return ProfileLoadedState(
       profile ?? this.profile,
@@ -41,6 +66,12 @@ class ProfileLoadedState extends ProfileState {
       actionErrorMessage: clearActionErrorMessage
           ? null
           : actionErrorMessage ?? this.actionErrorMessage,
+      friendRequestStatus: friendRequestStatus ?? this.friendRequestStatus,
+      directMessageStatus: directMessageStatus ?? this.directMessageStatus,
+      openedChat: clearOpenedChat ? null : openedChat ?? this.openedChat,
+      directMessageErrorMessage: clearDirectMessageErrorMessage
+          ? null
+          : directMessageErrorMessage ?? this.directMessageErrorMessage,
     );
   }
 
@@ -50,6 +81,10 @@ class ProfileLoadedState extends ProfileState {
     posts,
     postsErrorMessage,
     actionErrorMessage,
+    friendRequestStatus,
+    directMessageStatus,
+    openedChat,
+    directMessageErrorMessage,
   ];
 }
 

@@ -75,6 +75,17 @@ class AppRoutesConf {
           ),
         ],
       ),
+      GoRoute(
+        path: AppRoutes.editProfile.path,
+        name: AppRoutes.editProfile.name,
+        builder: (context, state) {
+          final userId = state.extra is String ? state.extra as String : null;
+          return BlocProvider<ProfileBloc>(
+            create: (_) => getIt<ProfileBloc>(),
+            child: EditProfilePage(userId: userId),
+          );
+        },
+      ),
       ShellRoute(
         builder: (context, state, child) => AppShellPage(body: child),
         routes: [
@@ -121,6 +132,11 @@ class AppRoutesConf {
             ),
           ),
           GoRoute(
+            path: AppRoutes.profileFriends.path,
+            name: AppRoutes.profileFriends.name,
+            builder: (context, state) => const FriendsListPage(),
+          ),
+          GoRoute(
             path: AppRoutes.otherProfile.path,
             name: AppRoutes.otherProfile.name,
             builder: (context, state) {
@@ -132,11 +148,6 @@ class AppRoutesConf {
             },
           ),
         ],
-      ),
-      GoRoute(
-        path: AppRoutes.editProfile.path,
-        name: AppRoutes.editProfile.name,
-        builder: (context, state) => const EditProfilePage(),
       ),
       GoRoute(
         path: AppRoutes.chatMochiChatRoom.path,

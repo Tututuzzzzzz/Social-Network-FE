@@ -8,6 +8,8 @@ import '../../../../core/cache/secure_local_storage.dart';
 import '../../../../core/l10n/l10n.dart';
 import '../../../../core/utils/failure_converter.dart';
 import '../../../../routes/app_route_path.dart';
+import '../../../auth/presentation/bloc/auth/auth_bloc.dart';
+import '../../../chat/domain/entities/chat_entity.dart';
 import '../../domain/entities/profile_entity.dart';
 import '../../domain/usecases/update_avatar_usecase.dart';
 import '../../domain/usecases/usecase_params.dart';
@@ -18,6 +20,7 @@ import '../widgets/profile_avatar_viewer.dart';
 import '../widgets/profile_header.dart';
 import '../widgets/profile_photos_tab.dart';
 import '../widgets/profile_posts_tab.dart';
+import '../widgets/profile_settings_sheet.dart';
 import '../widgets/profile_sliver_tab_bar.dart';
 
 class MochiProfilePage extends StatefulWidget {
@@ -89,8 +92,81 @@ class _MochiProfilePageState extends State<MochiProfilePage> {
     );
   }
 
-  void _openEditProfile() {
-    context.push(AppRoutes.editProfile.path);
+  void _openFriendsList() {
+    if (!_isOwnProfile) {
+      return;
+    }
+
+    context.pushNamed(AppRoutes.profileFriends.name);
+  }
+
+  void _sendFriendRequest() {
+    if (_isOwnProfile || _targetUserId.isEmpty) {
+      return;
+    }
+
+    context.read<ProfileBloc>().add(
+      ProfileFriendRequestSendEvent(_targetUserId),
+    );
+  }
+
+  void _openDirectMessage() {
+    if (_isOwnProfile || _targetUserId.isEmpty) {
+      return;
+    }
+
+    context.read<ProfileBloc>().add(
+      ProfileDirectMessageOpenEvent(_targetUserId),
+    );
+  }
+
+  void _openChatRoom(ChatEntity chat) {
+    final threadId = chat.id.trim();
+    if (threadId.isEmpty) {
+      return;
+    }
+
+    context.pushNamed(
+      AppRoutes.chatMochiChatRoom.name,
+      pathParameters: {'threadId': threadId},
+      extra: chat,
+    );
+  }
+
+  Future<void> _openProfileSettings() async {
+    final action = await showProfileSettingsSheet(context);
+    if (!mounted || action == null) {
+      return;
+    }
+
+    switch (action) {
+      case ProfileSettingsAction.editProfile:
+        final updated = await context.push<bool>(
+          AppRoutes.editProfile.path,
+          extra: _currentUserId,
+        );
+        if (mounted && updated == true) {
+          await _refreshProfile();
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(context.l10n.profileUpdateSuccess)),
+            );
+          }
+        }
+        break;
+      case ProfileSettingsAction.logout:
+        _logout();
+        break;
+    }
+  }
+
+  void _logout() {
+    final authBloc = context.read<AuthBloc>();
+    if (authBloc.state is AuthLogoutLoadingState) {
+      return;
+    }
+
+    authBloc.add(AuthLogoutEvent());
   }
 
   Future<void> _openAvatarViewer(ProfileEntity profile) {
@@ -189,32 +265,82 @@ class _MochiProfilePageState extends State<MochiProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF3F7F5),
-      appBar: AppBar(
-        systemOverlayStyle: SystemUiOverlayStyle.light,
-        backgroundColor: const Color(0xFF31B991),
-        foregroundColor: Colors.white,
-        elevation: 0,
-        centerTitle: true,
-        title: const Text(
-          'Hồ Sơ Cá Nhân',
-          style: TextStyle(
-            fontSize: 17,
-            fontWeight: FontWeight.w900,
-            color: Colors.white,
-          ),
-        ),
-        actions: [
-          if (_isOwnProfile)
-            IconButton(
-              tooltip: 'Chỉnh sửa hồ sơ',
-              onPressed: _openEditProfile,
-              icon: const Icon(Icons.settings_rounded),
+    return BlocConsumer<AuthBloc, AuthState>(
+      listenWhen: (previous, current) {
+        return current is AuthLogoutSuccessState ||
+            current is AuthLogoutFailureState;
+      },
+      listener: (context, state) {
+        if (state is AuthLogoutSuccessState) {
+          ScaffoldMessenger.of(context).clearSnackBars();
+          context.go(AppRoutes.login.path);
+          return;
+        }
+
+        if (state is AuthLogoutFailureState) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                state.message.isEmpty
+                    ? context.l10n.logoutFailed
+                    : state.message,
+              ),
             ),
-        ],
-      ),
-      body: _buildBody(),
+          );
+        }
+      },
+      buildWhen: (previous, current) {
+        return previous is AuthLogoutLoadingState ||
+            current is AuthLogoutLoadingState;
+      },
+      builder: (context, authState) {
+        final isLoggingOut = authState is AuthLogoutLoadingState;
+
+        return Stack(
+          children: [
+            Scaffold(
+              backgroundColor: const Color(0xFFF3F7F5),
+              appBar: AppBar(
+                systemOverlayStyle: SystemUiOverlayStyle.light,
+                backgroundColor: const Color(0xFF31B991),
+                foregroundColor: Colors.white,
+                elevation: 0,
+                centerTitle: true,
+                title: const Text(
+                  'Hồ Sơ Cá Nhân',
+                  style: TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w900,
+                    color: Colors.white,
+                  ),
+                ),
+                actions: [
+                  if (_isOwnProfile)
+                    IconButton(
+                      tooltip: context.l10n.profileSettingsTitle,
+                      onPressed: isLoggingOut ? null : _openProfileSettings,
+                      icon: const Icon(Icons.settings_rounded),
+                    ),
+                ],
+              ),
+              body: _buildBody(),
+            ),
+            if (isLoggingOut)
+              Positioned.fill(
+                child: ColoredBox(
+                  color: Colors.black.withValues(alpha: 0.18),
+                  child: const Center(
+                    child: SizedBox(
+                      width: 34,
+                      height: 34,
+                      child: CircularProgressIndicator(strokeWidth: 3),
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        );
+      },
     );
   }
 
@@ -236,23 +362,80 @@ class _MochiProfilePageState extends State<MochiProfilePage> {
         if (current is! ProfileLoadedState) {
           return false;
         }
+        final previousLoaded = previous is ProfileLoadedState ? previous : null;
         final previousMessage = previous is ProfileLoadedState
             ? previous.actionErrorMessage
             : null;
-        return current.actionErrorMessage != null &&
+        final hasNewActionError =
+            current.actionErrorMessage != null &&
             current.actionErrorMessage != previousMessage;
+        final hasNewFriendRequestSuccess =
+            current.friendRequestStatus == ProfileFriendRequestStatus.sent &&
+            previousLoaded?.friendRequestStatus !=
+                ProfileFriendRequestStatus.sent;
+        final hasNewFriendRequestFailure =
+            current.friendRequestStatus == ProfileFriendRequestStatus.failure &&
+            previousLoaded?.friendRequestStatus !=
+                ProfileFriendRequestStatus.failure;
+        final hasNewDirectMessageFailure =
+            current.directMessageStatus == ProfileDirectMessageStatus.failure &&
+            previousLoaded?.directMessageStatus !=
+                ProfileDirectMessageStatus.failure;
+        final hasNewOpenedChat =
+            current.openedChat != null &&
+            current.openedChat?.id != previousLoaded?.openedChat?.id;
+
+        return hasNewActionError ||
+            hasNewFriendRequestSuccess ||
+            hasNewFriendRequestFailure ||
+            hasNewDirectMessageFailure ||
+            hasNewOpenedChat;
       },
       listener: (context, state) {
         if (state is! ProfileLoadedState) {
           return;
         }
+        var shouldClearFeedback = false;
+
         final message = state.actionErrorMessage;
-        if (message == null) {
-          return;
+        if (message != null) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(message)));
+          shouldClearFeedback = true;
         }
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(message)));
+
+        if (state.friendRequestStatus == ProfileFriendRequestStatus.sent) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(context.l10n.friendRequestSendSuccess)),
+          );
+          shouldClearFeedback = true;
+        }
+
+        if (state.friendRequestStatus == ProfileFriendRequestStatus.failure) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(context.l10n.friendRequestSendError)),
+          );
+          shouldClearFeedback = true;
+        }
+
+        if (state.directMessageStatus == ProfileDirectMessageStatus.failure) {
+          final error = state.directMessageErrorMessage ?? '';
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(context.l10n.cannotOpenChat(error))),
+          );
+          shouldClearFeedback = true;
+        }
+
+        final openedChat = state.openedChat;
+        if (openedChat != null) {
+          shouldClearFeedback = true;
+          _openChatRoom(openedChat);
+        }
+
+        if (shouldClearFeedback) {
+          context.read<ProfileBloc>().add(ProfileActionFeedbackClearedEvent());
+        }
       },
       builder: (context, state) {
         if (state is ProfileLoadingState || state is ProfileInitialState) {
@@ -283,7 +466,23 @@ class _MochiProfilePageState extends State<MochiProfilePage> {
                     child: ProfileHeader(
                       profile: state.profile,
                       postsCount: postsCount,
+                      isOwnProfile: _isOwnProfile,
+                      isSendingFriendRequest:
+                          state.friendRequestStatus ==
+                          ProfileFriendRequestStatus.sending,
+                      isFriendRequestSent:
+                          state.friendRequestStatus ==
+                          ProfileFriendRequestStatus.sent,
+                      isFriend:
+                          state.friendRequestStatus ==
+                          ProfileFriendRequestStatus.friends,
+                      isOpeningMessage:
+                          state.directMessageStatus ==
+                          ProfileDirectMessageStatus.opening,
                       onAvatarTap: () => _openAvatarViewer(state.profile),
+                      onFriendsTap: _isOwnProfile ? _openFriendsList : null,
+                      onAddFriend: _sendFriendRequest,
+                      onMessage: _openDirectMessage,
                     ),
                   ),
                   const ProfileSliverTabBar(),

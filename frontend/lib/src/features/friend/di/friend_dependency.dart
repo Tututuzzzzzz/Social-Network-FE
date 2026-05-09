@@ -2,6 +2,8 @@ import '../../../configs/injector/injector_conf.dart';
 import '../../../core/api/api_helper.dart';
 import '../data/datasources/friend_remote_data_source.dart';
 import '../data/repositories/friend_repository_impl.dart';
+import '../domain/usecases/get_all_friend_ids.dart';
+import '../domain/usecases/get_friends.dart';
 import '../domain/usecases/get_friend_requests.dart';
 import '../domain/usecases/accept_friend_request.dart';
 import '../domain/usecases/reject_friend_request.dart';
@@ -21,6 +23,18 @@ class FriendDependency {
     if (!getIt.isRegistered<GetFriendRequests>()) {
       getIt.registerLazySingleton(
         () => GetFriendRequests(getIt<FriendRepositoryImpl>()),
+      );
+    }
+
+    if (!getIt.isRegistered<GetAllFriendIds>()) {
+      getIt.registerLazySingleton(
+        () => GetAllFriendIds(getIt<FriendRepositoryImpl>()),
+      );
+    }
+
+    if (!getIt.isRegistered<GetFriends>()) {
+      getIt.registerLazySingleton(
+        () => GetFriends(getIt<FriendRepositoryImpl>()),
       );
     }
 

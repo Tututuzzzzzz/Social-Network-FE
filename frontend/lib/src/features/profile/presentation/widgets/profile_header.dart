@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../domain/entities/profile_entity.dart';
+import 'profile_action_bar.dart';
 import 'profile_avatar.dart';
 
 class ProfileHeader extends StatelessWidget {
@@ -8,12 +9,28 @@ class ProfileHeader extends StatelessWidget {
     super.key,
     required this.profile,
     required this.postsCount,
+    this.isOwnProfile = true,
+    this.isSendingFriendRequest = false,
+    this.isFriendRequestSent = false,
+    this.isFriend = false,
+    this.isOpeningMessage = false,
     this.onAvatarTap,
+    this.onFriendsTap,
+    this.onAddFriend,
+    this.onMessage,
   });
 
   final ProfileEntity profile;
   final int postsCount;
+  final bool isOwnProfile;
+  final bool isSendingFriendRequest;
+  final bool isFriendRequestSent;
+  final bool isFriend;
+  final bool isOpeningMessage;
   final VoidCallback? onAvatarTap;
+  final VoidCallback? onFriendsTap;
+  final VoidCallback? onAddFriend;
+  final VoidCallback? onMessage;
 
   @override
   Widget build(BuildContext context) {
@@ -107,6 +124,7 @@ class ProfileHeader extends StatelessWidget {
                       child: _ProfileMetric(
                         icon: Icons.group_rounded,
                         value: profile.friendsCount,
+                        onTap: onFriendsTap,
                         label: 'Bạn bè',
                       ),
                     ),
@@ -120,6 +138,17 @@ class ProfileHeader extends StatelessWidget {
                     ),
                   ],
                 ),
+                if (!isOwnProfile) ...[
+                  const SizedBox(height: 14),
+                  ProfileActionBar(
+                    isSendingFriendRequest: isSendingFriendRequest,
+                    isFriendRequestSent: isFriendRequestSent,
+                    isFriend: isFriend,
+                    isOpeningMessage: isOpeningMessage,
+                    onAddFriend: onAddFriend,
+                    onMessage: onMessage,
+                  ),
+                ],
               ],
             ),
           ),
@@ -167,70 +196,81 @@ class _ProfileMetric extends StatelessWidget {
     required this.icon,
     required this.value,
     required this.label,
+    this.onTap,
   });
 
   final IconData icon;
   final int value;
   final String label;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.88),
+    final content = Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Container(
+          width: 34,
+          height: 34,
+          decoration: const BoxDecoration(
+            color: Color(0xFFDDF8ED),
+            shape: BoxShape.circle,
+          ),
+          child: Icon(icon, color: Color(0xFF25A97A), size: 19),
+        ),
+        const SizedBox(width: 10),
+        Flexible(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                _formatCount(value),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  color: Color(0xFF14221D),
+                  fontSize: 16,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  color: Color(0xFF61706C),
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+
+    return Material(
+      color: Colors.white.withValues(alpha: 0.88),
+      borderRadius: BorderRadius.circular(16),
+      child: InkWell(
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF1D5848).withValues(alpha: 0.08),
-            blurRadius: 16,
-            offset: const Offset(0, 8),
+        onTap: onTap,
+        child: Ink(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: Colors.white),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFF1D5848).withValues(alpha: 0.08),
+                blurRadius: 16,
+                offset: const Offset(0, 8),
+              ),
+            ],
           ),
-        ],
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            width: 34,
-            height: 34,
-            decoration: const BoxDecoration(
-              color: Color(0xFFDDF8ED),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(icon, color: Color(0xFF25A97A), size: 19),
-          ),
-          const SizedBox(width: 10),
-          Flexible(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  _formatCount(value),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    color: Color(0xFF14221D),
-                    fontSize: 16,
-                    fontWeight: FontWeight.w900,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  label,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    color: Color(0xFF61706C),
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
+          child: content,
+        ),
       ),
     );
   }

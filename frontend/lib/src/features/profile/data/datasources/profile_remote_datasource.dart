@@ -157,6 +157,7 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
       'username': _asText(user['username']),
       'displayName': _asText(user['displayName']),
       'bio': _asText(user['bio']),
+      'phone': _asText(user['phone']),
       'avatarUrl': _asText(user['avatarUrl']).isNotEmpty
           ? _asText(user['avatarUrl'])
           : (_asText(user['avatar']).isNotEmpty

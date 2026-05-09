@@ -8,7 +8,7 @@ extension L10nX on BuildContext {
       return localizations;
     }
 
-    final locale = Localizations.maybeLocaleOf(this) ?? const Locale('en');
+    final locale = Localizations.maybeLocaleOf(this) ?? const Locale('vi');
     return lookupAppLocalizations(locale);
   }
 }

@@ -87,17 +87,16 @@ class _FeedScreenState extends State<FeedScreen> {
       isScrollControlled: true,
       useSafeArea: true,
       backgroundColor: Colors.transparent,
-      builder: (_) =>
-          CommentsSheet(
-            initialPost: initialPost,
-            currentUserId: _currentUserId.isEmpty ? null : _currentUserId,
-            onCommentsCountChanged: (count) {
-              if (!mounted) return;
-              setState(() {
-                _commentCountOverrides[initialPost.id] = count;
-              });
-            },
-          ),
+      builder: (_) => CommentsSheet(
+        initialPost: initialPost,
+        currentUserId: _currentUserId.isEmpty ? null : _currentUserId,
+        onCommentsCountChanged: (count) {
+          if (!mounted) return;
+          setState(() {
+            _commentCountOverrides[initialPost.id] = count;
+          });
+        },
+      ),
     );
   }
 
@@ -107,6 +106,18 @@ class _FeedScreenState extends State<FeedScreen> {
 
   void _openChatScreen() {
     context.go(AppRoutes.chat.path);
+  }
+
+  void _openAuthorProfile(PostEntity post) {
+    final authorId = post.authorId.trim();
+    if (authorId.isEmpty) {
+      return;
+    }
+
+    context.pushNamed(
+      AppRoutes.otherProfile.name,
+      pathParameters: {'userId': authorId},
+    );
   }
 
   void _showFeatureSoon() {
@@ -316,7 +327,9 @@ class _FeedScreenState extends State<FeedScreen> {
                         final isSelfPost =
                             _currentUserId.isNotEmpty &&
                             post.authorId == _currentUserId;
-                        final isAlreadyFriend = _friendIds.contains(post.authorId);
+                        final isAlreadyFriend = _friendIds.contains(
+                          post.authorId,
+                        );
                         final hasSentRequest = _sentFriendRequestAuthorIds
                             .contains(post.authorId);
                         final isSendingRequest = _sendingFriendRequestAuthorIds
@@ -332,8 +345,9 @@ class _FeedScreenState extends State<FeedScreen> {
                                   value: postBloc,
                                   child: PostDetailScreen(
                                     initialPost: post,
-                                    currentUserId:
-                                        _currentUserId.isEmpty ? null : _currentUserId,
+                                    currentUserId: _currentUserId.isEmpty
+                                        ? null
+                                        : _currentUserId,
                                   ),
                                 ),
                               ),
@@ -341,32 +355,34 @@ class _FeedScreenState extends State<FeedScreen> {
                           },
                           child: PostCard(
                             post: post,
-                          isLikedByMe: _currentUserId.isNotEmpty &&
-                              post.likes.contains(_currentUserId),
-                          commentCountOverride: _commentCountOverrides[post.id],
-                          isFollowing: isAlreadyFriend,
-                          showFollowButton: !isSelfPost,
-                          onLike: () {
-                            context.read<PostBloc>().add(
-                              PostLikeToggleEvent(post.id),
-                            );
-                          },
-                          onFollowTap: isSelfPost || isAlreadyFriend
-                              ? null
-                              : isSendingRequest
-                              ? null
-                              : () => _onFollowTap(post),
-                          onAuthorTap: _showFeatureSoon,
-                          onComment: () => _openCommentsSheet(post),
-                          onViewComments: () => _openCommentsSheet(post),
-                          onShare: _showFeatureSoon,
-                          onSave: _showFeatureSoon,
-                          onMore: () => _showPostOptionsSheet(post),
-                          followingLabel: isAlreadyFriend
-                              ? "Bạn bè"
-                              : hasSentRequest
-                              ? "Following"
-                              : "Follow",
+                            isLikedByMe:
+                                _currentUserId.isNotEmpty &&
+                                post.likes.contains(_currentUserId),
+                            commentCountOverride:
+                                _commentCountOverrides[post.id],
+                            isFollowing: isAlreadyFriend,
+                            showFollowButton: !isSelfPost,
+                            onLike: () {
+                              context.read<PostBloc>().add(
+                                PostLikeToggleEvent(post.id),
+                              );
+                            },
+                            onFollowTap: isSelfPost || isAlreadyFriend
+                                ? null
+                                : isSendingRequest
+                                ? null
+                                : () => _onFollowTap(post),
+                            onAuthorTap: () => _openAuthorProfile(post),
+                            onComment: () => _openCommentsSheet(post),
+                            onViewComments: () => _openCommentsSheet(post),
+                            onShare: _showFeatureSoon,
+                            onSave: _showFeatureSoon,
+                            onMore: () => _showPostOptionsSheet(post),
+                            followingLabel: isAlreadyFriend
+                                ? "Bạn bè"
+                                : hasSentRequest
+                                ? "Following"
+                                : "Follow",
                           ),
                         );
                       },

@@ -2,6 +2,9 @@ import '../../../configs/injector/injector_conf.dart';
 import '../../../core/cache/hive_local_storage.dart';
 import '../../../core/network/network_checker.dart';
 import '../../../core/api/api_helper.dart';
+import '../../chat/domain/usecases/create_direct_conversation_usecase.dart';
+import '../../friend/domain/usecases/get_all_friend_ids.dart';
+import '../../friend/domain/usecases/send_friend_request.dart';
 import '../../post/domain/usecases/toggle_like_post_usecase.dart';
 import '../data/datasources/profile_local_datasource.dart';
 import '../data/datasources/profile_remote_datasource.dart';
@@ -22,6 +25,10 @@ class ProfileDependency {
         getIt<GetProfileUseCase>(),
         getIt<GetUserPostsUseCase>(),
         getIt<ToggleLikePostUseCase>(),
+        getIt<UpdateProfileUseCase>(),
+        getIt<GetAllFriendIds>(),
+        getIt<SendFriendRequest>(),
+        getIt<CreateDirectConversationUseCase>(),
       ),
     );
 
