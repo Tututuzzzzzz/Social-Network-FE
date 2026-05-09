@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
 import 'package:frontend/src/configs/injector/injector_conf.dart';
 import 'package:frontend/src/core/cache/secure_local_storage.dart';
 import 'package:frontend/src/core/l10n/l10n.dart';
@@ -9,6 +10,7 @@ import 'package:frontend/src/core/utils/failure_converter.dart';
 import 'package:frontend/src/features/friend/data/repositories/friend_repository_impl.dart';
 import 'package:frontend/src/features/friend/domain/usecases/send_friend_request.dart';
 import 'package:frontend/src/features/post/domain/entities/post_entity.dart';
+import 'package:frontend/src/features/post/domain/entities/post_comments_entity.dart';
 import 'package:frontend/src/features/post/domain/entities/post_media_entity.dart';
 import 'package:frontend/src/features/post/domain/entities/post_media_upload_file.dart';
 import 'package:frontend/src/features/post/domain/usecases/delete_post_usecase.dart';
@@ -17,11 +19,9 @@ import 'package:frontend/src/features/post/domain/usecases/upload_post_media_use
 import 'package:frontend/src/features/post/domain/usecases/usecase_params.dart';
 import 'package:frontend/src/features/post/presentation/bloc/post/post_bloc.dart';
 import 'package:frontend/src/features/post/presentation/widgets/comments_sheet.dart';
-import 'package:frontend/src/features/post/presentation/widgets/edit_post_bottom_sheet.dart';
-import 'package:frontend/src/features/post/presentation/widgets/post_detail_content.dart';
-import 'package:frontend/src/features/post/presentation/widgets/post_detail_image_actions_sheet.dart';
-import 'package:frontend/src/features/post/presentation/widgets/post_detail_media_carousel.dart';
-import 'package:frontend/src/features/post/presentation/widgets/post_owner_actions_sheet.dart';
+import 'package:frontend/src/features/post/presentation/widgets/post_detail_screen/edit_post_bottom_sheet.dart';
+import 'package:frontend/src/features/post/presentation/widgets/post_detail_screen/post_detail_image_actions_sheet.dart';
+import 'package:frontend/src/features/post/presentation/widgets/post_detail_screen/post_owner_actions_sheet.dart';
 
 class PostDetailScreen extends StatefulWidget {
   const PostDetailScreen({
@@ -169,12 +169,29 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
       builder: (_) => CommentsSheet(
         initialPost: _post,
         currentUserId: _currentUserId.isEmpty ? null : _currentUserId,
-        onCommentsCountChanged: (count) {
-          if (!mounted) return;
-          setState(() {
-            _commentCount = count;
-          });
-        },
+        onCommentsChanged: _syncPostComments,
+      ),
+    );
+  }
+
+  void _syncPostComments(PostCommentsEntity comments) {
+    if (!mounted) return;
+
+    final updatedPost = _post.copyWith(
+      comments: comments.comments,
+      commentsCount: comments.commentsCount,
+    );
+
+    setState(() {
+      _post = updatedPost;
+      _commentCount = comments.commentsCount;
+    });
+
+    context.read<PostBloc>().add(
+      PostCommentsChangedEvent(
+        postId: _post.id,
+        comments: comments.comments,
+        commentsCount: comments.commentsCount,
       ),
     );
   }
@@ -230,9 +247,9 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
 
     if (!hasContentChanged && !hasMediaChanged) {
       setState(() => _isUpdatingPost = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('No changes to update.')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('No changes to update.')));
       return;
     }
 
@@ -253,27 +270,27 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
 
     result.fold(
       (failure) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(mapFailureToMessage(failure))),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(mapFailureToMessage(failure))));
       },
       (_) {
-        setState(() {
-          _post = _post.copyWith(
-            content: hasContentChanged ? draft.content : _post.content,
-            media: hasMediaChanged ? nextMedia : _post.media,
-          );
-        });
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Post updated.')),
+        final updatedPost = _post.copyWith(
+          content: hasContentChanged ? draft.content : _post.content,
+          media: hasMediaChanged ? nextMedia : _post.media,
         );
+        setState(() {
+          _post = updatedPost;
+        });
+        context.read<PostBloc>().add(PostLocalPostChangedEvent(updatedPost));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Post updated.')));
       },
     );
   }
 
-  Future<List<PostMediaEntity>?> _uploadNewImages(
-    List<XFile> newImages,
-  ) async {
+  Future<List<PostMediaEntity>?> _uploadNewImages(List<XFile> newImages) async {
     if (newImages.isEmpty) {
       return const [];
     }
@@ -294,15 +311,12 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
 
     if (!mounted) return null;
 
-    return result.fold(
-      (failure) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(mapFailureToMessage(failure))),
-        );
-        return null;
-      },
-      (media) => media,
-    );
+    return result.fold((failure) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(mapFailureToMessage(failure))));
+      return null;
+    }, (media) => media);
   }
 
   Future<void> _confirmDeletePost() async {
@@ -342,11 +356,12 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
 
     result.fold(
       (failure) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(mapFailureToMessage(failure))),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(mapFailureToMessage(failure))));
       },
       (_) {
+        context.read<PostBloc>().add(PostLocalPostDeletedEvent(_post.id));
         Navigator.of(context).pop(true);
       },
     );
@@ -365,13 +380,37 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
     return raw.length > 12 ? raw.substring(0, 12) : raw;
   }
 
+  String _resolveAuthorName(PostEntity post) {
+    final displayName = post.authorDisplayName?.trim() ?? '';
+    if (displayName.isNotEmpty) return displayName;
+
+    final username = post.authorUsername?.trim() ?? '';
+    if (username.isNotEmpty) return username;
+
+    return _formatFallbackUsername(post.authorId);
+  }
+
+  String _formatPostTime(DateTime createdAt) {
+    final now = DateTime.now();
+    final diff = now.difference(createdAt);
+
+    if (diff.inMinutes < 1) return 'Vua xong';
+    if (diff.inMinutes < 60) return '${diff.inMinutes} phut';
+    if (diff.inHours < 24) return '${diff.inHours} gio';
+    if (diff.inDays < 7) return '${diff.inDays} ngay';
+
+    return DateFormat('dd/MM/yyyy').format(createdAt.toLocal());
+  }
+
+  Future<void> _openMoreActions() {
+    return _isOwner ? _openOwnerActionsSheet() : _openImageActionsSheet();
+  }
+
   @override
   Widget build(BuildContext context) {
     final post = _post;
     final imageUrls = _resolveImageUrls();
-    final authorUsername = (post.authorUsername ?? '').trim().isNotEmpty
-        ? post.authorUsername!.trim()
-        : _formatFallbackUsername(post.authorId);
+    final authorName = _resolveAuthorName(post);
     final likesCount = _likesCount;
     final commentCount = _commentCount;
     return BlocListener<PostBloc, PostState>(
@@ -399,45 +438,39 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
           _isLiked = nextIsLiked;
         });
       },
-      child: Scaffold(
-        appBar: AppBar(
-          backgroundColor: Colors.white,
-          elevation: 0,
-          surfaceTintColor: Colors.white,
-          leading: IconButton(
-            icon: const Icon(Icons.close, color: Colors.black),
-            onPressed: () => Navigator.pop(context),
-          ),
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.more_horiz, color: Colors.black),
-              onPressed: _isOwner ? _openOwnerActionsSheet : _openImageActionsSheet,
-            ),
-            const SizedBox(width: 4),
-          ],
-        ),
-        body: ListView(
-          padding: EdgeInsets.zero,
-          children: [
-            PostDetailMediaCarousel(imageUrls: imageUrls),
-            PostDetailContent(
-              authorUsername: authorUsername,
-              authorId: post.authorId,
+      child: imageUrls.length == 1
+          ? _SingleImageFacebookDetail(
+              post: post,
+              imageUrl: imageUrls.first,
+              authorName: authorName,
+              timeText: _formatPostTime(post.createdAt),
+              isLiked: _isLiked,
+              likesCount: likesCount,
+              commentCount: commentCount,
+              onClose: () => Navigator.pop(context),
+              onMore: () => _openMoreActions(),
+              onLike: _toggleLike,
+              onComment: () => _openCommentsSheet(),
+              onShare: _showFeatureSoon,
+            )
+          : _ScrollableFacebookDetail(
+              post: post,
+              imageUrls: imageUrls,
+              authorName: authorName,
+              timeText: _formatPostTime(post.createdAt),
               currentUserId: _currentUserId,
               isFollowing: _isFollowing,
               sendingFollowRequest: _sendingFollowRequest,
               isLiked: _isLiked,
               likesCount: likesCount,
               commentCount: commentCount,
-              content: post.content,
-              createdAt: post.createdAt,
-              onFollowTap: _onFollowTap,
-              onLikeTap: _toggleLike,
-              onCommentsTap: _openCommentsSheet,
+              onClose: () => Navigator.pop(context),
+              onMore: () => _openMoreActions(),
+              onFollowTap: () => _onFollowTap(),
+              onLike: _toggleLike,
+              onComment: () => _openCommentsSheet(),
+              onShare: _showFeatureSoon,
             ),
-          ],
-        ),
-      ),
     );
   }
 
@@ -457,4 +490,599 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
     }
     return results;
   }
+}
+
+class _SingleImageFacebookDetail extends StatelessWidget {
+  const _SingleImageFacebookDetail({
+    required this.post,
+    required this.imageUrl,
+    required this.authorName,
+    required this.timeText,
+    required this.isLiked,
+    required this.likesCount,
+    required this.commentCount,
+    required this.onClose,
+    required this.onMore,
+    required this.onLike,
+    required this.onComment,
+    required this.onShare,
+  });
+
+  final PostEntity post;
+  final String imageUrl;
+  final String authorName;
+  final String timeText;
+  final bool isLiked;
+  final int likesCount;
+  final int commentCount;
+  final VoidCallback onClose;
+  final VoidCallback onMore;
+  final VoidCallback onLike;
+  final VoidCallback onComment;
+  final VoidCallback onShare;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      body: Stack(
+        fit: StackFit.expand,
+        children: [
+          Column(
+            children: [
+              const SizedBox(height: 96),
+              Expanded(
+                child: Center(
+                  child: _FacebookImage(
+                    imageUrl: imageUrl,
+                    fit: BoxFit.contain,
+                    backgroundColor: Colors.black,
+                  ),
+                ),
+              ),
+              _SingleImagePostInfo(
+                post: post,
+                authorName: authorName,
+                timeText: timeText,
+                isLiked: isLiked,
+                likesCount: likesCount,
+                commentCount: commentCount,
+                onLike: onLike,
+                onComment: onComment,
+                onShare: onShare,
+              ),
+            ],
+          ),
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: _DarkTopControls(onClose: onClose, onMore: onMore),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ScrollableFacebookDetail extends StatelessWidget {
+  const _ScrollableFacebookDetail({
+    required this.post,
+    required this.imageUrls,
+    required this.authorName,
+    required this.timeText,
+    required this.currentUserId,
+    required this.isFollowing,
+    required this.sendingFollowRequest,
+    required this.isLiked,
+    required this.likesCount,
+    required this.commentCount,
+    required this.onClose,
+    required this.onMore,
+    required this.onFollowTap,
+    required this.onLike,
+    required this.onComment,
+    required this.onShare,
+  });
+
+  final PostEntity post;
+  final List<String> imageUrls;
+  final String authorName;
+  final String timeText;
+  final String currentUserId;
+  final bool isFollowing;
+  final bool sendingFollowRequest;
+  final bool isLiked;
+  final int likesCount;
+  final int commentCount;
+  final VoidCallback onClose;
+  final VoidCallback onMore;
+  final VoidCallback onFollowTap;
+  final VoidCallback onLike;
+  final VoidCallback onComment;
+  final VoidCallback onShare;
+
+  @override
+  Widget build(BuildContext context) {
+    final showFollow =
+        currentUserId.isNotEmpty && currentUserId != post.authorId;
+
+    return Scaffold(
+      backgroundColor: const Color(0xFF242526),
+      appBar: AppBar(
+        backgroundColor: const Color(0xFF242526),
+        foregroundColor: Colors.white,
+        surfaceTintColor: Colors.transparent,
+        elevation: 1,
+        shadowColor: Colors.black,
+        centerTitle: true,
+        leading: IconButton(
+          icon: const Icon(Icons.close, color: Colors.white, size: 28),
+          onPressed: onClose,
+        ),
+        title: Text(
+          'Bài viết của $authorName',
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 18,
+            fontWeight: FontWeight.w800,
+          ),
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.more_horiz, color: Colors.white),
+            onPressed: onMore,
+          ),
+        ],
+      ),
+      body: ListView(
+        padding: EdgeInsets.zero,
+        children: [
+          Container(
+            color: const Color(0xFF242526),
+            padding: const EdgeInsets.fromLTRB(14, 14, 14, 12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _FacebookAuthorRow(
+                  post: post,
+                  authorName: authorName,
+                  timeText: timeText,
+                  showFollow: showFollow,
+                  isFollowing: isFollowing,
+                  sendingFollowRequest: sendingFollowRequest,
+                  dark: true,
+                  onFollowTap: onFollowTap,
+                ),
+                if ((post.content ?? '').trim().isNotEmpty) ...[
+                  const SizedBox(height: 12),
+                  Text(
+                    post.content!.trim(),
+                    style: const TextStyle(
+                      color: Color(0xFFE4E6EB),
+                      fontSize: 16,
+                      height: 1.28,
+                    ),
+                  ),
+                ],
+                const SizedBox(height: 12),
+                _FacebookActionBar(
+                  isLiked: isLiked,
+                  likesCount: likesCount,
+                  commentCount: commentCount,
+                  shareCount: 0,
+                  dark: true,
+                  onLike: onLike,
+                  onComment: onComment,
+                  onShare: onShare,
+                ),
+              ],
+            ),
+          ),
+          for (final imageUrl in imageUrls) ...[
+            Container(height: 8, color: const Color(0xFF18191A)),
+            _FacebookImage(
+              imageUrl: imageUrl,
+              fit: BoxFit.contain,
+              backgroundColor: Colors.black,
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _DarkTopControls extends StatelessWidget {
+  const _DarkTopControls({required this.onClose, required this.onMore});
+
+  final VoidCallback onClose;
+  final VoidCallback onMore;
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      bottom: false,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(6, 10, 6, 20),
+        child: Row(
+          children: [
+            IconButton(
+              icon: const Icon(Icons.close, color: Colors.white, size: 30),
+              onPressed: onClose,
+            ),
+            const Spacer(),
+            IconButton(
+              icon: const Icon(Icons.more_horiz, color: Colors.white, size: 30),
+              onPressed: onMore,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _SingleImagePostInfo extends StatelessWidget {
+  const _SingleImagePostInfo({
+    required this.post,
+    required this.authorName,
+    required this.timeText,
+    required this.isLiked,
+    required this.likesCount,
+    required this.commentCount,
+    required this.onLike,
+    required this.onComment,
+    required this.onShare,
+  });
+
+  final PostEntity post;
+  final String authorName;
+  final String timeText;
+  final bool isLiked;
+  final int likesCount;
+  final int commentCount;
+  final VoidCallback onLike;
+  final VoidCallback onComment;
+  final VoidCallback onShare;
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      top: false,
+      child: Container(
+        width: double.infinity,
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Colors.black.withValues(alpha: 0.0),
+              Colors.black.withValues(alpha: 0.84),
+              Colors.black,
+            ],
+          ),
+        ),
+        padding: const EdgeInsets.fromLTRB(14, 42, 14, 14),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              authorName,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 17,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+            const SizedBox(height: 2),
+            Row(
+              children: [
+                Text(
+                  timeText,
+                  style: const TextStyle(
+                    color: Color(0xFFDADDE1),
+                    fontSize: 13,
+                  ),
+                ),
+                const SizedBox(width: 6),
+                const Icon(Icons.public, color: Color(0xFFDADDE1), size: 13),
+              ],
+            ),
+            if ((post.content ?? '').trim().isNotEmpty) ...[
+              const SizedBox(height: 10),
+              Text(
+                post.content!.trim(),
+                maxLines: 3,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 15,
+                  height: 1.28,
+                ),
+              ),
+            ],
+            const SizedBox(height: 16),
+            _FacebookActionBar(
+              isLiked: isLiked,
+              likesCount: likesCount,
+              commentCount: commentCount,
+              shareCount: 0,
+              dark: true,
+              onLike: onLike,
+              onComment: onComment,
+              onShare: onShare,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _FacebookAuthorRow extends StatelessWidget {
+  const _FacebookAuthorRow({
+    required this.post,
+    required this.authorName,
+    required this.timeText,
+    required this.showFollow,
+    required this.isFollowing,
+    required this.sendingFollowRequest,
+    required this.dark,
+    required this.onFollowTap,
+  });
+
+  final PostEntity post;
+  final String authorName;
+  final String timeText;
+  final bool showFollow;
+  final bool isFollowing;
+  final bool sendingFollowRequest;
+  final bool dark;
+  final VoidCallback onFollowTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final primary = dark ? Colors.white : Colors.black;
+    final secondary = dark ? const Color(0xFFB0B3B8) : Colors.black54;
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _PostAuthorAvatar(post: post, authorName: authorName),
+        const SizedBox(width: 10),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Flexible(
+                    child: Text(
+                      authorName,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: primary,
+                        fontSize: 15,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                  ),
+                  if (showFollow) ...[
+                    const SizedBox(width: 4),
+                    GestureDetector(
+                      onTap: isFollowing || sendingFollowRequest
+                          ? null
+                          : onFollowTap,
+                      child: Text(
+                        isFollowing ? 'Ban be' : 'Theo doi',
+                        style: const TextStyle(
+                          color: Color(0xFF4599FF),
+                          fontSize: 15,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+              const SizedBox(height: 2),
+              Row(
+                children: [
+                  Text(
+                    timeText,
+                    style: TextStyle(color: secondary, fontSize: 13),
+                  ),
+                  const SizedBox(width: 5),
+                  Icon(Icons.public, color: secondary, size: 13),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _PostAuthorAvatar extends StatelessWidget {
+  const _PostAuthorAvatar({required this.post, required this.authorName});
+
+  final PostEntity post;
+  final String authorName;
+
+  @override
+  Widget build(BuildContext context) {
+    final avatarUrl = post.authorAvatarUrl?.trim() ?? '';
+    final fallback = authorName.trim().isEmpty
+        ? '?'
+        : authorName.trim().characters.first.toUpperCase();
+
+    return CircleAvatar(
+      radius: 22,
+      backgroundColor: const Color(0xFF3A3B3C),
+      backgroundImage: avatarUrl.isNotEmpty ? NetworkImage(avatarUrl) : null,
+      child: avatarUrl.isEmpty
+          ? Text(
+              fallback,
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.w800,
+              ),
+            )
+          : null,
+    );
+  }
+}
+
+class _FacebookActionBar extends StatelessWidget {
+  const _FacebookActionBar({
+    required this.isLiked,
+    required this.likesCount,
+    required this.commentCount,
+    required this.shareCount,
+    required this.dark,
+    required this.onLike,
+    required this.onComment,
+    required this.onShare,
+  });
+
+  final bool isLiked;
+  final int likesCount;
+  final int commentCount;
+  final int shareCount;
+  final bool dark;
+  final VoidCallback onLike;
+  final VoidCallback onComment;
+  final VoidCallback onShare;
+
+  @override
+  Widget build(BuildContext context) {
+    final color = dark ? const Color(0xFFE4E6EB) : const Color(0xFF050505);
+
+    return Row(
+      children: [
+        _ActionMetric(
+          icon: isLiked ? Icons.favorite : Icons.favorite_border,
+          text: _formatCount(likesCount),
+          color: isLiked ? const Color(0xFFFF4D6D) : color,
+          onTap: onLike,
+        ),
+        const SizedBox(width: 22),
+        _ActionMetric(
+          icon: Icons.chat_bubble_outline,
+          text: _formatCount(commentCount),
+          color: color,
+          onTap: onComment,
+        ),
+        const SizedBox(width: 22),
+        _ActionMetric(
+          icon: Icons.reply_rounded,
+          text: shareCount > 0 ? _formatCount(shareCount) : '',
+          color: color,
+          onTap: onShare,
+        ),
+      ],
+    );
+  }
+}
+
+class _ActionMetric extends StatelessWidget {
+  const _ActionMetric({
+    required this.icon,
+    required this.text,
+    required this.color,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String text;
+  final Color color;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkResponse(
+      onTap: onTap,
+      radius: 24,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, color: color, size: 25),
+          if (text.isNotEmpty) ...[
+            const SizedBox(width: 7),
+            Text(
+              text,
+              style: TextStyle(
+                color: color,
+                fontSize: 15,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _FacebookImage extends StatelessWidget {
+  const _FacebookImage({
+    required this.imageUrl,
+    required this.fit,
+    required this.backgroundColor,
+  });
+
+  final String imageUrl;
+  final BoxFit fit;
+  final Color backgroundColor;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      color: backgroundColor,
+      constraints: const BoxConstraints(minHeight: 260),
+      child: Image.network(
+        imageUrl,
+        fit: fit,
+        alignment: Alignment.center,
+        loadingBuilder: (_, child, progress) {
+          if (progress == null) return child;
+          return const SizedBox(
+            height: 320,
+            child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
+          );
+        },
+        errorBuilder: (_, __, ___) => const SizedBox(
+          height: 320,
+          child: Center(
+            child: Icon(
+              Icons.broken_image_outlined,
+              size: 48,
+              color: Colors.white38,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+String _formatCount(int value) {
+  if (value >= 1000000) {
+    final m = value / 1000000;
+    return '${m.toStringAsFixed(m >= 10 ? 0 : 1)}M';
+  }
+  if (value >= 1000) {
+    final k = value / 1000;
+    return '${k.toStringAsFixed(k >= 10 ? 0 : 1)}K';
+  }
+  return value.toString();
 }

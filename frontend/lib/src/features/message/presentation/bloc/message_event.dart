@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 
+import '../../../chat/domain/entities/chat_entity.dart';
 import '../../domain/entities/message_entity.dart';
 
 abstract class MessageEvent extends Equatable {
@@ -7,6 +8,25 @@ abstract class MessageEvent extends Equatable {
 
   @override
   List<Object?> get props => [];
+}
+
+class MessageChatRoomStarted extends MessageEvent {
+  final ChatEntity thread;
+  final int limit;
+
+  const MessageChatRoomStarted({required this.thread, this.limit = 30});
+
+  @override
+  List<Object?> get props => [thread, limit];
+}
+
+class MessageRealtimeMessageReceived extends MessageEvent {
+  final MessageEntity message;
+
+  const MessageRealtimeMessageReceived(this.message);
+
+  @override
+  List<Object?> get props => [message];
 }
 
 class SendDirectTextEvent extends MessageEvent {
@@ -24,17 +44,17 @@ class SendDirectTextEvent extends MessageEvent {
   List<Object?> get props => [conversationId, recipientId, content];
 }
 
-class MessageHistoryBootstrapRequested extends MessageEvent {
+class SendGroupTextEvent extends MessageEvent {
   final String conversationId;
-  final int limit;
+  final String content;
 
-  const MessageHistoryBootstrapRequested({
+  const SendGroupTextEvent({
     required this.conversationId,
-    this.limit = 30,
+    required this.content,
   });
 
   @override
-  List<Object?> get props => [conversationId, limit];
+  List<Object?> get props => [conversationId, content];
 }
 
 class MessageHistoryLoadOlderRequested extends MessageEvent {
@@ -52,15 +72,15 @@ class MessageHistoryLoadOlderRequested extends MessageEvent {
   List<Object?> get props => [conversationId, cursor, limit];
 }
 
-class MessageHistoryCacheSaveRequested extends MessageEvent {
+class MessageMarkAllReadRequested extends MessageEvent {
   final String conversationId;
-  final MessageHistoryPageEntity page;
+  final String? lastMessageId;
 
-  const MessageHistoryCacheSaveRequested({
+  const MessageMarkAllReadRequested({
     required this.conversationId,
-    required this.page,
+    this.lastMessageId,
   });
 
   @override
-  List<Object?> get props => [conversationId, page];
+  List<Object?> get props => [conversationId, lastMessageId];
 }

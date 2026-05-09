@@ -1,18 +1,28 @@
-import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
+
 import '../../../../configs/injector/injector_conf.dart';
 import '../../../../core/l10n/l10n.dart';
 import '../../../../core/utils/failure_converter.dart';
 import '../../../../routes/app_route_path.dart';
+import '../../../auth/presentation/bloc/auth/auth_bloc.dart';
+import '../../../profile/domain/entities/profile_entity.dart';
+import '../../../profile/domain/usecases/usecase_params.dart';
+import '../../../profile/presentation/bloc/profile/profile_bloc.dart';
 import '../../domain/entities/post_media_entity.dart';
 import '../../domain/entities/post_media_upload_file.dart';
 import '../../domain/usecases/usecase_params.dart';
 import '../../domain/usecases/upload_post_media_usecase.dart';
 import '../bloc/post/post_bloc.dart';
+import '../widgets/create_post_screen/create_post_bottom_tools.dart';
+import '../widgets/create_post_screen/create_post_composer_body.dart';
+import '../widgets/create_post_screen/create_post_header.dart';
+import '../widgets/create_post_screen/create_post_image_options_sheet.dart';
+import '../widgets/create_post_screen/create_post_identity_resolver.dart';
 
 class CreatePostScreen extends StatefulWidget {
   const CreatePostScreen({super.key});
@@ -22,18 +32,95 @@ class CreatePostScreen extends StatefulWidget {
 }
 
 class _CreatePostScreenState extends State<CreatePostScreen> {
+  final CreatePostIdentityResolver _identityResolver =
+      const CreatePostIdentityResolver();
   final TextEditingController _captionController = TextEditingController();
   final ImagePicker _picker = ImagePicker();
-  final PageController _pageController = PageController();
 
   List<XFile> _selectedImages = const [];
-  int _currentImageIndex = 0;
+  ProfileEntity? _currentProfile;
+  String _cachedDisplayName = '';
+  String _cachedAvatarUrl = '';
   bool _isPickingImages = false;
   bool _isSubmitting = false;
 
   bool get _canSubmit {
     return _captionController.text.trim().isNotEmpty ||
         _selectedImages.isNotEmpty;
+  }
+
+  String get _displayName {
+    final profileName = _currentProfile?.displayName?.trim() ?? '';
+    if (profileName.isNotEmpty) {
+      return profileName;
+    }
+
+    final profileUsername = _currentProfile?.username?.trim() ?? '';
+    if (profileUsername.isNotEmpty) {
+      return profileUsername;
+    }
+
+    if (_cachedDisplayName.trim().isNotEmpty) {
+      return _cachedDisplayName.trim();
+    }
+
+    return '';
+  }
+
+  String get _avatarUrl {
+    final profileAvatar = _currentProfile?.avatarUrl?.trim() ?? '';
+    if (profileAvatar.isNotEmpty) {
+      return profileAvatar;
+    }
+
+    return _cachedAvatarUrl.trim();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _primeIdentityFromAuthState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadCurrentUserProfile();
+    });
+  }
+
+  void _primeIdentityFromAuthState() {
+    final identity = _identityResolver.fromAuthState(
+      context.read<AuthBloc>().state,
+    );
+    _applyIdentity(identity);
+  }
+
+  Future<void> _loadCurrentUserProfile() async {
+    final identity = await _identityResolver.loadInitialIdentity();
+    if (!mounted) {
+      return;
+    }
+
+    if (identity.hasDisplayData) {
+      setState(() => _applyIdentity(identity));
+    }
+
+    if (identity.userId.isEmpty) {
+      return;
+    }
+
+    context.read<ProfileBloc>().add(
+      ProfileGetEvent(ProfileParams(userId: identity.userId)),
+    );
+  }
+
+  void _applyIdentity(CreatePostIdentitySnapshot identity) {
+    if (identity.profile != null) {
+      _currentProfile = identity.profile;
+    }
+    if (identity.displayName.trim().isNotEmpty) {
+      _cachedDisplayName = identity.displayName.trim();
+    }
+    if (identity.avatarUrl.trim().isNotEmpty) {
+      _cachedAvatarUrl = identity.avatarUrl.trim();
+    }
   }
 
   Future<void> _pickFromGallery() async {
@@ -52,10 +139,10 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
       }
 
       setState(() {
-        _selectedImages = images;
-        _currentImageIndex = 0;
+        _selectedImages = _selectedImages.isEmpty
+            ? images
+            : <XFile>[..._selectedImages, ...images];
       });
-      _pageController.jumpToPage(0);
     } catch (_) {
       if (!mounted) return;
       ScaffoldMessenger.of(
@@ -86,9 +173,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
 
       setState(() {
         _selectedImages = <XFile>[..._selectedImages, image];
-        _currentImageIndex = _selectedImages.length - 1;
       });
-      _pageController.jumpToPage(_currentImageIndex);
     } catch (_) {
       if (!mounted) return;
       ScaffoldMessenger.of(
@@ -101,25 +186,71 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
     }
   }
 
+  Future<void> _replaceImageAt(int index) async {
+    final l10n = context.l10n;
+    if (_isPickingImages || index < 0 || index >= _selectedImages.length) {
+      return;
+    }
+
+    setState(() => _isPickingImages = true);
+    try {
+      final image = await _picker.pickImage(
+        source: ImageSource.gallery,
+        imageQuality: 90,
+        maxWidth: 1920,
+      );
+
+      if (image == null || !mounted) {
+        return;
+      }
+
+      setState(() {
+        _selectedImages = List<XFile>.from(_selectedImages)..[index] = image;
+      });
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(l10n.createPostCannotPickGallery)));
+    } finally {
+      if (mounted) {
+        setState(() => _isPickingImages = false);
+      }
+    }
+  }
+
   void _removeImageAt(int index) {
     if (index < 0 || index >= _selectedImages.length) {
       return;
     }
 
-    final nextImages = List<XFile>.from(_selectedImages)..removeAt(index);
-
     setState(() {
-      _selectedImages = nextImages;
-      if (_selectedImages.isEmpty) {
-        _currentImageIndex = 0;
-      } else if (_currentImageIndex >= _selectedImages.length) {
-        _currentImageIndex = _selectedImages.length - 1;
-      }
+      _selectedImages = List<XFile>.from(_selectedImages)..removeAt(index);
     });
+  }
 
-    if (_selectedImages.isNotEmpty) {
-      _pageController.jumpToPage(_currentImageIndex);
+  Future<void> _showImageOptions(int index) async {
+    if (index < 0 || index >= _selectedImages.length) {
+      return;
     }
+
+    final action = await showCreatePostImageOptionsSheet(context);
+    if (!mounted || action == null) {
+      return;
+    }
+
+    if (action == CreatePostImageEditAction.replace) {
+      await _replaceImageAt(index);
+      return;
+    }
+
+    _removeImageAt(index);
+  }
+
+  void _showTemplateSoon() {
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(context.l10n.templateSoon)));
   }
 
   Future<void> _submitPost() async {
@@ -193,303 +324,87 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
   @override
   void dispose() {
     _captionController.dispose();
-    _pageController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final l10n = context.l10n;
     final hasImages = _selectedImages.isNotEmpty;
+    final keyboardVisible = MediaQuery.viewInsetsOf(context).bottom > 0;
+    final hasTypedContent = _captionController.text.trim().isNotEmpty;
+    final showBottomTools = hasImages || keyboardVisible || hasTypedContent;
 
-    return BlocListener<PostBloc, PostState>(
-      listener: (context, state) {
-        if (!_isSubmitting) return;
+    return MultiBlocListener(
+      listeners: [
+        BlocListener<PostBloc, PostState>(
+          listener: (context, state) {
+            if (!_isSubmitting) return;
 
-        if (state is PostActionFailureState) {
-          setState(() => _isSubmitting = false);
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text(state.message)));
-        } else if (state is PostLoadedState) {
-          setState(() => _isSubmitting = false);
-          context.go(AppRoutes.home.path);
-        }
-      },
-      child: Scaffold(
-        backgroundColor: Colors.white,
-        appBar: AppBar(
+            if (state is PostActionFailureState) {
+              setState(() => _isSubmitting = false);
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(SnackBar(content: Text(state.message)));
+            } else if (state is PostLoadedState) {
+              setState(() => _isSubmitting = false);
+              context.go(AppRoutes.home.path);
+            }
+          },
+        ),
+        BlocListener<ProfileBloc, ProfileState>(
+          listener: (context, state) {
+            if (state is ProfileLoadedState && mounted) {
+              setState(() => _currentProfile = state.profile);
+            }
+          },
+        ),
+      ],
+      child: AnnotatedRegion<SystemUiOverlayStyle>(
+        value: SystemUiOverlayStyle.dark.copyWith(
+          statusBarColor: Colors.white,
+          systemNavigationBarColor: Colors.white,
+          systemNavigationBarIconBrightness: Brightness.dark,
+        ),
+        child: Scaffold(
           backgroundColor: Colors.white,
-          elevation: 0,
-          surfaceTintColor: Colors.white,
-          leading: IconButton(
-            icon: const Icon(Icons.close, color: Colors.black),
-            onPressed: () => context.go(AppRoutes.home.path),
-          ),
-          title: Text(
-            l10n.createPostTitle,
-            style: TextStyle(color: Colors.black, fontWeight: FontWeight.w700),
-          ),
-          centerTitle: true,
-          actions: [
-            TextButton(
-              onPressed: (_isSubmitting || !_canSubmit) ? null : _submitPost,
-              style: TextButton.styleFrom(
-                shape: const StadiumBorder(),
-              ),
-              child: _isSubmitting
-                  ? const SizedBox(
-                      width: 18,
-                      height: 18,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : Text(
-                      l10n.postAction,
-                      style: const TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-            ),
-          ],
-        ),
-        body: Column(
-          children: [
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(16, 8, 16, 14),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildMediaSection(hasImages),
-                    const SizedBox(height: 14),
-                    TextField(
-                      controller: _captionController,
-                      minLines: 5,
-                      maxLines: 10,
-                      onChanged: (_) => setState(() {}),
-                      decoration: InputDecoration(
-                        hintText: l10n.captionHint,
-                        filled: true,
-                        fillColor: const Color(0xFFF5F5F5),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(30),
-                          borderSide: BorderSide.none,
-                        ),
-                        contentPadding: const EdgeInsets.all(14),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            SafeArea(
-              top: false,
-              child: Container(
-                decoration: BoxDecoration(
-                  border: Border(top: BorderSide(color: Colors.grey.shade200)),
-                ),
-                padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: OutlinedButton.icon(
-                        onPressed: _isPickingImages ? null : _pickFromGallery,
-                        icon: const Icon(Icons.photo_library_outlined),
-                        label: Text(l10n.libraryLabel),
-                        style: OutlinedButton.styleFrom(
-                          shape: const StadiumBorder(),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: OutlinedButton.icon(
-                        onPressed: _isPickingImages ? null : _pickFromCamera,
-                        icon: const Icon(Icons.photo_camera_outlined),
-                        label: Text(l10n.cameraLabel),
-                        style: OutlinedButton.styleFrom(
-                          shape: const StadiumBorder(),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildMediaSection(bool hasImages) {
-    if (!hasImages) {
-      return Container(
-        width: double.infinity,
-        constraints: const BoxConstraints(minHeight: 220),
-        decoration: BoxDecoration(
-          color: const Color(0xFFF3F3F3),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: const Color(0xFFE7E7E7)),
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(
-              Icons.collections_outlined,
-              size: 46,
-              color: Colors.black38,
-            ),
-            const SizedBox(height: 10),
-            Text(
-              context.l10n.addMediaForPost,
-              style: TextStyle(
-                color: Colors.black87,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            const SizedBox(height: 10),
-            FilledButton.icon(
-              onPressed: _isPickingImages ? null : _pickFromGallery,
-              icon: const Icon(Icons.add_photo_alternate_outlined),
-              label: Text(context.l10n.pickFromLibrary),
-              style: FilledButton.styleFrom(
-                shape: const StadiumBorder(),
-              ),
-            ),
-          ],
-        ),
-      );
-    }
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        ClipRRect(
-          borderRadius: BorderRadius.circular(16),
-          child: AspectRatio(
-            aspectRatio: 1,
-            child: Stack(
+          resizeToAvoidBottomInset: true,
+          body: SafeArea(
+            bottom: false,
+            child: Column(
               children: [
-                PageView.builder(
-                  controller: _pageController,
-                  itemCount: _selectedImages.length,
-                  onPageChanged: (index) {
-                    setState(() => _currentImageIndex = index);
-                  },
-                  itemBuilder: (context, index) {
-                    final image = _selectedImages[index];
-                    if (kIsWeb) {
-                      return Image.network(image.path, fit: BoxFit.cover);
-                    }
-                    return Image.file(File(image.path), fit: BoxFit.cover);
-                  },
+                CreatePostHeader(
+                  displayName: _displayName,
+                  avatarUrl: _avatarUrl,
+                  isSubmitting: _isSubmitting,
+                  canSubmit: _canSubmit,
+                  onClose: () => context.go(AppRoutes.home.path),
+                  onSubmit: _submitPost,
                 ),
-                Positioned(
-                  top: 10,
-                  right: 10,
-                  child: InkWell(
-                    onTap: () => _removeImageAt(_currentImageIndex),
-                    child: Container(
-                      padding: const EdgeInsets.all(6),
-                      decoration: BoxDecoration(
-                        color: Colors.black.withValues(alpha: 0.55),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.close,
-                        color: Colors.white,
-                        size: 18,
-                      ),
-                    ),
+                Expanded(
+                  child: CreatePostComposerBody(
+                    captionController: _captionController,
+                    selectedImages: _selectedImages,
+                    showEmptyActions: !showBottomTools,
+                    isPickingImages: _isPickingImages,
+                    onCaptionChanged: (_) => setState(() {}),
+                    onPickFromGallery: _pickFromGallery,
+                    onPickFromCamera: _pickFromCamera,
+                    onTemplate: _showTemplateSoon,
+                    onEditImage: _showImageOptions,
                   ),
                 ),
-                if (_selectedImages.length > 1)
-                  Positioned(
-                    bottom: 10,
-                    left: 0,
-                    right: 0,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: List.generate(_selectedImages.length, (index) {
-                        final isActive = index == _currentImageIndex;
-                        return AnimatedContainer(
-                          duration: const Duration(milliseconds: 160),
-                          width: isActive ? 16 : 7,
-                          height: 7,
-                          margin: const EdgeInsets.symmetric(horizontal: 3),
-                          decoration: BoxDecoration(
-                            color: isActive
-                                ? Colors.white
-                                : Colors.white.withValues(alpha: 0.45),
-                            borderRadius: BorderRadius.circular(999),
-                          ),
-                        );
-                      }),
-                    ),
+                if (showBottomTools)
+                  CreatePostBottomTools(
+                    isPickingImages: _isPickingImages,
+                    onPickFromGallery: _pickFromGallery,
+                    onPickFromCamera: _pickFromCamera,
+                    onTemplate: _showTemplateSoon,
                   ),
               ],
             ),
           ),
         ),
-        const SizedBox(height: 10),
-        SizedBox(
-          height: 72,
-          child: ListView.separated(
-            scrollDirection: Axis.horizontal,
-            itemCount: _selectedImages.length + 1,
-            separatorBuilder: (_, index) => const SizedBox(width: 8),
-            itemBuilder: (context, index) {
-              if (index == _selectedImages.length) {
-                return InkWell(
-                  onTap: _isPickingImages ? null : _pickFromGallery,
-                  borderRadius: BorderRadius.circular(12),
-                  child: Container(
-                    width: 72,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF2F2F2),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: const Color(0xFFE5E5E5)),
-                    ),
-                    child: const Icon(Icons.add, color: Colors.black54),
-                  ),
-                );
-              }
-
-              final image = _selectedImages[index];
-              return GestureDetector(
-                onTap: () {
-                  setState(() => _currentImageIndex = index);
-                  _pageController.animateToPage(
-                    index,
-                    duration: const Duration(milliseconds: 220),
-                    curve: Curves.easeOut,
-                  );
-                },
-                child: Container(
-                  width: 72,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: _currentImageIndex == index
-                          ? Colors.black
-                          : Colors.transparent,
-                      width: 2,
-                    ),
-                  ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(10),
-                    child: kIsWeb
-                        ? Image.network(image.path, fit: BoxFit.cover)
-                        : Image.file(File(image.path), fit: BoxFit.cover),
-                  ),
-                ),
-              );
-            },
-          ),
-        ),
-      ],
+      ),
     );
   }
 }

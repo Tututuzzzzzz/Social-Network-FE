@@ -1,13 +1,14 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+
 import '../configs/injector/injector_conf.dart';
 import '../features/chat/domain/entities/chat_entity.dart';
 import '../features/message/presentation/bloc/message_bloc.dart';
 import '../features/notifications/presentation/bloc/notification_bloc.dart';
 import '../features/post/presentation/bloc/post/post_bloc.dart';
 import '../features/profile/presentation/bloc/profile/profile_bloc.dart';
-import 'app_shell_page.dart';
 import 'app_route_path.dart';
+import 'app_shell_page.dart';
 import 'routes.dart';
 
 class AppRoutesConf {
@@ -17,7 +18,7 @@ class AppRoutesConf {
 
   String _resolveInitialLocation() {
     if (_startRoute.isEmpty) {
-      return AppRoutes.welcome.path;
+      return AppRoutes.onboarding.path;
     }
 
     final isKnownStaticRoute = AppRoutes.values.any(
@@ -44,6 +45,11 @@ class AppRoutesConf {
         builder: (context, state) => const WelcomeScreen(),
       ),
       GoRoute(
+        path: AppRoutes.onboarding.path,
+        name: AppRoutes.onboarding.name,
+        builder: (context, state) => const OnboardingScreen(),
+      ),
+      GoRoute(
         path: AppRoutes.login.path,
         name: AppRoutes.login.name,
         builder: (context, state) => const LoginScreen(),
@@ -52,6 +58,29 @@ class AppRoutesConf {
         path: AppRoutes.register.path,
         name: AppRoutes.register.name,
         builder: (context, state) => const RegisterScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.forgotPassword.path,
+        name: AppRoutes.forgotPassword.name,
+        builder: (context, state) => const ForgotPasswordScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.verificationCode.path,
+        name: AppRoutes.verificationCode.name,
+        builder: (context, state) {
+          final email = state.extra is String ? state.extra as String : '';
+          return VerificationCodeScreen(email: email);
+        },
+      ),
+      GoRoute(
+        path: AppRoutes.resetPassword.path,
+        name: AppRoutes.resetPassword.name,
+        builder: (context, state) => const ResetPasswordScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.registerSuccess.path,
+        name: AppRoutes.registerSuccess.name,
+        builder: (context, state) => const RegisterSuccessScreen(),
       ),
       GoRoute(
         path: AppRoutes.auth.path,
@@ -92,16 +121,19 @@ class AppRoutesConf {
           GoRoute(
             path: AppRoutes.home.path,
             name: AppRoutes.home.name,
-            builder: (context, state) => BlocProvider<PostBloc>(
-              create: (_) => getIt<PostBloc>(),
+            builder: (context, state) => BlocProvider.value(
+              value: getIt<PostBloc>(),
               child: const FeedScreen(),
             ),
           ),
           GoRoute(
             path: AppRoutes.createPost.path,
             name: AppRoutes.createPost.name,
-            builder: (context, state) => BlocProvider<PostBloc>(
-              create: (_) => getIt<PostBloc>(),
+            builder: (context, state) => MultiBlocProvider(
+              providers: [
+                BlocProvider.value(value: getIt<PostBloc>()),
+                BlocProvider(create: (_) => getIt<ProfileBloc>()),
+              ],
               child: const CreatePostScreen(),
             ),
           ),
@@ -120,7 +152,7 @@ class AppRoutesConf {
             name: AppRoutes.notifications.name,
             builder: (context, state) => BlocProvider<NotificationBloc>(
               create: (_) => getIt<NotificationBloc>(),
-              child: NotificationScreen(),
+              child: const NotificationScreen(),
             ),
           ),
           GoRoute(
@@ -148,6 +180,27 @@ class AppRoutesConf {
             },
           ),
         ],
+      ),
+      GoRoute(
+        path: AppRoutes.chatNewConversation.path,
+        name: AppRoutes.chatNewConversation.name,
+        builder: (context, state) => const MochiNewConversationPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.chatConversationManage.path,
+        name: AppRoutes.chatConversationManage.name,
+        builder: (context, state) {
+          final threadId = state.pathParameters['threadId'] ?? '';
+          final extra = state.extra;
+          final thread = extra is ChatEntity
+              ? extra
+              : ChatEntity(
+                  id: threadId,
+                  senderName: 'Conversation',
+                  messagePreview: 'Start chatting',
+                );
+          return ConversationManagementPage(thread: thread);
+        },
       ),
       GoRoute(
         path: AppRoutes.chatMochiChatRoom.path,

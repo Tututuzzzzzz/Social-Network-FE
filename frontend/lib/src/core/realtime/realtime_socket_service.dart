@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:dio/dio.dart';
 import 'package:socket_io_client/socket_io_client.dart' as io;
 
 import '../cache/secure_local_storage.dart';
@@ -34,6 +35,13 @@ class RealtimeSocketService {
   io.Socket? _socket;
   bool _coreListenersBound = false;
   String _cachedUserId = '';
+
+  /// Số lần refresh liên tiếp thất bại. Reset về 0 khi connect thành công.
+  int _refreshAttempts = 0;
+
+  /// Giới hạn tối đa số lần refresh token liên tiếp.
+  static const int _maxRefreshAttempts = 3;
+  Completer<bool>? _refreshCompleter;
 
   // ── Streams cho từng event type ──────────────────────
 
@@ -120,6 +128,7 @@ class RealtimeSocketService {
           .setReconnectionAttempts(10)
           .setReconnectionDelay(2000)
           .setReconnectionDelayMax(10000)
+          .enableForceNew()
           .setAuth({'token': token})
           .build(),
     );
@@ -131,6 +140,8 @@ class RealtimeSocketService {
   /// Ngắt kết nối socket. Gọi khi logout.
   void disconnect() {
     _cachedUserId = '';
+    _refreshAttempts = 0;
+    _refreshCompleter = null;
     _socket?.disconnect();
     _socket?.dispose();
     _socket = null;
@@ -193,6 +204,8 @@ class RealtimeSocketService {
     // Connection lifecycle
     _socket?.onConnect((_) {
       logger.i('Socket connected: ${_socket?.id ?? 'unknown'}');
+      // Reset refresh counter khi connect thành công
+      _refreshAttempts = 0;
       _safeAdd(_connectionStateController, true);
     });
 
@@ -203,11 +216,38 @@ class RealtimeSocketService {
 
     _socket?.onReconnect((_) {
       logger.i('Socket reconnected: ${_socket?.id ?? 'unknown'}');
+      _refreshAttempts = 0;
       _safeAdd(_connectionStateController, true);
     });
 
-    _socket?.onConnectError((error) {
+    _socket?.onConnectError((error) async {
       logger.e('Socket connect error: $error');
+
+      // Nếu lỗi do token hết hạn → refresh rồi reconnect
+      final errMsg = error?.toString() ?? '';
+      final isTokenExpired =
+          errMsg.contains('het han') ||
+          errMsg.contains('khong hop le') ||
+          errMsg.contains('Access token');
+
+      if (isTokenExpired) {
+        // Đã vượt quá số lần refresh cho phép → dừng hẳn, không retry nữa
+        if (_refreshAttempts >= _maxRefreshAttempts) {
+          logger.e(
+            'Socket refresh: đã thử $_refreshAttempts lần, '
+            'dừng reconnect để tránh vòng lặp vô hạn',
+          );
+          // Tắt socket auto-reconnect và disconnect sạch
+          _socket?.disconnect();
+          _socket?.dispose();
+          _socket = null;
+          _coreListenersBound = false;
+          _safeAdd(_connectionStateController, false);
+          return;
+        }
+
+        await _refreshAndReconnect();
+      }
     });
 
     _socket?.onError((error) {
@@ -254,8 +294,14 @@ class RealtimeSocketService {
     dynamic payload,
   ) {
     if (controller.isClosed) return;
-    if (payload is Map) {
-      controller.add(Map<String, dynamic>.from(payload));
+
+    // Socket.IO trên Flutter Web đôi khi wrap payload thành List([{...}]).
+    // Unwrap phần tử đầu tiên nếu cần.
+    final dynamic data =
+        (payload is List && payload.isNotEmpty) ? payload.first : payload;
+
+    if (data is Map) {
+      controller.add(Map<String, dynamic>.from(data));
     }
   }
 
@@ -280,6 +326,88 @@ class RealtimeSocketService {
       return map['userId']?.toString() ?? '';
     } catch (_) {
       return '';
+    }
+  }
+
+  // ── Private: token refresh for socket ───────────────
+
+  /// Gọi HTTP refresh-token rồi reconnect socket với access token mới.
+  ///
+  /// Dùng [Completer] để deduplicate: nếu nhiều onConnectError fire
+  /// cùng lúc, chỉ 1 lần gọi API thật sự, các lần khác chờ kết quả.
+  Future<void> _refreshAndReconnect() async {
+    // Nếu đã có 1 refresh đang chạy → chờ nó xong, không gọi thêm
+    if (_refreshCompleter != null) {
+      logger.i('Socket refresh: đã có refresh đang chạy, chờ kết quả…');
+      await _refreshCompleter!.future;
+      return;
+    }
+
+    _refreshAttempts++;
+    _refreshCompleter = Completer<bool>();
+
+    try {
+      // Tắt auto-reconnect của socket cũ trước khi refresh
+      // để tránh socket.io tự retry với token hết hạn
+      _socket?.disconnect();
+      _socket?.dispose();
+      _socket = null;
+      _coreListenersBound = false;
+
+      final refreshToken =
+          await _secureLocalStorage.load(key: 'refresh_token');
+      if (refreshToken.trim().isEmpty) {
+        logger.e('Socket refresh: refresh token rỗng, không thể refresh');
+        _refreshCompleter!.complete(false);
+        return;
+      }
+
+      final dio = Dio(BaseOptions(baseUrl: EnvConfig.apiBaseUrl));
+      final response = await dio.post(
+        '/auth/refresh-token',
+        data: {'refreshToken': refreshToken.trim()},
+      );
+
+      final body = response.data;
+      if (body is! Map) {
+        logger.e('Socket refresh: response body không phải Map');
+        _refreshCompleter!.complete(false);
+        return;
+      }
+
+      final map = Map<String, dynamic>.from(body);
+      final newAccessToken = map['accessToken']?.toString() ?? '';
+      final newRefreshToken = map['refreshToken']?.toString() ?? '';
+
+      if (newAccessToken.isEmpty) {
+        logger.e('Socket refresh: empty access token in response');
+        _refreshCompleter!.complete(false);
+        return;
+      }
+
+      await _secureLocalStorage.save(
+        key: 'access_token',
+        value: newAccessToken,
+      );
+      if (newRefreshToken.isNotEmpty) {
+        await _secureLocalStorage.save(
+          key: 'refresh_token',
+          value: newRefreshToken,
+        );
+      }
+
+      _cachedUserId = '';
+
+      logger.i('Socket refresh thành công, reconnecting…');
+      _refreshCompleter!.complete(true);
+      _refreshCompleter = null;
+
+      // Reconnect với token mới
+      await ensureConnected();
+    } catch (e) {
+      logger.e('Socket refresh failed: $e');
+      _refreshCompleter?.complete(false);
+      _refreshCompleter = null;
     }
   }
 }

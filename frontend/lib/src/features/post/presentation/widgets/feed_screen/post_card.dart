@@ -4,7 +4,7 @@ import 'package:frontend/src/core/utils/url_normalizer.dart';
 import 'package:frontend/src/widgets/follow_status_chip.dart';
 import 'package:intl/intl.dart';
 
-import '../../../../features/post/domain/entities/post_entity.dart';
+import '../../../domain/entities/post_entity.dart';
 
 class PostCard extends StatelessWidget {
   const PostCard({

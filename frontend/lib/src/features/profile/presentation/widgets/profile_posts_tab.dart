@@ -5,8 +5,7 @@ import '../../../../configs/injector/injector_conf.dart';
 import '../../../post/domain/entities/post_entity.dart';
 import '../../../post/presentation/bloc/post/post_bloc.dart';
 import '../../../post/presentation/pages/post_detail_screen.dart';
-import '../../../post/presentation/widgets/comments_sheet.dart';
-import '../../../post/presentation/widgets/post_card.dart';
+import '../../../post/presentation/widgets/feed_widgets.dart';
 import '../bloc/profile/profile_bloc.dart';
 import 'profile_empty_state.dart';
 

@@ -1,73 +1,55 @@
 import 'package:flutter/material.dart';
 
 import 'mochi_dm_styles.dart';
+import 'mochi_dm_search_input.dart';
 
 class MochiDmTopBar extends StatelessWidget {
-  final String username;
-  final VoidCallback onBackPressed;
-  final VoidCallback onAddPressed;
+  final ValueChanged<String> onSearchChanged;
+  final VoidCallback onEditPressed;
+  final VoidCallback? onBackPressed;
 
   const MochiDmTopBar({
     super.key,
-    required this.username,
-    required this.onBackPressed,
-    required this.onAddPressed,
+    required this.onSearchChanged,
+    required this.onEditPressed,
+    this.onBackPressed,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(8, 8, 8, 6),
+    return Container(
+      color: MochiDmStyles.primaryGreen,
+      padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
       child: SizedBox(
-        height: 44,
+        height: 56,
         child: Row(
           children: [
-            SizedBox(
-              width: 44,
-              height: 44,
-              child: IconButton(
-                onPressed: onBackPressed,
-                icon: const Icon(Icons.arrow_back_rounded, size: 24),
-                color: MochiDmStyles.primaryText,
-                tooltip: 'Quay lại',
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(),
-              ),
+            IconButton(
+              onPressed:
+                  onBackPressed ?? () => Navigator.of(context).maybePop(),
+              icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
+              color: MochiDmStyles.topBarText,
             ),
             Expanded(
-              child: Center(
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      username,
-                      style: const TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.w600,
-                        color: MochiDmStyles.primaryText,
-                      ),
-                    ),
-                    const SizedBox(width: 2),
-                    const Icon(
-                      Icons.keyboard_arrow_down_rounded,
-                      size: 20,
-                      color: MochiDmStyles.primaryText,
-                    ),
-                  ],
+              child: MochiDmSearchInput(
+                onChanged: onSearchChanged,
+                padding: const EdgeInsets.symmetric(
+                  vertical: 10,
+                  horizontal: 4,
                 ),
+                fillColor: MochiDmStyles.searchBackground,
+                hintColor: MochiDmStyles.searchHint,
+                iconColor: MochiDmStyles.searchIcon,
+                focusedBorderColor: MochiDmStyles.primaryGreenSoft,
+                borderRadius: 16,
+                hintText: 'Tìm kiếm trong tin nhắn',
+                dense: true,
               ),
             ),
-            SizedBox(
-              width: 44,
-              height: 44,
-              child: IconButton(
-                onPressed: onAddPressed,
-                icon: const Icon(Icons.add, size: 24),
-                color: MochiDmStyles.primaryText,
-                tooltip: 'Tạo đoạn chat mới',
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(),
-              ),
+            IconButton(
+              onPressed: onEditPressed,
+              icon: const Icon(Icons.edit_outlined, size: 20),
+              color: MochiDmStyles.topBarText,
             ),
           ],
         ),

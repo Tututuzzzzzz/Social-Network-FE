@@ -17,6 +17,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     on<ChatThreadHiddenChangedEvent>(_onHiddenChanged);
     on<ChatThreadDeletedEvent>(_onDeleted);
     on<ChatThreadPreviewUpdatedEvent>(_onPreviewUpdated);
+    on<ChatThreadUnreadClearedEvent>(_onUnreadCleared);
   }
 
   Future<void> _onFetched(
@@ -100,7 +101,27 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
         messagePreview: event.thread.messagePreview,
         timeLabel: event.thread.timeLabel,
         fullConversation: event.thread.fullConversation,
+        unreadCount: event.thread.unreadCount,
       );
+    }).toList();
+
+    emit(ChatSuccessState(_sortedItems(updatedItems)));
+  }
+
+  void _onUnreadCleared(
+    ChatThreadUnreadClearedEvent event,
+    Emitter<ChatState> emit,
+  ) {
+    final currentItems = _itemsFromState();
+    if (currentItems == null) {
+      return;
+    }
+
+    final updatedItems = currentItems.map((item) {
+      if (item.id != event.threadId) {
+        return item;
+      }
+      return item.copyWith(unreadCount: 0);
     }).toList();
 
     emit(ChatSuccessState(_sortedItems(updatedItems)));

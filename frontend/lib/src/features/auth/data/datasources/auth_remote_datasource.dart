@@ -15,6 +15,7 @@ sealed class AuthRemoteDataSource {
   Future<void> logout();
   Future<String> refreshSession();
   Future<void> register(RegisterModel model);
+  Future<void> forgotPassword(String email);
 }
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
@@ -51,13 +52,20 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
           ? Map<String, dynamic>.from(payload)
           : <String, dynamic>{};
 
-      final tokenUserId = _extractUserIdFromAccessToken(accessToken);
+      final tokenPayload = _extractPayloadFromAccessToken(accessToken);
+      final tokenUserId =
+          tokenPayload?['userId'] ??
+          tokenPayload?['sub'] ??
+          tokenPayload?['_id'];
+      final tokenUsername = tokenPayload?['username'];
+
       final userId = (json['_id'] ?? json['id'] ?? tokenUserId ?? '')
           .toString();
 
       return UserModel(
         userId: userId.isNotEmpty ? userId : null,
-        userName: (json['username'] ?? result['username'])?.toString(),
+        userName: (json['username'] ?? result['username'] ?? tokenUsername)
+            ?.toString(),
         email: json['email']?.toString(),
       );
     } on UnauthorisedException {
@@ -149,6 +157,9 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         data: model.toJson(),
       );
       return;
+    } on ConflictException {
+      // Backend trả 409 khi username hoặc email đã tồn tại.
+      throw DuplicateEmailException();
     } on UnprocessableEntityException {
       // Backend thường trả 422 khi email đã tồn tại.
       throw DuplicateEmailException();
@@ -158,7 +169,22 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     }
   }
 
-  String? _extractUserIdFromAccessToken(String accessToken) {
+  @override
+  Future<void> forgotPassword(String email) async {
+    try {
+      await _apiHelper.execute(
+        method: Method.post,
+        url: ApiConstants.forgotPassword,
+        data: {'email': email},
+      );
+      return;
+    } catch (e) {
+      logger.e(e);
+      throw ServerException();
+    }
+  }
+
+  Map<String, dynamic>? _extractPayloadFromAccessToken(String accessToken) {
     try {
       final parts = accessToken.split('.');
       if (parts.length < 2) {
@@ -173,9 +199,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         return null;
       }
 
-      final userId = decoded['userId'] ?? decoded['sub'] ?? decoded['_id'];
-      final idText = userId?.toString() ?? '';
-      return idText.trim().isEmpty ? null : idText.trim();
+      return decoded;
     } catch (_) {
       return null;
     }

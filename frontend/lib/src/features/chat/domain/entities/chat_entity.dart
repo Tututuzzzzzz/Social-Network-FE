@@ -11,6 +11,8 @@ class ChatEntity extends Equatable {
   final bool isHidden;
   final bool isOnline;
   final bool isGroup;
+  final int participantCount;
+  final String avatarUrl;
   final String fullConversation;
 
   const ChatEntity({
@@ -24,6 +26,8 @@ class ChatEntity extends Equatable {
     this.isHidden = false,
     this.isOnline = false,
     this.isGroup = false,
+    this.participantCount = 0,
+    this.avatarUrl = '',
     this.fullConversation = '',
   });
 
@@ -38,6 +42,8 @@ class ChatEntity extends Equatable {
     bool? isHidden,
     bool? isOnline,
     bool? isGroup,
+    int? participantCount,
+    String? avatarUrl,
     String? fullConversation,
   }) {
     return ChatEntity(
@@ -51,6 +57,8 @@ class ChatEntity extends Equatable {
       isHidden: isHidden ?? this.isHidden,
       isOnline: isOnline ?? this.isOnline,
       isGroup: isGroup ?? this.isGroup,
+      participantCount: participantCount ?? this.participantCount,
+      avatarUrl: avatarUrl ?? this.avatarUrl,
       fullConversation: fullConversation ?? this.fullConversation,
     );
   }
@@ -67,6 +75,8 @@ class ChatEntity extends Equatable {
     isHidden,
     isOnline,
     isGroup,
+    participantCount,
+    avatarUrl,
     fullConversation,
   ];
 }

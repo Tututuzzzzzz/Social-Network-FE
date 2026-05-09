@@ -52,3 +52,12 @@ class ChatThreadPreviewUpdatedEvent extends ChatEvent {
   @override
   List<Object?> get props => [thread];
 }
+
+class ChatThreadUnreadClearedEvent extends ChatEvent {
+  final String threadId;
+
+  const ChatThreadUnreadClearedEvent(this.threadId);
+
+  @override
+  List<Object?> get props => [threadId];
+}

@@ -37,7 +37,11 @@ class ApiHelper {
     } on SocketException {
       throw FetchDataException('No Internet connection');
     } on DioException catch (e) {
-      return _returnResponse(e.response!);
+
+      if (e.response != null) {
+        return _returnResponse(e.response!);
+      }
+      rethrow;
     }
   }
 
@@ -59,6 +63,8 @@ class ApiHelper {
         throw ForbiddenException(response.data['message'].toString());
       case 404:
         throw NotFoundException(response.data['message'].toString());
+      case 409:
+        throw ConflictException(response.data['message'].toString());
       case 422:
         throw UnprocessableEntityException(response.data['message'].toString());
       case 500:

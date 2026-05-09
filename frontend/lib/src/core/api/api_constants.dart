@@ -1,7 +1,6 @@
 import '../config/env_config.dart';
 
 /// Tất cả API endpoint paths — KHÔNG thay đổi theo môi trường.
-///
 /// URL đầy đủ = [EnvConfig.instance.apiBaseUrl] + path bên dưới.
 /// Ví dụ: `http://localhost:3001/api` + `/auth/login`
 class ApiConstants {
@@ -13,9 +12,11 @@ class ApiConstants {
   // ── Auth ─────────────────────────────────────────────
 
   static const String login = '/auth/login';
-  static const String refresh = '/auth/refresh';
+  static const String refresh = '/auth/refresh-token';
   static const String logout = '/auth/logout';
   static const String register = '/auth/register';
+  static const String changePassword = '/auth/change-password';
+  static const String forgotPassword = '/auth/forgot-password'; 
 
   // ── Friends ──────────────────────────────────────────
 
@@ -41,6 +42,7 @@ class ApiConstants {
   // ── Conversations ────────────────────────────────────
 
   static const String conversations = '/conversations';
+  
 
   // ── Messages ─────────────────────────────────────────
 
@@ -57,7 +59,7 @@ class ApiConstants {
   static String messageRead(String conversationId, String messageId) =>
       '/messages/$conversationId/messages/$messageId/read';
   static String messagesReadAll(String conversationId) =>
-      '/messages/$conversationId/messages/read-all';
+      '/messages/$conversationId/messages/seen';
 
   static String messagesHistory(
     String conversationId, {
@@ -86,10 +88,11 @@ class ApiConstants {
   static String postCommentById(String postId, String commentId) =>
       '/posts/$postId/comments/$commentId';
 
+
   // ── Notifications ────────────────────────────────────
 
   static const String notifications = '/notifications';
-  static const String notificationsReadAll = '/notifications/read-all';
+  static const String notificationsReadAll = '/notifications/seen';
 
   static String notificationRead(String notificationId) =>
       '/notifications/$notificationId/read';

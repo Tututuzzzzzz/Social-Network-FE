@@ -4,33 +4,53 @@ import 'mochi_dm_styles.dart';
 
 class MochiDmSearchInput extends StatelessWidget {
   final ValueChanged<String> onChanged;
+  final EdgeInsetsGeometry padding;
+  final Color fillColor;
+  final Color hintColor;
+  final Color iconColor;
+  final Color focusedBorderColor;
+  final double borderRadius;
+  final String? hintText;
+  final bool dense;
 
-  const MochiDmSearchInput({super.key, required this.onChanged});
+  const MochiDmSearchInput({
+    super.key,
+    required this.onChanged,
+    this.padding = const EdgeInsets.symmetric(horizontal: 16),
+    this.fillColor = MochiDmStyles.searchBackground,
+    this.hintColor = MochiDmStyles.searchHint,
+    this.iconColor = MochiDmStyles.searchHint,
+    this.focusedBorderColor = const Color(0xFFCFD3DC),
+    this.borderRadius = 18,
+    this.hintText,
+    this.dense = false,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: padding,
       child: TextField(
         onChanged: onChanged,
         decoration: InputDecoration(
-          hintText: context.l10n.searchLabel,
-          hintStyle: const TextStyle(
-            color: MochiDmStyles.searchHint,
+          hintText: hintText ?? context.l10n.searchLabel,
+          hintStyle: TextStyle(
+            color: hintColor,
             fontSize: 14,
             fontWeight: FontWeight.w500,
           ),
-          prefixIcon: const Icon(Icons.search, color: MochiDmStyles.searchHint),
+          prefixIcon: Icon(Icons.search, color: iconColor, size: 18),
           filled: true,
-          fillColor: MochiDmStyles.searchBackground,
-          contentPadding: const EdgeInsets.symmetric(vertical: 14),
+          fillColor: fillColor,
+          isDense: dense,
+          contentPadding: const EdgeInsets.symmetric(vertical: 12),
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(18),
+            borderRadius: BorderRadius.circular(borderRadius),
             borderSide: BorderSide.none,
           ),
           focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(18),
-            borderSide: const BorderSide(color: Color(0xFFCFD3DC)),
+            borderRadius: BorderRadius.circular(borderRadius),
+            borderSide: BorderSide(color: focusedBorderColor),
           ),
         ),
       ),

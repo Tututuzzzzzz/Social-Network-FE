@@ -38,32 +38,8 @@ class PostModel extends PostEntity {
           [],
       comments:
           (json['comments'] as List<dynamic>?)
-              ?.map(
-                (e) => PostCommentEntity(
-                  id: e['id'] as String,
-                  parentCommentId: e['parentCommentId'] as String?,
-              authorId: e['authorId'] is Map
-                ? ((e['authorId'] as Map)['_id'] ??
-                    (e['authorId'] as Map)['id'] ??
-                    '')
-                  .toString()
-                : e['authorId'] as String,
-              authorUsername: e['authorId'] is Map
-                ? (e['authorId'] as Map)['username']?.toString()
-                : null,
-              authorDisplayName: e['authorId'] is Map
-                ? ((e['authorId'] as Map)['displayName'] ??
-                    (e['authorId'] as Map)['fullName'])
-                  ?.toString()
-                : null,
-              authorAvatarUrl: e['authorId'] is Map
-                ? (e['authorId'] as Map)['avatarUrl']?.toString()
-                : null,
-                  content: e['content'] as String,
-                  createdAt: DateTime.parse(e['createdAt'] as String),
-                  updatedAt: DateTime.parse(e['updatedAt'] as String),
-                ),
-              )
+              ?.whereType<Map>()
+              .map((e) => _postCommentFromJson(Map<String, dynamic>.from(e)))
               .toList() ??
           [],
       commentsCount: json['commentsCount'] as int? ?? 0,
@@ -115,6 +91,9 @@ class PostModel extends PostEntity {
               'id': e.id,
               'parentCommentId': e.parentCommentId,
               'authorId': e.authorId,
+              'authorUsername': e.authorUsername,
+              'authorDisplayName': e.authorDisplayName,
+              'authorAvatarUrl': e.authorAvatarUrl,
               'content': e.content,
               'createdAt': e.createdAt.toIso8601String(),
               'updatedAt': e.updatedAt.toIso8601String(),
@@ -130,4 +109,51 @@ class PostModel extends PostEntity {
   static List<Map<String, dynamic>> toJsonList(List<PostModel> posts) {
     return posts.map((post) => post.toJson()).toList();
   }
+}
+
+PostCommentEntity _postCommentFromJson(Map<String, dynamic> json) {
+  final authorRaw = json['authorId'];
+  final authorMap = authorRaw is Map
+      ? Map<String, dynamic>.from(authorRaw)
+      : null;
+  final authorId = authorMap != null
+      ? (authorMap['_id'] ?? authorMap['id'] ?? '').toString()
+      : (authorRaw ?? '').toString();
+
+  return PostCommentEntity(
+    id: (json['id'] ?? json['_id'] ?? '').toString(),
+    parentCommentId: json['parentCommentId']?.toString(),
+    authorId: authorId,
+    authorUsername: _firstNonEmpty([
+      json['authorUsername'],
+      authorMap?['username'],
+    ]),
+    authorDisplayName: _firstNonEmpty([
+      json['authorDisplayName'],
+      authorMap?['displayName'],
+      authorMap?['fullName'],
+    ]),
+    authorAvatarUrl: _firstNonEmpty([
+      json['authorAvatarUrl'],
+      json['avatarUrl'],
+      authorMap?['avatarUrl'],
+      authorMap?['avatar'],
+    ]),
+    content: json['content']?.toString() ?? '',
+    createdAt:
+        DateTime.tryParse(json['createdAt']?.toString() ?? '') ??
+        DateTime.now(),
+    updatedAt:
+        DateTime.tryParse(json['updatedAt']?.toString() ?? '') ??
+        DateTime.now(),
+  );
+}
+
+String? _firstNonEmpty(List<Object?> values) {
+  for (final value in values) {
+    final text = value?.toString().trim() ?? '';
+    if (text.isNotEmpty) return text;
+  }
+
+  return null;
 }

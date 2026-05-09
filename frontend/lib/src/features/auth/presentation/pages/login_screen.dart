@@ -64,7 +64,11 @@ class _LoginScreenState extends State<LoginScreen> {
                 backgroundColor: Colors.transparent,
                 elevation: 0,
                 leading: IconButton(
-                  icon: const Icon(Icons.arrow_back, color: Colors.black),
+                  icon: const Icon(
+                    Icons.chevron_left,
+                    color: Colors.black,
+                    size: 32,
+                  ),
                   onPressed: () => Navigator.of(context).pop(),
                 ),
               ),
@@ -160,7 +164,8 @@ class _LoginScreenState extends State<LoginScreen> {
                                 ],
                               ),
                               TextButton(
-                                onPressed: () {},
+                                onPressed: () =>
+                                    context.push(AppRoutes.forgotPassword.path),
                                 child: Text(
                                   l10n.forgotPassword,
                                   style: const TextStyle(
@@ -177,8 +182,8 @@ class _LoginScreenState extends State<LoginScreen> {
                               return CustomButton(
                                 label: l10n.login,
                                 color: isValid
-                                    ? const Color(0xFF83C2FB)
-                                    : Colors.grey.shade400,
+                                    ? const Color(0xFF3CC18E)
+                                    : const Color(0xFFB7BBC1),
                                 onPressed: () async {
                                   if (!isValid) return;
 

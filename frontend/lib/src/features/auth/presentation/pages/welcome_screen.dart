@@ -126,6 +126,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                 // Buttons
                 CustomButton(
                   label: l10n.login,
+                  color: const Color(0xFF3CC18E),
                   onPressed: () => context.push(AppRoutes.login.path),
                 ),
 
@@ -133,6 +134,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
 
                 CustomButton(
                   label: l10n.register,
+                  color: const Color(0xFF3CC18E),
                   onPressed: () => context.push(AppRoutes.register.path),
                 ),
               ],
