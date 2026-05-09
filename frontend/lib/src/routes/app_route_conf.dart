@@ -18,7 +18,7 @@ class AppRoutesConf {
 
   String _resolveInitialLocation() {
     if (_startRoute.isEmpty) {
-      return AppRoutes.welcome.path;
+      return AppRoutes.onboarding.path;
     }
 
     final isKnownStaticRoute = AppRoutes.values.any(
@@ -45,6 +45,11 @@ class AppRoutesConf {
         builder: (context, state) => const WelcomeScreen(),
       ),
       GoRoute(
+        path: AppRoutes.onboarding.path,
+        name: AppRoutes.onboarding.name,
+        builder: (context, state) => const OnboardingScreen(),
+      ),
+      GoRoute(
         path: AppRoutes.login.path,
         name: AppRoutes.login.name,
         builder: (context, state) => const LoginScreen(),
@@ -53,6 +58,29 @@ class AppRoutesConf {
         path: AppRoutes.register.path,
         name: AppRoutes.register.name,
         builder: (context, state) => const RegisterScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.forgotPassword.path,
+        name: AppRoutes.forgotPassword.name,
+        builder: (context, state) => const ForgotPasswordScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.verificationCode.path,
+        name: AppRoutes.verificationCode.name,
+        builder: (context, state) {
+          final email = state.extra as String? ?? '';
+          return VerificationCodeScreen(email: email);
+        },
+      ),
+      GoRoute(
+        path: AppRoutes.resetPassword.path,
+        name: AppRoutes.resetPassword.name,
+        builder: (context, state) => const ResetPasswordScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.registerSuccess.path,
+        name: AppRoutes.registerSuccess.name,
+        builder: (context, state) => const RegisterSuccessScreen(),
       ),
       ShellRoute(
         builder: (context, state, child) => AppShellPage(body: child),

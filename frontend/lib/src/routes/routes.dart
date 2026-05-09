@@ -1,6 +1,11 @@
 export '../features/auth/presentation/pages/welcome_screen.dart';
+export '../features/auth/presentation/pages/onboarding_screen.dart';
 export '../features/auth/presentation/pages/login_screen.dart';
 export '../features/auth/presentation/pages/register_screen.dart';
+export '../features/auth/presentation/pages/forgot_password_screen.dart';
+export '../features/auth/presentation/pages/verification_code_screen.dart';
+export '../features/auth/presentation/pages/reset_password_screen.dart';
+export '../features/auth/presentation/pages/register_success_screen.dart';
 export '../features/post/presentation/pages/feed_screen.dart';
 export '../features/post/presentation/pages/create_post_screen.dart';
 export '../features/chat/presentation/pages/mochi_direct_messages_page.dart';
