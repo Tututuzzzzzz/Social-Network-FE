@@ -11,6 +11,7 @@ enum AppRoutes {
   chatNewConversation(path: '/chat/new'),
   notifications(path: '/notifications'),
   chatMochiChatRoom(path: '/chat/room/:threadId'),
+  chatConversationManage(path: '/chat/room/:threadId/manage'),
   editProfile(path: '/profile/edit'),
   profile(path: '/profile'),
   createPost(path: '/create-post'),

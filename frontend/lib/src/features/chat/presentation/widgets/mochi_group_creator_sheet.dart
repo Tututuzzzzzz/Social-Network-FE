@@ -101,7 +101,7 @@ class _MochiGroupCreatorSheetState extends State<MochiGroupCreatorSheet> {
                   ),
                   const Expanded(
                     child: Text(
-                      'Tao nhom chat',
+                      'Tạo nhóm chat',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 18,
@@ -122,7 +122,7 @@ class _MochiGroupCreatorSheetState extends State<MochiGroupCreatorSheet> {
                             ),
                           )
                         : const Text(
-                            'Tao',
+                            'Tạo',
                             style: TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.w700,
@@ -142,7 +142,7 @@ class _MochiGroupCreatorSheetState extends State<MochiGroupCreatorSheet> {
                     controller: _nameController,
                     onChanged: (_) => setState(() {}),
                     decoration: InputDecoration(
-                      hintText: 'Ten nhom',
+                      hintText: 'Tên nhóm',
                       filled: true,
                       fillColor: Colors.white,
                       border: OutlineInputBorder(
@@ -172,7 +172,7 @@ class _MochiGroupCreatorSheetState extends State<MochiGroupCreatorSheet> {
                     iconColor: MochiDmStyles.searchIcon,
                     focusedBorderColor: MochiDmStyles.primaryGreenSoft,
                     borderRadius: 14,
-                    hintText: 'Tim thanh vien',
+                    hintText: 'Tìm thành viên',
                     dense: true,
                   ),
                 ],
@@ -214,6 +214,7 @@ class _MochiGroupCreatorSheetState extends State<MochiGroupCreatorSheet> {
 
                       return CheckboxListTile(
                         value: isSelected,
+                        activeColor: const Color(0xFF3CC18E),
                         onChanged: (value) {
                           setState(() {
                             if (value == true) {

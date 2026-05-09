@@ -23,6 +23,8 @@ class MessageEntity extends Equatable {
   final String id;
   final String conversationId;
   final String senderId;
+  final String senderName;
+  final String senderAvatarUrl;
   final String content;
   final List<MessageMediaEntity> media;
   final DateTime? createdAt;
@@ -32,6 +34,8 @@ class MessageEntity extends Equatable {
     required this.id,
     this.conversationId = '',
     this.senderId = '',
+    this.senderName = '',
+    this.senderAvatarUrl = '',
     this.content = '',
     this.media = const [],
     this.createdAt,
@@ -42,6 +46,8 @@ class MessageEntity extends Equatable {
     String? id,
     String? conversationId,
     String? senderId,
+    String? senderName,
+    String? senderAvatarUrl,
     String? content,
     List<MessageMediaEntity>? media,
     DateTime? createdAt,
@@ -51,6 +57,8 @@ class MessageEntity extends Equatable {
       id: id ?? this.id,
       conversationId: conversationId ?? this.conversationId,
       senderId: senderId ?? this.senderId,
+      senderName: senderName ?? this.senderName,
+      senderAvatarUrl: senderAvatarUrl ?? this.senderAvatarUrl,
       content: content ?? this.content,
       media: media ?? this.media,
       createdAt: createdAt ?? this.createdAt,
@@ -63,6 +71,8 @@ class MessageEntity extends Equatable {
     id,
     conversationId,
     senderId,
+    senderName,
+    senderAvatarUrl,
     content,
     media,
     createdAt,

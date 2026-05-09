@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 
+import '../../../chat/domain/entities/chat_entity.dart';
 import '../../domain/entities/message_entity.dart';
 
 abstract class MessageEvent extends Equatable {
@@ -7,6 +8,25 @@ abstract class MessageEvent extends Equatable {
 
   @override
   List<Object?> get props => [];
+}
+
+class MessageChatRoomStarted extends MessageEvent {
+  final ChatEntity thread;
+  final int limit;
+
+  const MessageChatRoomStarted({required this.thread, this.limit = 30});
+
+  @override
+  List<Object?> get props => [thread, limit];
+}
+
+class MessageRealtimeMessageReceived extends MessageEvent {
+  final MessageEntity message;
+
+  const MessageRealtimeMessageReceived(this.message);
+
+  @override
+  List<Object?> get props => [message];
 }
 
 class SendDirectTextEvent extends MessageEvent {
@@ -37,19 +57,6 @@ class SendGroupTextEvent extends MessageEvent {
   List<Object?> get props => [conversationId, content];
 }
 
-class MessageHistoryBootstrapRequested extends MessageEvent {
-  final String conversationId;
-  final int limit;
-
-  const MessageHistoryBootstrapRequested({
-    required this.conversationId,
-    this.limit = 30,
-  });
-
-  @override
-  List<Object?> get props => [conversationId, limit];
-}
-
 class MessageHistoryLoadOlderRequested extends MessageEvent {
   final String conversationId;
   final String cursor;
@@ -63,19 +70,6 @@ class MessageHistoryLoadOlderRequested extends MessageEvent {
 
   @override
   List<Object?> get props => [conversationId, cursor, limit];
-}
-
-class MessageHistoryCacheSaveRequested extends MessageEvent {
-  final String conversationId;
-  final MessageHistoryPageEntity page;
-
-  const MessageHistoryCacheSaveRequested({
-    required this.conversationId,
-    required this.page,
-  });
-
-  @override
-  List<Object?> get props => [conversationId, page];
 }
 
 class MessageMarkAllReadRequested extends MessageEvent {

@@ -1,6 +1,7 @@
 import '../../../configs/injector/injector_conf.dart';
 import '../../../core/api/api_helper.dart';
 import '../../../core/cache/hive_local_storage.dart';
+import '../../../core/realtime/realtime_socket_service.dart';
 import '../data/datasources/message_local_datasource.dart';
 import '../data/datasources/message_remote_datasource.dart';
 import '../data/repositories/message_repository_impl.dart';
@@ -32,6 +33,7 @@ class MessageDependency {
           getIt<LoadCachedConversationHistoryUseCase>(),
           getIt<SaveCachedConversationHistoryUseCase>(),
           getIt<MarkAllMessagesAsReadUseCase>(),
+          getIt<RealtimeSocketService>(),
         ),
       );
     }
