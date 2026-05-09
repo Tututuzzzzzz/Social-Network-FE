@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 import '../configs/injector/injector_conf.dart';
 import '../features/chat/domain/entities/chat_entity.dart';
 import '../features/message/presentation/bloc/message_bloc.dart';
-import '../features/message/presentation/pages/conversation_management_page.dart';
 import '../features/notifications/presentation/bloc/notification_bloc.dart';
 import '../features/post/presentation/bloc/post/post_bloc.dart';
 import '../features/profile/presentation/bloc/profile/profile_bloc.dart';
@@ -69,7 +68,7 @@ class AppRoutesConf {
         path: AppRoutes.verificationCode.path,
         name: AppRoutes.verificationCode.name,
         builder: (context, state) {
-          final email = state.extra as String? ?? '';
+          final email = state.extra is String ? state.extra as String : '';
           return VerificationCodeScreen(email: email);
         },
       ),
@@ -83,6 +82,39 @@ class AppRoutesConf {
         name: AppRoutes.registerSuccess.name,
         builder: (context, state) => const RegisterSuccessScreen(),
       ),
+      GoRoute(
+        path: AppRoutes.auth.path,
+        name: AppRoutes.auth.name,
+        redirect: (context, state) {
+          if (state.matchedLocation == AppRoutes.auth.path) {
+            return AppRoutes.authLogin.path;
+          }
+          return null;
+        },
+        routes: [
+          GoRoute(
+            path: 'login',
+            name: AppRoutes.authLogin.name,
+            builder: (context, state) => const LoginScreen(),
+          ),
+          GoRoute(
+            path: 'register',
+            name: AppRoutes.authRegister.name,
+            builder: (context, state) => const RegisterScreen(),
+          ),
+        ],
+      ),
+      GoRoute(
+        path: AppRoutes.editProfile.path,
+        name: AppRoutes.editProfile.name,
+        builder: (context, state) {
+          final userId = state.extra is String ? state.extra as String : null;
+          return BlocProvider<ProfileBloc>(
+            create: (_) => getIt<ProfileBloc>(),
+            child: EditProfilePage(userId: userId),
+          );
+        },
+      ),
       ShellRoute(
         builder: (context, state, child) => AppShellPage(body: child),
         routes: [
@@ -92,6 +124,17 @@ class AppRoutesConf {
             builder: (context, state) => BlocProvider.value(
               value: getIt<PostBloc>(),
               child: const FeedScreen(),
+            ),
+          ),
+          GoRoute(
+            path: AppRoutes.createPost.path,
+            name: AppRoutes.createPost.name,
+            builder: (context, state) => MultiBlocProvider(
+              providers: [
+                BlocProvider.value(value: getIt<PostBloc>()),
+                BlocProvider(create: (_) => getIt<ProfileBloc>()),
+              ],
+              child: const CreatePostScreen(),
             ),
           ),
           GoRoute(
@@ -105,74 +148,43 @@ class AppRoutesConf {
             builder: (context, state) => const MochiDirectMessagesPage(),
           ),
           GoRoute(
-            path: AppRoutes.profile.path,
-            name: AppRoutes.profile.name,
-            builder: (context, state) => BlocProvider(
-              create: (_) => getIt<ProfileBloc>(),
-              child: const MochiProfilePage(),
-            ),
-          ),
-
-          GoRoute(
             path: AppRoutes.notifications.path,
             name: AppRoutes.notifications.name,
-            builder: (context, state) => BlocProvider(
+            builder: (context, state) => BlocProvider<NotificationBloc>(
               create: (_) => getIt<NotificationBloc>(),
               child: const NotificationScreen(),
             ),
           ),
+          GoRoute(
+            path: AppRoutes.profile.path,
+            name: AppRoutes.profile.name,
+            builder: (context, state) => BlocProvider<ProfileBloc>(
+              create: (_) => getIt<ProfileBloc>(),
+              child: const MochiProfilePage(),
+            ),
+          ),
+          GoRoute(
+            path: AppRoutes.profileFriends.path,
+            name: AppRoutes.profileFriends.name,
+            builder: (context, state) => const FriendsListPage(),
+          ),
+          GoRoute(
+            path: AppRoutes.otherProfile.path,
+            name: AppRoutes.otherProfile.name,
+            builder: (context, state) {
+              final userId = state.pathParameters['userId'] ?? '';
+              return BlocProvider<ProfileBloc>(
+                create: (_) => getIt<ProfileBloc>(),
+                child: MochiProfilePage(userId: userId),
+              );
+            },
+          ),
         ],
-      ),
-      GoRoute(
-        path: AppRoutes.createPost.path,
-        name: AppRoutes.createPost.name,
-        builder: (context, state) => MultiBlocProvider(
-          providers: [
-            BlocProvider.value(value: getIt<PostBloc>()),
-            BlocProvider(create: (_) => getIt<ProfileBloc>()),
-          ],
-          child: const CreatePostScreen(),
-        ),
       ),
       GoRoute(
         path: AppRoutes.chatNewConversation.path,
         name: AppRoutes.chatNewConversation.name,
         builder: (context, state) => const MochiNewConversationPage(),
-      ),
-      GoRoute(
-        path: AppRoutes.editProfile.path,
-        name: AppRoutes.editProfile.name,
-        builder: (context, state) => const EditProfilePage(),
-      ),
-      GoRoute(
-        path: AppRoutes.otherProfile.path,
-        name: AppRoutes.otherProfile.name,
-        builder: (context, state) {
-          final userId = state.pathParameters['userId'] ?? '';
-          return BlocProvider(
-            create: (_) => getIt<ProfileBloc>(),
-            child: MochiProfilePage(userId: userId),
-          );
-        },
-      ),
-      GoRoute(
-        path: AppRoutes.chatMochiChatRoom.path,
-        name: AppRoutes.chatMochiChatRoom.name,
-        builder: (context, state) {
-          final threadId = state.pathParameters['threadId'] ?? '';
-          final extra = state.extra;
-          final thread = extra is ChatEntity
-              ? extra
-              : ChatEntity(
-                  id: threadId,
-                  senderName: 'Conversation',
-                  messagePreview: 'Start chatting',
-                );
-          return BlocProvider(
-            create: (_) => getIt<MessageBloc>(),
-            child: MessageChatRoomPage(thread: thread),
-          );
-        },
       ),
       GoRoute(
         path: AppRoutes.chatConversationManage.path,
@@ -188,6 +200,25 @@ class AppRoutesConf {
                   messagePreview: 'Start chatting',
                 );
           return ConversationManagementPage(thread: thread);
+        },
+      ),
+      GoRoute(
+        path: AppRoutes.chatMochiChatRoom.path,
+        name: AppRoutes.chatMochiChatRoom.name,
+        builder: (context, state) {
+          final threadId = state.pathParameters['threadId'] ?? '';
+          final extra = state.extra;
+          final thread = extra is ChatEntity
+              ? extra
+              : ChatEntity(
+                  id: threadId,
+                  senderName: 'Conversation',
+                  messagePreview: 'Start chatting',
+                );
+          return BlocProvider<MessageBloc>(
+            create: (_) => getIt<MessageBloc>(),
+            child: MessageChatRoomPage(thread: thread),
+          );
         },
       ),
     ],

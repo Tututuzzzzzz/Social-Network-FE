@@ -1,4 +1,5 @@
 import '../datasources/friend_remote_data_source.dart';
+import '../../domain/entities/friend.dart';
 import '../../domain/entities/friend_request.dart';
 import '../../domain/repositories/friend_repository.dart';
 
@@ -8,9 +9,15 @@ class FriendRepositoryImpl implements FriendRepository {
   FriendRepositoryImpl({required this.remoteDataSource});
 
   @override
-  Future<List<String>> getAllFriendIds() async {
+  Future<List<Friend>> getFriends() async {
     final friends = await remoteDataSource.fetchFriends();
-    return friends.map((friend) => friend.id).where((id) => id.isNotEmpty).toList();
+    return friends.where((friend) => friend.id.isNotEmpty).toList();
+  }
+
+  @override
+  Future<List<String>> getAllFriendIds() async {
+    final friends = await getFriends();
+    return friends.map((friend) => friend.id).toList();
   }
 
   @override

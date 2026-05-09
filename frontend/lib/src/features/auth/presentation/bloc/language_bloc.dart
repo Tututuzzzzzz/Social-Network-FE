@@ -26,15 +26,9 @@ class LanguageState extends Equatable {
   final Locale? locale;
   final LanguageStatus status;
 
-  const LanguageState({
-    this.locale,
-    this.status = LanguageStatus.initial,
-  });
+  const LanguageState({this.locale, this.status = LanguageStatus.initial});
 
-  LanguageState copyWith({
-    Locale? locale,
-    LanguageStatus? status,
-  }) {
+  LanguageState copyWith({Locale? locale, LanguageStatus? status}) {
     return LanguageState(
       locale: locale ?? this.locale,
       status: status ?? this.status,
@@ -60,10 +54,12 @@ class LanguageBloc extends Bloc<LanguageEvent, LanguageState> {
   ) async {
     emit(state.copyWith(status: LanguageStatus.loading));
     final savedLocale = await _repository.getSavedLocale();
-    emit(state.copyWith(
-      locale: savedLocale,
-      status: LanguageStatus.loaded,
-    ));
+    emit(
+      state.copyWith(
+        locale: savedLocale ?? const Locale('vi'),
+        status: LanguageStatus.loaded,
+      ),
+    );
   }
 
   Future<void> _onChanged(

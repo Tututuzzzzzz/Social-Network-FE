@@ -1,48 +1,43 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../configs/injector/injector_conf.dart';
-import '../../../../core/api/api_helper.dart';
-import '../../../../core/api/api_constants.dart';
-import '../../../../core/cache/hive_local_storage.dart';
 import '../../../../core/cache/secure_local_storage.dart';
-import '../../../../core/utils/url_normalizer.dart';
+import '../../../../core/l10n/l10n.dart';
+import '../../../../routes/app_route_path.dart';
 import '../../domain/entities/profile_entity.dart';
-import '../../domain/usecases/get_profile_usecase.dart';
-import '../../domain/usecases/update_avatar_usecase.dart';
-import '../../domain/usecases/update_profile_usecase.dart';
 import '../../domain/usecases/usecase_params.dart';
+import '../bloc/profile/profile_bloc.dart';
+import '../widgets/profile_empty_state.dart';
 
 class EditProfilePage extends StatefulWidget {
-  const EditProfilePage({super.key});
+  const EditProfilePage({super.key, this.userId});
+
+  final String? userId;
 
   @override
   State<EditProfilePage> createState() => _EditProfilePageState();
 }
 
 class _EditProfilePageState extends State<EditProfilePage> {
+  final _formKey = GlobalKey<FormState>();
   final _displayNameController = TextEditingController();
   final _bioController = TextEditingController();
   final _phoneController = TextEditingController();
 
-  final _imagePicker = ImagePicker();
-
-  bool _isLoading = true;
-  bool _isSaving = false;
-  bool _isPrivate = false;
-
-  String _currentUserId = '';
-  String _username = '';
-  String _email = '';
-  String _gender = 'Nam';
-  String _avatarUrl = '';
+  ProfileEntity? _profile;
+  String _targetUserId = '';
+  bool _didFillForm = false;
+  bool _isResolvingUser = true;
+  bool _isMissingSession = false;
 
   @override
   void initState() {
     super.initState();
-    _bootstrap();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _resolveAndLoadProfile();
+    });
   }
 
   @override
@@ -53,443 +48,345 @@ class _EditProfilePageState extends State<EditProfilePage> {
     super.dispose();
   }
 
-  Future<void> _bootstrap() async {
-    setState(() => _isLoading = true);
-
-    final userId = await _resolveCurrentUserId();
+  Future<void> _resolveAndLoadProfile() async {
     if (!mounted) return;
 
-    if (userId.isEmpty) {
-      setState(() => _isLoading = false);
-      _showSnack('Không tìm thấy user_id đăng nhập');
-      return;
-    }
-
-    _currentUserId = userId;
-    await _loadUserMetaFromApi();
-    await _loadCachedUserMeta();
-    await _loadProfile();
-
-    if (!mounted) return;
-    setState(() => _isLoading = false);
-  }
-
-  Future<void> _loadCachedUserMeta() async {
-    final localStorage = getIt<HiveLocalStorage>();
-    final cachedUser = await localStorage.load(key: 'user', boxName: 'cache');
-
-    if (cachedUser is Map) {
-      final map = cachedUser.map((key, value) => MapEntry('$key', value));
-      if (_username.trim().isEmpty) {
-        _username = (map['username'] ?? '').toString();
-      }
-      if (_email.trim().isEmpty) {
-        _email = (map['email'] ?? '').toString();
-      }
-      if (_phoneController.text.trim().isEmpty) {
-        _phoneController.text = (map['phone'] ?? '').toString();
-      }
-      final cachedGender = (map['gender'] ?? '').toString();
-      if (cachedGender.trim().isNotEmpty) {
-        _gender = cachedGender;
-      }
-    }
-  }
-
-  Future<void> _loadUserMetaFromApi() async {
-    try {
-      final apiHelper = getIt<ApiHelper>();
-      final result = await apiHelper.execute(method: Method.get, url: ApiConstants.profile);
-
-      final userRaw = result['user'];
-      if (userRaw is! Map) {
-        return;
-      }
-
-      final user = Map<String, dynamic>.from(userRaw);
-      final username = (user['username'] ?? '').toString().trim();
-      final email = (user['email'] ?? '').toString().trim();
-      final phone = (user['phone'] ?? '').toString().trim();
-
-      if (username.isNotEmpty) {
-        _username = username;
-      }
-      if (email.isNotEmpty) {
-        _email = email;
-      }
-      if (phone.isNotEmpty) {
-        _phoneController.text = phone;
-      }
-    } catch (_) {
-      // API may fail temporarily; cache fallback still applies.
-    }
-  }
-
-  Future<void> _loadProfile() async {
-    final useCase = getIt<GetProfileUseCase>();
-    final result = await useCase.call(ProfileParams(userId: _currentUserId));
-
-    if (!mounted) return;
-
-    result.fold(
-      (_) => _showSnack('Không tải được thông tin profile'),
-      (profile) => _applyProfile(profile),
-    );
-  }
-
-  void _applyProfile(ProfileEntity profile) {
-    _displayNameController.text = profile.displayName ?? '';
-    _bioController.text = profile.bio ?? '';
-    _avatarUrl = _normalizeMediaUrl((profile.avatarUrl ?? '').trim());
-    if ((profile.username ?? '').trim().isNotEmpty) {
-      _username = profile.username!.trim();
-    }
-    setState(() {});
-  }
-
-  Future<void> _pickAndUploadAvatar() async {
-    final image = await _imagePicker.pickImage(source: ImageSource.gallery);
-    if (image == null) return;
-
-    final bytes = await image.readAsBytes();
-    if (bytes.isEmpty) {
-      _showSnack('Không đọc được ảnh');
-      return;
-    }
-
-    setState(() => _isSaving = true);
-
-    final useCase = getIt<UpdateAvatarUseCase>();
-    final result = await useCase.call(
-      UpdateAvatarParams(avatarBytes: bytes, fileName: image.name),
-    );
-
-    if (!mounted) return;
-
-    result.fold((_) => _showSnack('Không thể cập nhật ảnh đại diện'), (
-      _,
-    ) async {
-      _showSnack('Đã cập nhật ảnh đại diện');
-      await _loadProfile();
+    setState(() {
+      _isResolvingUser = true;
+      _isMissingSession = false;
     });
 
-    if (mounted) {
-      setState(() => _isSaving = false);
-    }
-  }
-
-  Future<void> _saveProfile() async {
-    setState(() => _isSaving = true);
-
-    final useCase = getIt<UpdateProfileUseCase>();
-    final result = await useCase.call(
-      UpdateProfileParams(
-        displayName: _displayNameController.text.trim(),
-        bio: _bioController.text.trim(),
-        phone: _phoneController.text.trim(),
-      ),
-    );
+    final routeUserId = widget.userId?.trim() ?? '';
+    final storageUserId = routeUserId.isEmpty
+        ? (await getIt<SecureLocalStorage>().load(key: 'user_id')).trim()
+        : '';
+    final targetUserId = routeUserId.isNotEmpty ? routeUserId : storageUserId;
 
     if (!mounted) return;
 
-    result.fold(
-      (_) {
-        _showSnack('Không thể cập nhật thông tin');
-        setState(() => _isSaving = false);
-      },
-      (_) async {
-        _showSnack('Cập nhật thông tin thành công');
-        setState(() => _isSaving = false);
-        Navigator.of(context).pop(true);
-      },
+    if (targetUserId.isEmpty) {
+      setState(() {
+        _isResolvingUser = false;
+        _isMissingSession = true;
+      });
+      return;
+    }
+
+    setState(() {
+      _targetUserId = targetUserId;
+      _isResolvingUser = false;
+    });
+
+    context.read<ProfileBloc>().add(
+      ProfileGetEvent(ProfileParams(userId: targetUserId)),
     );
   }
 
-  Future<String> _resolveCurrentUserId() async {
-    final secureStorage = getIt<SecureLocalStorage>();
-    final storedUserId = await secureStorage.load(key: 'user_id');
-    final secureUserId = storedUserId.trim();
-    if (secureUserId.isNotEmpty) {
-      return secureUserId;
+  void _fillForm(ProfileEntity profile) {
+    if (_didFillForm) {
+      return;
     }
 
-    final localStorage = getIt<HiveLocalStorage>();
-    final cachedUser = await localStorage.load(key: 'user', boxName: 'cache');
-    if (cachedUser is Map) {
-      final map = cachedUser.map((key, value) => MapEntry('$key', value));
-      final userId = (map['_id'] ?? map['id'] ?? '').toString().trim();
-      if (userId.isNotEmpty) {
-        await secureStorage.save(key: 'user_id', value: userId);
-        return userId;
-      }
-    }
-
-    final accessToken = await secureStorage.load(key: 'access_token');
-    final tokenUserId = _extractUserIdFromAccessToken(accessToken);
-    if ((tokenUserId ?? '').isNotEmpty) {
-      await secureStorage.save(key: 'user_id', value: tokenUserId!);
-      return tokenUserId;
-    }
-
-    return '';
+    _profile = profile;
+    _displayNameController.text = profile.displayName?.trim() ?? '';
+    _bioController.text = profile.bio?.trim() ?? '';
+    _phoneController.text = profile.phone?.trim() ?? '';
+    _didFillForm = true;
   }
 
-  String? _extractUserIdFromAccessToken(String? accessToken) {
-    final token = (accessToken ?? '').trim();
-    if (token.isEmpty) return null;
-
-    try {
-      final parts = token.split('.');
-      if (parts.length < 2) return null;
-
-      final payloadBase64 = base64Url.normalize(parts[1]);
-      final payload = utf8.decode(base64Url.decode(payloadBase64));
-      final decoded = jsonDecode(payload);
-
-      if (decoded is! Map<String, dynamic>) return null;
-
-      final value = decoded['userId'] ?? decoded['sub'] ?? decoded['_id'];
-      final userId = (value ?? '').toString().trim();
-      return userId.isEmpty ? null : userId;
-    } catch (_) {
-      return null;
-    }
-  }
-
-  String _normalizeMediaUrl(String input) {
-    final raw = input.trim();
-    if (raw.isEmpty) return '';
-
-    final apiUri = Uri.parse(ApiConstants.baseUrl);
-    var normalized = raw;
-
-    if (!raw.startsWith('http://') && !raw.startsWith('https://')) {
-      final origin =
-          '${apiUri.scheme}://${apiUri.host}${apiUri.hasPort ? ':${apiUri.port}' : ''}';
-      normalized = raw.startsWith('/') ? '$origin$raw' : '$origin/$raw';
+  void _submit() {
+    if (!_formKey.currentState!.validate()) {
+      return;
     }
 
-    return normalizeClientNetworkUrl(normalized);
-  }
+    final profile = _profile;
+    final displayName = _displayNameController.text.trim();
+    final bio = _bioController.text.trim();
+    final phone = _phoneController.text.trim();
 
-  void _showSnack(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), behavior: SnackBarBehavior.floating),
+    final initialDisplayName = profile?.displayName?.trim() ?? '';
+    final initialBio = profile?.bio?.trim() ?? '';
+    final initialPhone = profile?.phone?.trim();
+
+    final nextDisplayName = displayName == initialDisplayName
+        ? null
+        : displayName;
+    final nextBio = bio == initialBio ? null : bio;
+    String? nextPhone;
+    if (initialPhone != null) {
+      nextPhone = phone == initialPhone ? null : phone;
+    } else if (phone.isNotEmpty) {
+      nextPhone = phone;
+    }
+
+    if (nextDisplayName == null && nextBio == null && nextPhone == null) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(context.l10n.profileNoChanges)));
+      return;
+    }
+
+    context.read<ProfileBloc>().add(
+      ProfileUpdateEvent(
+        UpdateProfileParams(
+          displayName: nextDisplayName,
+          bio: nextBio,
+          phone: nextPhone,
+        ),
+      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    if (_isLoading) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    return BlocConsumer<ProfileBloc, ProfileState>(
+      listener: (context, state) {
+        if (state is ProfileLoadedState) {
+          setState(() => _fillForm(state.profile));
+          return;
+        }
+
+        if (state is ProfileActionSuccessState) {
+          context.pop(true);
+          return;
+        }
+
+        if (state is ProfileActionFailureState) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                state.message.isEmpty
+                    ? context.l10n.profileUpdateFailed
+                    : state.message,
+              ),
+            ),
+          );
+        }
+      },
+      builder: (context, state) {
+        final isSubmitting = state is ProfileActionLoadingState;
+
+        return Scaffold(
+          backgroundColor: const Color(0xFFF3F7F5),
+          appBar: AppBar(
+            backgroundColor: const Color(0xFF31B991),
+            foregroundColor: Colors.white,
+            elevation: 0,
+            centerTitle: true,
+            title: Text(
+              context.l10n.editProfileTitle,
+              style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w900),
+            ),
+          ),
+          body: _buildBody(state, isSubmitting),
+        );
+      },
+    );
+  }
+
+  Widget _buildBody(ProfileState state, bool isSubmitting) {
+    if (_isResolvingUser ||
+        (!_didFillForm &&
+            (state is ProfileInitialState || state is ProfileLoadingState))) {
+      return const Center(
+        child: SizedBox(
+          width: 28,
+          height: 28,
+          child: CircularProgressIndicator(strokeWidth: 2.6),
+        ),
+      );
     }
 
-    return Scaffold(
-      backgroundColor: const Color(0xFFF3F3F4),
-      appBar: AppBar(
-        backgroundColor: const Color(0xFFF3F3F4),
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.chevron_left_rounded, color: Colors.black),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-        title: const Text(
-          'Chỉnh sửa trang cá nhân',
-          style: TextStyle(
-            color: Colors.black,
-            fontSize: 18,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-        centerTitle: true,
-        actions: [
-          TextButton(
-            onPressed: _isSaving ? null : _saveProfile,
-            style: TextButton.styleFrom(
-              shape: const StadiumBorder(),
-            ),
-            child: const Text(
-              'Xong',
-              style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700),
-            ),
-          ),
-          const SizedBox(width: 4),
-        ],
-      ),
-      body: Stack(
-        children: [
-          ListView(
-            padding: const EdgeInsets.only(bottom: 36),
+    if (_isMissingSession) {
+      return ProfileEmptyState(
+        icon: Icons.lock_outline_rounded,
+        title: context.l10n.sessionExpiredRelogin,
+        message: context.l10n.login,
+      );
+    }
+
+    if (state is ProfileFailureState && !_didFillForm) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 28),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
-              const SizedBox(height: 10),
-              Center(
-                child: Column(
-                  children: [
-                    CircleAvatar(
-                      radius: 48,
-                      backgroundColor: Colors.grey.shade300,
-                      backgroundImage: _avatarUrl.isNotEmpty
-                          ? NetworkImage(_avatarUrl)
-                          : null,
-                      child: _avatarUrl.isEmpty
-                          ? const Icon(
-                              Icons.person,
-                              size: 52,
-                              color: Colors.white,
-                            )
-                          : null,
-                    ),
-                    const SizedBox(height: 10),
-                    TextButton(
-                      onPressed: _isSaving ? null : _pickAndUploadAvatar,
-                      child: const Text(
-                        'Chỉnh sửa ảnh hoặc avatar',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                        ),
+              ProfileEmptyState(
+                icon: Icons.error_outline_rounded,
+                title: context.l10n.profileLoadFailed,
+                message: state.message,
+              ),
+              const SizedBox(height: 18),
+              FilledButton(
+                style: FilledButton.styleFrom(
+                  backgroundColor: const Color(0xFF25A97A),
+                  foregroundColor: Colors.white,
+                ),
+                onPressed: _targetUserId.isEmpty
+                    ? _resolveAndLoadProfile
+                    : () => context.read<ProfileBloc>().add(
+                        ProfileGetEvent(ProfileParams(userId: _targetUserId)),
                       ),
-                    ),
-                  ],
-                ),
+                child: Text(context.l10n.retryAction),
               ),
-              const SizedBox(height: 8),
-              const Divider(height: 1),
-              _ProfileInputTile(
-                label: 'Tên',
-                controller: _displayNameController,
-              ),
-              _ProfileReadOnlyTile(label: 'Tên người dùng', value: _username),
-              _ProfileInputTile(label: 'Tiểu sử', controller: _bioController),
-              const SizedBox(height: 8),
-              const Divider(height: 1),
-              SwitchListTile.adaptive(
-                value: _isPrivate,
-                onChanged: _isSaving
-                    ? null
-                    : (v) => setState(() => _isPrivate = v),
-                title: const Text(
-                  'Tài khoản riêng tư',
-                  style: TextStyle(fontWeight: FontWeight.w700, fontSize: 17),
-                ),
-              ),
-              const _SectionTitle('Thông tin cá nhân'),
-              _ProfileReadOnlyTile(label: 'Email', value: _email),
-              _ProfileInputTile(
-                label: 'Điện thoại',
-                controller: _phoneController,
-              ),
-              _ProfileReadOnlyTile(label: 'Giới tính', value: _gender),
             ],
           ),
-          if (_isSaving)
-            Positioned.fill(
-              child: Container(
-                color: Colors.black26,
-                child: const Center(child: CircularProgressIndicator()),
-              ),
-            ),
-        ],
-      ),
-    );
-  }
-}
-
-class _SectionTitle extends StatelessWidget {
-  final String text;
-  const _SectionTitle(this.text);
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 10, 16, 4),
-      child: Text(
-        text,
-        style: const TextStyle(
-          fontWeight: FontWeight.w600,
-          color: Colors.black87,
-          fontSize: 16,
         ),
-      ),
-    );
-  }
-}
+      );
+    }
 
-class _ProfileInputTile extends StatelessWidget {
-  final String label;
-  final TextEditingController controller;
-
-  const _ProfileInputTile({required this.label, required this.controller});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-      decoration: const BoxDecoration(
-        border: Border(bottom: BorderSide(color: Color(0xFFE6E6E8))),
-      ),
-      child: Row(
-        children: [
-          SizedBox(
-            width: 95,
-            child: Text(label, style: const TextStyle(fontSize: 16)),
-          ),
-          Expanded(
-            child: SizedBox(
-              height: 35,
-              child: TextField(
-                controller: controller,
-                style: const TextStyle(fontSize: 16),
-                textAlignVertical: TextAlignVertical.center,
-                decoration: InputDecoration(
-                  filled: true,
-                  fillColor: const Color(0xFFF3F6FA),
-                  isDense: true,
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 12),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(30),
-                    borderSide: BorderSide.none,
+    return Stack(
+      children: [
+        Form(
+          key: _formKey,
+          child: ListView(
+            padding: const EdgeInsets.fromLTRB(20, 20, 20, 28),
+            children: [
+              _EditProfileField(
+                controller: _displayNameController,
+                label: context.l10n.displayNameLabel,
+                icon: Icons.badge_outlined,
+                textInputAction: TextInputAction.next,
+                validator: (value) {
+                  if ((value ?? '').trim().isEmpty) {
+                    return context.l10n.pleaseEnterDisplayName;
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 14),
+              _EditProfileField(
+                controller: _bioController,
+                label: context.l10n.bioLabel,
+                icon: Icons.notes_rounded,
+                minLines: 3,
+                maxLines: 5,
+                textInputAction: TextInputAction.newline,
+              ),
+              const SizedBox(height: 14),
+              _EditProfileField(
+                controller: _phoneController,
+                label: context.l10n.phoneLabel,
+                icon: Icons.phone_outlined,
+                keyboardType: TextInputType.phone,
+                textInputAction: TextInputAction.done,
+                onFieldSubmitted: (_) => isSubmitting ? null : _submit(),
+              ),
+              const SizedBox(height: 24),
+              FilledButton(
+                onPressed: isSubmitting ? null : _submit,
+                style: FilledButton.styleFrom(
+                  backgroundColor: const Color(0xFF25A97A),
+                  foregroundColor: Colors.white,
+                  disabledBackgroundColor: const Color(0xFFD7E0DC),
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: const StadiumBorder(),
+                ),
+                child: Text(
+                  context.l10n.confirmAction,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w800,
+                    fontSize: 15,
                   ),
                 ),
               ),
+              const SizedBox(height: 8),
+              TextButton(
+                onPressed: isSubmitting
+                    ? null
+                    : () {
+                        if (context.canPop()) {
+                          context.pop(false);
+                          return;
+                        }
+                        context.go(AppRoutes.profile.path);
+                      },
+                child: Text(context.l10n.cancel),
+              ),
+            ],
+          ),
+        ),
+        if (isSubmitting)
+          Positioned.fill(
+            child: ColoredBox(
+              color: Colors.black.withValues(alpha: 0.12),
+              child: const Center(
+                child: SizedBox(
+                  width: 34,
+                  height: 34,
+                  child: CircularProgressIndicator(strokeWidth: 3),
+                ),
+              ),
             ),
           ),
-        ],
-      ),
+      ],
     );
   }
 }
 
-class _ProfileReadOnlyTile extends StatelessWidget {
-  final String label;
-  final String value;
+class _EditProfileField extends StatelessWidget {
+  const _EditProfileField({
+    required this.controller,
+    required this.label,
+    required this.icon,
+    this.minLines = 1,
+    this.maxLines = 1,
+    this.keyboardType,
+    this.textInputAction,
+    this.validator,
+    this.onFieldSubmitted,
+  });
 
-  const _ProfileReadOnlyTile({required this.label, required this.value});
+  final TextEditingController controller;
+  final String label;
+  final IconData icon;
+  final int minLines;
+  final int maxLines;
+  final TextInputType? keyboardType;
+  final TextInputAction? textInputAction;
+  final String? Function(String?)? validator;
+  final ValueChanged<String>? onFieldSubmitted;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10),
-      height: 70,
-      decoration: const BoxDecoration(
-        border: Border(bottom: BorderSide(color: Color(0xFFE6E6E8))),
-      ),
-      child: Row(
-        children: [
-          SizedBox(
-            width: 95,
-            child: Text(label, style: const TextStyle(fontSize: 16)),
-          ),
-          Expanded(
-            child: Text(
-              value.trim().isEmpty ? '-' : value,
-              style: TextStyle(
-                fontSize: 16,
-                color: value.trim().isEmpty ? Colors.grey : Colors.black,
-              ),
-            ),
-          ),
-        ],
+    return TextFormField(
+      controller: controller,
+      minLines: minLines,
+      maxLines: maxLines,
+      keyboardType: keyboardType,
+      textInputAction: textInputAction,
+      validator: validator,
+      onFieldSubmitted: onFieldSubmitted,
+      decoration: InputDecoration(
+        labelText: label,
+        prefixIcon: Icon(icon),
+        filled: true,
+        fillColor: Colors.white,
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 14,
+        ),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide.none,
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: const BorderSide(color: Color(0xFFE3E8E5)),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: const BorderSide(color: Color(0xFF25A97A), width: 1.4),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: const BorderSide(color: Color(0xFFE53935)),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: const BorderSide(color: Color(0xFFE53935), width: 1.4),
+        ),
       ),
     );
   }

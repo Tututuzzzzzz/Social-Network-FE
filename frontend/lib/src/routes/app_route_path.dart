@@ -15,6 +15,7 @@ enum AppRoutes {
   chatConversationManage(path: '/chat/room/:threadId/manage'),
   editProfile(path: '/profile/edit'),
   profile(path: '/profile'),
+  profileFriends(path: '/profile/friends'),
   createPost(path: '/create-post'),
   stories(path: '/stories'),
   forgotPassword(path: '/forgot-password'),

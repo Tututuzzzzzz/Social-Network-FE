@@ -146,6 +146,9 @@ class AppLocalizationsVi extends AppLocalizations {
   String get save => 'Lưu';
 
   @override
+  String get confirmAction => 'Xác nhận';
+
+  @override
   String get profileChooseAccount => 'Chọn tài khoản';
 
   @override
@@ -159,6 +162,15 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get settingsAndActivity => 'Cài đặt và hoạt động';
+
+  @override
+  String get profileSettingsTitle => 'Cài Đặt';
+
+  @override
+  String get logoutAction => 'Đăng xuất';
+
+  @override
+  String get logoutFailed => 'Đăng xuất thất bại';
 
   @override
   String get archive => 'Kho lưu trữ';
@@ -213,10 +225,28 @@ class AppLocalizationsVi extends AppLocalizations {
   String get editProfileTitle => 'Chỉnh sửa trang cá nhân';
 
   @override
+  String get displayNameLabel => 'Tên hiển thị';
+
+  @override
   String get editAvatarAction => 'Chỉnh sửa ảnh hoặc avatar';
 
   @override
   String get pleaseEnterDisplayName => 'Vui lòng nhập tên hiển thị';
+
+  @override
+  String get profileUpdateSuccess => 'Đã cập nhật trang cá nhân.';
+
+  @override
+  String get profileUpdateFailed => 'Không thể cập nhật trang cá nhân.';
+
+  @override
+  String get profileNoChanges => 'Chưa có thay đổi nào để cập nhật.';
+
+  @override
+  String get profileLoadFailed => 'Không tải được trang cá nhân';
+
+  @override
+  String get retryAction => 'Thử lại';
 
   @override
   String get updateAvatarSuccess => 'Đã cập nhật ảnh đại diện.';

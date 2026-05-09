@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:frontend/src/core/l10n/l10n.dart';
 import 'package:frontend/src/core/utils/url_normalizer.dart';
 import 'package:frontend/src/widgets/follow_status_chip.dart';
@@ -29,6 +28,8 @@ class PostCard extends StatelessWidget {
     this.followLabel,
     this.isFollowing = true,
     this.showFollowButton = true,
+    this.showShareAction = true,
+    this.showShareStat = true,
     this.onFollowTap,
     this.onAuthorTap,
   });
@@ -52,6 +53,8 @@ class PostCard extends StatelessWidget {
   final String? followLabel;
   final bool isFollowing;
   final bool showFollowButton;
+  final bool showShareAction;
+  final bool showShareStat;
   final VoidCallback? onFollowTap;
   final VoidCallback? onAuthorTap;
 
@@ -69,8 +72,6 @@ class PostCard extends StatelessWidget {
                   post.authorDisplayName!.trim().isNotEmpty)
               ? post.authorDisplayName!.trim()
               : _formatFallbackName(post.authorId));
-
-
 
     final avatarUrl =
         (authorAvatarUrl != null && authorAvatarUrl!.trim().isNotEmpty)
@@ -128,7 +129,7 @@ class PostCard extends StatelessWidget {
                               fontSize: 12,
                             ),
                           )
-                        else        
+                        else
                           Text(
                             DateFormat('d MMMM', 'vi').format(post.createdAt),
                             style: theme.textTheme.bodySmall?.copyWith(
@@ -137,7 +138,6 @@ class PostCard extends StatelessWidget {
                             ),
                           ),
                       ],
-                      
                     ),
                   ),
                 ),
@@ -160,7 +160,7 @@ class PostCard extends StatelessWidget {
               ],
             ),
           ),
-          
+
           if (content != null && content.isNotEmpty)
             Padding(
               padding: EdgeInsets.fromLTRB(
@@ -177,9 +177,7 @@ class PostCard extends StatelessWidget {
                     fontSize: 14,
                     fontWeight: FontWeight.w400,
                   ),
-                  children: [
-                    TextSpan(text: content),
-                  ],
+                  children: [TextSpan(text: content)],
                 ),
               ),
             ),
@@ -206,14 +204,16 @@ class PostCard extends StatelessWidget {
                         fontWeight: FontWeight.w700,
                       ),
                     ),
-                    const Spacer(),
-                    Text(
-                      '1 lượt chia sẻ',
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        color: Colors.black,
-                        fontWeight: FontWeight.w700,
+                    if (showShareStat) ...[
+                      const Spacer(),
+                      Text(
+                        '1 lượt chia sẻ',
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: Colors.black,
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
-                    ),
+                    ],
                   ],
                 ),
                 const SizedBox(height: 10),
@@ -223,7 +223,9 @@ class PostCard extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
                     _BottomAction(
-                      icon: isLikedByMe ? Icons.favorite : Icons.favorite_border,
+                      icon: isLikedByMe
+                          ? Icons.favorite
+                          : Icons.favorite_border,
                       color: isLikedByMe ? Colors.red : Colors.black,
                       label: 'Thích',
                       onTap: onLike,
@@ -233,11 +235,12 @@ class PostCard extends StatelessWidget {
                       label: 'Bình luận',
                       onTap: onComment,
                     ),
-                    _BottomAction(
-                      icon: Icons.send,
-                      label: 'Chia sẻ',
-                      onTap: onShare,
-                    ),
+                    if (showShareAction)
+                      _BottomAction(
+                        icon: Icons.send,
+                        label: 'Chia sẻ',
+                        onTap: onShare,
+                      ),
                   ],
                 ),
               ],
@@ -279,13 +282,6 @@ class PostCard extends StatelessWidget {
     if (authorId.isEmpty) return 'User';
     if (authorId.length <= 10) return authorId;
     return 'User ${authorId.substring(0, 6)}';
-  }
-
-  String _formatFallbackUsername(String authorId) {
-    if (authorId.isEmpty) return 'user';
-    final raw = authorId.replaceAll(RegExp(r'[^a-zA-Z0-9]'), '').toLowerCase();
-    if (raw.isEmpty) return 'user';
-    return raw.length > 12 ? raw.substring(0, 12) : raw;
   }
 
   String _formatCount(int value) {
@@ -384,7 +380,7 @@ class _PostMediaState extends State<_PostMedia> {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.45),
+                color: Colors.black.withValues(alpha: 0.45),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Text(
@@ -414,7 +410,7 @@ class _PostMediaState extends State<_PostMedia> {
                     shape: BoxShape.circle,
                     color: isActive
                         ? Colors.white
-                        : Colors.white.withOpacity(0.6),
+                        : Colors.white.withValues(alpha: 0.6),
                   ),
                 );
               }),
@@ -435,7 +431,9 @@ class _PostMediaState extends State<_PostMedia> {
           if (loadingProgress == null) return child;
           return Container(
             color: const Color(0xFFF1F1F1),
-            child: const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+            child: const Center(
+              child: CircularProgressIndicator(strokeWidth: 2),
+            ),
           );
         },
         errorBuilder: (context, error, stackTrace) {
@@ -450,50 +448,6 @@ class _PostMediaState extends State<_PostMedia> {
             ),
           );
         },
-      ),
-    );
-  }
-}
-
-class _ActionIcon extends StatelessWidget {
-  const _ActionIcon({required this.icon, this.color, this.onTap});
-
-  final IconData icon;
-  final Color? color;
-  final VoidCallback? onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return InkResponse(
-      radius: 20,
-      onTap: onTap,
-      child: Padding(
-        padding: const EdgeInsets.all(4),
-        child: Icon(icon, size: 24, color: color ?? Colors.black),
-      ),
-    );
-  }
-}
-
-class _SvgActionIcon extends StatelessWidget {
-  const _SvgActionIcon({required this.svgData, this.onTap});
-
-  final String svgData;
-  final VoidCallback? onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return InkResponse(
-      radius: 20,
-      onTap: onTap,
-      child: Padding(
-        padding: const EdgeInsets.all(4),
-        child: SvgPicture.string(
-          svgData,
-          width: 24,
-          height: 24,
-          colorFilter: const ColorFilter.mode(Colors.black, BlendMode.srcIn),
-        ),
       ),
     );
   }
@@ -539,7 +493,12 @@ class _UserAvatar extends StatelessWidget {
 }
 
 class _BottomAction extends StatelessWidget {
-  const _BottomAction({required this.icon, this.color, required this.label, this.onTap});
+  const _BottomAction({
+    required this.icon,
+    this.color,
+    required this.label,
+    this.onTap,
+  });
 
   final IconData icon;
   final Color? color;
@@ -557,9 +516,9 @@ class _BottomAction extends StatelessWidget {
           const SizedBox(height: 6),
           Text(
             label,
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: const Color(0xFF6E6E74),
-                ),
+            style: Theme.of(
+              context,
+            ).textTheme.bodySmall?.copyWith(color: const Color(0xFF6E6E74)),
           ),
         ],
       ),

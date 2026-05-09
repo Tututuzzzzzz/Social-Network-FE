@@ -362,6 +362,12 @@ abstract class AppLocalizations {
   /// **'Save'**
   String get save;
 
+  /// No description provided for @confirmAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm'**
+  String get confirmAction;
+
   /// No description provided for @profileChooseAccount.
   ///
   /// In en, this message translates to:
@@ -391,6 +397,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Settings and activity'**
   String get settingsAndActivity;
+
+  /// No description provided for @profileSettingsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile settings'**
+  String get profileSettingsTitle;
+
+  /// No description provided for @logoutAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Log out'**
+  String get logoutAction;
+
+  /// No description provided for @logoutFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Logout failed'**
+  String get logoutFailed;
 
   /// No description provided for @archive.
   ///
@@ -494,6 +518,12 @@ abstract class AppLocalizations {
   /// **'Edit profile'**
   String get editProfileTitle;
 
+  /// No description provided for @displayNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Display name'**
+  String get displayNameLabel;
+
   /// No description provided for @editAvatarAction.
   ///
   /// In en, this message translates to:
@@ -505,6 +535,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Please enter display name'**
   String get pleaseEnterDisplayName;
+
+  /// No description provided for @profileUpdateSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile updated.'**
+  String get profileUpdateSuccess;
+
+  /// No description provided for @profileUpdateFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Cannot update profile.'**
+  String get profileUpdateFailed;
+
+  /// No description provided for @profileNoChanges.
+  ///
+  /// In en, this message translates to:
+  /// **'There are no changes to update.'**
+  String get profileNoChanges;
+
+  /// No description provided for @profileLoadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Cannot load profile'**
+  String get profileLoadFailed;
+
+  /// No description provided for @retryAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get retryAction;
 
   /// No description provided for @updateAvatarSuccess.
   ///

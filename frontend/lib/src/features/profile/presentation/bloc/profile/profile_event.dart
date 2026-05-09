@@ -17,3 +17,41 @@ class ProfileGetEvent extends ProfileEvent {
   @override
   List<Object?> get props => [params];
 }
+
+class ProfilePostLikeToggleEvent extends ProfileEvent {
+  final String postId;
+
+  const ProfilePostLikeToggleEvent(this.postId);
+
+  @override
+  List<Object?> get props => [postId];
+}
+
+class ProfileUpdateEvent extends ProfileEvent {
+  final UpdateProfileParams params;
+
+  const ProfileUpdateEvent(this.params);
+
+  @override
+  List<Object?> get props => [params];
+}
+
+class ProfileFriendRequestSendEvent extends ProfileEvent {
+  final String userId;
+
+  const ProfileFriendRequestSendEvent(this.userId);
+
+  @override
+  List<Object?> get props => [userId];
+}
+
+class ProfileDirectMessageOpenEvent extends ProfileEvent {
+  final String userId;
+
+  const ProfileDirectMessageOpenEvent(this.userId);
+
+  @override
+  List<Object?> get props => [userId];
+}
+
+class ProfileActionFeedbackClearedEvent extends ProfileEvent {}

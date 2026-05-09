@@ -16,6 +16,7 @@ class ProfileEntity extends Equatable {
   final String? displayName;
   final String? avatarUrl;
   final String? bio;
+  final String? phone;
   final int postsCount;
   final int friendsCount;
   final List<ProfilePostPreview> posts;
@@ -26,6 +27,7 @@ class ProfileEntity extends Equatable {
     this.displayName,
     this.avatarUrl,
     this.bio,
+    this.phone,
     this.postsCount = 0,
     this.friendsCount = 0,
     this.posts = const [],
@@ -38,6 +40,7 @@ class ProfileEntity extends Equatable {
     displayName,
     avatarUrl,
     bio,
+    phone,
     postsCount,
     friendsCount,
     posts,

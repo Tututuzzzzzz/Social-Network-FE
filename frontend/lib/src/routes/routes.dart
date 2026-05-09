@@ -8,6 +8,7 @@ export '../features/auth/presentation/pages/reset_password_screen.dart';
 export '../features/auth/presentation/pages/register_success_screen.dart';
 export '../features/post/presentation/pages/feed_screen.dart';
 export '../features/post/presentation/pages/create_post_screen.dart';
+export '../features/friend/presentation/pages/friends_list_page.dart';
 export '../features/chat/presentation/pages/mochi_direct_messages_page.dart';
 export '../features/chat/presentation/pages/mochi_new_conversation_page.dart';
 export '../features/message/presentation/pages/message_chat_room_page.dart';

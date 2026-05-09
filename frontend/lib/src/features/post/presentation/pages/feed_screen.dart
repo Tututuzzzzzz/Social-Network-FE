@@ -132,6 +132,18 @@ class _FeedScreenState extends State<FeedScreen> {
     context.go(AppRoutes.chat.path);
   }
 
+  void _openAuthorProfile(PostEntity post) {
+    final authorId = post.authorId.trim();
+    if (authorId.isEmpty) {
+      return;
+    }
+
+    context.pushNamed(
+      AppRoutes.otherProfile.name,
+      pathParameters: {'userId': authorId},
+    );
+  }
+
   void _showFeatureSoon() {
     ScaffoldMessenger.of(
       context,
@@ -351,11 +363,11 @@ class _FeedScreenState extends State<FeedScreen> {
                           behavior: HitTestBehavior.opaque,
                           onTap: () async {
                             final postBloc = context.read<PostBloc>();
-                            final deleted = await Navigator.of(
-                              context,
-                              rootNavigator: true,
-                            )
-                                .push<bool>(
+                            final deleted =
+                                await Navigator.of(
+                                  context,
+                                  rootNavigator: true,
+                                ).push<bool>(
                                   MaterialPageRoute(
                                     builder: (_) => BlocProvider.value(
                                       value: postBloc,
@@ -390,7 +402,7 @@ class _FeedScreenState extends State<FeedScreen> {
                                 : isSendingRequest
                                 ? null
                                 : () => _onFollowTap(post),
-                            onAuthorTap: _showFeatureSoon,
+                            onAuthorTap: () => _openAuthorProfile(post),
                             onComment: () => _openCommentsSheet(post),
                             onViewComments: () => _openCommentsSheet(post),
                             onShare: _showFeatureSoon,

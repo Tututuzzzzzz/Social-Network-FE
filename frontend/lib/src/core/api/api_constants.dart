@@ -52,6 +52,7 @@ class ApiConstants {
   static const String messagesDirectMedia = '/messages/direct/media';
   static const String messagesGroupText = '/messages/group/text';
   static const String messagesGroupMedia = '/messages/group/media';
+  static const String mediaUpload = '/media/upload';
 
   static String messageReaction(String messageId) =>
       '/messages/$messageId/reaction';
@@ -86,11 +87,6 @@ class ApiConstants {
   static String postComments(String postId) => '/posts/$postId/comments';
   static String postCommentById(String postId, String commentId) =>
       '/posts/$postId/comments/$commentId';
-
-
-  // Media ─────────────────────────────────────────── 
-
-  static const String mediaUpload = '/media/upload';
 
 
   // ── Notifications ────────────────────────────────────

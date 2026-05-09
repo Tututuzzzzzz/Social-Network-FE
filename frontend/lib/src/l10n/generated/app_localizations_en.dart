@@ -146,6 +146,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get save => 'Save';
 
   @override
+  String get confirmAction => 'Confirm';
+
+  @override
   String get profileChooseAccount => 'Choose account';
 
   @override
@@ -159,6 +162,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsAndActivity => 'Settings and activity';
+
+  @override
+  String get profileSettingsTitle => 'Profile settings';
+
+  @override
+  String get logoutAction => 'Log out';
+
+  @override
+  String get logoutFailed => 'Logout failed';
 
   @override
   String get archive => 'Archive';
@@ -212,10 +224,28 @@ class AppLocalizationsEn extends AppLocalizations {
   String get editProfileTitle => 'Edit profile';
 
   @override
+  String get displayNameLabel => 'Display name';
+
+  @override
   String get editAvatarAction => 'Edit photo or avatar';
 
   @override
   String get pleaseEnterDisplayName => 'Please enter display name';
+
+  @override
+  String get profileUpdateSuccess => 'Profile updated.';
+
+  @override
+  String get profileUpdateFailed => 'Cannot update profile.';
+
+  @override
+  String get profileNoChanges => 'There are no changes to update.';
+
+  @override
+  String get profileLoadFailed => 'Cannot load profile';
+
+  @override
+  String get retryAction => 'Try again';
 
   @override
   String get updateAvatarSuccess => 'Avatar updated successfully.';

@@ -1,14 +1,12 @@
-// Simple data model for a Friend returned from backend.
-class FriendModel {
-  final String id;
-  final String name;
-  final String? avatarUrl;
+import '../../domain/entities/friend.dart';
 
-  FriendModel({required this.id, required this.name, this.avatarUrl});
+// Simple data model for a Friend returned from backend.
+class FriendModel extends Friend {
+  const FriendModel({required super.id, required super.name, super.avatarUrl});
 
   factory FriendModel.fromJson(Map<String, dynamic> json) {
-    final resolvedName = (json['displayName'] ?? json['username'] ?? json['name'])
-        ?.toString() ??
+    final resolvedName =
+        (json['displayName'] ?? json['username'] ?? json['name'])?.toString() ??
         '';
 
     return FriendModel(
