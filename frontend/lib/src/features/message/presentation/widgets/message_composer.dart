@@ -47,7 +47,7 @@ class MessageComposer extends StatelessWidget {
                 onSubmitted: (_) => onSend(),
                 textAlignVertical: TextAlignVertical.center,
                 decoration: const InputDecoration(
-                  hintText: 'Type something',
+                  hintText: 'Nhập tin nhắn...',
                   isDense: true,
                   contentPadding: EdgeInsets.symmetric(horizontal: 16),
                   border: InputBorder.none,
