@@ -5,7 +5,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../configs/injector/injector_conf.dart';
 import '../../../../core/cache/secure_local_storage.dart';
-import '../../../../core/l10n/l10n.dart';
+import 'package:frontend/src/core/l10n/l10n.dart';
 import '../../../../core/utils/failure_converter.dart';
 import '../../../../routes/app_route_path.dart';
 import '../../../auth/presentation/bloc/auth/auth_bloc.dart';
@@ -260,7 +260,7 @@ class _MochiProfilePageState extends State<MochiProfilePage> {
       return username;
     }
 
-    return 'Người dùng';
+    return context.l10n.userDefaultName;
   }
 
   @override
@@ -306,9 +306,9 @@ class _MochiProfilePageState extends State<MochiProfilePage> {
                 foregroundColor: Colors.white,
                 elevation: 0,
                 centerTitle: true,
-                title: const Text(
-                  'Hồ Sơ Cá Nhân',
-                  style: TextStyle(
+                title: Text(
+                  context.l10n.profilePersonalTitle,
+                  style: const TextStyle(
                     fontSize: 17,
                     fontWeight: FontWeight.w900,
                     color: Colors.white,
@@ -350,10 +350,10 @@ class _MochiProfilePageState extends State<MochiProfilePage> {
     }
 
     if (_targetUserId.isEmpty) {
-      return const ProfileEmptyState(
+      return ProfileEmptyState(
         icon: Icons.lock_outline_rounded,
-        title: 'Chưa có phiên đăng nhập',
-        message: 'Vui lòng đăng nhập lại để xem hồ sơ cá nhân.',
+        title: context.l10n.noSessionTitle,
+        message: context.l10n.noSessionMessage,
       );
     }
 
@@ -543,7 +543,7 @@ class _ProfileErrorView extends StatelessWidget {
           children: [
             ProfileEmptyState(
               icon: Icons.error_outline_rounded,
-              title: 'Không tải được hồ sơ',
+              title: context.l10n.profileLoadFailed,
               message: message,
             ),
             const SizedBox(height: 18),
@@ -553,7 +553,7 @@ class _ProfileErrorView extends StatelessWidget {
                 foregroundColor: Colors.white,
               ),
               onPressed: onRetry,
-              child: const Text('Thử lại'),
+              child: Text(context.l10n.retry),
             ),
           ],
         ),

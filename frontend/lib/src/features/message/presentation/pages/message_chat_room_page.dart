@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../chat/domain/entities/chat_entity.dart';
+import 'package:frontend/src/core/l10n/l10n.dart';
 import '../../../../routes/app_route_path.dart';
 import '../bloc/message_bloc.dart';
 import '../bloc/message_event.dart';
@@ -137,8 +138,8 @@ class _MessageChatRoomPageState extends State<MessageChatRoomPage> {
     final recipientId = widget.thread.recipientId.trim();
     if (recipientId.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Khong xac dinh duoc nguoi nhan tin nhan'),
+        SnackBar(
+          content: Text(context.l10n.unknownRecipient),
         ),
       );
       return;
@@ -160,7 +161,7 @@ class _MessageChatRoomPageState extends State<MessageChatRoomPage> {
         ? lastMessage
         : (widget.thread.messagePreview.trim().isNotEmpty
               ? widget.thread.messagePreview.trim()
-              : 'Start chatting...');
+              : context.l10n.startChatting);
 
     final fullConversation = messages
         .map((line) => '${line.author}: ${line.text}')
@@ -168,7 +169,7 @@ class _MessageChatRoomPageState extends State<MessageChatRoomPage> {
 
     return widget.thread.copyWith(
       messagePreview: preview,
-      timeLabel: 'now',
+      timeLabel: context.l10n.timeNow,
       fullConversation: fullConversation,
       unreadCount: 0,
     );
@@ -199,7 +200,7 @@ class _MessageChatRoomPageState extends State<MessageChatRoomPage> {
   @override
   Widget build(BuildContext context) {
     final threadName = widget.thread.senderName.trim().isEmpty
-        ? 'Conversation'
+        ? context.l10n.conversationTitle
         : widget.thread.senderName.trim();
     final currentState = context.watch<MessageBloc>().state;
     final chatState = currentState is MessageChatRoomState

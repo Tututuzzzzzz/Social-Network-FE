@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/src/core/l10n/l10n.dart';
 
 import 'mochi_dm_styles.dart';
 import 'mochi_dm_search_input.dart';
@@ -42,7 +43,7 @@ class MochiDmTopBar extends StatelessWidget {
                 iconColor: MochiDmStyles.searchIcon,
                 focusedBorderColor: MochiDmStyles.primaryGreenSoft,
                 borderRadius: 16,
-                hintText: 'Tìm kiếm trong tin nhắn',
+                hintText: context.l10n.searchInMessages,
                 dense: true,
               ),
             ),

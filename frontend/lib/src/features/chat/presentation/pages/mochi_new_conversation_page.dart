@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/src/core/l10n/l10n.dart';
 
 import '../../../../configs/injector/injector_conf.dart';
 import '../../../../core/api/api_helper.dart';
@@ -69,7 +70,7 @@ class _MochiNewConversationPageState extends State<MochiNewConversationPage> {
 
     if (chatEntity == null || chatEntity!.id.trim().isEmpty) {
       messenger.showSnackBar(
-        const SnackBar(content: Text('Khong tao duoc cuoc tro chuyen')),
+        SnackBar(content: Text(context.l10n.createConversationFailed)),
       );
       return;
     }
@@ -143,8 +144,8 @@ class _MochiNewConversationPageState extends State<MochiNewConversationPage> {
                   }
 
                   if (snapshot.hasError) {
-                    return const Center(
-                      child: Text('Khong tai duoc danh sach ban be'),
+                    return Center(
+                      child: Text(context.l10n.loadFriendsFailed),
                     );
                   }
 
@@ -152,7 +153,7 @@ class _MochiNewConversationPageState extends State<MochiNewConversationPage> {
                     snapshot.data ?? const <FriendPickerUser>[],
                   );
                   if (friends.isEmpty) {
-                    return const Center(child: Text('Khong co ban be nao'));
+                    return Center(child: Text(context.l10n.noFriendsFound));
                   }
 
                   return ListView.separated(

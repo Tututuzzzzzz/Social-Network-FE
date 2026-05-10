@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:frontend/src/core/l10n/l10n.dart';
 
 import '../../../../routes/app_route_path.dart';
 import '../../../chat/domain/entities/chat_entity.dart';
@@ -43,13 +44,13 @@ class _ConversationManagementPageState
               }
             },
             itemBuilder: (context) => [
-              const PopupMenuItem(
+              PopupMenuItem(
                 value: 'block',
-                child: Text('Chặn'),
+                child: Text(context.l10n.blockAction),
               ),
-              const PopupMenuItem(
+              PopupMenuItem(
                 value: 'delete',
-                child: Text('Xóa cuộc trò chuyện'),
+                child: Text(context.l10n.deleteConversationAction),
               ),
             ],
           ),
@@ -83,7 +84,7 @@ class _ConversationManagementPageState
             Text(
               widget.thread.senderName.trim().isNotEmpty
                   ? widget.thread.senderName.trim()
-                  : 'Chúa tể đỏ đen',
+                  : context.l10n.userDefaultName,
               style: TextStyle(
                 color: onSurface,
                 fontSize: 24,
@@ -98,9 +99,9 @@ class _ConversationManagementPageState
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Expanded(child: _buildActionButton(Icons.call, 'Gọi thoại', context)),
-                  Expanded(child: _buildActionButton(Icons.videocam, 'Gọi video', context)),
-                  Expanded(child: _buildActionButton(Icons.person, 'Trang cá nhân', context, onTap: () {
+                  Expanded(child: _buildActionButton(Icons.call, context.l10n.audioCallAction, context)),
+                  Expanded(child: _buildActionButton(Icons.videocam, context.l10n.videoCallAction, context)),
+                  Expanded(child: _buildActionButton(Icons.person, context.l10n.viewProfileChatAction, context, onTap: () {
                     if (widget.thread.recipientId.isNotEmpty) {
                       context.pushNamed(
                         AppRoutes.otherProfile.name,
@@ -108,13 +109,13 @@ class _ConversationManagementPageState
                       );
                     }
                   })),
-                  Expanded(child: _buildActionButton(Icons.notifications, 'Tắt thông báo', context)),
+                  Expanded(child: _buildActionButton(Icons.notifications, context.l10n.muteNotificationsAction, context)),
                 ],
               ),
             ),
             const SizedBox(height: 30),
             // Tùy chỉnh Section
-            _buildSectionHeader('Tùy chỉnh', context),
+            _buildSectionHeader(context.l10n.customizationSection, context),
             _buildCustomMenuItem(
               leading: Container(
                 width: 28,
@@ -124,7 +125,7 @@ class _ConversationManagementPageState
                   color: theme.colorScheme.primary,
                 ),
               ),
-              title: 'Chủ đề',
+              title: context.l10n.themeAction,
               context: context,
             ),
             _buildCustomMenuItem(
@@ -136,15 +137,15 @@ class _ConversationManagementPageState
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              title: 'Biệt danh',
+              title: context.l10n.nicknameAction,
               context: context,
             ),
 
             const SizedBox(height: 20),
             // Hành động khác Section
-            _buildSectionHeader('Hành động khác', context),
+            _buildSectionHeader(context.l10n.otherActionsSection, context),
             _buildMenuItem(
-                Icons.image, 'Xem file phương tiện, file và liên kết',
+                Icons.image, context.l10n.viewMediaFilesLinks,
                 iconColor: onSurface, context: context),
             const SizedBox(height: 30),
           ],

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
-import '../../../../../core/l10n/l10n.dart';
+import 'package:frontend/src/core/l10n/l10n.dart';
 import 'create_post_actions.dart';
 import 'create_post_media_grid.dart';
 import 'create_post_theme.dart';

@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../configs/injector/injector_conf.dart';
 import '../../../../core/cache/secure_local_storage.dart';
-import '../../../../core/l10n/l10n.dart';
+import 'package:frontend/src/core/l10n/l10n.dart';
 import '../../../../routes/app_route_path.dart';
 import '../../domain/entities/profile_entity.dart';
 import '../../domain/usecases/usecase_params.dart';

@@ -158,13 +158,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get addAccount => 'Add account';
 
   @override
-  String get addAccountSoon => 'Add account feature is coming soon.';
+  String get addAccountSoon => 'The add account feature will be released soon.';
 
   @override
   String get settingsAndActivity => 'Settings and activity';
 
   @override
-  String get profileSettingsTitle => 'Profile settings';
+  String get profileSettingsTitle => 'Settings';
 
   @override
   String get logoutAction => 'Log out';
@@ -185,16 +185,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get switchAccount => 'Switch account';
 
   @override
-  String get featureInDevelopment => 'Feature is in development.';
+  String get featureInDevelopment => 'Feature in development';
 
   @override
-  String get loadingProfileInfo => 'Loading profile information...';
+  String get loadingProfileInfo => 'Loading information...';
 
   @override
   String get noProfileData => 'No profile data available.';
 
   @override
-  String get postsLabel => 'posts';
+  String get postsLabel => 'Posts';
 
   @override
   String get followersLabel => 'followers';
@@ -233,7 +233,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get pleaseEnterDisplayName => 'Please enter display name';
 
   @override
-  String get profileUpdateSuccess => 'Profile updated.';
+  String get profileUpdateSuccess => 'Profile updated successfully.';
 
   @override
   String get profileUpdateFailed => 'Cannot update profile.';
@@ -242,7 +242,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get profileNoChanges => 'There are no changes to update.';
 
   @override
-  String get profileLoadFailed => 'Cannot load profile';
+  String get profileLoadFailed => 'Cannot load profile.';
 
   @override
   String get retryAction => 'Try again';
@@ -254,7 +254,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get updateAvatarFailed => 'Cannot update avatar.';
 
   @override
-  String get profileSavedLocal => 'Profile changes saved locally.';
+  String get profileSavedLocal => 'Profile information saved to cache.';
 
   @override
   String get privateAccount => 'Private account';
@@ -273,13 +273,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get profileFormSampleData =>
-      'The form data currently uses frontend UI sample data.';
+      'Data is currently using a test template.';
 
   @override
   String get mediaLibrary => 'Library';
 
   @override
-  String get mediaSelectedReady => 'Image selected, ready for next step.';
+  String get mediaSelectedReady => 'Image selected, ready to continue.';
 
   @override
   String get chatGroupInfoTitle => 'Group info';
@@ -309,7 +309,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get adminOnlyManageGroupInfo =>
-      'Only admins can update group info and add members.';
+      'Only admins can change group info and add members.';
 
   @override
   String get memberList => 'Member list';
@@ -358,7 +358,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get groupChatFallback => 'Group chat';
 
   @override
-  String get groupMemberAdded => 'Members added to group';
+  String get groupMemberAdded => 'Member added to group';
 
   @override
   String get leaveGroupQuestion => 'Leave group?';
@@ -385,14 +385,14 @@ class AppLocalizationsEn extends AppLocalizations {
       'Cannot leave group. Please recheck admin permissions.';
 
   @override
-  String get leftGroupSuccess => 'You left the group';
+  String get leftGroupSuccess => 'You have successfully left the group.';
 
   @override
   String get handoverAndLeaveSuccess =>
-      'Admin rights transferred and you left the group';
+      'Admin rights transferred and you left the group successfully.';
 
   @override
-  String get secondConfirmation => 'Second confirmation';
+  String get secondConfirmation => 'Confirm again';
 
   @override
   String get aboutToHandoverAndLeave =>
@@ -412,13 +412,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get confirmHandover => 'Confirm transfer';
 
   @override
-  String get adminOnlyAction => 'Only admins can perform this action';
+  String get adminOnlyAction => 'Only admins can perform this action.';
 
   @override
   String get chatInviteLink => 'Invite link';
 
   @override
-  String get inviteLinkCopied => 'Group invite link copied';
+  String get inviteLinkCopied => 'Group invite link copied.';
 
   @override
   String get addPeople => 'Add people';
@@ -435,7 +435,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get noOnlineOrReadStatus =>
-      'They will not know when you are online or read their messages';
+      'They will not see your active status or read receipts.';
 
   @override
   String get blockAction => 'Block';
@@ -447,7 +447,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get unrestrictAction => 'Unrestrict';
 
   @override
-  String get onlyAdminCanAddMembers => 'Only admins can add members';
+  String get onlyAdminCanAddMembers => 'Only admins can add members.';
 
   @override
   String get messagesSearchHint => 'Search';
@@ -456,22 +456,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get messagesTitle => 'Messages';
 
   @override
-  String get pendingMessages => 'Message requests';
+  String get pendingMessages => 'Pending messages';
 
   @override
-  String get noConversationFound => 'No conversations found';
+  String get noConversationFound => 'No conversations found.';
 
   @override
-  String get chatPinned => 'Chat pinned';
+  String get chatPinned => 'Chat pinned.';
 
   @override
-  String get chatUnpinned => 'Chat unpinned';
+  String get chatUnpinned => 'Chat unpinned.';
 
   @override
-  String get chatHidden => 'Chat hidden';
+  String get chatHidden => 'Chat hidden.';
 
   @override
-  String get chatDeleted => 'Chat deleted';
+  String get chatDeleted => 'Chat deleted.';
 
   @override
   String get pinAction => 'Pin';
@@ -486,31 +486,31 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deleteAction => 'Delete';
 
   @override
-  String get mutedNow => 'Muted';
+  String get mutedNow => 'Notifications muted';
 
   @override
-  String get feedNotificationSoon => 'Notifications will be added later.';
+  String get feedNotificationSoon => 'Notifications will be updated soon.';
 
   @override
-  String get sessionExpiredRelogin => 'Session expired. Please sign in again.';
+  String get sessionExpiredRelogin => 'Session expired. Please log in again.';
 
   @override
-  String get emptyNoPosts => 'No posts yet';
+  String get emptyNoPosts => 'No posts yet.';
 
   @override
-  String get emptyFollowFriends => 'Check back later or follow more friends';
+  String get emptyFollowFriends => 'Check back later or follow more friends.';
 
   @override
-  String get shareSoon => 'Share will be added later.';
+  String get shareSoon => 'Share feature will be updated soon.';
 
   @override
-  String get saveSoon => 'Save post will be added later.';
+  String get saveSoon => 'Save post feature will be updated soon.';
 
   @override
-  String get createPostCannotPickGallery => 'Cannot pick images from gallery';
+  String get createPostCannotPickGallery => 'Cannot pick images from gallery.';
 
   @override
-  String get createPostCannotOpenCamera => 'Cannot open camera';
+  String get createPostCannotOpenCamera => 'Cannot open camera.';
 
   @override
   String get createPostTitle => 'Create post';
@@ -519,10 +519,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get postAction => 'Post';
 
   @override
-  String get captionHint => 'What are you thinking?';
+  String get captionHint => 'What\'s on your mind?';
 
   @override
-  String get addMediaForPost => 'Add photo/video to your post';
+  String get addMediaForPost => 'Add photo/video to post';
 
   @override
   String get pickFromLibrary => 'Pick from library';
@@ -534,13 +534,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get cameraLabel => 'Camera';
 
   @override
-  String get templateLabel => 'Template';
+  String get templateLabel => 'Post template';
 
   @override
-  String get templateSoon => 'Templates will be added later.';
+  String get templateSoon => 'Post templates will be updated soon.';
 
   @override
-  String get friendsSearchHint => 'Search';
+  String get friendsSearchHint => 'Search friends';
 
   @override
   String cannotOpenChat(Object error) {
@@ -548,8 +548,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get placeholderLastMessage =>
-      'This is a placeholder for the last message.';
+  String get placeholderLastMessage => 'This is a sample message content.';
 
   @override
   String get messageInputHint => 'Type a message...';
@@ -558,7 +557,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get bioLabel => 'Bio';
 
   @override
-  String get myLoveLabel => 'my love';
+  String get myLoveLabel => 'My Love';
 
   @override
   String get searchInConversationHint => 'Search in conversation';
@@ -567,7 +566,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get enterKeywordToSearch => 'Enter a keyword to search messages';
 
   @override
-  String get noMatchingResults => 'No matching results found';
+  String get noMatchingResults => 'No matching results found.';
 
   @override
   String get youLabel => 'You';
@@ -577,12 +576,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String nicknameRemoved(Object name) {
-    return 'Nickname removed for $name';
+    return 'Removed nickname for $name';
   }
 
   @override
   String nicknameUpdated(Object name) {
-    return 'Nickname updated for $name';
+    return 'Updated nickname for $name';
   }
 
   @override
@@ -591,7 +590,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get groupNameHint => 'Enter group name';
+  String get groupNameHint => 'Group name';
 
   @override
   String get invitedMembers => 'Invited members';
@@ -624,14 +623,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get muteOffLabel => 'Off';
 
   @override
-  String get photosAndVideoTitle => 'Photos and Videos';
+  String get photosAndVideoTitle => 'Photos and Video';
 
   @override
   String get viewAll => 'See all';
 
   @override
   String get blockedMediaHidden =>
-      'Photos and videos are hidden because you blocked this account.';
+      'Photo and video content is hidden because you blocked this account.';
 
   @override
   String get mute10Minutes => '10 minutes';
@@ -655,7 +654,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get mute48Hours => '48 hours';
 
   @override
-  String get muteConversationTitle => 'Mute conversation notifications';
+  String get muteConversationTitle => 'Mute chat notifications';
 
   @override
   String get turnOnNotifications => 'Turn on notifications';
@@ -717,14 +716,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get cannotRevokeOwnAdminTooltip =>
-      'You cannot revoke your own role. Grant admin to someone else first.';
+      'You cannot revoke your own admin role. Grant admin to someone else first.';
 
   @override
   String get cannotRevokeOwnAdmin => 'You cannot revoke your own admin role';
 
   @override
   String get onlyAdminCanGrantOrRevokeTooltip =>
-      'Only admins can grant or revoke admin role.';
+      'Only admins can grant or revoke admin roles.';
 
   @override
   String get noAdminPermissionForAction =>
@@ -732,17 +731,17 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get cannotRevokeLastAdmin =>
-      'Cannot revoke the last admin in the group.';
+      'Cannot revoke the last admin role in the group.';
 
   @override
   String get youAreCurrentAdmin => 'You are the current admin';
 
   @override
-  String get adminHasFullControl => 'Admin has full control';
+  String get adminHasFullControl => 'Admins have full control';
 
   @override
   String get canGrantOrRevokeForOthers =>
-      'You can grant/revoke admin role for other members.';
+      'You can grant/revoke admin roles for other members.';
 
   @override
   String get youHaveAdminRights => 'You have admin rights';
@@ -757,13 +756,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get onlyAdminCanGrantOrRevoke =>
-      'Only admins are allowed to grant/revoke admin role.';
+      'Only admins are allowed to grant/revoke admin roles.';
 
   @override
-  String get mutePriorityHint => 'Top priority: clear all current mute states.';
+  String get mutePriorityHint =>
+      'Highest priority: cancel all current mute states.';
 
   @override
-  String get muteUntilTurnedOn => 'Until turned on again';
+  String get muteUntilTurnedOn => 'Until turned back on';
 
   @override
   String get exploreTitle => 'Explore';
@@ -790,7 +790,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get postOptionHidePostDone => 'Post hidden';
 
   @override
-  String get postOptionReportDone => 'Report submitted';
+  String get postOptionReportDone => 'Report submitted successfully';
 
   @override
   String postOptionReportDoneWithReason(Object reason) {
@@ -819,10 +819,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get postReportReasonHateSpeech => 'Hate speech';
 
   @override
-  String get postReportReasonViolence => 'Violence or dangerous acts';
+  String get postReportReasonViolence => 'Violence or dangerous content';
 
   @override
-  String get postReportReasonOther => 'Other';
+  String get postReportReasonOther => 'Other reason';
 
   @override
   String get postOptionAllHiddenTitle => 'You have hidden all posts';
@@ -851,16 +851,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get followAction => 'Follow';
 
   @override
-  String get recentSearchTitle => 'Recent';
+  String get recentSearchTitle => 'Recent search';
 
   @override
-  String get friendRequestSent => 'Sent';
+  String get friendRequestSent => 'Request sent';
 
   @override
   String get friendRequestSendSuccess => 'Friend request sent';
 
   @override
-  String get friendRequestSendError => 'Cannot send friend request';
+  String get friendRequestSendError => 'Failed to send friend request';
 
   @override
   String get acceptFriendRequest => 'Accept';
@@ -872,7 +872,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get notificationsTitle => 'Notifications';
 
   @override
-  String get markAllAsRead => 'Read all';
+  String get markAllAsRead => 'Mark all as read';
 
   @override
   String get titleSearch => 'Search';
@@ -898,4 +898,432 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get noNotifications => 'No notifications yet';
+
+  @override
+  String get onboardingWelcomeTitle => 'Welcome to Mochi';
+
+  @override
+  String get onboardingWelcomeDesc =>
+      'A social network connecting people, sharing meaningful moments in your life.';
+
+  @override
+  String get onboardingConnectTitle => 'Connect with Friends';
+
+  @override
+  String get onboardingConnectDesc =>
+      'Search and connect with friends everywhere. Create beautiful memories together.';
+
+  @override
+  String get onboardingShareTitle => 'Share Your Passion';
+
+  @override
+  String get onboardingShareDesc =>
+      'Post articles, photos, and videos of the things you love every day.';
+
+  @override
+  String get onboardingChatTitle => 'Unlimited Chat';
+
+  @override
+  String get onboardingChatDesc =>
+      'Free high-quality messages and calls. Keep in touch with loved ones.';
+
+  @override
+  String get onboardingStart => 'Start Now';
+
+  @override
+  String get onboardingNext => 'Next';
+
+  @override
+  String get onboardingSkip => 'Skip';
+
+  @override
+  String get notificationTabPosts => 'Posts';
+
+  @override
+  String get notificationTabFriends => 'Friends';
+
+  @override
+  String get notificationEmptyPosts => 'No post notifications yet';
+
+  @override
+  String get notificationEmptyFriends => 'No friend requests yet';
+
+  @override
+  String get notificationLiked => 'liked your post';
+
+  @override
+  String get notificationCommented => 'commented on your post';
+
+  @override
+  String get notificationFollowed => 'started following you';
+
+  @override
+  String get navHome => 'Home';
+
+  @override
+  String get navCreate => 'Create';
+
+  @override
+  String get navNotifications => 'Notifications';
+
+  @override
+  String get navProfile => 'Profile';
+
+  @override
+  String get userDefaultName => 'User';
+
+  @override
+  String get profilePersonalTitle => 'Personal Profile';
+
+  @override
+  String get noSessionTitle => 'No Active Session';
+
+  @override
+  String get noSessionMessage => 'Please login again to view your profile.';
+
+  @override
+  String get retry => 'Retry';
+
+  @override
+  String get noBio => 'No bio yet.';
+
+  @override
+  String get friendsLabel => 'Friends';
+
+  @override
+  String get photosLabel => 'Photos';
+
+  @override
+  String get unknownRecipient => 'Unknown recipient for the message';
+
+  @override
+  String get startChatting => 'Start chatting...';
+
+  @override
+  String get timeNow => 'now';
+
+  @override
+  String get conversationTitle => 'Conversation';
+
+  @override
+  String get searchCategoryTrending => 'Trending';
+
+  @override
+  String get searchCategoryTravel => 'Travel';
+
+  @override
+  String get searchCategoryFood => 'Food';
+
+  @override
+  String get searchCategoryMusic => 'Music';
+
+  @override
+  String get searchCategoryLandscape => 'Landscape';
+
+  @override
+  String get searchCategoryTech => 'Tech';
+
+  @override
+  String get noResultsFound => 'No results found';
+
+  @override
+  String get peopleLabel => 'People';
+
+  @override
+  String get discoverLabel => 'Discover';
+
+  @override
+  String get exploreLabel => 'Explore';
+
+  @override
+  String get deleteChatTitle => 'Delete chat';
+
+  @override
+  String deleteChatConfirm(Object name) {
+    return 'Do you want to delete the chat with $name?';
+  }
+
+  @override
+  String get delete => 'Delete';
+
+  @override
+  String get loadMessagesFailed => 'Failed to load messages';
+
+  @override
+  String get noChatFound => 'No chat found';
+
+  @override
+  String get searchAnotherKeyword => 'Try searching with another keyword.';
+
+  @override
+  String get createConversationFailed => 'Failed to create conversation';
+
+  @override
+  String get loadFriendsFailed => 'Failed to load friends list';
+
+  @override
+  String get noFriendsFound => 'No friends found';
+
+  @override
+  String likesCount(Object count) {
+    return '$count likes';
+  }
+
+  @override
+  String commentsCount(Object count) {
+    return '$count comments';
+  }
+
+  @override
+  String sharesCount(Object count) {
+    return '$count shares';
+  }
+
+  @override
+  String get likeAction => 'Like';
+
+  @override
+  String get commentAction => 'Comment';
+
+  @override
+  String get shareAction => 'Share';
+
+  @override
+  String get userLabel => 'User';
+
+  @override
+  String get submitCommentFailed => 'Failed to post comment. Please try again.';
+
+  @override
+  String get updateCommentFailed => 'Failed to update comment.';
+
+  @override
+  String get updateCommentSuccess => 'Comment updated.';
+
+  @override
+  String get deleteCommentFailed => 'Failed to delete comment.';
+
+  @override
+  String get deleteCommentSuccess => 'Comment deleted.';
+
+  @override
+  String get commentsTitle => 'Comments';
+
+  @override
+  String get noCommentsYet => 'No comments yet. Be the first to comment!';
+
+  @override
+  String get replyingStatus => 'Replying...';
+
+  @override
+  String get replyAction => 'Reply';
+
+  @override
+  String replyingTo(Object name) {
+    return 'Replying to $name';
+  }
+
+  @override
+  String get writeCommentHint => 'Write a comment...';
+
+  @override
+  String get writeReplyHint => 'Write a reply...';
+
+  @override
+  String get timeJustNow => 'Just now';
+
+  @override
+  String timeMinutesAgo(Object count) {
+    return '${count}m ago';
+  }
+
+  @override
+  String timeHoursAgo(Object count) {
+    return '${count}h ago';
+  }
+
+  @override
+  String timeDaysAgo(Object count) {
+    return '${count}d ago';
+  }
+
+  @override
+  String postAuthorTitle(Object name) {
+    return '$name\'s post';
+  }
+
+  @override
+  String get deletePostTitle => 'Delete post?';
+
+  @override
+  String get deletePostConfirm => 'This action cannot be undone.';
+
+  @override
+  String get whatIsHappening => 'What\'s happening?';
+
+  @override
+  String get noPostsTitle => 'No posts yet';
+
+  @override
+  String get loadPostsFailed => 'Failed to load posts';
+
+  @override
+  String get postsEmptyMessage => 'Posts from this profile will appear here.';
+
+  @override
+  String get postUpdated => 'Post updated.';
+
+  @override
+  String get noChangesToUpdate => 'No changes to update.';
+
+  @override
+  String get typeMessageHint => 'Type a message...';
+
+  @override
+  String get noPhotosTitle => 'No photos yet';
+
+  @override
+  String get photosEmptyMessage =>
+      'Photos from this profile\'s posts will appear here.';
+
+  @override
+  String get saveImage => 'Save image';
+
+  @override
+  String get copyImage => 'Copy image';
+
+  @override
+  String get shareImage => 'Share image';
+
+  @override
+  String get addFriendAction => 'Add friend';
+
+  @override
+  String get messageAction => 'Message';
+
+  @override
+  String get editPostTitle => 'Edit Post';
+
+  @override
+  String editPostDescriptionWithPhotos(Object count) {
+    return 'You have $count photos (including old and new).';
+  }
+
+  @override
+  String get editPostDescriptionNoPhotos =>
+      'You can edit the content or add new photos.';
+
+  @override
+  String get editPostContentHint => 'Enter new content...';
+
+  @override
+  String get existingPhotosLabel => 'Current photos';
+
+  @override
+  String get newPhotosLabel => 'Newly added photos';
+
+  @override
+  String get saveChanges => 'Save changes';
+
+  @override
+  String get noRetainedPhotos => 'No old photos kept';
+
+  @override
+  String get noNewPhotos => 'No new photos yet';
+
+  @override
+  String get oldPhotoLabel => 'Old';
+
+  @override
+  String get newPhotoLabel => 'New';
+
+  @override
+  String get postNeedsContentOrMedia =>
+      'Post needs content or at least one photo';
+
+  @override
+  String get chatAllTab => 'All';
+
+  @override
+  String get chatGroupsTab => 'Groups';
+
+  @override
+  String get searchInMessages => 'Search in messages';
+
+  @override
+  String get newConversationTitle => 'New conversation';
+
+  @override
+  String get searchFriends => 'Search friends';
+
+  @override
+  String get createGroupChatTitle => 'Create group chat';
+
+  @override
+  String get createGroupChatAction => 'Create group';
+
+  @override
+  String get createGroupAction => 'Create';
+
+  @override
+  String get searchMembersHint => 'Search members';
+
+  @override
+  String get createGroupFailed => 'Failed to create group chat';
+
+  @override
+  String get loadFriendsListFailed => 'Failed to load friends list';
+
+  @override
+  String get noFriendsFoundInChat => 'No friends found';
+
+  @override
+  String get showAction => 'Show';
+
+  @override
+  String get deleteChatAction => 'Delete';
+
+  @override
+  String pendingMessagesCount(Object count) {
+    return 'Pending messages ($count)';
+  }
+
+  @override
+  String get collapseAction => 'Collapse';
+
+  @override
+  String get expandAction => 'Expand';
+
+  @override
+  String get groupDefaultName => 'Group';
+
+  @override
+  String get groupCreated => 'Group created';
+
+  @override
+  String get deleteConversationAction => 'Delete conversation';
+
+  @override
+  String get audioCallAction => 'Audio call';
+
+  @override
+  String get videoCallAction => 'Video call';
+
+  @override
+  String get viewProfileChatAction => 'View profile';
+
+  @override
+  String get muteNotificationsAction => 'Mute notifications';
+
+  @override
+  String get customizationSection => 'Customization';
+
+  @override
+  String get themeAction => 'Theme';
+
+  @override
+  String get otherActionsSection => 'Other actions';
+
+  @override
+  String get viewMediaFilesLinks => 'View media, files & links';
 }

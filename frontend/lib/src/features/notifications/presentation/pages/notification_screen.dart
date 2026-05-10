@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../configs/injector/injector_conf.dart';
-import '../../../../core/l10n/l10n.dart';
+import 'package:frontend/src/core/l10n/l10n.dart';
 import '../../../../core/utils/failure_converter.dart';
 import '../../../post/domain/entities/post_entity.dart';
 import '../../../post/domain/usecases/get_post_by_id_usecase.dart';
@@ -125,9 +125,9 @@ class _NotificationScreenState extends State<NotificationScreen> {
 
     result.fold(
       (failure) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(mapFailureToMessage(failure))),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(mapFailureToMessage(failure))));
       },
       (post) {
         _pushPostDetail(post, postBloc);
@@ -207,13 +207,13 @@ class _NotificationScreenState extends State<NotificationScreen> {
                 preferredSize: const Size.fromHeight(48),
                 child: Container(
                   color: Colors.white,
-                  child: const TabBar(
-                    indicatorColor: Color(0xFF36C38C),
-                    labelColor: Color(0xFF36C38C),
+                  child: TabBar(
+                    indicatorColor: const Color(0xFF36C38C),
+                    labelColor: const Color(0xFF36C38C),
                     unselectedLabelColor: Colors.black54,
                     tabs: [
-                      Tab(text: 'Bài viết'),
-                      Tab(text: 'Kết bạn'),
+                      Tab(text: l10n.notificationTabPosts),
+                      Tab(text: l10n.notificationTabFriends),
                     ],
                   ),
                 ),
@@ -226,7 +226,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                       _NotificationListView(
                         items: postNotifications,
                         hasMore: state.hasMore,
-                        emptyMessage: 'Chưa có thông báo bài viết nào',
+                        emptyMessage: l10n.notificationEmptyPosts,
                         onRefresh: _onRefresh,
                         onLoadMore: () {
                           context.read<NotificationBloc>().add(
@@ -244,7 +244,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                       _NotificationListView(
                         items: friendRequestNotifications,
                         hasMore: state.hasMore,
-                        emptyMessage: 'Chưa có lời mời kết bạn nào',
+                        emptyMessage: l10n.notificationEmptyFriends,
                         onRefresh: _onRefresh,
                         onLoadMore: () {
                           context.read<NotificationBloc>().add(
@@ -383,6 +383,32 @@ class _NotificationTile extends StatelessWidget {
         ? DateFormat('dd/MM/yyyy HH:mm').format(createdAt.toLocal())
         : '';
 
+    return _buildTile(context, timeText);
+  }
+
+  String _resolveNotificationText(BuildContext context) {
+    final type = item.type.toUpperCase();
+    final l10n = context.l10n;
+
+    if (type.contains('LIKE')) {
+      return l10n.notificationLiked;
+    }
+    if (type.contains('COMMENT')) {
+      return l10n.notificationCommented;
+    }
+    if (type.contains('FOLLOW')) {
+      return l10n.notificationFollowed;
+    }
+    if (type.contains('FRIEND_REQUEST')) {
+      return l10n.friendRequestReceived;
+    }
+
+    return item.body;
+  }
+
+  Widget _buildTile(BuildContext context, String timeText) {
+    final notificationText = _resolveNotificationText(context);
+
     return Material(
       color: item.isRead ? Colors.white : const Color(0xFFF0F7FF),
       child: Column(
@@ -426,11 +452,7 @@ class _NotificationTile extends StatelessWidget {
                     text: '${item.actorName} ',
                     style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
-                  TextSpan(
-                    text: _isFriendRequestNotification
-                        ? context.l10n.friendRequestReceived
-                        : item.body,
-                  ),
+                  TextSpan(text: notificationText),
                 ],
               ),
             ),

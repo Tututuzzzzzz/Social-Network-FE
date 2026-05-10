@@ -10,6 +10,7 @@ import '../widgets/home_discovery_grid.dart';
 import '../widgets/home_search_input.dart';
 import '../widgets/home_section_header.dart';
 import '../widgets/home_user_result_tile.dart';
+import 'package:frontend/src/core/l10n/l10n.dart';
 
 class MochiSearchPage extends StatefulWidget {
   const MochiSearchPage({super.key});
@@ -22,14 +23,17 @@ class _MochiSearchPageState extends State<MochiSearchPage> {
   String _query = '';
   int _selectedCategoryIndex = 0;
 
-  final List<String> _categories = [
-    'Xu hướng',
-    'Du lịch',
-    'Ẩm thực',
-    'Âm nhạc',
-    'Phong cảnh',
-    'Công nghệ',
-  ];
+  List<String> _buildCategories(BuildContext context) {
+    final l10n = context.l10n;
+    return [
+      l10n.searchCategoryTrending,
+      l10n.searchCategoryTravel,
+      l10n.searchCategoryFood,
+      l10n.searchCategoryMusic,
+      l10n.searchCategoryLandscape,
+      l10n.searchCategoryTech,
+    ];
+  }
 
   List<HomeEntity> _buildPeople(List<HomeEntity> items) {
     return items.where((item) => item.kind == 'person').toList();
@@ -51,14 +55,17 @@ class _MochiSearchPageState extends State<MochiSearchPage> {
         .toList();
 
     if (filteredPeople.isEmpty && discovery.isEmpty) {
-      return const Center(child: Text('No results found'));
+      return Center(child: Text(context.l10n.noResultsFound));
     }
 
     return ListView(
       padding: const EdgeInsets.symmetric(horizontal: 12),
       children: [
         if (filteredPeople.isNotEmpty) ...[
-          const HomeSectionHeader(title: 'People', actionText: 'See all'),
+          HomeSectionHeader(
+            title: context.l10n.peopleLabel,
+            actionText: context.l10n.viewAll,
+          ),
           ...filteredPeople.map(
             (item) => HomeUserResultTile(
               item: HomeUserResult(
@@ -80,7 +87,10 @@ class _MochiSearchPageState extends State<MochiSearchPage> {
           const SizedBox(height: 16),
         ],
         if (discovery.isNotEmpty) ...[
-          const HomeSectionHeader(title: 'Discover', actionText: 'Explore'),
+          HomeSectionHeader(
+            title: context.l10n.discoverLabel,
+            actionText: context.l10n.exploreLabel,
+          ),
           const SizedBox(height: 8),
           HomeDiscoveryGrid(
             items: discovery
@@ -98,6 +108,8 @@ class _MochiSearchPageState extends State<MochiSearchPage> {
   }
 
   Widget _buildExploreGrid(BuildContext context) {
+    final categories = _buildCategories(context);
+
     return SingleChildScrollView(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -108,7 +120,7 @@ class _MochiSearchPageState extends State<MochiSearchPage> {
             child: ListView.separated(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               scrollDirection: Axis.horizontal,
-              itemCount: _categories.length,
+              itemCount: categories.length,
               separatorBuilder: (_, __) => const SizedBox(width: 8),
               itemBuilder: (context, index) {
                 final isSelected = _selectedCategoryIndex == index;
@@ -122,7 +134,7 @@ class _MochiSearchPageState extends State<MochiSearchPage> {
                     ),
                     alignment: Alignment.center,
                     child: Text(
-                      _categories[index],
+                      categories[index],
                       style: TextStyle(
                         color: isSelected ? Colors.white : Colors.black87,
                         fontWeight: FontWeight.w600,

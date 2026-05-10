@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../../core/api/api_constants.dart';
-import '../../../../../core/l10n/l10n.dart';
+import 'package:frontend/src/core/l10n/l10n.dart';
 import '../../../../../core/utils/url_normalizer.dart';
 import 'create_post_theme.dart';
 

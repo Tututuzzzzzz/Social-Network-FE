@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/src/core/l10n/l10n.dart';
 
 Future<void> showPostDetailImageActionsSheet(
   BuildContext context, {
@@ -25,7 +26,7 @@ Future<void> showPostDetailImageActionsSheet(
               children: [
                 const SizedBox(height: 10),
                 _ImageActionTile(
-                  label: 'Luu anh',
+                  label: context.l10n.saveImage,
                   labelColor: const Color(0xFFE53935),
                   onTap: () {
                     Navigator.pop(sheetContext);
@@ -33,7 +34,7 @@ Future<void> showPostDetailImageActionsSheet(
                   },
                 ),
                 _ImageActionTile(
-                  label: 'Sao chep anh',
+                  label: context.l10n.copyImage,
                   labelColor: const Color(0xFFE53935),
                   onTap: () {
                     Navigator.pop(sheetContext);
@@ -41,7 +42,7 @@ Future<void> showPostDetailImageActionsSheet(
                   },
                 ),
                 _ImageActionTile(
-                  label: 'Chia se anh',
+                  label: context.l10n.shareImage,
                   onTap: () {
                     Navigator.pop(sheetContext);
                     onShareImage();

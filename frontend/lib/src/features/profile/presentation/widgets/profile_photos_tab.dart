@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:frontend/src/core/l10n/l10n.dart';
 import '../../../../core/utils/url_normalizer.dart';
 import '../../../post/domain/entities/post_entity.dart';
 import 'profile_empty_state.dart';
@@ -22,10 +23,10 @@ class ProfilePhotosTab extends StatelessWidget {
           physics: const AlwaysScrollableScrollPhysics(),
           children: [
             SizedBox(height: MediaQuery.sizeOf(context).height * 0.14),
-            const ProfileEmptyState(
+            ProfileEmptyState(
               icon: Icons.photo_library_outlined,
-              title: 'Chưa có ảnh',
-              message: 'Ảnh từ các bài viết của hồ sơ này sẽ nằm ở đây.',
+              title: context.l10n.noPhotosTitle,
+              message: context.l10n.photosEmptyMessage,
             ),
           ],
         ),
