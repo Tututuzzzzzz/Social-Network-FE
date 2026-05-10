@@ -131,7 +131,7 @@ class PostCard extends StatelessWidget {
                           )
                         else
                           Text(
-                            DateFormat('d MMMM', 'vi').format(post.createdAt),
+                            DateFormat('d MMMM', Localizations.localeOf(context).languageCode).format(post.createdAt),
                             style: theme.textTheme.bodySmall?.copyWith(
                               color: const Color(0xFFA2A2A8),
                               fontSize: 11,
@@ -190,7 +190,7 @@ class PostCard extends StatelessWidget {
                 Row(
                   children: [
                     Text(
-                      '${_formatCount(likesCount)} lượt thích',
+                      context.l10n.likesCount(_formatCount(likesCount)),
                       style: theme.textTheme.bodyMedium?.copyWith(
                         color: Colors.black,
                         fontWeight: FontWeight.w700,
@@ -198,7 +198,7 @@ class PostCard extends StatelessWidget {
                     ),
                     const Spacer(),
                     Text(
-                      '${_formatCount(commentCount)} bình luận',
+                      context.l10n.commentsCount(_formatCount(commentCount)),
                       style: theme.textTheme.bodyMedium?.copyWith(
                         color: Colors.black,
                         fontWeight: FontWeight.w700,
@@ -207,7 +207,7 @@ class PostCard extends StatelessWidget {
                     if (showShareStat) ...[
                       const Spacer(),
                       Text(
-                        '1 lượt chia sẻ',
+                        context.l10n.sharesCount('1'), // Placeholder for now
                         style: theme.textTheme.bodyMedium?.copyWith(
                           color: Colors.black,
                           fontWeight: FontWeight.w700,
@@ -227,18 +227,18 @@ class PostCard extends StatelessWidget {
                           ? Icons.favorite
                           : Icons.favorite_border,
                       color: isLikedByMe ? Colors.red : Colors.black,
-                      label: 'Thích',
+                      label: context.l10n.likeAction,
                       onTap: onLike,
                     ),
                     _BottomAction(
                       icon: Icons.chat_bubble_outline,
-                      label: 'Bình luận',
+                      label: context.l10n.commentAction,
                       onTap: onComment,
                     ),
                     if (showShareAction)
                       _BottomAction(
                         icon: Icons.send,
-                        label: 'Chia sẻ',
+                        label: context.l10n.shareAction,
                         onTap: onShare,
                       ),
                   ],

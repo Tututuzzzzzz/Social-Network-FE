@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/src/core/l10n/l10n.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../configs/injector/injector_conf.dart';
@@ -99,7 +100,7 @@ class _ProfilePostsTabState extends State<ProfilePostsTab> {
   void _showFeatureSoon() {
     ScaffoldMessenger.of(
       context,
-    ).showSnackBar(const SnackBar(content: Text('Feature in development')));
+    ).showSnackBar(SnackBar(content: Text(context.l10n.featureInDevelopment)));
   }
 
   @override
@@ -117,11 +118,11 @@ class _ProfilePostsTabState extends State<ProfilePostsTab> {
                   ? Icons.article_outlined
                   : Icons.error_outline_rounded,
               title: widget.postsErrorMessage == null
-                  ? 'Chưa có bài viết'
-                  : 'Chưa tải được bài viết',
+                  ? context.l10n.noPostsTitle
+                  : context.l10n.loadPostsFailed,
               message:
                   widget.postsErrorMessage ??
-                  'Các bài viết của hồ sơ này sẽ xuất hiện tại đây.',
+                  context.l10n.postsEmptyMessage,
             ),
           ],
         ),

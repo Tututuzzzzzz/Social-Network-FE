@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../core/l10n/l10n.dart';
 
 class AppShellBottomNavBar extends StatelessWidget {
   final int selectedIndex;
@@ -10,19 +11,20 @@ class AppShellBottomNavBar extends StatelessWidget {
     required this.onTap,
   });
 
-  static const List<_BottomNavItem> _items = [
-    _BottomNavItem(icon: Icons.home_rounded, label: 'Trang chủ'),
-    _BottomNavItem(icon: Icons.add_box_outlined, label: 'Bài viết'),
-    _BottomNavItem(
-      icon: Icons.notifications_none_rounded,
-      label: 'Thông báo',
-    ),
-    _BottomNavItem(icon: Icons.person_outline_rounded, label: 'Hồ sơ'),
-  ];
-
   @override
   Widget build(BuildContext context) {
-    final safeSelectedIndex = selectedIndex.clamp(0, _items.length - 1).toInt();
+    final l10n = context.l10n;
+    final List<_BottomNavItem> items = [
+      _BottomNavItem(icon: Icons.home_rounded, label: l10n.navHome),
+      _BottomNavItem(icon: Icons.add_box_outlined, label: l10n.navCreate),
+      _BottomNavItem(
+        icon: Icons.notifications_none_rounded,
+        label: l10n.navNotifications,
+      ),
+      _BottomNavItem(icon: Icons.person_outline_rounded, label: l10n.navProfile),
+    ];
+
+    final safeSelectedIndex = selectedIndex.clamp(0, items.length - 1).toInt();
 
     return DecoratedBox(
       decoration: const BoxDecoration(
@@ -36,8 +38,8 @@ class AppShellBottomNavBar extends StatelessWidget {
         child: SizedBox(
           height: 72,
           child: Row(
-            children: List.generate(_items.length, (index) {
-              final item = _items[index];
+            children: List.generate(items.length, (index) {
+              final item = items[index];
               final isSelected = index == safeSelectedIndex;
               final color = isSelected
                   ? const Color(0xFF2FC48F)

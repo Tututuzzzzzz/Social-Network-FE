@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../configs/injector/injector_conf.dart';
-import '../../../../core/l10n/l10n.dart';
+import 'package:frontend/src/core/l10n/l10n.dart';
 import '../../../../core/cache/secure_local_storage.dart';
 import '../../../friend/data/repositories/friend_repository_impl.dart';
 import '../../../friend/domain/usecases/send_friend_request.dart';

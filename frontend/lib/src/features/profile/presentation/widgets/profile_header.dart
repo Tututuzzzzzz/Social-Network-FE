@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../domain/entities/profile_entity.dart';
+import 'package:frontend/src/core/l10n/l10n.dart';
 import 'profile_action_bar.dart';
 import 'profile_avatar.dart';
 
@@ -34,7 +35,7 @@ class ProfileHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final displayName = _resolveDisplayName(profile);
+    final displayName = _resolveDisplayName(context, profile);
     final username = profile.username?.trim() ?? '';
     final bio = profile.bio?.trim();
 
@@ -109,7 +110,7 @@ class ProfileHeader extends StatelessWidget {
                 ),
                 const SizedBox(height: 14),
                 Text(
-                  bio == null || bio.isEmpty ? 'Chưa có giới thiệu.' : bio,
+                  bio == null || bio.isEmpty ? context.l10n.noBio : bio,
                   style: const TextStyle(
                     color: Color(0xFF33413D),
                     fontSize: 13,
@@ -125,7 +126,7 @@ class ProfileHeader extends StatelessWidget {
                         icon: Icons.group_rounded,
                         value: profile.friendsCount,
                         onTap: onFriendsTap,
-                        label: 'Bạn bè',
+                        label: context.l10n.friendsLabel,
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -133,7 +134,7 @@ class ProfileHeader extends StatelessWidget {
                       child: _ProfileMetric(
                         icon: Icons.article_rounded,
                         value: postsCount,
-                        label: 'Bài viết',
+                        label: context.l10n.postsLabel,
                       ),
                     ),
                   ],
@@ -157,7 +158,7 @@ class ProfileHeader extends StatelessWidget {
     );
   }
 
-  String _resolveDisplayName(ProfileEntity profile) {
+  String _resolveDisplayName(BuildContext context, ProfileEntity profile) {
     final displayName = profile.displayName?.trim();
     if (displayName != null && displayName.isNotEmpty) {
       return displayName;
@@ -168,7 +169,7 @@ class ProfileHeader extends StatelessWidget {
       return username;
     }
 
-    return 'Người dùng';
+    return context.l10n.userDefaultName;
   }
 }
 

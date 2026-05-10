@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/src/core/l10n/l10n.dart';
 
 import '../../../../core/utils/url_normalizer.dart';
 import '../../../friend/presentation/pages/friend_picker_bottom_sheet.dart';
@@ -65,7 +66,7 @@ class _MochiGroupCreatorSheetState extends State<MochiGroupCreatorSheet> {
     setState(() => _isSubmitting = false);
     if (chatEntity == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Khong tao duoc nhom chat')),
+        SnackBar(content: Text(context.l10n.createGroupFailed)),
       );
       return;
     }
@@ -99,9 +100,9 @@ class _MochiGroupCreatorSheetState extends State<MochiGroupCreatorSheet> {
                     icon: const Icon(Icons.close_rounded, size: 20),
                     color: MochiDmStyles.topBarText,
                   ),
-                  const Expanded(
+                  Expanded(
                     child: Text(
-                      'Tạo nhóm chat',
+                      context.l10n.createGroupChatTitle,
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 18,
@@ -121,8 +122,8 @@ class _MochiGroupCreatorSheetState extends State<MochiGroupCreatorSheet> {
                               color: Colors.white,
                             ),
                           )
-                        : const Text(
-                            'Tạo',
+                        : Text(
+                            context.l10n.createGroupAction,
                             style: TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.w700,
@@ -142,7 +143,7 @@ class _MochiGroupCreatorSheetState extends State<MochiGroupCreatorSheet> {
                     controller: _nameController,
                     onChanged: (_) => setState(() {}),
                     decoration: InputDecoration(
-                      hintText: 'Tên nhóm',
+                      hintText: context.l10n.groupNameHint,
                       filled: true,
                       fillColor: Colors.white,
                       border: OutlineInputBorder(
@@ -172,7 +173,7 @@ class _MochiGroupCreatorSheetState extends State<MochiGroupCreatorSheet> {
                     iconColor: MochiDmStyles.searchIcon,
                     focusedBorderColor: MochiDmStyles.primaryGreenSoft,
                     borderRadius: 14,
-                    hintText: 'Tìm thành viên',
+                    hintText: context.l10n.searchMembersHint,
                     dense: true,
                   ),
                 ],
@@ -191,8 +192,8 @@ class _MochiGroupCreatorSheetState extends State<MochiGroupCreatorSheet> {
                   }
 
                   if (snapshot.hasError) {
-                    return const Center(
-                      child: Text('Khong tai duoc danh sach ban be'),
+                    return Center(
+                      child: Text(context.l10n.loadFriendsListFailed),
                     );
                   }
 
@@ -200,7 +201,7 @@ class _MochiGroupCreatorSheetState extends State<MochiGroupCreatorSheet> {
                     snapshot.data ?? const <FriendPickerUser>[],
                   );
                   if (friends.isEmpty) {
-                    return const Center(child: Text('Khong co ban be nao'));
+                    return Center(child: Text(context.l10n.noFriendsFoundInChat));
                   }
 
                   return ListView.separated(

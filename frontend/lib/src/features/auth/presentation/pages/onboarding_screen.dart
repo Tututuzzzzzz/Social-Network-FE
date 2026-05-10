@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:frontend/src/core/extensions/integer_sizedbox_extension.dart';
 import 'package:frontend/src/routes/app_route_path.dart';
 import 'package:frontend/src/widgets/custom_button.dart';
+import 'package:frontend/src/core/l10n/l10n.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -15,35 +16,37 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   final PageController _pageController = PageController();
   int _currentPage = 0;
 
-  final List<OnboardingData> _pages = [
-    OnboardingData(
-      title: 'Chào mừng đến với Mochi',
-      description:
-          'Mạng xã hội kết nối mọi người, sẻ chia khoảnh khắc ý nghĩa trong cuộc sống của bạn.',
-      image: 'assets/images/anh1.png',
-    ),
-    OnboardingData(
-      title: 'Kết nối bạn bè',
-      description:
-          'Tìm kiếm và kết nối với bạn bè ở khắp mọi nơi. Cùng nhau tạo nên những kỷ niệm đẹp.',
-      image: 'assets/images/anh2.png',
-    ),
-    OnboardingData(
-      title: 'Chia sẻ đam mê',
-      description:
-          'Đăng tải những bài viết, hình ảnh và video về những điều bạn yêu thích mỗi ngày.',
-      image: 'assets/images/anh3.png',
-    ),
-    OnboardingData(
-      title: 'Trò chuyện không giới hạn',
-      description:
-          'Nhắn tin, gọi điện miễn phí với chất lượng cao. Giữ liên lạc với những người thân yêu.',
-      image: 'assets/images/anh4.png',
-    ),
-  ];
+  List<OnboardingData> _getPages(BuildContext context) {
+    final l10n = context.l10n;
+    return [
+      OnboardingData(
+        title: l10n.onboardingWelcomeTitle,
+        description: l10n.onboardingWelcomeDesc,
+        image: 'assets/images/anh1.png',
+      ),
+      OnboardingData(
+        title: l10n.onboardingConnectTitle,
+        description: l10n.onboardingConnectDesc,
+        image: 'assets/images/anh2.png',
+      ),
+      OnboardingData(
+        title: l10n.onboardingShareTitle,
+        description: l10n.onboardingShareDesc,
+        image: 'assets/images/anh3.png',
+      ),
+      OnboardingData(
+        title: l10n.onboardingChatTitle,
+        description: l10n.onboardingChatDesc,
+        image: 'assets/images/anh4.png',
+      ),
+    ];
+  }
 
   @override
   Widget build(BuildContext context) {
+    final pages = _getPages(context);
+    final l10n = context.l10n;
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -52,14 +55,14 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             Expanded(
               child: PageView.builder(
                 controller: _pageController,
-                itemCount: _pages.length,
+                itemCount: pages.length,
                 onPageChanged: (index) {
                   setState(() {
                     _currentPage = index;
                   });
                 },
                 itemBuilder: (context, index) {
-                  return OnboardingContent(data: _pages[index]);
+                  return OnboardingContent(data: pages[index]);
                 },
               ),
             ),
@@ -70,18 +73,18 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: List.generate(
-                      _pages.length,
+                      pages.length,
                       (index) => _buildDot(index),
                     ),
                   ),
                   32.hS,
                   CustomButton(
-                    label: _currentPage == _pages.length - 1
-                        ? 'Bắt đầu ngay'
-                        : 'Tiếp theo',
+                    label: _currentPage == pages.length - 1
+                        ? l10n.onboardingStart
+                        : l10n.onboardingNext,
                     color: const Color(0xFF3CC18E),
                     onPressed: () {
-                      if (_currentPage < _pages.length - 1) {
+                      if (_currentPage < pages.length - 1) {
                         _pageController.nextPage(
                           duration: const Duration(milliseconds: 300),
                           curve: Curves.easeInOut,
@@ -92,12 +95,15 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     },
                   ),
                   12.hS,
-                  if (_currentPage < _pages.length - 1)
+                  if (_currentPage < pages.length - 1)
                     TextButton(
                       onPressed: () => context.go(AppRoutes.welcome.path),
-                      child: const Text(
-                        'Bỏ qua',
-                        style: TextStyle(color: Colors.grey, fontSize: 16),
+                      child: Text(
+                        l10n.onboardingSkip,
+                        style: const TextStyle(
+                          color: Colors.grey,
+                          fontSize: 16,
+                        ),
                       ),
                     )
                   else
@@ -152,11 +158,7 @@ class OnboardingContent extends StatelessWidget {
         children: [
           ClipRRect(
             borderRadius: BorderRadius.circular(16),
-            child: Image.asset(
-              data.image,
-              height: 300,
-              fit: BoxFit.contain,
-            ),
+            child: Image.asset(data.image, height: 300, fit: BoxFit.contain),
           ),
           40.hS,
           Text(

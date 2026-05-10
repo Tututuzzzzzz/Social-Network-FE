@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/src/core/l10n/l10n.dart';
 
 import 'mochi_dm_styles.dart';
 
@@ -20,8 +21,8 @@ class MochiDmSectionHeader extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(16, 14, 16, 2),
       child: Row(
         children: [
-          const Text(
-            'Tin nhan',
+          Text(
+            context.l10n.messagesTitle,
             style: TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.w700,
@@ -39,8 +40,8 @@ class MochiDmSectionHeader extends StatelessWidget {
             ),
             child: Text(
               pendingCount == 0
-                  ? 'Tin nhan dang cho'
-                  : 'Tin nhan dang cho ($pendingCount)',
+                  ? context.l10n.pendingMessages
+                  : context.l10n.pendingMessagesCount(pendingCount.toString()),
               style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
             ),
           ),

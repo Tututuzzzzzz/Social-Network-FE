@@ -9,6 +9,7 @@ import '../../../../widgets/feature_page_scaffold.dart';
 import '../../domain/entities/home_entity.dart';
 import '../bloc/home/home_bloc.dart';
 import '../widgets/home_widgets.dart';
+import 'package:frontend/src/core/l10n/l10n.dart';
 
 class MochiMainPage extends StatelessWidget {
   const MochiMainPage({super.key});
@@ -31,12 +32,11 @@ class MochiMainPage extends StatelessWidget {
       comments: 9,
     ),
   ];
-
-  static List<HomeStoryItem> _buildStories(List<HomeEntity> items) {
+  List<HomeStoryItem> _buildStories(BuildContext context, List<HomeEntity> items) {
     final people = items.where((item) => item.kind == 'person').toList();
     if (people.isEmpty) {
-      return const [
-        HomeStoryItem(id: 'me', name: 'Your story', hasUnread: false),
+      return [
+        HomeStoryItem(id: 'me', name: context.l10n.yourStory, hasUnread: false),
         HomeStoryItem(id: 'other_1', name: 'An', hasUnread: true),
       ];
     }
@@ -50,7 +50,7 @@ class MochiMainPage extends StatelessWidget {
     }).toList();
 
     return [
-      const HomeStoryItem(id: 'me', name: 'Your story', hasUnread: false),
+      HomeStoryItem(id: 'me', name: context.l10n.yourStory, hasUnread: false),
       ...stories,
     ].take(9).toList();
   }
@@ -84,7 +84,7 @@ class MochiMainPage extends StatelessWidget {
           final loadedItems = state is HomeSuccessState
               ? state.items
               : const <HomeEntity>[];
-          final stories = _buildStories(loadedItems);
+          final stories = _buildStories(context, loadedItems);
           final posts = _buildPosts(loadedItems);
 
           return FeaturePageScaffold(
@@ -106,7 +106,7 @@ class MochiMainPage extends StatelessWidget {
             ),
             bodyPadding: EdgeInsets.zero,
             isLoading: state is HomeInitialState || state is HomeLoadingState,
-            errorTitle: state is HomeFailureState ? 'Cannot load feed' : null,
+            errorTitle: state is HomeFailureState ? context.l10n.profileLoadFailed : null,
             errorMessage: state is HomeFailureState ? state.message : null,
             onRetry: () =>
                 context.read<HomeBloc>().add(const HomeFetchedEvent()),
@@ -138,13 +138,17 @@ class MochiMainPage extends StatelessWidget {
               padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
               children: [
                 HomeComposerCard(
+                  promptText: context.l10n.whatIsHappening,
                   onTapAvatar: () =>
                       context.pushNamed(AppRoutes.profile.name),
                 ),
                 const SizedBox(height: 12),
                 HomeStoriesStrip(items: stories),
                 const SizedBox(height: 16),
-                const HomeSectionHeader(title: 'Feed', actionText: 'See all'),
+                HomeSectionHeader(
+                  title: context.l10n.titleReels, // Dùng tạm key Reels hoặc thêm key mới nếu cần
+                  actionText: context.l10n.viewAll,
+                ),
                 const SizedBox(height: 8),
                 ...posts.map((post) => HomeFeedPostCard(item: post)),
                 const SizedBox(height: 100),

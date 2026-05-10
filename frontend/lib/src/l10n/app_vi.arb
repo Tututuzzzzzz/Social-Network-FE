@@ -53,7 +53,7 @@
   "profileChooseAccount": "Chọn tài khoản",
   "profileAccountSwitched": "Đã chuyển tài khoản.",
   "addAccount": "Thêm tài khoản",
-  "addAccountSoon": "Tính năng thêm tài khoản sẽ có sớm.",
+  "addAccountSoon": "Tính năng thêm tài khoản sẽ sớm được ra mắt.",
   "settingsAndActivity": "Cài đặt và hoạt động",
   "profileSettingsTitle": "Cài Đặt",
   "logoutAction": "Đăng xuất",
@@ -62,7 +62,7 @@
   "switchToProfessionalAccount": "Chuyển sang tài khoản chuyên nghiệp",
   "switchToBusinessAccount": "Chuyển sang tài khoản công ty",
   "switchAccount": "Chuyển tài khoản",
-  "featureInDevelopment": "Tính năng đang phát triển.",
+  "featureInDevelopment": "Tính năng đang trong quá trình phát triển.",
   "loadingProfileInfo": "Đang tải thông tin...",
   "noProfileData": "Chưa có dữ liệu hồ sơ.",
   "postsLabel": "bài viết",
@@ -72,38 +72,42 @@
   "shareProfileAction": "Chia sẻ trang cá nhân",
   "newLabel": "Mới",
   "taggedPostsEmpty": "Chưa có bài viết được gắn thẻ.",
-  "linkCopied": "Đã sao liên kết",
+  "linkCopied": "Đã sao chép liên kết",
   "pageNotImplemented": "Trang này chưa được triển khai.",
   "editProfileTitle": "Chỉnh sửa trang cá nhân",
   "displayNameLabel": "Tên hiển thị",
   "editAvatarAction": "Chỉnh sửa ảnh hoặc avatar",
   "pleaseEnterDisplayName": "Vui lòng nhập tên hiển thị",
-  "profileUpdateSuccess": "Đã cập nhật trang cá nhân.",
+  "profileUpdateSuccess": "Đã cập nhật trang cá nhân thành công.",
   "profileUpdateFailed": "Không thể cập nhật trang cá nhân.",
   "profileNoChanges": "Chưa có thay đổi nào để cập nhật.",
-  "profileLoadFailed": "Không tải được trang cá nhân",
+  "profileLoadFailed": "Không thể tải trang cá nhân.",
   "retryAction": "Thử lại",
-  "updateAvatarSuccess": "Đã cập nhật ảnh đại diện.",
+  "updateAvatarSuccess": "Đã cập nhật ảnh đại diện thành công.",
   "updateAvatarFailed": "Không thể cập nhật ảnh đại diện.",
-  "profileSavedLocal": "Đã lưu thông tin trang cá nhân (lưu cục bộ).",
+  "profileSavedLocal": "Đã lưu thông tin trang cá nhân vào bộ nhớ tạm.",
   "privateAccount": "Tài khoản riêng tư",
   "personalInfo": "Thông tin cá nhân",
   "emailLabel": "Email",
   "phoneLabel": "Điện thoại",
   "genderLabel": "Giới tính",
-  "profileFormSampleData": "Dữ liệu form đang dùng mẫu UI cho phần frontend.",
+  "profileFormSampleData": "Dữ liệu đang sử dụng mẫu thử nghiệm.",
   "mediaLibrary": "Thư viện",
-  "mediaSelectedReady": "Đã chọn ảnh, sẵn sàng bước tiếp.",
+  "mediaSelectedReady": "Đã chọn ảnh, sẵn sàng tiếp tục.",
   "chatGroupInfoTitle": "Thông tin nhóm",
   "groupNotFound": "Không tìm thấy thông tin nhóm",
   "membersCount": "{count} thành viên",
-  "@membersCount": { "placeholders": { "count": {} } },
+  "@membersCount": {
+    "placeholders": {
+      "count": {}
+    }
+  },
   "groupRename": "Đổi tên nhóm",
   "groupChangeAvatar": "Đổi ảnh nhóm",
   "addMember": "Thêm thành viên",
   "searchMessages": "Tìm tin nhắn",
   "photosAndVideos": "Ảnh và video",
-  "adminOnlyManageGroupInfo": "Chỉ quản trị viên mới có thể đổi thông tin và thêm thành viên.",
+  "adminOnlyManageGroupInfo": "Chỉ quản trị viên mới có quyền thay đổi thông tin và thêm thành viên.",
   "memberList": "Danh sách thành viên",
   "youSuffix": "bạn",
   "adminRole": "Quản trị viên",
@@ -117,184 +121,414 @@
   "searchNoResults": "Không tìm thấy kết quả",
   "searchSeeAll": "Xem tất cả",
   "leaveGroup": "Rời nhóm",
-  "lastAdminCannotLeave": "Bạn là quản trị viên cuối cùng. Hãy chuyển quyền admin trước khi rời nhóm.",
+  "lastAdminCannotLeave": "Bạn là quản trị viên cuối cùng. Hãy chuyển quyền quản trị trước khi rời nhóm.",
   "groupChatFallback": "Nhóm chat",
   "groupMemberAdded": "Đã thêm thành viên vào nhóm",
   "leaveGroupQuestion": "Rời nhóm?",
   "leaveGroupNoNewMessages": "Bạn sẽ không nhận được tin nhắn mới từ nhóm này nữa.",
-  "selectNewAdminBeforeLeave": "Bạn là quản trị viên cuối cùng. Hãy chọn người nhận quyền trước khi rời nhóm.",
+  "selectNewAdminBeforeLeave": "Bạn là quản trị viên cuối cùng. Hãy chọn quản trị viên mới trước khi rời nhóm.",
   "noMemberToTransfer": "Hiện không có thành viên nào để chuyển quyền.",
   "currentRoleAdmin": "Vai trò hiện tại: Quản trị viên",
   "currentRoleMember": "Vai trò hiện tại: Thành viên",
   "cannotLeaveGroupCheckAdmin": "Không thể rời nhóm. Vui lòng kiểm tra lại quyền quản trị.",
-  "leftGroupSuccess": "Bạn đã rời nhóm",
-  "handoverAndLeaveSuccess": "Đã chuyển quyền admin và rời nhóm thành công",
-  "secondConfirmation": "Xác nhận lần 2",
+  "leftGroupSuccess": "Bạn đã rời nhóm thành công.",
+  "handoverAndLeaveSuccess": "Đã chuyển quyền quản trị và rời nhóm thành công.",
+  "secondConfirmation": "Xác nhận lần nữa",
   "aboutToHandoverAndLeave": "Bạn sắp chuyển quyền quản trị viên và rời nhóm.",
   "newAdminWillBe": "Sẽ trở thành quản trị viên mới",
-  "afterConfirmLeaveImmediately": "Sau khi xác nhận, bạn sẽ rời nhóm ngay.",
+  "afterConfirmLeaveImmediately": "Sau khi xác nhận, bạn sẽ rời nhóm ngay lập tức.",
   "goBack": "Quay lại",
   "confirmHandover": "Xác nhận chuyển quyền",
-  "adminOnlyAction": "Chỉ quản trị viên mới có quyền thực hiện thao tác này",
+  "adminOnlyAction": "Chỉ quản trị viên mới có quyền thực hiện thao tác này.",
   "chatInviteLink": "Liên kết mời",
-  "inviteLinkCopied": "Đã sao chép liên kết mời nhóm",
+  "inviteLinkCopied": "Đã sao chép liên kết mời nhóm.",
   "addPeople": "Thêm người",
   "youBlockedUser": "Bạn đã chặn {name}",
-  "@youBlockedUser": { "placeholders": { "name": {} } },
+  "@youBlockedUser": {
+    "placeholders": {
+      "name": {}
+    }
+  },
   "youRestrictedUser": "Bạn đã hạn chế {name}",
-  "@youRestrictedUser": { "placeholders": { "name": {} } },
-  "noOnlineOrReadStatus": "Họ sẽ không biết khi nào bạn online hoặc đọc tin nhắn của họ",
+  "@youRestrictedUser": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "noOnlineOrReadStatus": "Họ sẽ không thấy trạng thái hoạt động hoặc đã đọc của bạn.",
   "blockAction": "Chặn",
   "unblockAction": "Bỏ chặn",
   "unrestrictAction": "Bỏ hạn chế",
-  "onlyAdminCanAddMembers": "Chỉ quản trị viên mới có thể thêm thành viên",
+  "onlyAdminCanAddMembers": "Chỉ quản trị viên mới có thể thêm thành viên.",
   "messagesSearchHint": "Tìm kiếm",
   "messagesTitle": "Tin nhắn",
   "pendingMessages": "Tin nhắn đang chờ",
-  "noConversationFound": "Không tìm thấy cuộc trò chuyện",
-  "chatPinned": "Đã ghim đoạn chat",
-  "chatUnpinned": "Đã bỏ ghim đoạn chat",
-  "chatHidden": "Đã ẩn đoạn chat",
-  "chatDeleted": "Đã xóa đoạn chat",
+  "noConversationFound": "Không tìm thấy cuộc trò chuyện nào.",
+  "chatPinned": "Đã ghim đoạn chat.",
+  "chatUnpinned": "Đã bỏ ghim đoạn chat.",
+  "chatHidden": "Đã ẩn đoạn chat.",
+  "chatDeleted": "Đã xóa đoạn chat.",
   "pinAction": "Ghim",
   "unpinAction": "Bỏ ghim",
   "hideAction": "Ẩn",
   "deleteAction": "Xóa",
-  "mutedNow": "Đang tắt",
-  "feedNotificationSoon": "Thông báo sẽ được thêm sau.",
-  "sessionExpiredRelogin": "Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.",
-  "emptyNoPosts": "Chưa có bài viết nào",
-  "emptyFollowFriends": "Hãy quay lại sau hoặc theo dõi thêm bạn bè",
-  "shareSoon": "Chia sẻ sẽ được thêm sau.",
-  "saveSoon": "Lưu bài viết sẽ được thêm sau.",
-  "createPostCannotPickGallery": "Không thể chọn ảnh từ thư viện",
-  "createPostCannotOpenCamera": "Không thể mở camera",
+  "mutedNow": "Đang tắt thông báo",
+  "feedNotificationSoon": "Thông báo sẽ sớm được cập nhật.",
+  "sessionExpiredRelogin": "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.",
+  "emptyNoPosts": "Chưa có bài viết nào.",
+  "emptyFollowFriends": "Hãy quay lại sau hoặc theo dõi thêm bạn bè.",
+  "shareSoon": "Tính năng chia sẻ sẽ sớm được cập nhật.",
+  "saveSoon": "Tính năng lưu bài viết sẽ sớm được cập nhật.",
+  "createPostCannotPickGallery": "Không thể chọn ảnh từ thư viện.",
+  "createPostCannotOpenCamera": "Không thể mở máy ảnh.",
   "createPostTitle": "Tạo bài viết",
   "postAction": "Đăng",
   "captionHint": "Bạn đang nghĩ gì?",
   "addMediaForPost": "Thêm ảnh/video cho bài viết",
   "pickFromLibrary": "Chọn từ thư viện",
   "libraryLabel": "Hình ảnh",
-  "cameraLabel": "Camera",
-  "templateLabel": "Template",
-  "templateSoon": "Template sẽ được thêm sau.",
-  "friendsSearchHint": "Search",
-  "cannotOpenChat": "Không thể mở chat: {error}",
-  "@cannotOpenChat": { "placeholders": { "error": {} } },
-  "placeholderLastMessage": "This is a placeholder for the last message.",
-  "messageInputHint": "Nhắn tin..."
-  ,"bioLabel": "Tiểu sử"
-  ,"myLoveLabel": "my love"
-  ,"searchInConversationHint": "Tìm trong cuộc trò chuyện"
-  ,"enterKeywordToSearch": "Nhập từ khóa để tìm tin nhắn"
-  ,"noMatchingResults": "Không tìm thấy kết quả phù hợp"
-  ,"youLabel": "Bạn"
-  ,"enterNicknameHint": "Nhập biệt danh"
-  ,"nicknameRemoved": "Đã xóa biệt danh của {name}"
-  ,"@nicknameRemoved": { "placeholders": { "name": {} } }
-  ,"nicknameUpdated": "Đã cập nhật biệt danh của {name}"
-  ,"@nicknameUpdated": { "placeholders": { "name": {} } }
-  ,"nicknameVisibleInChat": "Mọi người trong đoạn chat đều sẽ nhìn thấy biệt danh này của {name}."
-  ,"@nicknameVisibleInChat": { "placeholders": { "name": {} } }
-  ,"groupNameHint": "Nhập tên nhóm"
-  ,"invitedMembers": "Thành viên được mời"
-  ,"searchGeneric": "Tìm kiếm"
-  ,"safetyProfile": "Trang cá nhân"
-  ,"restrictAction": "Hạn chế"
-  ,"blockAccount": "Chặn tài khoản"
-  ,"unblockAccount": "Bỏ chặn tài khoản"
-  ,"nicknameAction": "Biệt danh"
-  ,"createGroupChat": "Tạo nhóm chat"
-  ,"optionsLabel": "Lựa chọn"
-  ,"muteOffLabel": "Tắt"
-  ,"photosAndVideoTitle": "Ảnh và Video"
-  ,"viewAll": "Xem tất cả"
-  ,"blockedMediaHidden": "Nội dung ảnh và video bị ẩn do bạn đã chặn tài khoản này."
-  ,"mute10Minutes": "10 phút"
-  ,"mute30Minutes": "30 phút"
-  ,"mute1Hour": "1 giờ"
-  ,"mute2Hours": "2 giờ"
-  ,"mute12Hours": "12 giờ"
-  ,"mute24Hours": "24 giờ"
-  ,"mute48Hours": "48 giờ"
-  ,"muteConversationTitle": "Tắt thông báo đoạn chat"
-  ,"turnOnNotifications": "Bật thông báo"
-  ,"grantAdmin": "Cấp quyền quản trị viên"
-  ,"revokeAdmin": "Gỡ quyền quản trị viên"
-  ,"revokeAdminLocked": "Gỡ quyền quản trị viên (bị khóa)"
-  ,"onlyAdminCanChangeRole": "Quản trị viên mới được đổi quyền"
-  ,"privateMessage": "Nhắn tin riêng"
-  ,"thisIsYourAccount": "Đây là tài khoản của bạn"
-  ,"newGroupTitle": "Nhóm mới"
-  ,"editGroupTitle": "Chỉnh sửa nhóm"
-  ,"createAction": "Tạo"
-  ,"peopleWhoCanContactYou": "Người có thể liên hệ với bạn"
-  ,"editNicknameTitle": "Chỉnh sửa biệt danh"
-  ,"groupRoleTitle": "Vai trò trong nhóm"
-  ,"memberIdTitle": "ID thành viên"
-  ,"adminGrantedTo": "Đã cấp quyền admin cho {name}"
-  ,"@adminGrantedTo": { "placeholders": { "name": {} } }
-  ,"cannotGrantAdmin": "Không thể cấp quyền admin"
-  ,"adminRevokedFrom": "Đã gỡ quyền admin của {name}"
-  ,"@adminRevokedFrom": { "placeholders": { "name": {} } }
-  ,"cannotRevokeAdmin": "Không thể gỡ quyền admin"
-  ,"cannotRevokeOwnAdminTooltip": "Bạn không thể tự gỡ quyền của chính mình. Hãy cấp quyền admin cho người khác trước."
-  ,"cannotRevokeOwnAdmin": "Bạn không thể tự gỡ quyền quản trị viên"
-  ,"onlyAdminCanGrantOrRevokeTooltip": "Chỉ quản trị viên mới có thể cấp hoặc gỡ quyền admin."
-  ,"noAdminPermissionForAction": "Bạn không có quyền quản trị để thực hiện thao tác này"
-  ,"cannotRevokeLastAdmin": "Không thể gỡ quyền admin cuối cùng trong nhóm."
-  ,"youAreCurrentAdmin": "Bạn là admin hiện tại"
-  ,"adminHasFullControl": "Admin có toàn quyền"
-  ,"canGrantOrRevokeForOthers": "Bạn có thể cấp/gỡ quyền admin cho thành viên khác."
-  ,"youHaveAdminRights": "Bạn có quyền quản trị"
-  ,"canChangeMemberRoles": "Bạn có thể thay đổi quyền thành viên trong nhóm."
-  ,"noPermissionChangeRole": "Bạn không có quyền đổi role"
-  ,"onlyAdminCanGrantOrRevoke": "Chỉ quản trị viên mới được phép cấp/gỡ quyền admin."
-  ,"mutePriorityHint": "Ưu tiên cao nhất: Hủy toàn bộ trạng thái tắt thông báo hiện tại."
-  ,"muteUntilTurnedOn": "Cho đến khi bật lại"
-  ,"exploreTitle": "Khám phá"
-  ,"reelsTitle": "Reels"
-  ,"postOptionAddToFavorites": "Thêm vào mục yêu thích"
-  ,"postOptionAboutThisAccount": "Giới thiệu về tài khoản này"
-  ,"postOptionHidePost": "Ẩn bài viết"
-  ,"postOptionReport": "Báo cáo"
-  ,"postOptionAddToFavoritesDone": "Đã thêm vào mục yêu thích"
-  ,"postOptionHidePostDone": "Đã ẩn bài viết"
-  ,"postOptionReportDone": "Đã gửi báo cáo"
-  ,"postOptionReportDoneWithReason": "Đã gửi báo cáo với lý do: {reason}"
-  ,"@postOptionReportDoneWithReason": { "placeholders": { "reason": {} } }
-  ,"postReportTitle": "Báo cáo bài viết"
-  ,"postReportSelectReason": "Chọn lý do phù hợp nhất"
-  ,"postReportSubmit": "Gửi báo cáo"
-  ,"postReportReasonSpam": "Spam"
-  ,"postReportReasonHarassment": "Quấy rối hoặc bắt nạt"
-  ,"postReportReasonFalseInfo": "Thông tin sai lệch"
-  ,"postReportReasonHateSpeech": "Ngôn từ thù ghét"
-  ,"postReportReasonViolence": "Bạo lực hoặc nguy hiểm"
-  ,"postReportReasonOther": "Lý do khác"
-  ,"postOptionAllHiddenTitle": "Bạn đã ẩn tất cả bài viết"
-  ,"postOptionAllHiddenDescription": "Hãy tải lại để xem nội dung mới hoặc chờ bài viết khác."
-  ,"followingStatus": "Đang theo dõi"
-  ,"yourStory": "Your Story"
-  ,"viewAllComments": "Xem tất cả {count} bình luận"
-  ,"@viewAllComments": { "placeholders": { "count": {} } }
-  ,"likesCountText": "{count} lượt thích"
-  ,"@likesCountText": { "placeholders": { "count": {} } }
-  ,"followAction": "Theo dõi"
-  ,"recentSearchTitle": "Gần đây"
-  ,"friendRequestSent": "Đã gửi"
-  ,"friendRequestSendSuccess": "Đã gửi lời mời kết bạn"
-  ,"friendRequestSendError": "Không thể gửi lời mời kết bạn"
-  ,"acceptFriendRequest": "Chấp nhận"
-  ,"rejectFriendRequest": "Từ chối"
-  ,"notificationsTitle": "Thông báo"
-  ,"markAllAsRead": "Đánh dấu tất cả đã đọc"
-  ,"titleSearch": "Tìm kiếm"
-  ,"titleReels": "Reels"
-  ,"titleChat": "Trò chuyện"
-  ,"friends": "Bạn bè"
-  ,"friendRequestAccepted": "Lời mời kết bạn đã được chấp nhận"
-  ,"yourFriendRequestAccepted": "Lời mời kết bạn của bạn đã được chấp nhận"
-  ,"friendRequestReceived": "đã gửi lời mời kết bạn cho bạn"
-  ,"noNotifications": "Chưa có thông báo nào"
+  "cameraLabel": "Máy ảnh",
+  "templateLabel": "Mẫu bài viết",
+  "templateSoon": "Các mẫu bài viết sẽ sớm được cập nhật.",
+  "friendsSearchHint": "Tìm kiếm bạn bè",
+  "cannotOpenChat": "Không thể mở cuộc trò chuyện: {error}",
+  "@cannotOpenChat": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "placeholderLastMessage": "Đây là nội dung tin nhắn mẫu.",
+  "messageInputHint": "Nhắn tin...",
+  "bioLabel": "Tiểu sử",
+  "myLoveLabel": "Tình yêu của tôi",
+  "searchInConversationHint": "Tìm trong cuộc trò chuyện",
+  "enterKeywordToSearch": "Nhập từ khóa để tìm tin nhắn",
+  "noMatchingResults": "Không tìm thấy kết quả phù hợp.",
+  "youLabel": "Bạn",
+  "enterNicknameHint": "Nhập biệt danh",
+  "nicknameRemoved": "Đã xóa biệt danh của {name}",
+  "@nicknameRemoved": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "nicknameUpdated": "Đã cập nhật biệt danh của {name}",
+  "@nicknameUpdated": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "nicknameVisibleInChat": "Mọi người trong đoạn chat đều sẽ nhìn thấy biệt danh này của {name}.",
+  "@nicknameVisibleInChat": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "groupNameHint": "Nhập tên nhóm",
+  "invitedMembers": "Thành viên được mời",
+  "searchGeneric": "Tìm kiếm",
+  "safetyProfile": "Trang cá nhân",
+  "restrictAction": "Hạn chế",
+  "blockAccount": "Chặn tài khoản",
+  "unblockAccount": "Bỏ chặn tài khoản",
+  "nicknameAction": "Biệt danh",
+  "createGroupChat": "Tạo nhóm chat",
+  "optionsLabel": "Lựa chọn",
+  "muteOffLabel": "Tắt",
+  "photosAndVideoTitle": "Ảnh và Video",
+  "viewAll": "Xem tất cả",
+  "blockedMediaHidden": "Nội dung ảnh và video bị ẩn do bạn đã chặn tài khoản này.",
+  "mute10Minutes": "10 phút",
+  "mute30Minutes": "30 phút",
+  "mute1Hour": "1 giờ",
+  "mute2Hours": "2 giờ",
+  "mute12Hours": "12 giờ",
+  "mute24Hours": "24 giờ",
+  "mute48Hours": "48 giờ",
+  "muteConversationTitle": "Tắt thông báo đoạn chat",
+  "turnOnNotifications": "Bật thông báo",
+  "grantAdmin": "Cấp quyền quản trị viên",
+  "revokeAdmin": "Gỡ quyền quản trị viên",
+  "revokeAdminLocked": "Gỡ quyền quản trị viên (bị khóa)",
+  "onlyAdminCanChangeRole": "Chỉ quản trị viên mới được đổi vai trò",
+  "privateMessage": "Nhắn tin riêng",
+  "thisIsYourAccount": "Đây là tài khoản của bạn",
+  "newGroupTitle": "Nhóm mới",
+  "editGroupTitle": "Chỉnh sửa nhóm",
+  "createAction": "Tạo",
+  "peopleWhoCanContactYou": "Người có thể liên hệ với bạn",
+  "editNicknameTitle": "Chỉnh sửa biệt danh",
+  "groupRoleTitle": "Vai trò trong nhóm",
+  "memberIdTitle": "ID thành viên",
+  "adminGrantedTo": "Đã cấp quyền quản trị cho {name}",
+  "@adminGrantedTo": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "cannotGrantAdmin": "Không thể cấp quyền quản trị",
+  "adminRevokedFrom": "Đã gỡ quyền quản trị của {name}",
+  "@adminRevokedFrom": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "cannotRevokeAdmin": "Không thể gỡ quyền quản trị",
+  "cannotRevokeOwnAdminTooltip": "Bạn không thể tự gỡ quyền quản trị của chính mình. Hãy cấp quyền cho người khác trước.",
+  "cannotRevokeOwnAdmin": "Bạn không thể tự gỡ quyền quản trị viên",
+  "onlyAdminCanGrantOrRevokeTooltip": "Chỉ quản trị viên mới có thể cấp hoặc gỡ vai trò quản trị.",
+  "noAdminPermissionForAction": "Bạn không có quyền quản trị để thực hiện thao tác này",
+  "cannotRevokeLastAdmin": "Không thể gỡ quyền quản trị cuối cùng trong nhóm.",
+  "youAreCurrentAdmin": "Bạn là quản trị viên hiện tại",
+  "adminHasFullControl": "Quản trị viên có toàn quyền",
+  "canGrantOrRevokeForOthers": "Bạn có thể cấp/gỡ quyền quản trị cho thành viên khác.",
+  "youHaveAdminRights": "Bạn có quyền quản trị",
+  "canChangeMemberRoles": "Bạn có thể thay đổi vai trò thành viên trong nhóm.",
+  "noPermissionChangeRole": "Bạn không có quyền đổi vai trò",
+  "onlyAdminCanGrantOrRevoke": "Chỉ quản trị viên mới được phép cấp/gỡ quyền quản trị.",
+  "mutePriorityHint": "Ưu tiên cao nhất: Hủy toàn bộ trạng thái tắt thông báo hiện tại.",
+  "muteUntilTurnedOn": "Cho đến khi được bật lại",
+  "exploreTitle": "Khám phá",
+  "reelsTitle": "Reels",
+  "postOptionAddToFavorites": "Thêm vào mục yêu thích",
+  "postOptionAboutThisAccount": "Giới thiệu về tài khoản này",
+  "postOptionHidePost": "Ẩn bài viết",
+  "postOptionReport": "Báo cáo",
+  "postOptionAddToFavoritesDone": "Đã thêm vào mục yêu thích",
+  "postOptionHidePostDone": "Đã ẩn bài viết",
+  "postOptionReportDone": "Đã gửi báo cáo thành công",
+  "postOptionReportDoneWithReason": "Đã gửi báo cáo với lý do: {reason}",
+  "@postOptionReportDoneWithReason": {
+    "placeholders": {
+      "reason": {}
+    }
+  },
+  "postReportTitle": "Báo cáo bài viết",
+  "postReportSelectReason": "Chọn lý do phù hợp nhất",
+  "postReportSubmit": "Gửi báo cáo",
+  "postReportReasonSpam": "Nội dung rác (Spam)",
+  "postReportReasonHarassment": "Quấy rối hoặc bắt nạt",
+  "postReportReasonFalseInfo": "Thông tin sai lệch",
+  "postReportReasonHateSpeech": "Ngôn từ thù ghét",
+  "postReportReasonViolence": "Bạo lực hoặc nội dung nguy hiểm",
+  "postReportReasonOther": "Lý do khác",
+  "postOptionAllHiddenTitle": "Bạn đã ẩn tất cả bài viết",
+  "postOptionAllHiddenDescription": "Hãy tải lại để xem nội dung mới hoặc chờ bài viết khác.",
+  "followingStatus": "Đang theo dõi",
+  "yourStory": "Tin của bạn",
+  "viewAllComments": "Xem tất cả {count} bình luận",
+  "@viewAllComments": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "likesCountText": "{count} lượt thích",
+  "@likesCountText": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "followAction": "Theo dõi",
+  "recentSearchTitle": "Tìm kiếm gần đây",
+  "friendRequestSent": "Đã gửi lời mời",
+  "friendRequestSendSuccess": "Đã gửi lời mời kết bạn thành công.",
+  "friendRequestSendError": "Không thể gửi lời mời kết bạn.",
+  "acceptFriendRequest": "Chấp nhận",
+  "rejectFriendRequest": "Từ chối",
+  "notificationsTitle": "Thông báo",
+  "markAllAsRead": "Đánh dấu tất cả đã đọc",
+  "titleSearch": "Tìm kiếm",
+  "titleReels": "Reels",
+  "titleChat": "Trò chuyện",
+  "friends": "Bạn bè",
+  "friendRequestAccepted": "Lời mời kết bạn đã được chấp nhận",
+  "yourFriendRequestAccepted": "Lời mời kết bạn của bạn đã được chấp nhận",
+  "friendRequestReceived": "đã gửi lời mời kết bạn cho bạn",
+  "noNotifications": "Chưa có thông báo nào",
+  "onboardingWelcomeTitle": "Chào mừng đến với Mochi",
+  "onboardingWelcomeDesc": "Mạng xã hội kết nối mọi người, sẻ chia khoảnh khắc ý nghĩa trong cuộc sống của bạn.",
+  "onboardingConnectTitle": "Kết nối bạn bè",
+  "onboardingConnectDesc": "Tìm kiếm và kết nối với bạn bè ở khắp mọi nơi. Cùng nhau tạo nên những kỷ niệm đẹp.",
+  "onboardingShareTitle": "Chia sẻ đam mê",
+  "onboardingShareDesc": "Đăng tải những bài viết, hình ảnh và video về những điều bạn yêu thích mỗi ngày.",
+  "onboardingChatTitle": "Trò chuyện không giới hạn",
+  "onboardingChatDesc": "Nhắn tin, gọi điện miễn phí với chất lượng cao. Giữ liên lạc với những người thân yêu.",
+  "onboardingStart": "Bắt đầu ngay",
+  "onboardingNext": "Tiếp theo",
+  "onboardingSkip": "Bỏ qua",
+  "notificationTabPosts": "Bài viết",
+  "notificationTabFriends": "Kết bạn",
+  "notificationEmptyPosts": "Chưa có thông báo bài viết nào",
+  "notificationEmptyFriends": "Chưa có lời mời kết bạn nào",
+  "notificationLiked": "đã thích bài viết của bạn",
+  "notificationCommented": "đã bình luận về bài viết của bạn",
+  "notificationFollowed": "đã bắt đầu theo dõi bạn",
+  "navHome": "Trang chủ",
+  "navCreate": "Bài viết",
+  "navNotifications": "Thông báo",
+  "navProfile": "Hồ sơ",
+  "userDefaultName": "Người dùng",
+  "profilePersonalTitle": "Hồ Sơ Cá Nhân",
+  "noSessionTitle": "Chưa có phiên đăng nhập",
+  "noSessionMessage": "Vui lòng đăng nhập lại để xem hồ sơ cá nhân.",
+  "retry": "Thử lại",
+  "noBio": "Chưa có giới thiệu.",
+  "friendsLabel": "Bạn bè",
+  "postsLabel": "Bài viết",
+  "photosLabel": "Ảnh",
+  "unknownRecipient": "Không xác định được người nhận tin nhắn",
+  "startChatting": "Bắt đầu trò chuyện...",
+  "timeNow": "vừa xong",
+  "conversationTitle": "Cuộc trò chuyện",
+  "searchCategoryTrending": "Xu hướng",
+  "searchCategoryTravel": "Du lịch",
+  "searchCategoryFood": "Ẩm thực",
+  "searchCategoryMusic": "Âm nhạc",
+  "searchCategoryLandscape": "Phong cảnh",
+  "searchCategoryTech": "Công nghệ",
+  "noResultsFound": "Không tìm thấy kết quả",
+  "peopleLabel": "Mọi người",
+  "viewAll": "Xem tất cả",
+  "discoverLabel": "Khám phá",
+  "exploreLabel": "Tìm hiểu",
+  "deleteChatTitle": "Xóa đoạn chat",
+  "deleteChatConfirm": "Bạn có muốn xóa đoạn chat với {name} không?",
+  "@deleteChatConfirm": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "cancel": "Hủy",
+  "delete": "Xóa",
+  "loadMessagesFailed": "Không thể tải tin nhắn",
+  "noChatFound": "Không tìm thấy đoạn chat",
+  "searchAnotherKeyword": "Thử tìm với từ khóa khác.",
+  "createConversationFailed": "Không tạo được cuộc trò chuyện",
+  "loadFriendsFailed": "Không tải được danh sách bạn bè",
+  "noFriendsFound": "Không có bạn bè nào",
+  "likesCount": "{count} lượt thích",
+  "@likesCount": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "commentsCount": "{count} bình luận",
+  "@commentsCount": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "sharesCount": "{count} lượt chia sẻ",
+  "@sharesCount": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "likeAction": "Thích",
+  "commentAction": "Bình luận",
+  "shareAction": "Chia sẻ",
+  "youLabel": "Bạn",
+  "userLabel": "Người dùng",
+  "submitCommentFailed": "Không thể gửi bình luận. Hãy thử lại.",
+  "updateCommentFailed": "Không thể cập nhật bình luận.",
+  "updateCommentSuccess": "Đã cập nhật bình luận.",
+  "deleteCommentFailed": "Không thể xóa bình luận.",
+  "deleteCommentSuccess": "Đã xóa bình luận.",
+  "commentsTitle": "Bình luận",
+  "noCommentsYet": "Chưa có bình luận nào. Hãy là người đầu tiên!",
+  "replyingStatus": "Đang trả lời...",
+  "replyAction": "Trả lời",
+  "replyingTo": "Đang trả lời {name}",
+  "@replyingTo": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "writeCommentHint": "Viết bình luận...",
+  "writeReplyHint": "Viết trả lời...",
+  "timeJustNow": "Vừa xong",
+  "timeMinutesAgo": "{count} phút trước",
+  "timeHoursAgo": "{count} giờ trước",
+  "timeDaysAgo": "{count} ngày trước",
+  "postAuthorTitle": "Bài viết của {name}",
+  "deletePostTitle": "Xóa bài viết?",
+  "deletePostConfirm": "Hành động này không thể hoàn tác.",
+  "friendsLabel": "Bạn bè",
+  "whatIsHappening": "Hôm nay bạn thế nào?",
+  "noPostsTitle": "Chưa có bài viết",
+  "loadPostsFailed": "Chưa tải được bài viết",
+  "postsEmptyMessage": "Các bài viết của hồ sơ này sẽ xuất hiện tại đây.",
+  "featureInDevelopment": "Tính năng đang được phát triển",
+  "postUpdated": "Đã cập nhật bài viết.",
+  "noChangesToUpdate": "Không có thay đổi nào để cập nhật.",
+  "logoutFailed": "Đăng xuất thất bại",
+  "friendRequestSendSuccess": "Đã gửi lời mời kết bạn",
+  "friendRequestSendError": "Gửi lời mời kết bạn thất bại",
+  "cannotOpenChat": "Không thể mở cuộc trò chuyện: {error}",
+  "typeMessageHint": "Nhập tin nhắn...",
+  "noPhotosTitle": "Chưa có ảnh",
+  "photosEmptyMessage": "Ảnh từ các bài viết của hồ sơ này sẽ nằm ở đây.",
+  "saveImage": "Lưu ảnh",
+  "copyImage": "Sao chép ảnh",
+  "shareImage": "Chia sẻ ảnh",
+  "addFriendAction": "Kết bạn",
+  "messageAction": "Nhắn tin",
+  "editPostTitle": "Chỉnh sửa bài viết",
+  "editPostDescriptionWithPhotos": "Đang có {count} ảnh (bao gồm ảnh cũ và ảnh mới).",
+  "@editPostDescriptionWithPhotos": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "editPostDescriptionNoPhotos": "Bạn có thể sửa nội dung hoặc thêm ảnh mới.",
+  "editPostContentHint": "Nhập nội dung mới...",
+  "existingPhotosLabel": "Ảnh hiện tại",
+  "newPhotosLabel": "Ảnh mới thêm",
+  "saveChanges": "Lưu thay đổi",
+  "noRetainedPhotos": "Hiện không giữ ảnh cũ nào",
+  "noNewPhotos": "Chưa có ảnh mới",
+  "oldPhotoLabel": "Ảnh cũ",
+  "newPhotoLabel": "Ảnh mới",
+  "postNeedsContentOrMedia": "Bài viết cần có nội dung hoặc ít nhất một ảnh",
+  "chatAllTab": "Tất cả",
+  "chatGroupsTab": "Nhóm",
+  "searchInMessages": "Tìm kiếm trong tin nhắn",
+  "newConversationTitle": "Tạo cuộc trò chuyện mới",
+  "searchFriends": "Tìm bạn bè",
+  "createGroupChatTitle": "Tạo nhóm chat",
+  "createGroupChatAction": "Tạo nhóm",
+  "createGroupAction": "Tạo",
+  "groupNameHint": "Tên nhóm",
+  "searchMembersHint": "Tìm thành viên",
+  "createGroupFailed": "Không tạo được nhóm chat",
+  "loadFriendsListFailed": "Không tải được danh sách bạn bè",
+  "noFriendsFoundInChat": "Không có bạn bè nào",
+  "unpinAction": "Bỏ ghim",
+  "pinAction": "Ghim",
+  "showAction": "Hiện",
+  "hideAction": "Ẩn",
+  "deleteChatAction": "Xóa",
+  "messagesTitle": "Tin nhắn",
+  "pendingMessages": "Tin nhắn đang chờ",
+  "pendingMessagesCount": "Tin nhắn đang chờ ({count})",
+  "@pendingMessagesCount": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "collapseAction": "Thu gọn",
+  "expandAction": "Mở rộng",
+  "groupDefaultName": "Nhóm",
+  "groupCreated": "Nhóm đã được tạo",
+  "blockAction": "Chặn",
+  "deleteConversationAction": "Xóa cuộc trò chuyện",
+  "audioCallAction": "Gọi thoại",
+  "videoCallAction": "Gọi video",
+  "viewProfileChatAction": "Trang cá nhân",
+  "muteNotificationsAction": "Tắt thông báo",
+  "customizationSection": "Tùy chỉnh",
+  "themeAction": "Chủ đề",
+  "nicknameAction": "Biệt danh",
+  "otherActionsSection": "Hành động khác",
+  "viewMediaFilesLinks": "Xem file phương tiện, file và liên kết"
 }

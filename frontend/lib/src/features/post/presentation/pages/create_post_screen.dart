@@ -6,7 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../../../configs/injector/injector_conf.dart';
-import '../../../../core/l10n/l10n.dart';
+import 'package:frontend/src/core/l10n/l10n.dart';
 import '../../../../core/utils/failure_converter.dart';
 import '../../../../routes/app_route_path.dart';
 import '../../../auth/presentation/bloc/auth/auth_bloc.dart';

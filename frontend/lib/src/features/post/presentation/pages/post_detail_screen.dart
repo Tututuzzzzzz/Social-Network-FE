@@ -130,11 +130,11 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
       setState(() => _isFollowing = true);
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('Friend request sent')));
+      ).showSnackBar(SnackBar(content: Text(context.l10n.friendRequestSendSuccess)));
     } catch (_) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Failed to send friend request')),
+        SnackBar(content: Text(context.l10n.friendRequestSendError)),
       );
     } finally {
       if (mounted) {
@@ -249,7 +249,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
       setState(() => _isUpdatingPost = false);
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('No changes to update.')));
+      ).showSnackBar(SnackBar(content: Text(context.l10n.noChangesToUpdate)));
       return;
     }
 
@@ -285,7 +285,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
         context.read<PostBloc>().add(PostLocalPostChangedEvent(updatedPost));
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(const SnackBar(content: Text('Post updated.')));
+        ).showSnackBar(SnackBar(content: Text(context.l10n.postUpdated)));
       },
     );
   }
@@ -327,8 +327,8 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
       context: context,
       builder: (dialogContext) {
         return AlertDialog(
-          title: const Text('Delete post?'),
-          content: const Text('This action cannot be undone.'),
+          title: Text(l10n.deletePostTitle),
+          content: Text(l10n.deletePostConfirm),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(dialogContext, false),
@@ -370,7 +370,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
   void _showFeatureSoon() {
     ScaffoldMessenger.of(
       context,
-    ).showSnackBar(const SnackBar(content: Text('Feature in development')));
+    ).showSnackBar(SnackBar(content: Text(context.l10n.featureInDevelopment)));
   }
 
   String _formatFallbackUsername(String authorId) {
@@ -394,10 +394,10 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
     final now = DateTime.now();
     final diff = now.difference(createdAt);
 
-    if (diff.inMinutes < 1) return 'Vua xong';
-    if (diff.inMinutes < 60) return '${diff.inMinutes} phut';
-    if (diff.inHours < 24) return '${diff.inHours} gio';
-    if (diff.inDays < 7) return '${diff.inDays} ngay';
+    if (diff.inMinutes < 1) return context.l10n.timeJustNow;
+    if (diff.inMinutes < 60) return context.l10n.timeMinutesAgo(diff.inMinutes.toString());
+    if (diff.inHours < 24) return context.l10n.timeHoursAgo(diff.inHours.toString());
+    if (diff.inDays < 7) return context.l10n.timeDaysAgo(diff.inDays.toString());
 
     return DateFormat('dd/MM/yyyy').format(createdAt.toLocal());
   }
@@ -621,7 +621,7 @@ class _ScrollableFacebookDetail extends StatelessWidget {
           onPressed: onClose,
         ),
         title: Text(
-          'Bài viết của $authorName',
+          context.l10n.postAuthorTitle(authorName),
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           style: const TextStyle(
@@ -881,7 +881,7 @@ class _FacebookAuthorRow extends StatelessWidget {
                           ? null
                           : onFollowTap,
                       child: Text(
-                        isFollowing ? 'Ban be' : 'Theo doi',
+                        isFollowing ? context.l10n.friendsLabel : context.l10n.followAction,
                         style: const TextStyle(
                           color: Color(0xFF4599FF),
                           fontSize: 15,

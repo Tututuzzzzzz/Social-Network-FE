@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/l10n/l10n.dart';
+import 'package:frontend/src/core/l10n/l10n.dart';
 
 enum ProfileSettingsAction { editProfile, logout }
 

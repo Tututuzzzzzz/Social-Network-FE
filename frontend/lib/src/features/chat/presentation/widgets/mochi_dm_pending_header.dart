@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/src/core/l10n/l10n.dart';
 
 import 'mochi_dm_styles.dart';
 
@@ -18,8 +19,8 @@ class MochiDmPendingHeader extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
       child: Row(
         children: [
-          const Text(
-            'Tin nhan dang cho',
+          Text(
+            context.l10n.pendingMessages,
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w700,
@@ -36,7 +37,7 @@ class MochiDmPendingHeader extends StatelessWidget {
               tapTargetSize: MaterialTapTargetSize.shrinkWrap,
             ),
             child: Text(
-              showPending ? 'Thu gon' : 'Mo rong',
+              showPending ? context.l10n.collapseAction : context.l10n.expandAction,
               style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
             ),
           ),

@@ -8,6 +8,7 @@ import 'package:frontend/src/features/post/domain/usecases/delete_comment_usecas
 import 'package:frontend/src/features/post/domain/usecases/get_comments_usecase.dart';
 import 'package:frontend/src/features/post/domain/usecases/update_comment_usecase.dart';
 import 'package:intl/intl.dart';
+import 'package:frontend/src/core/l10n/l10n.dart';
 import 'comments_sheet/comment_actions.dart';
 import 'comments_sheet/comment_avatar.dart';
 import 'comments_sheet/comment_models.dart';
@@ -114,16 +115,15 @@ class _CommentsSheetState extends State<CommentsSheet>
 
   String _formatCommentAuthor(String authorId) {
     if (widget.currentUserId != null && authorId == widget.currentUserId) {
-      return 'Ban';
+      return context.l10n.youLabel;
     }
-
-    return 'Nguoi dung';
+    return context.l10n.userLabel;
   }
 
   String _resolveCommentAuthorLabel(PostCommentEntity comment) {
     if (widget.currentUserId != null &&
         comment.authorId == widget.currentUserId) {
-      return 'Ban';
+      return context.l10n.youLabel;
     }
 
     final displayName = comment.authorDisplayName?.trim() ?? '';
@@ -173,8 +173,8 @@ class _CommentsSheetState extends State<CommentsSheet>
       result.fold(
         (failure) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Khong the gui comment. Hay thu lai.'),
+            SnackBar(
+              content: Text(context.l10n.submitCommentFailed),
             ),
           );
         },
@@ -247,7 +247,7 @@ class _CommentsSheetState extends State<CommentsSheet>
       result.fold(
         (_) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Khong the cap nhat binh luan.')),
+            SnackBar(content: Text(context.l10n.updateCommentFailed)),
           );
         },
         (updated) {
@@ -261,7 +261,7 @@ class _CommentsSheetState extends State<CommentsSheet>
           });
           _notifyCommentsChanged(nextComments.length);
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Da cap nhat binh luan.')),
+            SnackBar(content: Text(context.l10n.updateCommentSuccess)),
           );
         },
       );
@@ -301,7 +301,7 @@ class _CommentsSheetState extends State<CommentsSheet>
       result.fold(
         (_) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Khong the xoa binh luan.')),
+            SnackBar(content: Text(context.l10n.deleteCommentFailed)),
           );
         },
         (_) {
@@ -325,7 +325,7 @@ class _CommentsSheetState extends State<CommentsSheet>
           _notifyCommentsChanged(removal.remaining.length);
           ScaffoldMessenger.of(
             context,
-          ).showSnackBar(const SnackBar(content: Text('Da xoa binh luan.')));
+          ).showSnackBar(SnackBar(content: Text(context.l10n.deleteCommentSuccess)));
         },
       );
     } finally {
@@ -375,10 +375,10 @@ class _CommentsSheetState extends State<CommentsSheet>
                       padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
                       child: Row(
                         children: [
-                          const Expanded(
+                          Expanded(
                             child: Text(
-                              'Binh luan',
-                              style: TextStyle(
+                              context.l10n.commentsTitle,
+                              style: const TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.w700,
                               ),
@@ -399,10 +399,10 @@ class _CommentsSheetState extends State<CommentsSheet>
                       child: _isLoadingComments && comments.isEmpty
                           ? const Center(child: CircularProgressIndicator())
                           : comments.isEmpty
-                          ? const Center(
+                          ? Center(
                               child: Text(
-                                'Chua co binh luan nao. Hay la nguoi dau tien!',
-                                style: TextStyle(color: Colors.black54),
+                                context.l10n.noCommentsYet,
+                                style: const TextStyle(color: Colors.black54),
                               ),
                             )
                           : ListView.separated(
@@ -531,8 +531,8 @@ class _CommentsSheetState extends State<CommentsSheet>
                                                 },
                                                 child: Text(
                                                   _replyTarget?.id == comment.id
-                                                      ? 'Dang tra loi...'
-                                                      : 'Tra loi',
+                                                      ? context.l10n.replyingStatus
+                                                      : context.l10n.replyAction,
                                                   style: const TextStyle(
                                                     fontSize: 12,
                                                     fontWeight: FontWeight.w600,
@@ -596,7 +596,7 @@ class _CommentsSheetState extends State<CommentsSheet>
                                   children: [
                                     Expanded(
                                       child: Text(
-                                        'Dang tra loi ${_resolveCommentAuthorLabel(replyTarget)}',
+                                        context.l10n.replyingTo(_resolveCommentAuthorLabel(replyTarget)),
                                         style: const TextStyle(
                                           fontSize: 12,
                                           color: Color(0xFF335A8F),
@@ -631,8 +631,8 @@ class _CommentsSheetState extends State<CommentsSheet>
                                     onSubmitted: (_) => _submitComment(),
                                     decoration: InputDecoration(
                                       hintText: replyTarget == null
-                                          ? 'Viet binh luan...'
-                                          : 'Viet tra loi...',
+                                          ? context.l10n.writeCommentHint
+                                          : context.l10n.writeReplyHint,
                                       filled: true,
                                       fillColor: const Color(0xFFF4F4F4),
                                       contentPadding:

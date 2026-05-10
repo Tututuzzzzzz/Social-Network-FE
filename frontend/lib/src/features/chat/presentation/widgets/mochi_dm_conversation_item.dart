@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:frontend/src/core/l10n/l10n.dart';
 
 import '../../domain/entities/chat_entity.dart';
 import '../../../../core/utils/url_normalizer.dart';
@@ -51,7 +52,7 @@ class MochiDmConversationItem extends StatelessWidget {
             backgroundColor: MochiDmStyles.primaryGreen,
             foregroundColor: Colors.white,
             icon: item.isPinned ? Icons.push_pin : Icons.push_pin_outlined,
-            label: item.isPinned ? 'Bo ghim' : 'Ghim',
+            label: item.isPinned ? context.l10n.unpinAction : context.l10n.pinAction,
           ),
           SlidableAction(
             onPressed: (_) => onHiddenToggle(),
@@ -60,14 +61,14 @@ class MochiDmConversationItem extends StatelessWidget {
             icon: item.isHidden
                 ? Icons.visibility_outlined
                 : Icons.visibility_off_outlined,
-            label: item.isHidden ? 'Hien' : 'An',
+            label: item.isHidden ? context.l10n.showAction : context.l10n.hideAction,
           ),
           SlidableAction(
             onPressed: (_) => onDelete(),
             backgroundColor: const Color(0xFFE84545),
             foregroundColor: Colors.white,
             icon: Icons.delete_outline,
-            label: 'Xoa',
+            label: context.l10n.deleteChatAction,
           ),
         ],
       ),

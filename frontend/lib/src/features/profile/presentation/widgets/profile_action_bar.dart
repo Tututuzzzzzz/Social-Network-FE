@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/l10n/l10n.dart';
+import 'package:frontend/src/core/l10n/l10n.dart';
 
 class ProfileActionBar extends StatelessWidget {
   const ProfileActionBar({
@@ -34,7 +34,7 @@ class ProfileActionBar extends StatelessWidget {
                 ? context.l10n.friends
                 : isFriendRequestSent
                 ? context.l10n.friendRequestSent
-                : 'Kết bạn',
+                : context.l10n.addFriendAction,
             icon: isFriend || isFriendRequestSent
                 ? Icons.check_rounded
                 : Icons.person_add_alt_1_rounded,
@@ -54,7 +54,7 @@ class ProfileActionBar extends StatelessWidget {
         const SizedBox(width: 12),
         Expanded(
           child: _ProfileActionButton(
-            label: 'Nhắn tin',
+            label: context.l10n.messageAction,
             icon: Icons.chat_bubble_rounded,
             backgroundColor: Colors.white.withValues(alpha: 0.96),
             foregroundColor: _messageBlue,

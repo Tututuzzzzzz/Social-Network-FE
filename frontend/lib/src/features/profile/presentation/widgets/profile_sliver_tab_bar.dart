@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/src/core/l10n/l10n.dart';
 
 class ProfileSliverTabBar extends StatelessWidget {
   const ProfileSliverTabBar({super.key});
@@ -8,19 +9,19 @@ class ProfileSliverTabBar extends StatelessWidget {
     return SliverPersistentHeader(
       pinned: true,
       delegate: _ProfileTabBarDelegate(
-        const TabBar(
-          labelColor: Color(0xFF20A87B),
-          unselectedLabelColor: Color(0xFF66716D),
-          indicatorColor: Color(0xFF20A87B),
+        TabBar(
+          labelColor: const Color(0xFF20A87B),
+          unselectedLabelColor: const Color(0xFF66716D),
+          indicatorColor: const Color(0xFF20A87B),
           indicatorWeight: 2.5,
-          labelStyle: TextStyle(fontSize: 13, fontWeight: FontWeight.w800),
-          unselectedLabelStyle: TextStyle(
+          labelStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w800),
+          unselectedLabelStyle: const TextStyle(
             fontSize: 13,
             fontWeight: FontWeight.w600,
           ),
           tabs: [
-            Tab(text: 'Bài Viết'),
-            Tab(text: 'Ảnh'),
+            Tab(text: context.l10n.postsLabel),
+            Tab(text: context.l10n.photosLabel),
           ],
         ),
       ),
