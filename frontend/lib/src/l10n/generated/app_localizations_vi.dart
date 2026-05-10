@@ -1002,6 +1002,21 @@ class AppLocalizationsVi extends AppLocalizations {
   String get unknownRecipient => 'Không xác định được người nhận tin nhắn';
 
   @override
+  String get unknownSenderLabel => 'Không xác định';
+
+  @override
+  String get deletedMessageLabel => 'Tin nhắn đã xóa';
+
+  @override
+  String get todayLabel => 'Hôm nay';
+
+  @override
+  String get attachmentLabel => 'Tệp đính kèm';
+
+  @override
+  String get messagePickMediaFailed => 'Không thể chọn hoặc chụp media.';
+
+  @override
   String get startChatting => 'Bắt đầu trò chuyện...';
 
   @override

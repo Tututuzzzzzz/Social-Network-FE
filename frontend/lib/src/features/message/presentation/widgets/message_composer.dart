@@ -31,11 +31,13 @@ class MessageComposer extends StatelessWidget {
           IconButton(
             onPressed: isSending ? null : onPickImage,
             icon: const Icon(Icons.image_outlined),
+            tooltip: context.l10n.mediaLibrary,
             color: const Color(0xFF7A7F87),
           ),
           IconButton(
             onPressed: isSending ? null : onTakePhoto,
             icon: const Icon(Icons.photo_camera_outlined),
+            tooltip: context.l10n.cameraLabel,
             color: const Color(0xFF7A7F87),
           ),
           Expanded(
@@ -54,7 +56,7 @@ class MessageComposer extends StatelessWidget {
                 decoration: InputDecoration(
                   hintText: context.l10n.typeMessageHint,
                   isDense: true,
-                  contentPadding: EdgeInsets.symmetric(horizontal: 16),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 16),
                   border: InputBorder.none,
                 ),
               ),

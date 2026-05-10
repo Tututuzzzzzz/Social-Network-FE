@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/src/core/l10n/l10n.dart';
 
 import '../../../../core/utils/url_normalizer.dart';
 import '../../domain/entities/message_entity.dart';
@@ -37,7 +38,7 @@ class MessageHistoryList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final items = _buildItems(messages);
+    final items = _buildItems(context, messages);
 
     return ListView.separated(
       controller: controller,
@@ -90,7 +91,7 @@ class MessageHistoryList extends StatelessWidget {
                         child: Text(
                           message.author.trim().isNotEmpty
                               ? message.author.trim()
-                              : 'Unknown',
+                              : context.l10n.unknownSenderLabel,
                           style: const TextStyle(
                             fontSize: 12,
                             color: Color(0xFF6B7280),
@@ -114,7 +115,10 @@ class MessageHistoryList extends StatelessWidget {
     );
   }
 
-  List<_MessageListItem> _buildItems(List<MessageLine> messages) {
+  List<_MessageListItem> _buildItems(
+    BuildContext context,
+    List<MessageLine> messages,
+  ) {
     final items = <_MessageListItem>[];
     DateTime? lastDate;
 
@@ -126,7 +130,9 @@ class MessageHistoryList extends StatelessWidget {
         final shouldInsertHeader =
             lastDate == null || !DateUtils.isSameDay(dateOnly, lastDate);
         if (shouldInsertHeader) {
-          items.add(_MessageListItem.header(_formatDateLabel(createdAt)));
+          items.add(
+            _MessageListItem.header(_formatDateLabel(context, createdAt)),
+          );
           lastDate = dateOnly;
         }
       }
@@ -197,11 +203,11 @@ class MessageHistoryList extends StatelessWidget {
     return DateUtils.isSameDay(current, next);
   }
 
-  String _formatDateLabel(DateTime date) {
+  String _formatDateLabel(BuildContext context, DateTime date) {
     final today = DateUtils.dateOnly(DateTime.now());
     final target = DateUtils.dateOnly(date);
     if (DateUtils.isSameDay(today, target)) {
-      return 'Hôm nay';
+      return context.l10n.todayLabel;
     }
 
     final day = date.day.toString().padLeft(2, '0');
@@ -629,7 +635,7 @@ class _MessageBubble extends StatelessWidget {
                   children: [
                     Icon(Icons.block, size: 14, color: displayStyle.color),
                     const SizedBox(width: 6),
-                    Text('Tin nhắn đã xóa', style: displayStyle),
+                    Text(context.l10n.deletedMessageLabel, style: displayStyle),
                   ],
                 ),
               )

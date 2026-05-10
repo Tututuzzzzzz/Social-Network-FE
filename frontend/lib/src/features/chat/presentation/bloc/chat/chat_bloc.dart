@@ -185,7 +185,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
       found = true;
       return item.copyWith(
         messagePreview: text,
-        timeLabel: 'Vừa xong', // Simplistic approach, will be updated properly by remote fetch later
+        timeLabel: 'now', // Presentation maps this token to the active locale.
         unreadCount: isFromMe ? item.unreadCount : item.unreadCount + 1,
       );
     }).toList();

@@ -70,12 +70,20 @@ class _MochiDirectMessagesPageState extends State<MochiDirectMessagesPage> {
 
   String _displayPreview(ChatEntity item) {
     final value = item.messagePreview.trim();
-    return value.isEmpty ? context.l10n.startChatting : value;
+    if (value.isEmpty) {
+      return context.l10n.startChatting;
+    }
+
+    if (value == '[Attachment]' || value == '[attachment]') {
+      return context.l10n.attachmentLabel;
+    }
+
+    return value;
   }
 
   String _displayTimeLabel(ChatEntity item) {
     final value = item.timeLabel.trim();
-    if (value.isEmpty) {
+    if (value.isEmpty || value == 'now' || value == context.l10n.timeNow) {
       return '.${context.l10n.timeNow}';
     }
 

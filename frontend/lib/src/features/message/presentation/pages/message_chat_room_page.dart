@@ -189,8 +189,7 @@ class _MessageChatRoomPageState extends State<MessageChatRoomPage> {
       final recipientId = widget.thread.recipientId.trim();
       if (recipientId.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Khong xac dinh duoc nguoi nhan tin nhan'),
+          SnackBar(content: Text(context.l10n.unknownRecipient),
           ),
         );
         return;
@@ -209,9 +208,9 @@ class _MessageChatRoomPageState extends State<MessageChatRoomPage> {
         return;
       }
 
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Khong the chon anh')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(context.l10n.messagePickMediaFailed)),
+      );
     }
   }
 
@@ -232,7 +231,9 @@ class _MessageChatRoomPageState extends State<MessageChatRoomPage> {
         ? ''
         : (lastLine.content.trim().isNotEmpty
               ? lastLine.content.trim()
-              : (lastLine.media.isNotEmpty ? 'Photo' : lastLine.text.trim()));
+              : (lastLine.media.isNotEmpty
+                    ? context.l10n.attachmentLabel
+                    : lastLine.text.trim()));
     final preview = lastMessage.isNotEmpty
         ? lastMessage
         : (widget.thread.messagePreview.trim().isNotEmpty
@@ -243,7 +244,9 @@ class _MessageChatRoomPageState extends State<MessageChatRoomPage> {
         .map((line) {
           final text = line.content.trim().isNotEmpty
               ? line.content.trim()
-              : (line.media.isNotEmpty ? 'Photo' : line.text);
+              : (line.media.isNotEmpty
+                    ? context.l10n.attachmentLabel
+                    : line.text);
           return '${line.author}: $text';
         })
         .join('\n');
