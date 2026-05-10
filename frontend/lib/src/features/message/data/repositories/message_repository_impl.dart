@@ -5,6 +5,7 @@ import '../../../../core/errors/exceptions.dart';
 import '../models/message_model.dart';
 import '../datasources/message_local_datasource.dart';
 import '../../domain/entities/message_entity.dart';
+import '../../domain/entities/message_media_upload_file.dart';
 import '../../domain/repositories/message_repository.dart';
 import '../datasources/message_remote_datasource.dart';
 
@@ -105,13 +106,15 @@ class MessageRepositoryImpl implements MessageRepository {
   @override
   Future<Either<Failure, MessageActionResultEntity>> sendDirectMedia({
     required String conversationId,
-    required List<Map<String, dynamic>> media,
+    required String recipientId,
+    required List<MessageMediaUploadFile> files,
     String? content,
   }) async {
     try {
       final result = await _remoteDataSource.sendDirectMedia(
         conversationId: conversationId,
-        media: media,
+        recipientId: recipientId,
+        files: files,
         content: content,
       );
       return right(result);
@@ -139,13 +142,13 @@ class MessageRepositoryImpl implements MessageRepository {
   @override
   Future<Either<Failure, MessageActionResultEntity>> sendGroupMedia({
     required String conversationId,
-    required List<Map<String, dynamic>> media,
+    required List<MessageMediaUploadFile> files,
     String? content,
   }) async {
     try {
       final result = await _remoteDataSource.sendGroupMedia(
         conversationId: conversationId,
-        media: media,
+        files: files,
         content: content,
       );
       return right(result);
@@ -247,6 +250,22 @@ class MessageRepositoryImpl implements MessageRepository {
       final result = await _remoteDataSource.markAllMessagesAsRead(
         conversationId: conversationId,
         lastMessageId: lastMessageId,
+      );
+      return right(result);
+    } catch (_) {
+      return left(ServerFailure());
+    }
+  }
+
+  @override
+  Future<Either<Failure, MessageActionResultEntity>> deleteMessage({
+    required String conversationId,
+    required String messageId,
+  }) async {
+    try {
+      final result = await _remoteDataSource.deleteMessage(
+        conversationId: conversationId,
+        messageId: messageId,
       );
       return right(result);
     } catch (_) {

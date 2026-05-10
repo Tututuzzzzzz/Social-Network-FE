@@ -95,10 +95,10 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     final typeLower = type.toLowerCase();
     final hasGroupPayload = conversation['group'] is Map;
     final isGroup = typeLower == 'group' || hasGroupPayload;
-    final recipientId = _extractRecipientId(conversation, isGroup);
-    final senderName = _extractSenderName(conversation, isGroup);
+    final recipientId = _extractRecipientId(conversation, isGroup, currentUserId);
+    final senderName = _extractSenderName(conversation, isGroup, currentUserId);
     final participantCount = _extractParticipantCount(conversation);
-    final avatarUrl = _extractAvatarUrl(conversation, isGroup);
+    final avatarUrl = _extractAvatarUrl(conversation, isGroup, currentUserId);
     final lastMessageRaw = conversation['lastMessage'];
     Map<String, dynamic>? lastMessage;
     if (lastMessageRaw is Map) {
@@ -106,7 +106,7 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     }
 
     final preview = _asText(lastMessage?['content']);
-    final fallbackPreview = preview.isNotEmpty ? preview : 'No messages yet';
+    final fallbackPreview = preview.isNotEmpty ? preview : '';
     final lastTimestamp = _asText(lastMessage?['createdAt']).isNotEmpty
         ? _asText(lastMessage?['createdAt'])
         : _asText(conversation['lastMessageAt']);
@@ -170,7 +170,7 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     return const [];
   }
 
-  String _extractSenderName(Map<String, dynamic> conversation, bool isGroup) {
+  String _extractSenderName(Map<String, dynamic> conversation, bool isGroup, String currentUserId) {
     if (isGroup) {
       final groupRaw = conversation['group'];
       if (groupRaw is Map) {
@@ -190,20 +190,9 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
 
     final participantsRaw = conversation['participants'];
     if (participantsRaw is List && participantsRaw.isNotEmpty) {
-      final candidateIndex = participantsRaw.length > 1 ? 1 : 0;
-      final participantRaw = participantsRaw[candidateIndex];
-      if (participantRaw is Map) {
-        final participant = Map<String, dynamic>.from(participantRaw);
-        final name = _asDisplayName(participant);
-        if (name.isNotEmpty) {
-          return name;
-        }
-      }
-
-      final firstRaw = participantsRaw.first;
-      if (firstRaw is Map) {
-        final first = Map<String, dynamic>.from(firstRaw);
-        final name = _asDisplayName(first);
+      final otherParticipant = _findOtherParticipant(participantsRaw, currentUserId);
+      if (otherParticipant != null) {
+        final name = _asDisplayName(otherParticipant);
         if (name.isNotEmpty) {
           return name;
         }
@@ -213,7 +202,7 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     return 'Conversation';
   }
 
-  String _extractRecipientId(Map<String, dynamic> conversation, bool isGroup) {
+  String _extractRecipientId(Map<String, dynamic> conversation, bool isGroup, String currentUserId) {
     if (isGroup) {
       return '';
     }
@@ -228,20 +217,12 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
       return '';
     }
 
-    final candidateIndex = participantsRaw.length > 1 ? 1 : 0;
-    final candidateRaw = participantsRaw[candidateIndex];
-    if (candidateRaw is Map) {
-      final candidate = Map<String, dynamic>.from(candidateRaw);
-      final id = _extractUserId(candidate);
+    final otherParticipant = _findOtherParticipant(participantsRaw, currentUserId);
+    if (otherParticipant != null) {
+      final id = _extractUserId(otherParticipant);
       if (id.isNotEmpty) {
         return id;
       }
-    }
-
-    final firstRaw = participantsRaw.first;
-    if (firstRaw is Map) {
-      final first = Map<String, dynamic>.from(firstRaw);
-      return _extractUserId(first);
     }
 
     return '';
@@ -293,7 +274,7 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     return 0;
   }
 
-  String _extractAvatarUrl(Map<String, dynamic> conversation, bool isGroup) {
+  String _extractAvatarUrl(Map<String, dynamic> conversation, bool isGroup, String currentUserId) {
     if (isGroup) {
       final groupRaw = conversation['group'];
       if (groupRaw is Map) {
@@ -312,8 +293,13 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
       if (directGroupAvatar.isNotEmpty) {
         return directGroupAvatar;
       }
+
+      // Group has no dedicated avatar — return empty so UI shows initials/icon.
+      // Do NOT fall through to participant-level logic.
+      return '';
     }
 
+    // --- Direct (1:1) conversation only below ---
     final recipientAvatar = _asText(conversation['recipientAvatarUrl']);
     if (recipientAvatar.isNotEmpty) {
       return recipientAvatar;
@@ -321,20 +307,9 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
 
     final participantsRaw = conversation['participants'];
     if (participantsRaw is List && participantsRaw.isNotEmpty) {
-      final candidateIndex = participantsRaw.length > 1 ? 1 : 0;
-      final candidateRaw = participantsRaw[candidateIndex];
-      if (candidateRaw is Map) {
-        final candidate = Map<String, dynamic>.from(candidateRaw);
-        final avatar = _asAvatarUrl(candidate);
-        if (avatar.isNotEmpty) {
-          return avatar;
-        }
-      }
-
-      final firstRaw = participantsRaw.first;
-      if (firstRaw is Map) {
-        final first = Map<String, dynamic>.from(firstRaw);
-        final avatar = _asAvatarUrl(first);
+      final otherParticipant = _findOtherParticipant(participantsRaw, currentUserId);
+      if (otherParticipant != null) {
+        final avatar = _asAvatarUrl(otherParticipant);
         if (avatar.isNotEmpty) {
           return avatar;
         }
@@ -378,6 +353,37 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     }
 
     return '';
+  }
+
+  /// Finds the OTHER participant in a direct conversation (i.e. not the current user).
+  /// Returns the participant as a Map, or null if not found.
+  Map<String, dynamic>? _findOtherParticipant(List<dynamic> participants, String currentUserId) {
+    if (currentUserId.isEmpty) {
+      // Can't distinguish — fallback to old behavior (pick index 1 or 0)
+      final candidateIndex = participants.length > 1 ? 1 : 0;
+      final candidateRaw = participants[candidateIndex];
+      if (candidateRaw is Map) {
+        return Map<String, dynamic>.from(candidateRaw);
+      }
+      return null;
+    }
+
+    // Find the first participant whose ID is NOT the current user
+    for (final participantRaw in participants) {
+      if (participantRaw is! Map) continue;
+      final participant = Map<String, dynamic>.from(participantRaw);
+      final participantId = _extractUserId(participant);
+      if (participantId.isNotEmpty && participantId != currentUserId) {
+        return participant;
+      }
+    }
+
+    // All participants matched current user (shouldn't happen), fallback
+    if (participants.isNotEmpty && participants.first is Map) {
+      return Map<String, dynamic>.from(participants.first as Map);
+    }
+
+    return null;
   }
 
   int _extractParticipantCount(Map<String, dynamic> conversation) {

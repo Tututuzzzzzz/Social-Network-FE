@@ -61,6 +61,9 @@ class ApiConstants {
   static String messagesReadAll(String conversationId) =>
       '/messages/$conversationId/messages/seen';
 
+  static String messageDelete(String conversationId, String messageId) =>
+      '/messages/$conversationId/messages/$messageId';
+
   static String messagesHistory(
     String conversationId, {
     int limit = 30,

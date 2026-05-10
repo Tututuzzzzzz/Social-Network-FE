@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter/foundation.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../../../chat/domain/entities/chat_entity.dart';
 import '../../../../routes/app_route_path.dart';
+import '../../domain/entities/message_media_upload_file.dart';
 import '../bloc/message_bloc.dart';
 import '../bloc/message_event.dart';
 import '../bloc/message_state.dart';
@@ -29,6 +32,7 @@ class _MessageChatRoomPageState extends State<MessageChatRoomPage> {
 
   final TextEditingController _composerController = TextEditingController();
   final ScrollController _historyScrollController = ScrollController();
+  final ImagePicker _imagePicker = ImagePicker();
   double _previousMaxScrollExtentBeforeOlderLoad = 0.0;
   MessageChatRoomState? _previousChatState;
 
@@ -153,9 +157,81 @@ class _MessageChatRoomPageState extends State<MessageChatRoomPage> {
     );
   }
 
+  Future<void> _onPickMediaPressed(ImageSource source) async {
+    try {
+      final image = await _imagePicker.pickImage(
+        source: source,
+        imageQuality: 88,
+      );
+      if (image == null) {
+        return;
+      }
+
+      final file = await _toUploadFile(image);
+      if (!mounted) {
+        return;
+      }
+
+      final content = _composerController.text.trim();
+
+      if (widget.thread.isGroup) {
+        context.read<MessageBloc>().add(
+          SendGroupMediaEvent(
+            conversationId: widget.thread.id,
+            files: [file],
+            content: content.isEmpty ? null : content,
+          ),
+        );
+        return;
+      }
+
+      final recipientId = widget.thread.recipientId.trim();
+      if (recipientId.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Khong xac dinh duoc nguoi nhan tin nhan'),
+          ),
+        );
+        return;
+      }
+
+      context.read<MessageBloc>().add(
+        SendDirectMediaEvent(
+          conversationId: widget.thread.id,
+          recipientId: recipientId,
+          files: [file],
+          content: content.isEmpty ? null : content,
+        ),
+      );
+    } catch (_) {
+      if (!mounted) {
+        return;
+      }
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Khong the chon anh')));
+    }
+  }
+
+  Future<MessageMediaUploadFile> _toUploadFile(XFile image) async {
+    final bytes = kIsWeb ? await image.readAsBytes() : null;
+    return MessageMediaUploadFile(
+      name: image.name.trim().isEmpty ? 'message-image.jpg' : image.name,
+      path: kIsWeb ? null : image.path,
+      bytes: bytes,
+      mimeType: image.mimeType,
+    );
+  }
+
   ChatEntity _buildUpdatedThread(MessageChatRoomState? chatState) {
     final messages = chatState?.messages ?? const <MessageLine>[];
-    final lastMessage = messages.isNotEmpty ? messages.last.text.trim() : '';
+    final lastLine = messages.isNotEmpty ? messages.last : null;
+    final lastMessage = lastLine == null
+        ? ''
+        : (lastLine.content.trim().isNotEmpty
+              ? lastLine.content.trim()
+              : (lastLine.media.isNotEmpty ? 'Photo' : lastLine.text.trim()));
     final preview = lastMessage.isNotEmpty
         ? lastMessage
         : (widget.thread.messagePreview.trim().isNotEmpty
@@ -163,7 +239,12 @@ class _MessageChatRoomPageState extends State<MessageChatRoomPage> {
               : 'Start chatting...');
 
     final fullConversation = messages
-        .map((line) => '${line.author}: ${line.text}')
+        .map((line) {
+          final text = line.content.trim().isNotEmpty
+              ? line.content.trim()
+              : (line.media.isNotEmpty ? 'Photo' : line.text);
+          return '${line.author}: $text';
+        })
         .join('\n');
 
     return widget.thread.copyWith(
@@ -175,6 +256,12 @@ class _MessageChatRoomPageState extends State<MessageChatRoomPage> {
   }
 
   String _resolvePeerAvatarUrl(MessageChatRoomState? chatState) {
+    // For group chats, use the group avatar directly — don't pick a random member's avatar.
+    if (widget.thread.isGroup) {
+      return widget.thread.avatarUrl.trim();
+    }
+
+    // For direct (1:1) chats, try to find the peer's avatar from messages.
     final messages = chatState?.messages ?? const <MessageLine>[];
 
     for (var index = messages.length - 1; index >= 0; index -= 1) {
@@ -296,11 +383,40 @@ class _MessageChatRoomPageState extends State<MessageChatRoomPage> {
                       messages: chatState.messages,
                       accentColor: _accentGreen,
                       peerBubbleColor: _peerBubble,
+                      isGroupChat: widget.thread.isGroup,
+                      currentUserId: chatState.currentUserId,
+                      onReaction: (messageId, emoji, isRemove) {
+                        if (isRemove) {
+                          blocContext.read<MessageBloc>().add(
+                            MessageRemoveReactionRequested(
+                              messageId: messageId,
+                              emoji: emoji,
+                            ),
+                          );
+                        } else {
+                          blocContext.read<MessageBloc>().add(
+                            MessageAddReactionRequested(
+                              messageId: messageId,
+                              emoji: emoji,
+                            ),
+                          );
+                        }
+                      },
+                      onDelete: (messageId) {
+                        blocContext.read<MessageBloc>().add(
+                          MessageDeleteRequested(
+                            conversationId: widget.thread.id,
+                            messageId: messageId,
+                          ),
+                        );
+                      },
                     ),
                   ),
                   MessageComposer(
                     controller: _composerController,
                     onSend: () => _onSendPressed(blocContext),
+                    onPickImage: () => _onPickMediaPressed(ImageSource.gallery),
+                    onTakePhoto: () => _onPickMediaPressed(ImageSource.camera),
                     isSending: isSending,
                     accentColor: _accentGreen,
                     fillColor: _composerFill,

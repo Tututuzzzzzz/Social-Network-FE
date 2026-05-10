@@ -1,6 +1,7 @@
 import 'package:equatable/equatable.dart';
 
 import '../entities/message_entity.dart';
+import '../entities/message_media_upload_file.dart';
 
 class SendTextMessageParams extends Equatable {
   final String conversationId;
@@ -19,17 +20,19 @@ class SendTextMessageParams extends Equatable {
 
 class SendMediaMessageParams extends Equatable {
   final String conversationId;
-  final List<Map<String, dynamic>> media;
+  final String recipientId;
+  final List<MessageMediaUploadFile> files;
   final String? content;
 
   const SendMediaMessageParams({
     required this.conversationId,
-    required this.media,
+    this.recipientId = '',
+    required this.files,
     this.content,
   });
 
   @override
-  List<Object?> get props => [conversationId, media, content];
+  List<Object?> get props => [conversationId, recipientId, files, content];
 }
 
 class SendMessageParams extends Equatable {
@@ -118,4 +121,17 @@ class SaveConversationHistoryCacheParams extends Equatable {
 
   @override
   List<Object?> get props => [conversationId, page];
+}
+
+class DeleteMessageParams extends Equatable {
+  final String conversationId;
+  final String messageId;
+
+  const DeleteMessageParams({
+    required this.conversationId,
+    required this.messageId,
+  });
+
+  @override
+  List<Object?> get props => [conversationId, messageId];
 }

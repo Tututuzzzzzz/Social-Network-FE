@@ -1,6 +1,7 @@
 import '../../../configs/injector/injector_conf.dart';
 import '../../../core/api/api_helper.dart';
 import '../../../core/cache/secure_local_storage.dart';
+import '../../../core/realtime/realtime_socket_service.dart';
 import '../data/datasources/chat_local_datasource.dart';
 import '../data/datasources/chat_remote_datasource.dart';
 import '../data/repositories/chat_repository_impl.dart';
@@ -13,7 +14,10 @@ class ChatDependency {
 
   static void init() {
     if (!getIt.isRegistered<ChatBloc>()) {
-      getIt.registerFactory(() => ChatBloc(getIt<FetchChatItemsUseCase>()));
+      getIt.registerFactory(() => ChatBloc(
+        getIt<FetchChatItemsUseCase>(),
+        getIt<RealtimeSocketService>(),
+      ));
     }
 
     if (!getIt.isRegistered<FetchChatItemsUseCase>()) {

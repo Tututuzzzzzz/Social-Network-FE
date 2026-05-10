@@ -20,6 +20,7 @@ class MessageChatRoomState extends MessageState {
   final bool hasMoreHistory;
   final String? nextCursor;
   final String? errorMessage;
+  final String currentUserId;
   final int errorVersion;
   final int scrollToLatestVersion;
   final int restoreScrollVersion;
@@ -33,6 +34,7 @@ class MessageChatRoomState extends MessageState {
     required this.hasMoreHistory,
     this.nextCursor,
     this.errorMessage,
+    this.currentUserId = '',
     this.errorVersion = 0,
     this.scrollToLatestVersion = 0,
     this.restoreScrollVersion = 0,
@@ -58,6 +60,7 @@ class MessageChatRoomState extends MessageState {
     bool? hasMoreHistory,
     String? nextCursor,
     String? errorMessage,
+    String? currentUserId,
     bool clearError = false,
     int? errorVersion,
     int? scrollToLatestVersion,
@@ -78,6 +81,7 @@ class MessageChatRoomState extends MessageState {
       hasMoreHistory: hasMoreHistory ?? this.hasMoreHistory,
       nextCursor: nextCursor ?? this.nextCursor,
       errorMessage: resolvedErrorMessage,
+      currentUserId: currentUserId ?? this.currentUserId,
       errorVersion: errorVersion ?? this.errorVersion,
       scrollToLatestVersion:
           scrollToLatestVersion ?? this.scrollToLatestVersion,
@@ -95,6 +99,7 @@ class MessageChatRoomState extends MessageState {
     hasMoreHistory,
     nextCursor,
     errorMessage,
+    currentUserId,
     errorVersion,
     scrollToLatestVersion,
     restoreScrollVersion,
@@ -161,8 +166,13 @@ class MessageLine extends Equatable {
   final String senderId;
   final String senderAvatarUrl;
   final String author;
-  final String text;
+  final String content;
+  final String text; // Deprecated: use content instead
+  final List<MessageMediaEntity> media;
   final bool fromMe;
+  final bool isDeleted;
+  final List<Map<String, dynamic>> reactions;
+  final List<MessageReadByEntity> readBy;
   final DateTime? createdAt;
 
   const MessageLine({
@@ -170,10 +180,15 @@ class MessageLine extends Equatable {
     this.senderId = '',
     this.senderAvatarUrl = '',
     required this.author,
-    required this.text,
+    this.content = '',
+    String? text,
+    this.media = const [],
     required this.fromMe,
+    this.isDeleted = false,
+    this.reactions = const [],
+    this.readBy = const [],
     this.createdAt,
-  });
+  }) : text = text ?? content;
 
   @override
   List<Object?> get props => [
@@ -181,8 +196,42 @@ class MessageLine extends Equatable {
     senderId,
     senderAvatarUrl,
     author,
-    text,
+    content,
+    media,
     fromMe,
+    isDeleted,
+    reactions,
+    readBy,
     createdAt,
   ];
+
+  MessageLine copyWith({
+    String? id,
+    String? senderId,
+    String? senderAvatarUrl,
+    String? author,
+    String? content,
+    String? text,
+    List<MessageMediaEntity>? media,
+    bool? fromMe,
+    bool? isDeleted,
+    List<Map<String, dynamic>>? reactions,
+    List<MessageReadByEntity>? readBy,
+    DateTime? createdAt,
+  }) {
+    return MessageLine(
+      id: id ?? this.id,
+      senderId: senderId ?? this.senderId,
+      senderAvatarUrl: senderAvatarUrl ?? this.senderAvatarUrl,
+      author: author ?? this.author,
+      content: content ?? this.content,
+      text: text ?? this.text,
+      media: media ?? this.media,
+      fromMe: fromMe ?? this.fromMe,
+      isDeleted: isDeleted ?? this.isDeleted,
+      reactions: reactions ?? this.reactions,
+      readBy: readBy ?? this.readBy,
+      createdAt: createdAt ?? this.createdAt,
+    );
+  }
 }

@@ -5,6 +5,8 @@ class MessageComposer extends StatelessWidget {
     super.key,
     required this.controller,
     required this.onSend,
+    required this.onPickImage,
+    required this.onTakePhoto,
     required this.isSending,
     required this.accentColor,
     required this.fillColor,
@@ -12,6 +14,8 @@ class MessageComposer extends StatelessWidget {
 
   final TextEditingController controller;
   final VoidCallback onSend;
+  final VoidCallback onPickImage;
+  final VoidCallback onTakePhoto;
   final bool isSending;
   final Color accentColor;
   final Color fillColor;
@@ -24,12 +28,12 @@ class MessageComposer extends StatelessWidget {
       child: Row(
         children: [
           IconButton(
-            onPressed: () {},
+            onPressed: isSending ? null : onPickImage,
             icon: const Icon(Icons.image_outlined),
             color: const Color(0xFF7A7F87),
           ),
           IconButton(
-            onPressed: () {},
+            onPressed: isSending ? null : onTakePhoto,
             icon: const Icon(Icons.photo_camera_outlined),
             color: const Color(0xFF7A7F87),
           ),

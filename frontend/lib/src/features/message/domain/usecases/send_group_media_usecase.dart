@@ -18,7 +18,7 @@ class SendGroupMediaUseCase
   ) {
     return _repository.sendGroupMedia(
       conversationId: params.conversationId,
-      media: params.media,
+      files: params.files,
       content: params.content,
     );
   }

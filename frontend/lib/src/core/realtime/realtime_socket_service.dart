@@ -14,6 +14,8 @@ class SocketEvents {
 
   static const String connected = 'connected';
   static const String messageNew = 'message:new';
+  static const String messageDeleted = 'message:deleted';
+  static const String messageReaction = 'message:reaction';
   static const String messageSeen = 'message:seen';
   static const String conversationSeen = 'conversation:seen';
   static const String notificationNew = 'notification:new';
@@ -47,6 +49,10 @@ class RealtimeSocketService {
 
   final _messageNewController =
       StreamController<Map<String, dynamic>>.broadcast();
+  final _messageDeletedController =
+      StreamController<Map<String, dynamic>>.broadcast();
+  final _messageReactionController =
+      StreamController<Map<String, dynamic>>.broadcast();
   final _messageSeenController =
       StreamController<Map<String, dynamic>>.broadcast();
   final _conversationSeenController =
@@ -62,6 +68,14 @@ class RealtimeSocketService {
   /// Stream khi có tin nhắn mới.
   Stream<Map<String, dynamic>> get messageNewStream =>
       _messageNewController.stream;
+
+  /// Stream khi tin nhắn bị xóa.
+  Stream<Map<String, dynamic>> get messageDeletedStream =>
+      _messageDeletedController.stream;
+
+  /// Stream khi có reaction mới trên tin nhắn.
+  Stream<Map<String, dynamic>> get messageReactionStream =>
+      _messageReactionController.stream;
 
   /// Stream khi tin nhắn được đọc.
   Stream<Map<String, dynamic>> get messageSeenStream =>
@@ -158,6 +172,8 @@ class RealtimeSocketService {
   void dispose() {
     disconnect();
     _messageNewController.close();
+    _messageDeletedController.close();
+    _messageReactionController.close();
     _messageSeenController.close();
     _conversationSeenController.close();
     _notificationNewController.close();
@@ -260,6 +276,14 @@ class RealtimeSocketService {
       _safeAddMap(_messageNewController, payload);
     });
 
+    _socket?.on(SocketEvents.messageDeleted, (payload) {
+      _safeAddMap(_messageDeletedController, payload);
+    });
+
+    _socket?.on(SocketEvents.messageReaction, (payload) {
+      _safeAddMap(_messageReactionController, payload);
+    });
+
     _socket?.on(SocketEvents.messageSeen, (payload) {
       _safeAddMap(_messageSeenController, payload);
     });
@@ -297,12 +321,31 @@ class RealtimeSocketService {
 
     // Socket.IO trên Flutter Web đôi khi wrap payload thành List([{...}]).
     // Unwrap phần tử đầu tiên nếu cần.
-    final dynamic data =
-        (payload is List && payload.isNotEmpty) ? payload.first : payload;
+    final dynamic data = (payload is List && payload.isNotEmpty)
+        ? payload.first
+        : payload;
 
     if (data is Map) {
-      controller.add(Map<String, dynamic>.from(data));
+      final normalized = _normalizeSocketValue(data);
+      if (normalized is Map<String, dynamic>) {
+        controller.add(normalized);
+      }
     }
+  }
+
+  dynamic _normalizeSocketValue(dynamic value) {
+    if (value is Map) {
+      return value.map(
+        (key, nestedValue) =>
+            MapEntry(key.toString(), _normalizeSocketValue(nestedValue)),
+      );
+    }
+
+    if (value is List) {
+      return value.map(_normalizeSocketValue).toList();
+    }
+
+    return value;
   }
 
   // ── Private: JWT decode ──────────────────────────────
@@ -354,8 +397,7 @@ class RealtimeSocketService {
       _socket = null;
       _coreListenersBound = false;
 
-      final refreshToken =
-          await _secureLocalStorage.load(key: 'refresh_token');
+      final refreshToken = await _secureLocalStorage.load(key: 'refresh_token');
       if (refreshToken.trim().isEmpty) {
         logger.e('Socket refresh: refresh token rỗng, không thể refresh');
         _refreshCompleter!.complete(false);

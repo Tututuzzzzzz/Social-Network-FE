@@ -20,7 +20,7 @@ class _ConversationManagementPageState
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final onSurface = theme.colorScheme.onSurface;
-    final surfaceContainer = onSurface.withOpacity(0.1);
+    final surfaceContainer = onSurface.withValues(alpha: 0.1);
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
@@ -155,7 +155,7 @@ class _ConversationManagementPageState
 
   Widget _buildActionButton(IconData icon, String label, BuildContext context, {VoidCallback? onTap}) {
     final onSurface = Theme.of(context).colorScheme.onSurface;
-    final surfaceContainer = onSurface.withOpacity(0.1);
+    final surfaceContainer = onSurface.withValues(alpha: 0.1);
     return GestureDetector(
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
@@ -193,7 +193,7 @@ class _ConversationManagementPageState
         child: Text(
           title,
           style: TextStyle(
-            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
             fontSize: 14,
             fontWeight: FontWeight.w500,
           ),
