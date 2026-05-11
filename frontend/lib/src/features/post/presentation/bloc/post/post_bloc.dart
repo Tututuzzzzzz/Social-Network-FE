@@ -7,7 +7,6 @@ import '../../../../../core/utils/failure_converter.dart';
 import '../../../../../core/utils/logger.dart';
 import '../../../domain/entities/post_entity.dart';
 import '../../../domain/entities/post_comment_entity.dart';
-import '../../../domain/utils/post_list_mutations.dart';
 import '../../../domain/usecases/create_post_usecase.dart';
 import '../../../domain/usecases/delete_post_usecase.dart';
 import '../../../domain/usecases/get_post_usecase.dart';
@@ -109,10 +108,10 @@ class PostBloc extends Bloc<PostEvent, PostState> {
 
     final currentUserId = await _resolveCurrentUserId();
     if (previousPosts.isNotEmpty && currentUserId.isNotEmpty) {
-      final optimisticPosts = togglePostLikeInList(
-        posts: previousPosts,
-        postId: event.postId,
-        currentUserId: currentUserId,
+      final optimisticPosts = _toggleLikeLocally(
+        previousPosts,
+        event.postId,
+        currentUserId,
       );
 
       if (optimisticPosts != null) {
@@ -137,7 +136,7 @@ class PostBloc extends Bloc<PostEvent, PostState> {
       (updatedPost) {
         final posts = _currentPosts;
         if (posts.isNotEmpty) {
-          _emitLoadedPosts(emit, replacePostInList(posts, updatedPost));
+          _emitLoadedPosts(emit, _replacePost(posts, updatedPost));
           return;
         }
 
@@ -221,7 +220,7 @@ class PostBloc extends Bloc<PostEvent, PostState> {
     final posts = _currentPosts;
     if (posts.isEmpty || event.post.id.trim().isEmpty) return;
 
-    final nextPosts = replacePostInList(posts, event.post);
+    final nextPosts = _replacePost(posts, event.post);
     if (!identical(nextPosts, posts)) {
       _emitLoadedPosts(emit, nextPosts);
     }
@@ -239,6 +238,46 @@ class PostBloc extends Bloc<PostEvent, PostState> {
   Future<String> _resolveCurrentUserId() async {
     final storedUserId = await _secureLocalStorage.load(key: 'user_id');
     return storedUserId.trim();
+  }
+
+  List<PostEntity>? _toggleLikeLocally(
+    List<PostEntity> posts,
+    String postId,
+    String currentUserId,
+  ) {
+    var found = false;
+
+    final updatedPosts = posts.map((post) {
+      if (post.id != postId) {
+        return post;
+      }
+
+      found = true;
+      final likes = List<String>.from(post.likes);
+      if (likes.contains(currentUserId)) {
+        likes.remove(currentUserId);
+      } else {
+        likes.add(currentUserId);
+      }
+
+      return post.copyWith(likes: likes);
+    }).toList();
+
+    return found ? updatedPosts : null;
+  }
+
+  List<PostEntity> _replacePost(
+    List<PostEntity> posts,
+    PostEntity updatedPost,
+  ) {
+    var found = false;
+    final nextPosts = posts.map((post) {
+      if (post.id != updatedPost.id) return post;
+      found = true;
+      return updatedPost;
+    }).toList();
+
+    return found ? nextPosts : posts;
   }
 
   List<PostEntity> _applyPostUpdate(

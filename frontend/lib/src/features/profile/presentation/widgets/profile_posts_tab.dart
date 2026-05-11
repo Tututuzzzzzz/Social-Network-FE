@@ -54,9 +54,7 @@ class _ProfilePostsTabState extends State<ProfilePostsTab> {
       return;
     }
 
-    context.read<ProfileBloc>().add(
-      ProfilePostLikeToggleEvent(post.id, currentUserId: widget.currentUserId),
-    );
+    context.read<ProfileBloc>().add(ProfilePostLikeToggleEvent(post.id));
   }
 
   Future<void> _openCommentsSheet(PostEntity post) async {
@@ -83,8 +81,8 @@ class _ProfilePostsTabState extends State<ProfilePostsTab> {
   Future<void> _openPostDetail(PostEntity post) async {
     await Navigator.of(context).push<bool>(
       MaterialPageRoute<bool>(
-        builder: (_) => BlocProvider.value(
-          value: getIt<PostBloc>(),
+        builder: (_) => BlocProvider(
+          create: (_) => getIt<PostBloc>(),
           child: PostDetailScreen(
             initialPost: post,
             currentUserId: widget.currentUserId.trim().isEmpty

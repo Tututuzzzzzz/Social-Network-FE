@@ -10,7 +10,6 @@ import '../../../../chat/domain/usecases/usecase_params.dart'
 import '../../../../friend/domain/usecases/get_all_friend_ids.dart';
 import '../../../../friend/domain/usecases/send_friend_request.dart';
 import '../../../../post/domain/entities/post_entity.dart';
-import '../../../../post/domain/utils/post_list_mutations.dart';
 import '../../../../post/domain/usecases/toggle_like_post_usecase.dart';
 import '../../../domain/entities/profile_entity.dart';
 import '../../../domain/usecases/get_profile_usecase.dart';
@@ -112,50 +111,21 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
       return;
     }
 
-    final previousPosts = currentState.posts;
-    final currentUserId = event.currentUserId.trim();
-
-    if (previousPosts.isNotEmpty && currentUserId.isNotEmpty) {
-      final optimisticPosts = togglePostLikeInList(
-        posts: previousPosts,
-        postId: event.postId,
-        currentUserId: currentUserId,
-      );
-
-      if (optimisticPosts != null) {
-        emit(
-          currentState.copyWith(
-            posts: optimisticPosts,
-            clearActionErrorMessage: true,
-          ),
-        );
-      }
-    }
-
     final result = await _toggleLikePostUseCase.call(
       ToggleLikePostParams(postId: event.postId),
     );
 
     result.fold(
-      (failure) {
-        final latestState = state;
-        emit(
-          (latestState is ProfileLoadedState ? latestState : currentState)
-              .copyWith(
-                posts: previousPosts,
-                actionErrorMessage: mapFailureToMessage(failure),
-              ),
-        );
-      },
+      (failure) => emit(
+        currentState.copyWith(actionErrorMessage: mapFailureToMessage(failure)),
+      ),
       (updatedPost) {
-        final latestState = state;
-        final loadedState = latestState is ProfileLoadedState
-            ? latestState
-            : currentState;
-        final updatedPosts = replacePostInList(loadedState.posts, updatedPost);
+        final updatedPosts = currentState.posts
+            .map((post) => post.id == updatedPost.id ? updatedPost : post)
+            .toList();
 
         emit(
-          loadedState.copyWith(
+          currentState.copyWith(
             posts: updatedPosts,
             clearActionErrorMessage: true,
           ),
