@@ -56,6 +56,9 @@
   "addAccountSoon": "Tính năng thêm tài khoản sẽ sớm được ra mắt.",
   "settingsAndActivity": "Cài đặt và hoạt động",
   "profileSettingsTitle": "Cài Đặt",
+  "profileLanguageTitle": "Ngôn ngữ",
+  "languageVietnamese": "Tiếng Việt",
+  "languageEnglish": "English",
   "logoutAction": "Đăng xuất",
   "logoutFailed": "Đăng xuất thất bại",
   "archive": "Kho lưu trữ",
@@ -120,6 +123,14 @@
   "searchPlaces": "Địa điểm",
   "searchNoResults": "Không tìm thấy kết quả",
   "searchSeeAll": "Xem tất cả",
+  "clearAllAction": "Xóa tất cả",
+  "seeMoreAction": "Xem thêm",
+  "searchResultsCount": "Kết quả tìm kiếm ({count})",
+  "@searchResultsCount": {
+    "placeholders": {
+      "count": {}
+    }
+  },
   "leaveGroup": "Rời nhóm",
   "lastAdminCannotLeave": "Bạn là quản trị viên cuối cùng. Hãy chuyển quyền quản trị trước khi rời nhóm.",
   "groupChatFallback": "Nhóm chat",
@@ -528,6 +539,9 @@
   "muteNotificationsAction": "Tắt thông báo",
   "customizationSection": "Tùy chỉnh",
   "themeAction": "Chủ đề",
+  "themeModeLabel": "Chế độ sáng/tối",
+  "themeLight": "Sáng",
+  "themeDark": "Tối",
   "nicknameAction": "Biệt danh",
   "otherActionsSection": "Hành động khác",
   "viewMediaFilesLinks": "Xem file phương tiện, file và liên kết"

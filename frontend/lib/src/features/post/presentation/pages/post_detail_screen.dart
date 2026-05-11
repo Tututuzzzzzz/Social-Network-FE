@@ -1,12 +1,15 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:frontend/src/configs/injector/injector_conf.dart';
 import 'package:frontend/src/core/cache/secure_local_storage.dart';
 import 'package:frontend/src/core/l10n/l10n.dart';
+import 'package:frontend/src/core/theme/app_colors.dart';
 import 'package:frontend/src/core/utils/failure_converter.dart';
+import 'package:frontend/src/routes/app_route_path.dart';
 import 'package:frontend/src/features/friend/data/repositories/friend_repository_impl.dart';
 import 'package:frontend/src/features/friend/domain/usecases/send_friend_request.dart';
 import 'package:frontend/src/features/post/domain/entities/post_entity.dart';
@@ -170,6 +173,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
         initialPost: _post,
         currentUserId: _currentUserId.isEmpty ? null : _currentUserId,
         onCommentsChanged: _syncPostComments,
+        onAuthorProfileTap: _openProfileFromComments,
       ),
     );
   }
@@ -373,6 +377,41 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
     ).showSnackBar(SnackBar(content: Text(context.l10n.featureInDevelopment)));
   }
 
+  void _openAuthorProfile() {
+    final authorId = _post.authorId.trim();
+    if (authorId.isEmpty) {
+      return;
+    }
+
+    final router = GoRouter.of(context);
+    Navigator.of(context, rootNavigator: true).pop();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      router.pushNamed(
+        AppRoutes.otherProfile.name,
+        pathParameters: {'userId': authorId},
+      );
+    });
+  }
+
+  void _openProfileFromComments(String authorId) {
+    final normalizedAuthorId = authorId.trim();
+    if (normalizedAuthorId.isEmpty) {
+      return;
+    }
+
+    final router = GoRouter.of(context);
+    Navigator.of(context).pop();
+    Navigator.of(context, rootNavigator: true).pop();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      router.pushNamed(
+        AppRoutes.otherProfile.name,
+        pathParameters: {'userId': normalizedAuthorId},
+      );
+    });
+  }
+
   String _formatFallbackUsername(String authorId) {
     if (authorId.isEmpty) return 'user';
     final raw = authorId.replaceAll(RegExp(r'[^a-zA-Z0-9]'), '').toLowerCase();
@@ -452,6 +491,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
               onLike: _toggleLike,
               onComment: () => _openCommentsSheet(),
               onShare: _showFeatureSoon,
+              onAuthorTap: _openAuthorProfile,
             )
           : _ScrollableFacebookDetail(
               post: post,
@@ -470,6 +510,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
               onLike: _toggleLike,
               onComment: () => _openCommentsSheet(),
               onShare: _showFeatureSoon,
+              onAuthorTap: _openAuthorProfile,
             ),
     );
   }
@@ -506,6 +547,7 @@ class _SingleImageFacebookDetail extends StatelessWidget {
     required this.onLike,
     required this.onComment,
     required this.onShare,
+    required this.onAuthorTap,
   });
 
   final PostEntity post;
@@ -520,11 +562,13 @@ class _SingleImageFacebookDetail extends StatelessWidget {
   final VoidCallback onLike;
   final VoidCallback onComment;
   final VoidCallback onShare;
+  final VoidCallback onAuthorTap;
 
   @override
   Widget build(BuildContext context) {
+    final colors = AppColors.of(context);
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: colors.mediaBackground,
       body: Stack(
         fit: StackFit.expand,
         children: [
@@ -536,7 +580,7 @@ class _SingleImageFacebookDetail extends StatelessWidget {
                   child: _FacebookImage(
                     imageUrl: imageUrl,
                     fit: BoxFit.contain,
-                    backgroundColor: Colors.black,
+                    backgroundColor: colors.mediaBackground,
                   ),
                 ),
               ),
@@ -550,6 +594,7 @@ class _SingleImageFacebookDetail extends StatelessWidget {
                 onLike: onLike,
                 onComment: onComment,
                 onShare: onShare,
+                onAuthorTap: onAuthorTap,
               ),
             ],
           ),
@@ -583,6 +628,7 @@ class _ScrollableFacebookDetail extends StatelessWidget {
     required this.onLike,
     required this.onComment,
     required this.onShare,
+    required this.onAuthorTap,
   });
 
   final PostEntity post;
@@ -601,38 +647,40 @@ class _ScrollableFacebookDetail extends StatelessWidget {
   final VoidCallback onLike;
   final VoidCallback onComment;
   final VoidCallback onShare;
+  final VoidCallback onAuthorTap;
 
   @override
   Widget build(BuildContext context) {
     final showFollow =
         currentUserId.isNotEmpty && currentUserId != post.authorId;
+    final colors = AppColors.of(context);
 
     return Scaffold(
-      backgroundColor: const Color(0xFF242526),
+      backgroundColor: colors.postDetailSurface,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF242526),
-        foregroundColor: Colors.white,
+        backgroundColor: colors.postDetailSurface,
+        foregroundColor: colors.postDetailText,
         surfaceTintColor: Colors.transparent,
         elevation: 1,
-        shadowColor: Colors.black,
+        shadowColor: colors.mediaBackground,
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(Icons.close, color: Colors.white, size: 28),
+          icon: Icon(Icons.close, color: colors.postDetailText, size: 28),
           onPressed: onClose,
         ),
         title: Text(
           context.l10n.postAuthorTitle(authorName),
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
-          style: const TextStyle(
-            color: Colors.white,
+          style: TextStyle(
+            color: colors.postDetailText,
             fontSize: 18,
             fontWeight: FontWeight.w800,
           ),
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.more_horiz, color: Colors.white),
+            icon: Icon(Icons.more_horiz, color: colors.postDetailText),
             onPressed: onMore,
           ),
         ],
@@ -641,7 +689,7 @@ class _ScrollableFacebookDetail extends StatelessWidget {
         padding: EdgeInsets.zero,
         children: [
           Container(
-            color: const Color(0xFF242526),
+            color: colors.postDetailSurface,
             padding: const EdgeInsets.fromLTRB(14, 14, 14, 12),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -655,13 +703,14 @@ class _ScrollableFacebookDetail extends StatelessWidget {
                   sendingFollowRequest: sendingFollowRequest,
                   dark: true,
                   onFollowTap: onFollowTap,
+                  onAuthorTap: onAuthorTap,
                 ),
                 if ((post.content ?? '').trim().isNotEmpty) ...[
                   const SizedBox(height: 12),
                   Text(
                     post.content!.trim(),
-                    style: const TextStyle(
-                      color: Color(0xFFE4E6EB),
+                    style: TextStyle(
+                      color: colors.postDetailSubtleText,
                       fontSize: 16,
                       height: 1.28,
                     ),
@@ -682,11 +731,11 @@ class _ScrollableFacebookDetail extends StatelessWidget {
             ),
           ),
           for (final imageUrl in imageUrls) ...[
-            Container(height: 8, color: const Color(0xFF18191A)),
+            Container(height: 8, color: colors.postDetailDivider),
             _FacebookImage(
               imageUrl: imageUrl,
               fit: BoxFit.contain,
-              backgroundColor: Colors.black,
+              backgroundColor: colors.mediaBackground,
             ),
           ],
         ],
@@ -703,6 +752,7 @@ class _DarkTopControls extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = AppColors.of(context);
     return SafeArea(
       bottom: false,
       child: Padding(
@@ -710,12 +760,16 @@ class _DarkTopControls extends StatelessWidget {
         child: Row(
           children: [
             IconButton(
-              icon: const Icon(Icons.close, color: Colors.white, size: 30),
+              icon: Icon(Icons.close, color: colors.postDetailText, size: 30),
               onPressed: onClose,
             ),
             const Spacer(),
             IconButton(
-              icon: const Icon(Icons.more_horiz, color: Colors.white, size: 30),
+              icon: Icon(
+                Icons.more_horiz,
+                color: colors.postDetailText,
+                size: 30,
+              ),
               onPressed: onMore,
             ),
           ],
@@ -736,6 +790,7 @@ class _SingleImagePostInfo extends StatelessWidget {
     required this.onLike,
     required this.onComment,
     required this.onShare,
+    required this.onAuthorTap,
   });
 
   final PostEntity post;
@@ -747,9 +802,11 @@ class _SingleImagePostInfo extends StatelessWidget {
   final VoidCallback onLike;
   final VoidCallback onComment;
   final VoidCallback onShare;
+  final VoidCallback onAuthorTap;
 
   @override
   Widget build(BuildContext context) {
+    final colors = AppColors.of(context);
     return SafeArea(
       top: false,
       child: Container(
@@ -759,9 +816,9 @@ class _SingleImagePostInfo extends StatelessWidget {
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              Colors.black.withValues(alpha: 0.0),
-              Colors.black.withValues(alpha: 0.84),
-              Colors.black,
+              colors.mediaBackground.withValues(alpha: 0.0),
+              colors.mediaBackground.withValues(alpha: 0.84),
+              colors.mediaBackground,
             ],
           ),
         ),
@@ -770,28 +827,47 @@ class _SingleImagePostInfo extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(
-              authorName,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 17,
-                fontWeight: FontWeight.w800,
-              ),
+            Row(
+              children: [
+                _PostAuthorAvatar(
+                  post: post,
+                  authorName: authorName,
+                  onTap: onAuthorTap,
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: GestureDetector(
+                    onTap: onAuthorTap,
+                    child: Text(
+                      authorName,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: colors.postDetailText,
+                        fontSize: 17,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 2),
             Row(
               children: [
                 Text(
                   timeText,
-                  style: const TextStyle(
-                    color: Color(0xFFDADDE1),
+                  style: TextStyle(
+                    color: colors.postDetailSubtleText,
                     fontSize: 13,
                   ),
                 ),
                 const SizedBox(width: 6),
-                const Icon(Icons.public, color: Color(0xFFDADDE1), size: 13),
+                Icon(
+                  Icons.public,
+                  color: colors.postDetailSubtleText,
+                  size: 13,
+                ),
               ],
             ),
             if ((post.content ?? '').trim().isNotEmpty) ...[
@@ -800,8 +876,8 @@ class _SingleImagePostInfo extends StatelessWidget {
                 post.content!.trim(),
                 maxLines: 3,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  color: Colors.white,
+                style: TextStyle(
+                  color: colors.postDetailText,
                   fontSize: 15,
                   height: 1.28,
                 ),
@@ -835,6 +911,7 @@ class _FacebookAuthorRow extends StatelessWidget {
     required this.sendingFollowRequest,
     required this.dark,
     required this.onFollowTap,
+    required this.onAuthorTap,
   });
 
   final PostEntity post;
@@ -845,16 +922,23 @@ class _FacebookAuthorRow extends StatelessWidget {
   final bool sendingFollowRequest;
   final bool dark;
   final VoidCallback onFollowTap;
+  final VoidCallback onAuthorTap;
 
   @override
   Widget build(BuildContext context) {
-    final primary = dark ? Colors.white : Colors.black;
-    final secondary = dark ? const Color(0xFFB0B3B8) : Colors.black54;
+    final colors = AppColors.of(context);
+    final primary = dark ? colors.postDetailText : colors.textPrimary;
+    final secondary =
+        dark ? colors.postDetailSubtleText : colors.textSecondary;
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _PostAuthorAvatar(post: post, authorName: authorName),
+        _PostAuthorAvatar(
+          post: post,
+          authorName: authorName,
+          onTap: onAuthorTap,
+        ),
         const SizedBox(width: 10),
         Expanded(
           child: Column(
@@ -863,14 +947,17 @@ class _FacebookAuthorRow extends StatelessWidget {
               Row(
                 children: [
                   Flexible(
-                    child: Text(
-                      authorName,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        color: primary,
-                        fontSize: 15,
-                        fontWeight: FontWeight.w800,
+                    child: GestureDetector(
+                      onTap: onAuthorTap,
+                      child: Text(
+                        authorName,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: primary,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w800,
+                        ),
                       ),
                     ),
                   ),
@@ -881,9 +968,9 @@ class _FacebookAuthorRow extends StatelessWidget {
                           ? null
                           : onFollowTap,
                       child: Text(
-                        isFollowing ? context.l10n.friendsLabel : context.l10n.followAction,
-                        style: const TextStyle(
-                          color: Color(0xFF4599FF),
+                        isFollowing ? context.l10n.friendsLabel : "",
+                        style: TextStyle(
+                          color: AppColors.of(context).postDetailLink,
                           fontSize: 15,
                           fontWeight: FontWeight.w800,
                         ),
@@ -912,31 +999,41 @@ class _FacebookAuthorRow extends StatelessWidget {
 }
 
 class _PostAuthorAvatar extends StatelessWidget {
-  const _PostAuthorAvatar({required this.post, required this.authorName});
+  const _PostAuthorAvatar({
+    required this.post,
+    required this.authorName,
+    this.onTap,
+  });
 
   final PostEntity post;
   final String authorName;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
+    final colors = AppColors.of(context);
     final avatarUrl = post.authorAvatarUrl?.trim() ?? '';
     final fallback = authorName.trim().isEmpty
         ? '?'
         : authorName.trim().characters.first.toUpperCase();
 
-    return CircleAvatar(
-      radius: 22,
-      backgroundColor: const Color(0xFF3A3B3C),
-      backgroundImage: avatarUrl.isNotEmpty ? NetworkImage(avatarUrl) : null,
-      child: avatarUrl.isEmpty
-          ? Text(
-              fallback,
-              style: const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.w800,
-              ),
-            )
-          : null,
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: CircleAvatar(
+        radius: 22,
+        backgroundColor: colors.avatarPlaceholder,
+        backgroundImage: avatarUrl.isNotEmpty ? NetworkImage(avatarUrl) : null,
+        child: avatarUrl.isEmpty
+            ? Text(
+                fallback,
+                style: TextStyle(
+                  color: colors.postDetailText,
+                  fontWeight: FontWeight.w800,
+                ),
+              )
+            : null,
+      ),
     );
   }
 }
@@ -964,14 +1061,15 @@ class _FacebookActionBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = dark ? const Color(0xFFE4E6EB) : const Color(0xFF050505);
+    final colors = AppColors.of(context);
+    final color = dark ? colors.postDetailSubtleText : colors.textPrimary;
 
     return Row(
       children: [
         _ActionMetric(
           icon: isLiked ? Icons.favorite : Icons.favorite_border,
           text: _formatCount(likesCount),
-          color: isLiked ? const Color(0xFFFF4D6D) : color,
+          color: isLiked ? colors.likeActive : color,
           onTap: onLike,
         ),
         const SizedBox(width: 22),
@@ -1060,13 +1158,15 @@ class _FacebookImage extends StatelessWidget {
             child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
           );
         },
-        errorBuilder: (_, __, ___) => const SizedBox(
+        errorBuilder: (context, __, ___) => SizedBox(
           height: 320,
           child: Center(
             child: Icon(
               Icons.broken_image_outlined,
               size: 48,
-              color: Colors.white38,
+              color: AppColors.of(context)
+                  .postDetailSubtleText
+                  .withValues(alpha: 0.4),
             ),
           ),
         ),

@@ -25,6 +25,7 @@ class PostBloc extends Bloc<PostEvent, PostState> {
   final ToggleLikePostUseCase _toggleLikePostUseCase;
   final SecureLocalStorage _secureLocalStorage;
   List<PostEntity> _cachedPosts = const [];
+  final Set<String> _handledRealtimeEngagementIds = <String>{};
 
   PostBloc(
     this._createPostUseCase,
@@ -40,6 +41,7 @@ class PostBloc extends Bloc<PostEvent, PostState> {
     on<PostDeleteEvent>(_onDelete);
     on<PostLikeToggleEvent>(_onLikeToggle);
     on<PostCommentsChangedEvent>(_onCommentsChanged);
+    on<PostRealtimeEngagementChangedEvent>(_onRealtimeEngagementChanged);
     on<PostLocalPostChangedEvent>(_onLocalPostChanged);
     on<PostLocalPostDeletedEvent>(_onLocalPostDeleted);
   }
@@ -157,6 +159,52 @@ class PostBloc extends Bloc<PostEvent, PostState> {
       return post.copyWith(
         comments: List<PostCommentEntity>.unmodifiable(event.comments),
         commentsCount: event.commentsCount,
+      );
+    }).toList();
+
+    if (found) {
+      _emitLoadedPosts(emit, nextPosts);
+    }
+  }
+
+  void _onRealtimeEngagementChanged(
+    PostRealtimeEngagementChangedEvent event,
+    Emitter<PostState> emit,
+  ) {
+    final postId = event.postId.trim();
+    if (postId.isEmpty) return;
+
+    final dedupeKey = event.notificationId.trim();
+    if (dedupeKey.isNotEmpty) {
+      if (_handledRealtimeEngagementIds.contains(dedupeKey)) return;
+      _handledRealtimeEngagementIds.add(dedupeKey);
+    }
+
+    final posts = _currentPosts;
+    if (posts.isEmpty) return;
+
+    var found = false;
+    final nextPosts = posts.map((post) {
+      if (post.id != postId) return post;
+      found = true;
+
+      final nextLikes = List<String>.from(post.likes);
+      if (event.likeDelta > 0) {
+        final actorId = event.actorId.trim();
+        final likeMarker = actorId.isNotEmpty
+            ? actorId
+            : 'realtime_like_${dedupeKey.isNotEmpty ? dedupeKey : DateTime.now().microsecondsSinceEpoch}';
+        if (!nextLikes.contains(likeMarker)) {
+          nextLikes.add(likeMarker);
+        }
+      }
+
+      final nextCommentsCount =
+          (post.commentsCount + event.commentDelta).clamp(0, 1 << 31).toInt();
+
+      return post.copyWith(
+        likes: nextLikes,
+        commentsCount: nextCommentsCount,
       );
     }).toList();
 

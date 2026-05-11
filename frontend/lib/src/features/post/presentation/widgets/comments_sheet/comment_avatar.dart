@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/src/core/utils/url_normalizer.dart';
+import 'package:frontend/src/core/theme/app_colors.dart';
 import 'package:frontend/src/features/post/domain/entities/post_comment_entity.dart';
 
 class CommentAvatar extends StatelessWidget {
@@ -52,15 +53,16 @@ class _FallbackCommentAvatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = AppColors.of(context);
     return CircleAvatar(
       radius: 14,
-      backgroundColor: const Color(0xFFE7E7E7),
+      backgroundColor: colors.avatarPlaceholder,
       child: Text(
         initial,
-        style: const TextStyle(
+        style: TextStyle(
           fontSize: 11,
           fontWeight: FontWeight.w700,
-          color: Colors.black87,
+          color: colors.textPrimary,
         ),
       ),
     );

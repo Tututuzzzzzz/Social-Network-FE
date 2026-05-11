@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/src/features/post/domain/entities/post_entity.dart';
 import 'package:frontend/src/core/l10n/l10n.dart';
+import 'package:frontend/src/core/theme/app_colors.dart';
 
 enum PostOptionAction { addToFavorites, aboutAccount, hidePost, report }
 
@@ -35,20 +36,22 @@ Future<PostOptionAction?> showPostOptionsSheet(
   PostEntity post,
 ) {
   final l10n = context.l10n;
+  final colors = AppColors.of(context);
 
   return showModalBottomSheet<PostOptionAction>(
     context: context,
     backgroundColor: Colors.transparent,
-    barrierColor: Colors.black.withValues(alpha: 0.18),
+    barrierColor: colors.scrim,
     isScrollControlled: false,
     builder: (sheetContext) {
+      final sheetColors = AppColors.of(sheetContext);
       return SafeArea(
         top: false,
         child: Padding(
           padding: const EdgeInsets.fromLTRB(12, 0, 12, 10),
           child: DecoratedBox(
             decoration: BoxDecoration(
-              color: const Color(0xFFF2F2F4),
+              color: sheetColors.sheetSurface,
               borderRadius: BorderRadius.circular(20),
             ),
             child: Column(
@@ -59,14 +62,16 @@ Future<PostOptionAction?> showPostOptionsSheet(
                   width: 34,
                   height: 3,
                   decoration: BoxDecoration(
-                    color: const Color(0xFFD2D2D6),
+                    color: sheetColors.sheetHandle,
                     borderRadius: BorderRadius.circular(99),
                   ),
                 ),
                 const SizedBox(height: 10),
                 _buildGroup(
+                  colors: sheetColors,
                   children: [
                     _buildTile(
+                      colors: sheetColors,
                       icon: Icons.star_border,
                       label: l10n.postOptionAddToFavorites,
                       onTap: () => Navigator.pop(
@@ -75,6 +80,7 @@ Future<PostOptionAction?> showPostOptionsSheet(
                       ),
                     ),
                     _buildTile(
+                      colors: sheetColors,
                       icon: Icons.person_search_outlined,
                       label: l10n.postOptionAboutThisAccount,
                       onTap: () => Navigator.pop(
@@ -86,8 +92,10 @@ Future<PostOptionAction?> showPostOptionsSheet(
                 ),
                 const SizedBox(height: 8),
                 _buildGroup(
+                  colors: sheetColors,
                   children: [
                     _buildTile(
+                      colors: sheetColors,
                       icon: Icons.visibility_off_outlined,
                       label: l10n.postOptionHidePost,
                       onTap: () => Navigator.pop(
@@ -96,10 +104,11 @@ Future<PostOptionAction?> showPostOptionsSheet(
                       ),
                     ),
                     _buildTile(
+                      colors: sheetColors,
                       icon: Icons.report_gmailerrorred_outlined,
                       label: l10n.postOptionReport,
-                      labelColor: const Color(0xFFE53935),
-                      iconColor: const Color(0xFFE53935),
+                      labelColor: sheetColors.error,
+                      iconColor: sheetColors.error,
                       onTap: () =>
                           Navigator.pop(sheetContext, PostOptionAction.report),
                     ),
@@ -115,11 +124,11 @@ Future<PostOptionAction?> showPostOptionsSheet(
   );
 }
 
-Widget _buildGroup({required List<Widget> children}) {
+Widget _buildGroup({required AppColors colors, required List<Widget> children}) {
   return Container(
     margin: const EdgeInsets.symmetric(horizontal: 8),
     decoration: BoxDecoration(
-      color: const Color(0xFFE5E5E8),
+      color: colors.inputFill,
       borderRadius: BorderRadius.circular(14),
     ),
     child: Column(children: children),
@@ -127,12 +136,15 @@ Widget _buildGroup({required List<Widget> children}) {
 }
 
 Widget _buildTile({
+  required AppColors colors,
   required IconData icon,
   required String label,
-  Color labelColor = const Color(0xFF111111),
-  Color iconColor = const Color(0xFF111111),
+  Color? labelColor,
+  Color? iconColor,
   required VoidCallback onTap,
 }) {
+  final resolvedLabelColor = labelColor ?? colors.textPrimary;
+  final resolvedIconColor = iconColor ?? colors.textPrimary;
   return InkWell(
     borderRadius: BorderRadius.circular(14),
     onTap: onTap,
@@ -140,13 +152,13 @@ Widget _buildTile({
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       child: Row(
         children: [
-          Icon(icon, size: 17, color: iconColor),
+          Icon(icon, size: 17, color: resolvedIconColor),
           const SizedBox(width: 7),
           Text(
             label,
             style: TextStyle(
               fontSize: 22 / 1.8,
-              color: labelColor,
+              color: resolvedLabelColor,
               fontWeight: FontWeight.w500,
             ),
           ),
@@ -158,14 +170,16 @@ Widget _buildTile({
 
 Future<PostReportReason?> showReportReasonSheet(BuildContext context) async {
   final l10n = context.l10n;
+  final colors = AppColors.of(context);
   PostReportReason? selectedReason;
 
   return showModalBottomSheet<PostReportReason>(
     context: context,
     backgroundColor: Colors.transparent,
-    barrierColor: Colors.black.withValues(alpha: 0.18),
+    barrierColor: colors.scrim,
     isScrollControlled: false,
     builder: (sheetContext) {
+      final sheetColors = AppColors.of(sheetContext);
       return StatefulBuilder(
         builder: (context, setSheetState) {
           return SafeArea(
@@ -174,7 +188,7 @@ Future<PostReportReason?> showReportReasonSheet(BuildContext context) async {
               padding: const EdgeInsets.fromLTRB(12, 0, 12, 10),
               child: DecoratedBox(
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF2F2F4),
+                  color: sheetColors.sheetSurface,
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Column(
@@ -187,7 +201,7 @@ Future<PostReportReason?> showReportReasonSheet(BuildContext context) async {
                         width: 34,
                         height: 3,
                         decoration: BoxDecoration(
-                          color: const Color(0xFFD2D2D6),
+                          color: sheetColors.sheetHandle,
                           borderRadius: BorderRadius.circular(99),
                         ),
                       ),
@@ -197,10 +211,10 @@ Future<PostReportReason?> showReportReasonSheet(BuildContext context) async {
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: Text(
                         l10n.postReportTitle,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w700,
-                          color: Color(0xFF111111),
+                          color: sheetColors.textPrimary,
                         ),
                       ),
                     ),
@@ -209,9 +223,9 @@ Future<PostReportReason?> showReportReasonSheet(BuildContext context) async {
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: Text(
                         l10n.postReportSelectReason,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 13,
-                          color: Color(0xFF66666B),
+                          color: sheetColors.textSecondary,
                         ),
                       ),
                     ),
@@ -236,15 +250,15 @@ Future<PostReportReason?> showReportReasonSheet(BuildContext context) async {
                                     : Icons.radio_button_unchecked,
                                 size: 20,
                                 color: isSelected
-                                    ? const Color(0xFF1689F6)
-                                    : const Color(0xFF96969B),
+                                    ? sheetColors.accent
+                                    : sheetColors.textSecondary,
                               ),
                               const SizedBox(width: 10),
                               Text(
                                 reportReasonLabel(reason, l10n),
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 14,
-                                  color: Color(0xFF1A1A1F),
+                                  color: sheetColors.textPrimary,
                                 ),
                               ),
                             ],
@@ -276,8 +290,8 @@ Future<PostReportReason?> showReportReasonSheet(BuildContext context) async {
                                       selectedReason,
                                     ),
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFFE53935),
-                                foregroundColor: Colors.white,
+                                backgroundColor: sheetColors.error,
+                                foregroundColor: sheetColors.appBarForeground,
                                 shape: const StadiumBorder(),
                               ),
                               child: Text(l10n.postReportSubmit),

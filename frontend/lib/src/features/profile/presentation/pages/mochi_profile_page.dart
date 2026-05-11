@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../configs/injector/injector_conf.dart';
 import '../../../../core/cache/secure_local_storage.dart';
 import 'package:frontend/src/core/l10n/l10n.dart';
+import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/failure_converter.dart';
 import '../../../../routes/app_route_path.dart';
 import '../../../auth/presentation/bloc/auth/auth_bloc.dart';
@@ -295,15 +296,19 @@ class _MochiProfilePageState extends State<MochiProfilePage> {
       },
       builder: (context, authState) {
         final isLoggingOut = authState is AuthLogoutLoadingState;
+        final colors = AppColors.of(context);
+        final isDark = Theme.of(context).brightness == Brightness.dark;
 
         return Stack(
           children: [
             Scaffold(
-              backgroundColor: const Color(0xFFF3F7F5),
+              backgroundColor: colors.scaffold,
               appBar: AppBar(
-                systemOverlayStyle: SystemUiOverlayStyle.light,
-                backgroundColor: const Color(0xFF31B991),
-                foregroundColor: Colors.white,
+                systemOverlayStyle: isDark
+                    ? SystemUiOverlayStyle.light
+                    : SystemUiOverlayStyle.dark,
+                backgroundColor: colors.appBar,
+                foregroundColor: colors.appBarForeground,
                 elevation: 0,
                 centerTitle: true,
                 title: Text(
@@ -311,7 +316,6 @@ class _MochiProfilePageState extends State<MochiProfilePage> {
                   style: const TextStyle(
                     fontSize: 17,
                     fontWeight: FontWeight.w900,
-                    color: Colors.white,
                   ),
                 ),
                 actions: [
@@ -328,7 +332,7 @@ class _MochiProfilePageState extends State<MochiProfilePage> {
             if (isLoggingOut)
               Positioned.fill(
                 child: ColoredBox(
-                  color: Colors.black.withValues(alpha: 0.18),
+                  color: colors.scrim,
                   child: const Center(
                     child: SizedBox(
                       width: 34,

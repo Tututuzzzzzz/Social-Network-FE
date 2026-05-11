@@ -1,18 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/src/core/l10n/l10n.dart';
+import 'package:frontend/src/core/theme/app_colors.dart';
 
 class ProfileSliverTabBar extends StatelessWidget {
   const ProfileSliverTabBar({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final colors = AppColors.of(context);
+
     return SliverPersistentHeader(
       pinned: true,
       delegate: _ProfileTabBarDelegate(
         TabBar(
-          labelColor: const Color(0xFF20A87B),
-          unselectedLabelColor: const Color(0xFF66716D),
-          indicatorColor: const Color(0xFF20A87B),
+          labelColor: colors.accent,
+          unselectedLabelColor: colors.textSecondary,
+          indicatorColor: colors.accent,
           indicatorWeight: 2.5,
           labelStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w800),
           unselectedLabelStyle: const TextStyle(
@@ -46,13 +49,14 @@ class _ProfileTabBarDelegate extends SliverPersistentHeaderDelegate {
     double shrinkOffset,
     bool overlapsContent,
   ) {
+    final colors = AppColors.of(context);
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: colors.sheetSurface,
         boxShadow: overlapsContent
             ? [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.08),
+                  color: colors.scrim,
                   blurRadius: 12,
                   offset: const Offset(0, 4),
                 ),

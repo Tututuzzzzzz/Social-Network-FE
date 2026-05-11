@@ -138,11 +138,16 @@ class _ProfilePostsTabState extends State<ProfilePostsTab> {
         separatorBuilder: (_, _) => const SizedBox(height: 8),
         itemBuilder: (context, index) {
           final post = widget.posts[index];
+          final commentCountOverride = _commentCountOverrides[post.id];
+          final displayPost = commentCountOverride == null
+              ? post
+              : post.copyWith(commentsCount: commentCountOverride);
+
           return GestureDetector(
             behavior: HitTestBehavior.opaque,
-            onTap: () => _openPostDetail(post),
+            onTap: () => _openPostDetail(displayPost),
             child: PostCard(
-              post: post,
+              post: displayPost,
               isLikedByMe:
                   widget.currentUserId.isNotEmpty &&
                   post.likes.contains(widget.currentUserId),

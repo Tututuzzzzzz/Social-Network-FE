@@ -56,6 +56,9 @@
   "addAccountSoon": "The add account feature will be released soon.",
   "settingsAndActivity": "Settings and activity",
   "profileSettingsTitle": "Settings",
+  "profileLanguageTitle": "Language",
+  "languageVietnamese": "Tiếng Việt",
+  "languageEnglish": "English",
   "logoutAction": "Log out",
   "logoutFailed": "Logout failed",
   "archive": "Archive",
@@ -120,6 +123,14 @@
   "searchPlaces": "Places",
   "searchNoResults": "No results found",
   "searchSeeAll": "See all",
+  "clearAllAction": "Clear all",
+  "seeMoreAction": "See more",
+  "searchResultsCount": "Search results ({count})",
+  "@searchResultsCount": {
+    "placeholders": {
+      "count": {}
+    }
+  },
   "leaveGroup": "Leave group",
   "lastAdminCannotLeave": "You are the last admin. Transfer admin rights before leaving.",
   "groupChatFallback": "Group chat",
@@ -528,6 +539,9 @@
   "muteNotificationsAction": "Mute notifications",
   "customizationSection": "Customization",
   "themeAction": "Theme",
+  "themeModeLabel": "Light/Dark mode",
+  "themeLight": "Light",
+  "themeDark": "Dark",
   "nicknameAction": "Nickname",
   "otherActionsSection": "Other actions",
   "viewMediaFilesLinks": "View media, files & links"

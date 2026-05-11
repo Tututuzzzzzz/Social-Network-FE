@@ -7,6 +7,7 @@ import 'package:image_picker/image_picker.dart';
 
 import '../../../../configs/injector/injector_conf.dart';
 import 'package:frontend/src/core/l10n/l10n.dart';
+import 'package:frontend/src/core/theme/app_colors.dart';
 import '../../../../core/utils/failure_converter.dart';
 import '../../../../routes/app_route_path.dart';
 import '../../../auth/presentation/bloc/auth/auth_bloc.dart';
@@ -360,13 +361,19 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
         ),
       ],
       child: AnnotatedRegion<SystemUiOverlayStyle>(
-        value: SystemUiOverlayStyle.dark.copyWith(
-          statusBarColor: Colors.white,
-          systemNavigationBarColor: Colors.white,
-          systemNavigationBarIconBrightness: Brightness.dark,
-        ),
+        value: Theme.of(context).brightness == Brightness.dark
+            ? SystemUiOverlayStyle.light.copyWith(
+                statusBarColor: AppColors.of(context).scaffold,
+                systemNavigationBarColor: AppColors.of(context).scaffold,
+                systemNavigationBarIconBrightness: Brightness.light,
+              )
+            : SystemUiOverlayStyle.dark.copyWith(
+                statusBarColor: AppColors.of(context).scaffold,
+                systemNavigationBarColor: AppColors.of(context).scaffold,
+                systemNavigationBarIconBrightness: Brightness.dark,
+              ),
         child: Scaffold(
-          backgroundColor: Colors.white,
+          backgroundColor: AppColors.of(context).scaffold,
           resizeToAvoidBottomInset: true,
           body: SafeArea(
             bottom: false,

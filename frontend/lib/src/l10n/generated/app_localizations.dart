@@ -404,6 +404,24 @@ abstract class AppLocalizations {
   /// **'Settings'**
   String get profileSettingsTitle;
 
+  /// No description provided for @profileLanguageTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Language'**
+  String get profileLanguageTitle;
+
+  /// No description provided for @languageVietnamese.
+  ///
+  /// In en, this message translates to:
+  /// **'Tiếng Việt'**
+  String get languageVietnamese;
+
+  /// No description provided for @languageEnglish.
+  ///
+  /// In en, this message translates to:
+  /// **'English'**
+  String get languageEnglish;
+
   /// No description provided for @logoutAction.
   ///
   /// In en, this message translates to:
@@ -757,6 +775,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'See all'**
   String get searchSeeAll;
+
+  /// No description provided for @clearAllAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear all'**
+  String get clearAllAction;
+
+  /// No description provided for @seeMoreAction.
+  ///
+  /// In en, this message translates to:
+  /// **'See more'**
+  String get seeMoreAction;
+
+  /// No description provided for @searchResultsCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Search results ({count})'**
+  String searchResultsCount(Object count);
 
   /// No description provided for @leaveGroup.
   ///
@@ -2563,6 +2599,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Theme'**
   String get themeAction;
+
+  /// No description provided for @themeModeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Light/Dark mode'**
+  String get themeModeLabel;
+
+  /// No description provided for @themeLight.
+  ///
+  /// In en, this message translates to:
+  /// **'Light'**
+  String get themeLight;
+
+  /// No description provided for @themeDark.
+  ///
+  /// In en, this message translates to:
+  /// **'Dark'**
+  String get themeDark;
 
   /// No description provided for @otherActionsSection.
   ///

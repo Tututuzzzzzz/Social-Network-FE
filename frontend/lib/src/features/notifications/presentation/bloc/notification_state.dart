@@ -12,6 +12,7 @@ class NotificationState extends Equatable {
   final bool isLoading;
   final bool isLoadingMore;
   final bool isSubmitting;
+  final bool hasUnreadBadge;
   final String? errorMessage;
 
   const NotificationState({
@@ -24,6 +25,7 @@ class NotificationState extends Equatable {
     this.isLoading = false,
     this.isLoadingMore = false,
     this.isSubmitting = false,
+    this.hasUnreadBadge = false,
     this.errorMessage,
   });
 
@@ -37,6 +39,7 @@ class NotificationState extends Equatable {
     bool? isLoading,
     bool? isLoadingMore,
     bool? isSubmitting,
+    bool? hasUnreadBadge,
     String? errorMessage,
     bool clearError = false,
   }) {
@@ -51,6 +54,7 @@ class NotificationState extends Equatable {
       isLoading: isLoading ?? this.isLoading,
       isLoadingMore: isLoadingMore ?? this.isLoadingMore,
       isSubmitting: isSubmitting ?? this.isSubmitting,
+      hasUnreadBadge: hasUnreadBadge ?? this.hasUnreadBadge,
       errorMessage: clearError ? null : errorMessage ?? this.errorMessage,
     );
   }
@@ -66,6 +70,7 @@ class NotificationState extends Equatable {
     isLoading,
     isLoadingMore,
     isSubmitting,
+    hasUnreadBadge,
     errorMessage,
   ];
 }

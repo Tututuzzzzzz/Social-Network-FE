@@ -167,6 +167,15 @@ class AppLocalizationsVi extends AppLocalizations {
   String get profileSettingsTitle => 'Cài Đặt';
 
   @override
+  String get profileLanguageTitle => 'Ngôn ngữ';
+
+  @override
+  String get languageVietnamese => 'Tiếng Việt';
+
+  @override
+  String get languageEnglish => 'English';
+
+  @override
   String get logoutAction => 'Đăng xuất';
 
   @override
@@ -347,6 +356,17 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get searchSeeAll => 'Xem tất cả';
+
+  @override
+  String get clearAllAction => 'Xóa tất cả';
+
+  @override
+  String get seeMoreAction => 'Xem thêm';
+
+  @override
+  String searchResultsCount(Object count) {
+    return 'Kết quả tìm kiếm ($count)';
+  }
 
   @override
   String get leaveGroup => 'Rời nhóm';
@@ -1326,6 +1346,15 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get themeAction => 'Chủ đề';
+
+  @override
+  String get themeModeLabel => 'Chế độ sáng/tối';
+
+  @override
+  String get themeLight => 'Sáng';
+
+  @override
+  String get themeDark => 'Tối';
 
   @override
   String get otherActionsSection => 'Hành động khác';

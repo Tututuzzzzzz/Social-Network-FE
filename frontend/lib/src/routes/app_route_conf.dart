@@ -4,9 +4,10 @@ import 'package:go_router/go_router.dart';
 import '../configs/injector/injector_conf.dart';
 import '../features/chat/domain/entities/chat_entity.dart';
 import '../features/message/presentation/bloc/message_bloc.dart';
-import '../features/notifications/presentation/bloc/notification_bloc.dart';
 import '../features/post/presentation/bloc/post/post_bloc.dart';
 import '../features/profile/presentation/bloc/profile/profile_bloc.dart';
+import '../features/search/presentation/bloc/search_bloc.dart';
+import '../features/search/presentation/pages/search_screen.dart';
 import 'app_route_path.dart';
 import 'app_shell_page.dart';
 import 'routes.dart';
@@ -140,7 +141,10 @@ class AppRoutesConf {
           GoRoute(
             path: AppRoutes.homeSearch.path,
             name: AppRoutes.homeSearch.name,
-            builder: (context, state) => const MochiSearchPage(),
+            builder: (context, state) => BlocProvider<SearchBloc>(
+              create: (_) => getIt<SearchBloc>(),
+              child: const SearchPage(),
+            ),
           ),
           GoRoute(
             path: AppRoutes.chat.path,
@@ -150,10 +154,7 @@ class AppRoutesConf {
           GoRoute(
             path: AppRoutes.notifications.path,
             name: AppRoutes.notifications.name,
-            builder: (context, state) => BlocProvider<NotificationBloc>(
-              create: (_) => getIt<NotificationBloc>(),
-              child: const NotificationScreen(),
-            ),
+            builder: (context, state) => const NotificationScreen(),
           ),
           GoRoute(
             path: AppRoutes.profile.path,

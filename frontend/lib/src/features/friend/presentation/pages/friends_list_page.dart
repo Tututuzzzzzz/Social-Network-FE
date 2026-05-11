@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../configs/injector/injector_conf.dart';
+import 'package:frontend/src/core/theme/app_colors.dart';
 import '../../../../core/utils/url_normalizer.dart';
 import '../../../../routes/app_route_path.dart';
 import '../../domain/entities/friend.dart';
@@ -16,10 +17,6 @@ class FriendsListPage extends StatefulWidget {
 
 class _FriendsListPageState extends State<FriendsListPage> {
   late Future<List<Friend>> _friendsFuture;
-
-  static const Color _accentColor = Color(0xFF25A97A);
-  static const Color _appBarColor = Color(0xFF31B991);
-  static const Color _pageBackground = Color(0xFFF3F7F5);
 
   @override
   void initState() {
@@ -57,17 +54,18 @@ class _FriendsListPageState extends State<FriendsListPage> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = AppColors.of(context);
     return Scaffold(
-      backgroundColor: _pageBackground,
+      backgroundColor: colors.scaffold,
       appBar: AppBar(
-        backgroundColor: _appBarColor,
-        foregroundColor: Colors.white,
+        backgroundColor: colors.appBar,
+        foregroundColor: colors.appBarForeground,
         elevation: 0,
         centerTitle: true,
-        title: const Text(
+        title: Text(
           'Bạn bè',
           style: TextStyle(
-            color: Colors.white,
+            color: colors.appBarForeground,
             fontSize: 17,
             fontWeight: FontWeight.w900,
           ),
@@ -102,7 +100,7 @@ class _FriendsListPageState extends State<FriendsListPage> {
           }
 
           return RefreshIndicator(
-            color: _accentColor,
+            color: colors.accent,
             onRefresh: _refreshFriends,
             child: ListView.separated(
               physics: const AlwaysScrollableScrollPhysics(),
@@ -132,10 +130,11 @@ class _FriendListTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = AppColors.of(context);
     final name = _resolveName(friend);
 
     return Material(
-      color: Colors.white,
+      color: colors.sheetSurface,
       borderRadius: BorderRadius.circular(8),
       child: InkWell(
         borderRadius: BorderRadius.circular(8),
@@ -144,7 +143,7 @@ class _FriendListTile extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: const Color(0xFFE3ECE8)),
+            border: Border.all(color: colors.subtleBorder),
           ),
           child: Row(
             children: [
@@ -155,17 +154,17 @@ class _FriendListTile extends StatelessWidget {
                   name,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    color: Color(0xFF16231F),
+                  style: TextStyle(
+                    color: colors.textPrimary,
                     fontSize: 15,
                     fontWeight: FontWeight.w800,
                   ),
                 ),
               ),
               const SizedBox(width: 10),
-              const Icon(
+              Icon(
                 Icons.chevron_right_rounded,
-                color: Color(0xFF91A09A),
+                color: colors.textSecondary,
                 size: 24,
               ),
             ],
@@ -189,13 +188,14 @@ class _FriendAvatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = AppColors.of(context);
     final avatarUrl = friend.avatarUrl?.normalizeClientUrl() ?? '';
 
     return Container(
       width: 52,
       height: 52,
-      decoration: const BoxDecoration(
-        color: Color(0xFFDDF8ED),
+      decoration: BoxDecoration(
+        color: colors.avatarPlaceholder,
         shape: BoxShape.circle,
       ),
       clipBehavior: Clip.antiAlias,
@@ -219,6 +219,7 @@ class _FriendAvatarFallback extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = AppColors.of(context);
     final initial = displayName.trim().isEmpty
         ? '?'
         : displayName.trim().characters.first.toUpperCase();
@@ -226,8 +227,8 @@ class _FriendAvatarFallback extends StatelessWidget {
     return Center(
       child: Text(
         initial,
-        style: const TextStyle(
-          color: Color(0xFF25A97A),
+        style: TextStyle(
+          color: colors.accent,
           fontSize: 20,
           fontWeight: FontWeight.w900,
         ),
@@ -256,13 +257,14 @@ class _FriendLoadingTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = AppColors.of(context);
     return Container(
       height: 78,
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.82),
+        color: colors.sheetSurface.withValues(alpha: 0.82),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: const Color(0xFFE3ECE8)),
+        border: Border.all(color: colors.subtleBorder),
       ),
       child: Row(
         children: [
@@ -298,11 +300,12 @@ class _LoadingBlock extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = AppColors.of(context);
     return Container(
       width: width,
       height: height,
       decoration: BoxDecoration(
-        color: const Color(0xFFE2EAE6),
+        color: colors.inputFill,
         shape: isCircle ? BoxShape.circle : BoxShape.rectangle,
         borderRadius: isCircle ? null : BorderRadius.circular(999),
       ),
@@ -329,8 +332,10 @@ class _FriendsStatusList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = AppColors.of(context);
+    final theme = Theme.of(context);
     return RefreshIndicator(
-      color: const Color(0xFF25A97A),
+      color: colors.accent,
       onRefresh: onRefresh,
       child: LayoutBuilder(
         builder: (context, constraints) {
@@ -348,11 +353,11 @@ class _FriendsStatusList extends StatelessWidget {
                         Container(
                           width: 60,
                           height: 60,
-                          decoration: const BoxDecoration(
-                            color: Color(0xFFDDF8ED),
+                          decoration: BoxDecoration(
+                            color: colors.chipFollowBg.withValues(alpha: 0.16),
                             shape: BoxShape.circle,
                           ),
-                          child: Icon(icon, color: Color(0xFF25A97A), size: 30),
+                          child: Icon(icon, color: colors.accent, size: 30),
                         ),
                         const SizedBox(height: 14),
                         Text(
@@ -360,7 +365,7 @@ class _FriendsStatusList extends StatelessWidget {
                           textAlign: TextAlign.center,
                           style: Theme.of(context).textTheme.titleMedium
                               ?.copyWith(
-                                color: const Color(0xFF1A2521),
+                                color: colors.textPrimary,
                                 fontWeight: FontWeight.w900,
                               ),
                         ),
@@ -370,7 +375,7 @@ class _FriendsStatusList extends StatelessWidget {
                           textAlign: TextAlign.center,
                           style: Theme.of(context).textTheme.bodyMedium
                               ?.copyWith(
-                                color: const Color(0xFF6C7773),
+                                color: colors.textSecondary,
                                 height: 1.35,
                               ),
                         ),
@@ -378,8 +383,8 @@ class _FriendsStatusList extends StatelessWidget {
                           const SizedBox(height: 18),
                           FilledButton(
                             style: FilledButton.styleFrom(
-                              backgroundColor: const Color(0xFF25A97A),
-                              foregroundColor: Colors.white,
+                              backgroundColor: colors.accent,
+                              foregroundColor: theme.colorScheme.onPrimary,
                             ),
                             onPressed: () => onAction!(),
                             child: Text(actionLabel!),

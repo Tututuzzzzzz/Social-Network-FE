@@ -167,6 +167,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get profileSettingsTitle => 'Settings';
 
   @override
+  String get profileLanguageTitle => 'Language';
+
+  @override
+  String get languageVietnamese => 'Tiếng Việt';
+
+  @override
+  String get languageEnglish => 'English';
+
+  @override
   String get logoutAction => 'Log out';
 
   @override
@@ -346,6 +355,17 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get searchSeeAll => 'See all';
+
+  @override
+  String get clearAllAction => 'Clear all';
+
+  @override
+  String get seeMoreAction => 'See more';
+
+  @override
+  String searchResultsCount(Object count) {
+    return 'Search results ($count)';
+  }
 
   @override
   String get leaveGroup => 'Leave group';
@@ -1320,6 +1340,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get themeAction => 'Theme';
+
+  @override
+  String get themeModeLabel => 'Light/Dark mode';
+
+  @override
+  String get themeLight => 'Light';
+
+  @override
+  String get themeDark => 'Dark';
 
   @override
   String get otherActionsSection => 'Other actions';

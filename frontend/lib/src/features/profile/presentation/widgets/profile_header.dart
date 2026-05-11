@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../domain/entities/profile_entity.dart';
 import 'package:frontend/src/core/l10n/l10n.dart';
+import 'package:frontend/src/core/theme/app_colors.dart';
 import 'profile_action_bar.dart';
 import 'profile_avatar.dart';
 
@@ -35,12 +36,13 @@ class ProfileHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = AppColors.of(context);
     final displayName = _resolveDisplayName(context, profile);
     final username = profile.username?.trim() ?? '';
     final bio = profile.bio?.trim();
 
     return Container(
-      color: const Color(0xFFEAF2FF),
+      color: colors.scaffold,
       child: Stack(
         children: [
           const Positioned.fill(child: _HeaderStripes()),
@@ -76,7 +78,7 @@ class ProfileHeader extends StatelessWidget {
                                         .textTheme
                                         .titleLarge
                                         ?.copyWith(
-                                          color: const Color(0xFF14221D),
+                                          color: colors.textPrimary,
                                           fontWeight: FontWeight.w900,
                                         ),
                                   ),
@@ -95,8 +97,8 @@ class ProfileHeader extends StatelessWidget {
                                 '@$username',
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(
-                                  color: Color(0xFF5E6A73),
+                                style: TextStyle(
+                                  color: colors.textSecondary,
                                   fontSize: 12,
                                   fontWeight: FontWeight.w600,
                                 ),
@@ -111,8 +113,8 @@ class ProfileHeader extends StatelessWidget {
                 const SizedBox(height: 14),
                 Text(
                   bio == null || bio.isEmpty ? context.l10n.noBio : bio,
-                  style: const TextStyle(
-                    color: Color(0xFF33413D),
+                  style: TextStyle(
+                    color: colors.textPrimary,
                     fontSize: 13,
                     height: 1.35,
                     fontWeight: FontWeight.w500,
@@ -178,13 +180,15 @@ class _HeaderStripes extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = AppColors.of(context);
+    final stripeA = Color.lerp(colors.scaffold, colors.sheetSurface, 0.35)!;
+    final stripeB = Color.lerp(colors.scaffold, colors.sheetSurface, 0.18)!;
+
     return Row(
       children: List.generate(5, (index) {
         return Expanded(
           child: ColoredBox(
-            color: index.isEven
-                ? const Color(0xFFEAF2FF)
-                : const Color(0xFFF7FAFF),
+            color: index.isEven ? stripeA : stripeB,
           ),
         );
       }),
@@ -207,17 +211,38 @@ class _ProfileMetric extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = AppColors.of(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    final iconBackground = isDark
+        ? colors.chipFollowBg.withValues(alpha: 0.16)
+        : Color.lerp(colors.accent, colors.sheetSurface, 0.86)!;
+    final cardColor =
+        isDark ? colors.sheetSurface.withValues(alpha: 0.9) : colors.sheetSurface;
+    final borderColor = isDark ? colors.subtleBorder : colors.navBorder;
+    final shadow = isDark
+        ? BoxShadow(
+            color: colors.scrim,
+            blurRadius: 16,
+            offset: const Offset(0, 8),
+          )
+        : BoxShadow(
+            color: Colors.black.withValues(alpha: 0.06),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          );
+
     final content = Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Container(
           width: 34,
           height: 34,
-          decoration: const BoxDecoration(
-            color: Color(0xFFDDF8ED),
+          decoration: BoxDecoration(
+            color: iconBackground,
             shape: BoxShape.circle,
           ),
-          child: Icon(icon, color: Color(0xFF25A97A), size: 19),
+          child: Icon(icon, color: colors.accent, size: 19),
         ),
         const SizedBox(width: 10),
         Flexible(
@@ -228,8 +253,8 @@ class _ProfileMetric extends StatelessWidget {
                 _formatCount(value),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  color: Color(0xFF14221D),
+                style: TextStyle(
+                  color: colors.textPrimary,
                   fontSize: 16,
                   fontWeight: FontWeight.w900,
                 ),
@@ -239,8 +264,8 @@ class _ProfileMetric extends StatelessWidget {
                 label,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  color: Color(0xFF61706C),
+                style: TextStyle(
+                  color: colors.textSecondary,
                   fontSize: 11,
                   fontWeight: FontWeight.w600,
                 ),
@@ -252,7 +277,7 @@ class _ProfileMetric extends StatelessWidget {
     );
 
     return Material(
-      color: Colors.white.withValues(alpha: 0.88),
+      color: cardColor,
       borderRadius: BorderRadius.circular(16),
       child: InkWell(
         borderRadius: BorderRadius.circular(16),
@@ -261,13 +286,9 @@ class _ProfileMetric extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: Colors.white),
+            border: Border.all(color: borderColor),
             boxShadow: [
-              BoxShadow(
-                color: const Color(0xFF1D5848).withValues(alpha: 0.08),
-                blurRadius: 16,
-                offset: const Offset(0, 8),
-              ),
+              shadow,
             ],
           ),
           child: content,

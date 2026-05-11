@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 
 import '../../../../configs/injector/injector_conf.dart';
 import 'package:frontend/src/core/l10n/l10n.dart';
+import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/failure_converter.dart';
 import '../../../post/domain/entities/post_entity.dart';
 import '../../../post/domain/usecases/get_post_by_id_usecase.dart';
@@ -164,6 +165,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
       },
       builder: (context, state) {
         final l10n = context.l10n;
+        final colors = AppColors.of(context);
         final postNotifications = state.items
             .where(_isPostNotification)
             .toList();
@@ -174,17 +176,17 @@ class _NotificationScreenState extends State<NotificationScreen> {
         return DefaultTabController(
           length: 2,
           child: Scaffold(
-            backgroundColor: const Color(0xFFF3F3F3),
+            backgroundColor: colors.scaffold,
             appBar: AppBar(
-              backgroundColor: const Color(0xFF2FC48F),
-              foregroundColor: Colors.white,
+              backgroundColor: colors.appBar,
+              foregroundColor: colors.appBarForeground,
               surfaceTintColor: Colors.transparent,
               elevation: 0,
               centerTitle: true,
               title: Text(
                 l10n.notificationsTitle,
-                style: const TextStyle(
-                  color: Colors.white,
+                style: TextStyle(
+                  color: colors.appBarForeground,
                   fontWeight: FontWeight.w700,
                 ),
               ),
@@ -206,11 +208,11 @@ class _NotificationScreenState extends State<NotificationScreen> {
               bottom: PreferredSize(
                 preferredSize: const Size.fromHeight(48),
                 child: Container(
-                  color: Colors.white,
+                  color: colors.sheetSurface,
                   child: TabBar(
-                    indicatorColor: const Color(0xFF36C38C),
-                    labelColor: const Color(0xFF36C38C),
-                    unselectedLabelColor: Colors.black54,
+                    indicatorColor: colors.accent,
+                    labelColor: colors.accent,
+                    unselectedLabelColor: colors.textSecondary,
                     tabs: [
                       Tab(text: l10n.notificationTabPosts),
                       Tab(text: l10n.notificationTabFriends),
@@ -322,6 +324,7 @@ class _NotificationListViewState extends State<_NotificationListView> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = AppColors.of(context);
     return RefreshIndicator(
       onRefresh: widget.onRefresh,
       child: widget.items.isEmpty
@@ -332,7 +335,7 @@ class _NotificationListViewState extends State<_NotificationListView> {
                 Center(
                   child: Text(
                     widget.emptyMessage,
-                    style: const TextStyle(color: Colors.black54),
+                    style: TextStyle(color: colors.textSecondary),
                   ),
                 ),
               ],
@@ -341,8 +344,11 @@ class _NotificationListViewState extends State<_NotificationListView> {
               controller: _scrollController,
               physics: const AlwaysScrollableScrollPhysics(),
               itemCount: widget.items.length + (widget.hasMore ? 1 : 0),
-              separatorBuilder: (_, _) =>
-                  const Divider(height: 1, thickness: 0.6),
+              separatorBuilder: (_, _) => Divider(
+                height: 1,
+                thickness: 0.6,
+                color: colors.subtleBorder,
+              ),
               itemBuilder: (context, index) {
                 if (index >= widget.items.length) {
                   return const Padding(
@@ -408,9 +414,10 @@ class _NotificationTile extends StatelessWidget {
 
   Widget _buildTile(BuildContext context, String timeText) {
     final notificationText = _resolveNotificationText(context);
+    final colors = AppColors.of(context);
 
     return Material(
-      color: item.isRead ? Colors.white : const Color(0xFFF0F7FF),
+      color: item.isRead ? colors.sheetSurface : colors.inputFill,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -418,7 +425,7 @@ class _NotificationTile extends StatelessWidget {
             onTap: onTap,
             leading: CircleAvatar(
               radius: 24,
-              backgroundColor: Colors.grey.shade200,
+              backgroundColor: colors.avatarPlaceholder,
               backgroundImage: item.actorAvatarUrl.isNotEmpty
                   ? NetworkImage(item.actorAvatarUrl)
                   : null,
@@ -430,12 +437,12 @@ class _NotificationTile extends StatelessWidget {
                                 .characters
                                 .first
                                 .toUpperCase(),
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontWeight: FontWeight.bold,
-                              color: Colors.blue,
+                              color: colors.accent,
                             ),
                           )
-                        : const Icon(Icons.person, color: Colors.grey))
+                        : Icon(Icons.person, color: colors.textSecondary))
                   : null,
             ),
             title: RichText(
@@ -443,7 +450,7 @@ class _NotificationTile extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
               text: TextSpan(
                 style: TextStyle(
-                  color: Colors.black,
+                  color: colors.textPrimary,
                   fontSize: 15,
                   fontWeight: item.isRead ? FontWeight.normal : FontWeight.bold,
                 ),
@@ -463,7 +470,9 @@ class _NotificationTile extends StatelessWidget {
                       timeText,
                       style: TextStyle(
                         fontSize: 12,
-                        color: item.isRead ? Colors.grey : Colors.blueAccent,
+                        color: item.isRead
+                            ? colors.textSecondary
+                            : colors.accent,
                         fontWeight: item.isRead
                             ? FontWeight.normal
                             : FontWeight.w600,
@@ -482,8 +491,8 @@ class _NotificationTile extends StatelessWidget {
                 : Container(
                     width: 10,
                     height: 10,
-                    decoration: const BoxDecoration(
-                      color: Colors.blue,
+                    decoration: BoxDecoration(
+                      color: colors.accent,
                       shape: BoxShape.circle,
                     ),
                   ),

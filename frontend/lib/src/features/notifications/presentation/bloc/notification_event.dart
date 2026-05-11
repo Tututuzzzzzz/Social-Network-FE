@@ -22,6 +22,17 @@ class NotificationLoadRequested extends NotificationEvent {
 
 class NotificationLoadMoreRequested extends NotificationEvent {}
 
+class NotificationBadgeCleared extends NotificationEvent {}
+
+class NotificationRealtimeReceived extends NotificationEvent {
+  final Map<String, dynamic> payload;
+
+  const NotificationRealtimeReceived(this.payload);
+
+  @override
+  List<Object?> get props => [payload];
+}
+
 class NotificationMarkAsReadRequested extends NotificationEvent {
   final String notificationId;
 

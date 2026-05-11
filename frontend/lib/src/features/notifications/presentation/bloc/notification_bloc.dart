@@ -29,6 +29,8 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
   ) : super(const NotificationState()) {
     on<NotificationLoadRequested>(_onLoadRequested);
     on<NotificationLoadMoreRequested>(_onLoadMoreRequested);
+    on<NotificationBadgeCleared>(_onBadgeCleared);
+    on<NotificationRealtimeReceived>(_onRealtimeReceived);
     on<NotificationMarkAsReadRequested>(_onMarkAsReadRequested);
     on<NotificationMarkAllAsReadRequested>(_onMarkAllAsReadRequested);
     on<NotificationAcceptFriendRequestRequested>(
@@ -149,6 +151,9 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
             page: data.page,
             hasMore: data.hasMore,
             unreadCount: data.unreadCount,
+            hasUnreadBadge: event.unreadOnly
+                ? data.unreadCount > 0
+                : state.hasUnreadBadge,
             handledFriendRequestIds: effectiveHandledIds,
             isLoading: false,
             clearError: true,
@@ -213,6 +218,27 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
         );
       },
     );
+  }
+
+  void _onRealtimeReceived(
+    NotificationRealtimeReceived event,
+    Emitter<NotificationState> emit,
+  ) {
+    emit(
+      state.copyWith(
+        unreadCount: state.unreadCount + 1,
+        hasUnreadBadge: true,
+        clearError: true,
+      ),
+    );
+  }
+
+  void _onBadgeCleared(
+    NotificationBadgeCleared event,
+    Emitter<NotificationState> emit,
+  ) {
+    if (!state.hasUnreadBadge) return;
+    emit(state.copyWith(hasUnreadBadge: false));
   }
 
   Future<void> _onMarkAsReadRequested(

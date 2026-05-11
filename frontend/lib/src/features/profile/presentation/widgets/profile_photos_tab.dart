@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:frontend/src/core/l10n/l10n.dart';
+import 'package:frontend/src/core/theme/app_colors.dart';
 import '../../../../core/utils/url_normalizer.dart';
 import '../../../post/domain/entities/post_entity.dart';
 import 'profile_empty_state.dart';
@@ -13,6 +14,7 @@ class ProfilePhotosTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = AppColors.of(context);
     final photos = _extractPhotos(posts);
 
     if (photos.isEmpty) {
@@ -53,8 +55,8 @@ class ProfilePhotosTab extends StatelessWidget {
               fit: BoxFit.cover,
               loadingBuilder: (context, child, loadingProgress) {
                 if (loadingProgress == null) return child;
-                return const ColoredBox(
-                  color: Color(0xFFE9EFEC),
+                return ColoredBox(
+                  color: colors.inputFill,
                   child: Center(
                     child: SizedBox(
                       width: 18,
@@ -65,9 +67,12 @@ class ProfilePhotosTab extends StatelessWidget {
                 );
               },
               errorBuilder: (_, _, _) {
-                return const ColoredBox(
-                  color: Color(0xFFE9EFEC),
-                  child: Icon(Icons.broken_image_outlined, color: Colors.grey),
+                return ColoredBox(
+                  color: colors.inputFill,
+                  child: Icon(
+                    Icons.broken_image_outlined,
+                    color: colors.placeholderIcon,
+                  ),
                 );
               },
             ),

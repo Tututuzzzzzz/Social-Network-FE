@@ -1,6 +1,8 @@
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:frontend/src/core/l10n/l10n.dart';
+import 'package:frontend/src/core/theme/app_colors.dart';
 import 'package:image_picker/image_picker.dart';
 
 class ProfileAvatarUploadDraft {
@@ -18,6 +20,7 @@ Future<ProfileAvatarUploadDraft?> showProfileAvatarUploadSheet(
     isScrollControlled: true,
     useSafeArea: true,
     backgroundColor: Colors.transparent,
+    barrierColor: AppColors.of(context).scrim,
     builder: (_) => const _ProfileAvatarUploadSheet(),
   );
 }
@@ -47,18 +50,15 @@ class _ProfileAvatarUploadSheetState extends State<_ProfileAvatarUploadSheet> {
         maxWidth: 1600,
       );
 
-      if (image == null || !mounted) {
-        return;
-      }
+      if (image == null || !mounted) return;
 
       final bytes = await image.readAsBytes();
       if (!mounted) return;
 
       setState(() {
         _selectedBytes = bytes;
-        _selectedFileName = image.name.trim().isEmpty
-            ? 'avatar.jpg'
-            : image.name.trim();
+        _selectedFileName =
+            image.name.trim().isEmpty ? 'avatar.jpg' : image.name.trim();
       });
     } finally {
       if (mounted) {
@@ -70,18 +70,19 @@ class _ProfileAvatarUploadSheetState extends State<_ProfileAvatarUploadSheet> {
   void _confirm() {
     final bytes = _selectedBytes;
     final fileName = _selectedFileName;
-    if (bytes == null || fileName == null || fileName.isEmpty) {
-      return;
-    }
+    if (bytes == null || fileName == null || fileName.isEmpty) return;
 
-    Navigator.of(
-      context,
-    ).pop(ProfileAvatarUploadDraft(bytes: bytes, fileName: fileName));
+    Navigator.of(context).pop(
+      ProfileAvatarUploadDraft(bytes: bytes, fileName: fileName),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     final bytes = _selectedBytes;
+    final l10n = context.l10n;
+    final colors = AppColors.of(context);
+    final theme = Theme.of(context);
 
     return DraggableScrollableSheet(
       expand: false,
@@ -89,10 +90,10 @@ class _ProfileAvatarUploadSheetState extends State<_ProfileAvatarUploadSheet> {
       initialChildSize: 0.68,
       maxChildSize: 0.86,
       builder: (context, scrollController) {
-        return Container(
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        return DecoratedBox(
+          decoration: BoxDecoration(
+            color: colors.sheetSurface,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
           ),
           child: ListView(
             controller: scrollController,
@@ -103,28 +104,18 @@ class _ProfileAvatarUploadSheetState extends State<_ProfileAvatarUploadSheet> {
                   width: 44,
                   height: 4,
                   decoration: BoxDecoration(
-                    color: const Color(0xFFD8DCE2),
+                    color: colors.sheetHandle,
                     borderRadius: BorderRadius.circular(999),
                   ),
                 ),
               ),
               const SizedBox(height: 20),
-              const Text(
-                'Tải ảnh đại diện mới',
+              Text(
+                l10n.editAvatarAction,
                 style: TextStyle(
-                  color: Color(0xFF14221D),
+                  color: colors.title,
                   fontSize: 22,
                   fontWeight: FontWeight.w900,
-                ),
-              ),
-              const SizedBox(height: 6),
-              const Text(
-                'Chọn một ảnh rõ mặt, sau đó xác nhận để cập nhật hồ sơ.',
-                style: TextStyle(
-                  color: Color(0xFF63706B),
-                  fontSize: 13,
-                  height: 1.35,
-                  fontWeight: FontWeight.w500,
                 ),
               ),
               const SizedBox(height: 20),
@@ -135,9 +126,9 @@ class _ProfileAvatarUploadSheetState extends State<_ProfileAvatarUploadSheet> {
                   height: 220,
                   padding: const EdgeInsets.all(4),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFEAF8F2),
+                    color: colors.inputFill,
                     shape: BoxShape.circle,
-                    border: Border.all(color: const Color(0xFFBCEAD8)),
+                    border: Border.all(color: colors.inputBorder),
                   ),
                   child: ClipOval(
                     child: bytes == null
@@ -156,10 +147,10 @@ class _ProfileAvatarUploadSheetState extends State<_ProfileAvatarUploadSheet> {
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
                     : const Icon(Icons.photo_library_outlined),
-                label: Text(bytes == null ? 'Chọn ảnh' : 'Chọn ảnh khác'),
+                label: Text(l10n.pickFromLibrary),
                 style: OutlinedButton.styleFrom(
-                  foregroundColor: const Color(0xFF168C68),
-                  side: const BorderSide(color: Color(0xFFBCEAD8)),
+                  foregroundColor: colors.accent,
+                  side: BorderSide(color: colors.inputBorder),
                   shape: const StadiumBorder(),
                   padding: const EdgeInsets.symmetric(vertical: 13),
                 ),
@@ -168,11 +159,12 @@ class _ProfileAvatarUploadSheetState extends State<_ProfileAvatarUploadSheet> {
               FilledButton.icon(
                 onPressed: bytes == null ? null : _confirm,
                 icon: const Icon(Icons.check_rounded),
-                label: const Text('Xác nhận cập nhật'),
+                label: Text(l10n.saveChanges),
                 style: FilledButton.styleFrom(
-                  backgroundColor: const Color(0xFF25A97A),
-                  foregroundColor: Colors.white,
-                  disabledBackgroundColor: const Color(0xFFD7E0DC),
+                  backgroundColor: colors.accent,
+                  foregroundColor: theme.colorScheme.onPrimary,
+                  disabledBackgroundColor:
+                      colors.inputBorder.withValues(alpha: 0.7),
                   shape: const StadiumBorder(),
                   padding: const EdgeInsets.symmetric(vertical: 14),
                 ),
@@ -180,7 +172,7 @@ class _ProfileAvatarUploadSheetState extends State<_ProfileAvatarUploadSheet> {
               const SizedBox(height: 8),
               TextButton(
                 onPressed: () => Navigator.of(context).pop(),
-                child: const Text('Hủy'),
+                child: Text(l10n.cancel),
               ),
             ],
           ),
@@ -195,12 +187,13 @@ class _EmptyPreview extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const ColoredBox(
-      color: Color(0xFFF5FAF7),
+    final colors = AppColors.of(context);
+    return ColoredBox(
+      color: colors.inputFill,
       child: Center(
         child: Icon(
           Icons.add_photo_alternate_outlined,
-          color: Color(0xFF7BAE9B),
+          color: colors.placeholderIcon,
           size: 58,
         ),
       ),
