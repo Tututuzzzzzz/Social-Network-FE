@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/src/core/l10n/l10n.dart';
 import 'package:frontend/src/core/utils/url_normalizer.dart';
+import 'package:frontend/src/core/theme/app_colors.dart';
 import 'package:frontend/src/widgets/follow_status_chip.dart';
 import 'package:intl/intl.dart';
 
@@ -61,6 +62,7 @@ class PostCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final colors = AppColors.of(context);
     final likesCount = likeCountOverride ?? post.likes.length;
     final commentCount = commentCountOverride ?? post.commentsCount;
     final imageUrls = _resolveImageUrls();
@@ -79,7 +81,7 @@ class PostCard extends StatelessWidget {
         : post.authorAvatarUrl;
 
     return Container(
-      color: Colors.white,
+      color: colors.sheetSurface,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -106,17 +108,17 @@ class PostCard extends StatelessWidget {
                               displayName,
                               style: theme.textTheme.titleSmall?.copyWith(
                                 fontWeight: FontWeight.w800,
-                                color: Colors.black,
+                                color: colors.textPrimary,
                                 fontSize: 14,
                                 letterSpacing: -0.1,
                               ),
                             ),
                             if (isVerified) ...[
                               const SizedBox(width: 4),
-                              const Icon(
+                              Icon(
                                 Icons.verified,
                                 size: 16,
-                                color: Color(0xFF3797EF),
+                                color: colors.postDetailLink,
                               ),
                             ],
                           ],
@@ -125,15 +127,15 @@ class PostCard extends StatelessWidget {
                           Text(
                             locationLabel!,
                             style: theme.textTheme.bodySmall?.copyWith(
-                              color: const Color(0xFF6A6A70),
+                              color: colors.textSecondary,
                               fontSize: 12,
                             ),
                           )
                         else
                           Text(
-                            DateFormat('d MMMM', 'vi').format(post.createdAt),
+                            DateFormat('d MMMM', Localizations.localeOf(context).languageCode).format(post.createdAt),
                             style: theme.textTheme.bodySmall?.copyWith(
-                              color: const Color(0xFFA2A2A8),
+                              color: colors.textSecondary,
                               fontSize: 11,
                             ),
                           ),
@@ -145,16 +147,15 @@ class PostCard extends StatelessWidget {
                   FollowStatusChip(
                     isFollowing: isFollowing,
                     followingText:
-                        followingLabel ?? context.l10n.followingStatus,
-                    followText: followLabel ?? context.l10n.followAction,
-                    onTap: onFollowTap,
+                        followingLabel ?? "",
+                    followText: followLabel ?? "",
                   ),
                   const SizedBox(width: 4),
                 ],
                 IconButton(
                   visualDensity: VisualDensity.compact,
                   splashRadius: 18,
-                  icon: const Icon(Icons.more_horiz, color: Colors.black),
+                  icon: Icon(Icons.more_horiz, color: colors.textPrimary),
                   onPressed: onMore,
                 ),
               ],
@@ -172,7 +173,7 @@ class PostCard extends StatelessWidget {
               child: Text.rich(
                 TextSpan(
                   style: theme.textTheme.bodyMedium?.copyWith(
-                    color: const Color(0xFF1F1F25),
+                    color: colors.textPrimary,
                     height: 1.45,
                     fontSize: 14,
                     fontWeight: FontWeight.w400,
@@ -190,26 +191,26 @@ class PostCard extends StatelessWidget {
                 Row(
                   children: [
                     Text(
-                      '${_formatCount(likesCount)} lượt thích',
+                      context.l10n.likesCount(_formatCount(likesCount)),
                       style: theme.textTheme.bodyMedium?.copyWith(
-                        color: Colors.black,
+                        color: colors.textPrimary,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
                     const Spacer(),
                     Text(
-                      '${_formatCount(commentCount)} bình luận',
+                      context.l10n.commentsCount(_formatCount(commentCount)),
                       style: theme.textTheme.bodyMedium?.copyWith(
-                        color: Colors.black,
+                        color: colors.textPrimary,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
                     if (showShareStat) ...[
                       const Spacer(),
                       Text(
-                        '1 lượt chia sẻ',
+                        context.l10n.sharesCount('1'), // Placeholder for now
                         style: theme.textTheme.bodyMedium?.copyWith(
-                          color: Colors.black,
+                          color: colors.textPrimary,
                           fontWeight: FontWeight.w700,
                         ),
                       ),
@@ -217,7 +218,7 @@ class PostCard extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 10),
-                Divider(height: 1, thickness: 1, color: Colors.grey.shade100),
+                Divider(height: 1, thickness: 1, color: colors.subtleBorder),
                 const SizedBox(height: 8),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -226,19 +227,21 @@ class PostCard extends StatelessWidget {
                       icon: isLikedByMe
                           ? Icons.favorite
                           : Icons.favorite_border,
-                      color: isLikedByMe ? Colors.red : Colors.black,
-                      label: 'Thích',
+                      color: isLikedByMe
+                          ? colors.likeActive
+                          : colors.textPrimary,
+                      label: context.l10n.likeAction,
                       onTap: onLike,
                     ),
                     _BottomAction(
                       icon: Icons.chat_bubble_outline,
-                      label: 'Bình luận',
+                      label: context.l10n.commentAction,
                       onTap: onComment,
                     ),
                     if (showShareAction)
                       _BottomAction(
                         icon: Icons.send,
-                        label: 'Chia sẻ',
+                        label: context.l10n.shareAction,
                         onTap: onShare,
                       ),
                   ],
@@ -246,7 +249,7 @@ class PostCard extends StatelessWidget {
               ],
             ),
           ),
-          Divider(height: 1, thickness: 1, color: Colors.grey.shade100),
+          Divider(height: 1, thickness: 1, color: colors.subtleBorder),
           const SizedBox(height: 6),
         ],
       ),
@@ -338,13 +341,18 @@ class _PostMediaState extends State<_PostMedia> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = AppColors.of(context);
     if (widget.imageUrls.isEmpty) {
       return AspectRatio(
         aspectRatio: 1,
         child: Container(
-          color: const Color(0xFFF1F1F1),
-          child: const Center(
-            child: Icon(Icons.image_outlined, size: 48, color: Colors.black26),
+          color: colors.inputFill,
+          child: Center(
+            child: Icon(
+              Icons.image_outlined,
+              size: 48,
+              color: colors.placeholderIcon,
+            ),
           ),
         ),
       );
@@ -353,7 +361,7 @@ class _PostMediaState extends State<_PostMedia> {
     if (widget.imageUrls.length == 1) {
       return AspectRatio(
         aspectRatio: 1,
-        child: _buildNetworkImage(widget.imageUrls.first),
+        child: _buildNetworkImage(widget.imageUrls.first, colors),
       );
     }
 
@@ -371,7 +379,7 @@ class _PostMediaState extends State<_PostMedia> {
               });
             },
             itemBuilder: (context, index) {
-              return _buildNetworkImage(widget.imageUrls[index]);
+              return _buildNetworkImage(widget.imageUrls[index], colors);
             },
           ),
           Positioned(
@@ -380,13 +388,13 @@ class _PostMediaState extends State<_PostMedia> {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
-                color: Colors.black.withValues(alpha: 0.45),
+                color: colors.mediaBackground.withValues(alpha: 0.45),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Text(
                 '${_currentIndex + 1}/${widget.imageUrls.length}',
-                style: const TextStyle(
-                  color: Colors.white,
+                style: TextStyle(
+                  color: colors.postDetailText,
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
                 ),
@@ -409,8 +417,8 @@ class _PostMediaState extends State<_PostMedia> {
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: isActive
-                        ? Colors.white
-                        : Colors.white.withValues(alpha: 0.6),
+                        ? colors.postDetailText
+                        : colors.postDetailText.withValues(alpha: 0.6),
                   ),
                 );
               }),
@@ -421,7 +429,7 @@ class _PostMediaState extends State<_PostMedia> {
     );
   }
 
-  Widget _buildNetworkImage(String imageUrl) {
+  Widget _buildNetworkImage(String imageUrl, AppColors colors) {
     return ClipRRect(
       borderRadius: BorderRadius.circular(12),
       child: Image.network(
@@ -430,7 +438,7 @@ class _PostMediaState extends State<_PostMedia> {
         loadingBuilder: (context, child, loadingProgress) {
           if (loadingProgress == null) return child;
           return Container(
-            color: const Color(0xFFF1F1F1),
+            color: colors.inputFill,
             child: const Center(
               child: CircularProgressIndicator(strokeWidth: 2),
             ),
@@ -438,12 +446,12 @@ class _PostMediaState extends State<_PostMedia> {
         },
         errorBuilder: (context, error, stackTrace) {
           return Container(
-            color: const Color(0xFFF1F1F1),
-            child: const Center(
+            color: colors.inputFill,
+            child: Center(
               child: Icon(
                 Icons.broken_image_outlined,
                 size: 48,
-                color: Colors.black26,
+                color: colors.placeholderIcon,
               ),
             ),
           );
@@ -461,6 +469,7 @@ class _UserAvatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = AppColors.of(context);
     final initial = name.isEmpty ? '?' : name[0].toUpperCase();
     final hasNetwork = avatarUrl != null && avatarUrl!.trim().isNotEmpty;
     final normalizedAvatarUrl = hasNetwork
@@ -470,12 +479,12 @@ class _UserAvatar extends StatelessWidget {
     if (!hasNetwork) {
       return CircleAvatar(
         radius: 23,
-        backgroundColor: const Color(0xFFDADADA),
+        backgroundColor: colors.avatarPlaceholder,
         child: Text(
           initial,
-          style: const TextStyle(
+          style: TextStyle(
             fontWeight: FontWeight.w700,
-            color: Colors.black87,
+            color: colors.textPrimary,
             fontSize: 12,
           ),
         ),
@@ -484,7 +493,7 @@ class _UserAvatar extends StatelessWidget {
 
     return CircleAvatar(
       radius: 23,
-      backgroundColor: const Color(0xFFDADADA),
+      backgroundColor: colors.avatarPlaceholder,
       backgroundImage: NetworkImage(normalizedAvatarUrl!),
       onBackgroundImageError: (exception, stackTrace) {},
       child: null,
@@ -507,18 +516,19 @@ class _BottomAction extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = AppColors.of(context);
     return InkWell(
       onTap: onTap,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 26, color: color ?? Colors.black),
+          Icon(icon, size: 26, color: color ?? colors.textPrimary),
           const SizedBox(height: 6),
           Text(
             label,
             style: Theme.of(
               context,
-            ).textTheme.bodySmall?.copyWith(color: const Color(0xFF6E6E74)),
+            ).textTheme.bodySmall?.copyWith(color: colors.textSecondary),
           ),
         ],
       ),

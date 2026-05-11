@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/src/core/l10n/l10n.dart';
 
 import 'mochi_dm_styles.dart';
 
@@ -11,11 +12,11 @@ class MochiNewConvGroupRow extends StatelessWidget {
 
   final VoidCallback onCreateGroup;
 
-  Widget _buildCreateGroupButton() {
+  Widget _buildCreateGroupButton(BuildContext context) {
     return FilledButton.icon(
       onPressed: onCreateGroup,
       icon: const Icon(Icons.group_add_outlined, size: 18),
-      label: const Text('Tạo nhóm'),
+      label: Text(context.l10n.createGroupChatAction),
       style: FilledButton.styleFrom(
         backgroundColor: MochiDmStyles.primaryGreen,
         foregroundColor: Colors.white,
@@ -41,8 +42,8 @@ class MochiNewConvGroupRow extends StatelessWidget {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Tạo nhóm chat',
+                Text(
+                  context.l10n.createGroupChatTitle,
                   style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w700,
@@ -52,7 +53,7 @@ class MochiNewConvGroupRow extends StatelessWidget {
                 const SizedBox(height: 8),
                 Align(
                   alignment: Alignment.centerLeft,
-                  child: _buildCreateGroupButton(),
+                  child: _buildCreateGroupButton(context),
                 ),
               ],
             );
@@ -60,9 +61,9 @@ class MochiNewConvGroupRow extends StatelessWidget {
 
           return Row(
             children: [
-              const Expanded(
+              Expanded(
                 child: Text(
-                  'Tạo nhóm chat',
+                  context.l10n.createGroupChatTitle,
                   style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w700,
@@ -70,7 +71,7 @@ class MochiNewConvGroupRow extends StatelessWidget {
                   ),
                 ),
               ),
-              _buildCreateGroupButton(),
+              _buildCreateGroupButton(context),
             ],
           );
         },

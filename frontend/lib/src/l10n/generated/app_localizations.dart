@@ -389,7 +389,7 @@ abstract class AppLocalizations {
   /// No description provided for @addAccountSoon.
   ///
   /// In en, this message translates to:
-  /// **'Add account feature is coming soon.'**
+  /// **'The add account feature will be released soon.'**
   String get addAccountSoon;
 
   /// No description provided for @settingsAndActivity.
@@ -401,8 +401,26 @@ abstract class AppLocalizations {
   /// No description provided for @profileSettingsTitle.
   ///
   /// In en, this message translates to:
-  /// **'Profile settings'**
+  /// **'Settings'**
   String get profileSettingsTitle;
+
+  /// No description provided for @profileLanguageTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Language'**
+  String get profileLanguageTitle;
+
+  /// No description provided for @languageVietnamese.
+  ///
+  /// In en, this message translates to:
+  /// **'Tiếng Việt'**
+  String get languageVietnamese;
+
+  /// No description provided for @languageEnglish.
+  ///
+  /// In en, this message translates to:
+  /// **'English'**
+  String get languageEnglish;
 
   /// No description provided for @logoutAction.
   ///
@@ -443,13 +461,13 @@ abstract class AppLocalizations {
   /// No description provided for @featureInDevelopment.
   ///
   /// In en, this message translates to:
-  /// **'Feature is in development.'**
+  /// **'Feature in development'**
   String get featureInDevelopment;
 
   /// No description provided for @loadingProfileInfo.
   ///
   /// In en, this message translates to:
-  /// **'Loading profile information...'**
+  /// **'Loading information...'**
   String get loadingProfileInfo;
 
   /// No description provided for @noProfileData.
@@ -461,7 +479,7 @@ abstract class AppLocalizations {
   /// No description provided for @postsLabel.
   ///
   /// In en, this message translates to:
-  /// **'posts'**
+  /// **'Posts'**
   String get postsLabel;
 
   /// No description provided for @followersLabel.
@@ -539,7 +557,7 @@ abstract class AppLocalizations {
   /// No description provided for @profileUpdateSuccess.
   ///
   /// In en, this message translates to:
-  /// **'Profile updated.'**
+  /// **'Profile updated successfully.'**
   String get profileUpdateSuccess;
 
   /// No description provided for @profileUpdateFailed.
@@ -557,7 +575,7 @@ abstract class AppLocalizations {
   /// No description provided for @profileLoadFailed.
   ///
   /// In en, this message translates to:
-  /// **'Cannot load profile'**
+  /// **'Cannot load profile.'**
   String get profileLoadFailed;
 
   /// No description provided for @retryAction.
@@ -581,7 +599,7 @@ abstract class AppLocalizations {
   /// No description provided for @profileSavedLocal.
   ///
   /// In en, this message translates to:
-  /// **'Profile changes saved locally.'**
+  /// **'Profile information saved to cache.'**
   String get profileSavedLocal;
 
   /// No description provided for @privateAccount.
@@ -617,7 +635,7 @@ abstract class AppLocalizations {
   /// No description provided for @profileFormSampleData.
   ///
   /// In en, this message translates to:
-  /// **'The form data currently uses frontend UI sample data.'**
+  /// **'Data is currently using a test template.'**
   String get profileFormSampleData;
 
   /// No description provided for @mediaLibrary.
@@ -629,7 +647,7 @@ abstract class AppLocalizations {
   /// No description provided for @mediaSelectedReady.
   ///
   /// In en, this message translates to:
-  /// **'Image selected, ready for next step.'**
+  /// **'Image selected, ready to continue.'**
   String get mediaSelectedReady;
 
   /// No description provided for @chatGroupInfoTitle.
@@ -683,7 +701,7 @@ abstract class AppLocalizations {
   /// No description provided for @adminOnlyManageGroupInfo.
   ///
   /// In en, this message translates to:
-  /// **'Only admins can update group info and add members.'**
+  /// **'Only admins can change group info and add members.'**
   String get adminOnlyManageGroupInfo;
 
   /// No description provided for @memberList.
@@ -758,6 +776,24 @@ abstract class AppLocalizations {
   /// **'See all'**
   String get searchSeeAll;
 
+  /// No description provided for @clearAllAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear all'**
+  String get clearAllAction;
+
+  /// No description provided for @seeMoreAction.
+  ///
+  /// In en, this message translates to:
+  /// **'See more'**
+  String get seeMoreAction;
+
+  /// No description provided for @searchResultsCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Search results ({count})'**
+  String searchResultsCount(Object count);
+
   /// No description provided for @leaveGroup.
   ///
   /// In en, this message translates to:
@@ -779,7 +815,7 @@ abstract class AppLocalizations {
   /// No description provided for @groupMemberAdded.
   ///
   /// In en, this message translates to:
-  /// **'Members added to group'**
+  /// **'Member added to group'**
   String get groupMemberAdded;
 
   /// No description provided for @leaveGroupQuestion.
@@ -827,19 +863,19 @@ abstract class AppLocalizations {
   /// No description provided for @leftGroupSuccess.
   ///
   /// In en, this message translates to:
-  /// **'You left the group'**
+  /// **'You have successfully left the group.'**
   String get leftGroupSuccess;
 
   /// No description provided for @handoverAndLeaveSuccess.
   ///
   /// In en, this message translates to:
-  /// **'Admin rights transferred and you left the group'**
+  /// **'Admin rights transferred and you left the group successfully.'**
   String get handoverAndLeaveSuccess;
 
   /// No description provided for @secondConfirmation.
   ///
   /// In en, this message translates to:
-  /// **'Second confirmation'**
+  /// **'Confirm again'**
   String get secondConfirmation;
 
   /// No description provided for @aboutToHandoverAndLeave.
@@ -875,7 +911,7 @@ abstract class AppLocalizations {
   /// No description provided for @adminOnlyAction.
   ///
   /// In en, this message translates to:
-  /// **'Only admins can perform this action'**
+  /// **'Only admins can perform this action.'**
   String get adminOnlyAction;
 
   /// No description provided for @chatInviteLink.
@@ -887,7 +923,7 @@ abstract class AppLocalizations {
   /// No description provided for @inviteLinkCopied.
   ///
   /// In en, this message translates to:
-  /// **'Group invite link copied'**
+  /// **'Group invite link copied.'**
   String get inviteLinkCopied;
 
   /// No description provided for @addPeople.
@@ -911,7 +947,7 @@ abstract class AppLocalizations {
   /// No description provided for @noOnlineOrReadStatus.
   ///
   /// In en, this message translates to:
-  /// **'They will not know when you are online or read their messages'**
+  /// **'They will not see your active status or read receipts.'**
   String get noOnlineOrReadStatus;
 
   /// No description provided for @blockAction.
@@ -935,7 +971,7 @@ abstract class AppLocalizations {
   /// No description provided for @onlyAdminCanAddMembers.
   ///
   /// In en, this message translates to:
-  /// **'Only admins can add members'**
+  /// **'Only admins can add members.'**
   String get onlyAdminCanAddMembers;
 
   /// No description provided for @messagesSearchHint.
@@ -953,37 +989,37 @@ abstract class AppLocalizations {
   /// No description provided for @pendingMessages.
   ///
   /// In en, this message translates to:
-  /// **'Message requests'**
+  /// **'Pending messages'**
   String get pendingMessages;
 
   /// No description provided for @noConversationFound.
   ///
   /// In en, this message translates to:
-  /// **'No conversations found'**
+  /// **'No conversations found.'**
   String get noConversationFound;
 
   /// No description provided for @chatPinned.
   ///
   /// In en, this message translates to:
-  /// **'Chat pinned'**
+  /// **'Chat pinned.'**
   String get chatPinned;
 
   /// No description provided for @chatUnpinned.
   ///
   /// In en, this message translates to:
-  /// **'Chat unpinned'**
+  /// **'Chat unpinned.'**
   String get chatUnpinned;
 
   /// No description provided for @chatHidden.
   ///
   /// In en, this message translates to:
-  /// **'Chat hidden'**
+  /// **'Chat hidden.'**
   String get chatHidden;
 
   /// No description provided for @chatDeleted.
   ///
   /// In en, this message translates to:
-  /// **'Chat deleted'**
+  /// **'Chat deleted.'**
   String get chatDeleted;
 
   /// No description provided for @pinAction.
@@ -1013,55 +1049,55 @@ abstract class AppLocalizations {
   /// No description provided for @mutedNow.
   ///
   /// In en, this message translates to:
-  /// **'Muted'**
+  /// **'Notifications muted'**
   String get mutedNow;
 
   /// No description provided for @feedNotificationSoon.
   ///
   /// In en, this message translates to:
-  /// **'Notifications will be added later.'**
+  /// **'Notifications will be updated soon.'**
   String get feedNotificationSoon;
 
   /// No description provided for @sessionExpiredRelogin.
   ///
   /// In en, this message translates to:
-  /// **'Session expired. Please sign in again.'**
+  /// **'Session expired. Please log in again.'**
   String get sessionExpiredRelogin;
 
   /// No description provided for @emptyNoPosts.
   ///
   /// In en, this message translates to:
-  /// **'No posts yet'**
+  /// **'No posts yet.'**
   String get emptyNoPosts;
 
   /// No description provided for @emptyFollowFriends.
   ///
   /// In en, this message translates to:
-  /// **'Check back later or follow more friends'**
+  /// **'Check back later or follow more friends.'**
   String get emptyFollowFriends;
 
   /// No description provided for @shareSoon.
   ///
   /// In en, this message translates to:
-  /// **'Share will be added later.'**
+  /// **'Share feature will be updated soon.'**
   String get shareSoon;
 
   /// No description provided for @saveSoon.
   ///
   /// In en, this message translates to:
-  /// **'Save post will be added later.'**
+  /// **'Save post feature will be updated soon.'**
   String get saveSoon;
 
   /// No description provided for @createPostCannotPickGallery.
   ///
   /// In en, this message translates to:
-  /// **'Cannot pick images from gallery'**
+  /// **'Cannot pick images from gallery.'**
   String get createPostCannotPickGallery;
 
   /// No description provided for @createPostCannotOpenCamera.
   ///
   /// In en, this message translates to:
-  /// **'Cannot open camera'**
+  /// **'Cannot open camera.'**
   String get createPostCannotOpenCamera;
 
   /// No description provided for @createPostTitle.
@@ -1079,13 +1115,13 @@ abstract class AppLocalizations {
   /// No description provided for @captionHint.
   ///
   /// In en, this message translates to:
-  /// **'What are you thinking?'**
+  /// **'What\'s on your mind?'**
   String get captionHint;
 
   /// No description provided for @addMediaForPost.
   ///
   /// In en, this message translates to:
-  /// **'Add photo/video to your post'**
+  /// **'Add photo/video to post'**
   String get addMediaForPost;
 
   /// No description provided for @pickFromLibrary.
@@ -1109,19 +1145,19 @@ abstract class AppLocalizations {
   /// No description provided for @templateLabel.
   ///
   /// In en, this message translates to:
-  /// **'Template'**
+  /// **'Post template'**
   String get templateLabel;
 
   /// No description provided for @templateSoon.
   ///
   /// In en, this message translates to:
-  /// **'Templates will be added later.'**
+  /// **'Post templates will be updated soon.'**
   String get templateSoon;
 
   /// No description provided for @friendsSearchHint.
   ///
   /// In en, this message translates to:
-  /// **'Search'**
+  /// **'Search friends'**
   String get friendsSearchHint;
 
   /// No description provided for @cannotOpenChat.
@@ -1133,7 +1169,7 @@ abstract class AppLocalizations {
   /// No description provided for @placeholderLastMessage.
   ///
   /// In en, this message translates to:
-  /// **'This is a placeholder for the last message.'**
+  /// **'This is a sample message content.'**
   String get placeholderLastMessage;
 
   /// No description provided for @messageInputHint.
@@ -1151,7 +1187,7 @@ abstract class AppLocalizations {
   /// No description provided for @myLoveLabel.
   ///
   /// In en, this message translates to:
-  /// **'my love'**
+  /// **'My Love'**
   String get myLoveLabel;
 
   /// No description provided for @searchInConversationHint.
@@ -1169,7 +1205,7 @@ abstract class AppLocalizations {
   /// No description provided for @noMatchingResults.
   ///
   /// In en, this message translates to:
-  /// **'No matching results found'**
+  /// **'No matching results found.'**
   String get noMatchingResults;
 
   /// No description provided for @youLabel.
@@ -1187,13 +1223,13 @@ abstract class AppLocalizations {
   /// No description provided for @nicknameRemoved.
   ///
   /// In en, this message translates to:
-  /// **'Nickname removed for {name}'**
+  /// **'Removed nickname for {name}'**
   String nicknameRemoved(Object name);
 
   /// No description provided for @nicknameUpdated.
   ///
   /// In en, this message translates to:
-  /// **'Nickname updated for {name}'**
+  /// **'Updated nickname for {name}'**
   String nicknameUpdated(Object name);
 
   /// No description provided for @nicknameVisibleInChat.
@@ -1205,7 +1241,7 @@ abstract class AppLocalizations {
   /// No description provided for @groupNameHint.
   ///
   /// In en, this message translates to:
-  /// **'Enter group name'**
+  /// **'Group name'**
   String get groupNameHint;
 
   /// No description provided for @invitedMembers.
@@ -1271,7 +1307,7 @@ abstract class AppLocalizations {
   /// No description provided for @photosAndVideoTitle.
   ///
   /// In en, this message translates to:
-  /// **'Photos and Videos'**
+  /// **'Photos and Video'**
   String get photosAndVideoTitle;
 
   /// No description provided for @viewAll.
@@ -1283,7 +1319,7 @@ abstract class AppLocalizations {
   /// No description provided for @blockedMediaHidden.
   ///
   /// In en, this message translates to:
-  /// **'Photos and videos are hidden because you blocked this account.'**
+  /// **'Photo and video content is hidden because you blocked this account.'**
   String get blockedMediaHidden;
 
   /// No description provided for @mute10Minutes.
@@ -1331,7 +1367,7 @@ abstract class AppLocalizations {
   /// No description provided for @muteConversationTitle.
   ///
   /// In en, this message translates to:
-  /// **'Mute conversation notifications'**
+  /// **'Mute chat notifications'**
   String get muteConversationTitle;
 
   /// No description provided for @turnOnNotifications.
@@ -1445,7 +1481,7 @@ abstract class AppLocalizations {
   /// No description provided for @cannotRevokeOwnAdminTooltip.
   ///
   /// In en, this message translates to:
-  /// **'You cannot revoke your own role. Grant admin to someone else first.'**
+  /// **'You cannot revoke your own admin role. Grant admin to someone else first.'**
   String get cannotRevokeOwnAdminTooltip;
 
   /// No description provided for @cannotRevokeOwnAdmin.
@@ -1457,7 +1493,7 @@ abstract class AppLocalizations {
   /// No description provided for @onlyAdminCanGrantOrRevokeTooltip.
   ///
   /// In en, this message translates to:
-  /// **'Only admins can grant or revoke admin role.'**
+  /// **'Only admins can grant or revoke admin roles.'**
   String get onlyAdminCanGrantOrRevokeTooltip;
 
   /// No description provided for @noAdminPermissionForAction.
@@ -1469,7 +1505,7 @@ abstract class AppLocalizations {
   /// No description provided for @cannotRevokeLastAdmin.
   ///
   /// In en, this message translates to:
-  /// **'Cannot revoke the last admin in the group.'**
+  /// **'Cannot revoke the last admin role in the group.'**
   String get cannotRevokeLastAdmin;
 
   /// No description provided for @youAreCurrentAdmin.
@@ -1481,13 +1517,13 @@ abstract class AppLocalizations {
   /// No description provided for @adminHasFullControl.
   ///
   /// In en, this message translates to:
-  /// **'Admin has full control'**
+  /// **'Admins have full control'**
   String get adminHasFullControl;
 
   /// No description provided for @canGrantOrRevokeForOthers.
   ///
   /// In en, this message translates to:
-  /// **'You can grant/revoke admin role for other members.'**
+  /// **'You can grant/revoke admin roles for other members.'**
   String get canGrantOrRevokeForOthers;
 
   /// No description provided for @youHaveAdminRights.
@@ -1511,19 +1547,19 @@ abstract class AppLocalizations {
   /// No description provided for @onlyAdminCanGrantOrRevoke.
   ///
   /// In en, this message translates to:
-  /// **'Only admins are allowed to grant/revoke admin role.'**
+  /// **'Only admins are allowed to grant/revoke admin roles.'**
   String get onlyAdminCanGrantOrRevoke;
 
   /// No description provided for @mutePriorityHint.
   ///
   /// In en, this message translates to:
-  /// **'Top priority: clear all current mute states.'**
+  /// **'Highest priority: cancel all current mute states.'**
   String get mutePriorityHint;
 
   /// No description provided for @muteUntilTurnedOn.
   ///
   /// In en, this message translates to:
-  /// **'Until turned on again'**
+  /// **'Until turned back on'**
   String get muteUntilTurnedOn;
 
   /// No description provided for @exploreTitle.
@@ -1577,7 +1613,7 @@ abstract class AppLocalizations {
   /// No description provided for @postOptionReportDone.
   ///
   /// In en, this message translates to:
-  /// **'Report submitted'**
+  /// **'Report submitted successfully'**
   String get postOptionReportDone;
 
   /// No description provided for @postOptionReportDoneWithReason.
@@ -1631,13 +1667,13 @@ abstract class AppLocalizations {
   /// No description provided for @postReportReasonViolence.
   ///
   /// In en, this message translates to:
-  /// **'Violence or dangerous acts'**
+  /// **'Violence or dangerous content'**
   String get postReportReasonViolence;
 
   /// No description provided for @postReportReasonOther.
   ///
   /// In en, this message translates to:
-  /// **'Other'**
+  /// **'Other reason'**
   String get postReportReasonOther;
 
   /// No description provided for @postOptionAllHiddenTitle.
@@ -1685,13 +1721,13 @@ abstract class AppLocalizations {
   /// No description provided for @recentSearchTitle.
   ///
   /// In en, this message translates to:
-  /// **'Recent'**
+  /// **'Recent search'**
   String get recentSearchTitle;
 
   /// No description provided for @friendRequestSent.
   ///
   /// In en, this message translates to:
-  /// **'Sent'**
+  /// **'Request sent'**
   String get friendRequestSent;
 
   /// No description provided for @friendRequestSendSuccess.
@@ -1703,7 +1739,7 @@ abstract class AppLocalizations {
   /// No description provided for @friendRequestSendError.
   ///
   /// In en, this message translates to:
-  /// **'Cannot send friend request'**
+  /// **'Failed to send friend request'**
   String get friendRequestSendError;
 
   /// No description provided for @acceptFriendRequest.
@@ -1727,7 +1763,7 @@ abstract class AppLocalizations {
   /// No description provided for @markAllAsRead.
   ///
   /// In en, this message translates to:
-  /// **'Read all'**
+  /// **'Mark all as read'**
   String get markAllAsRead;
 
   /// No description provided for @titleSearch.
@@ -1777,6 +1813,822 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No notifications yet'**
   String get noNotifications;
+
+  /// No description provided for @onboardingWelcomeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome to Mochi'**
+  String get onboardingWelcomeTitle;
+
+  /// No description provided for @onboardingWelcomeDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'A social network connecting people, sharing meaningful moments in your life.'**
+  String get onboardingWelcomeDesc;
+
+  /// No description provided for @onboardingConnectTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect with Friends'**
+  String get onboardingConnectTitle;
+
+  /// No description provided for @onboardingConnectDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Search and connect with friends everywhere. Create beautiful memories together.'**
+  String get onboardingConnectDesc;
+
+  /// No description provided for @onboardingShareTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Share Your Passion'**
+  String get onboardingShareTitle;
+
+  /// No description provided for @onboardingShareDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Post articles, photos, and videos of the things you love every day.'**
+  String get onboardingShareDesc;
+
+  /// No description provided for @onboardingChatTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlimited Chat'**
+  String get onboardingChatTitle;
+
+  /// No description provided for @onboardingChatDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Free high-quality messages and calls. Keep in touch with loved ones.'**
+  String get onboardingChatDesc;
+
+  /// No description provided for @onboardingStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Start Now'**
+  String get onboardingStart;
+
+  /// No description provided for @onboardingNext.
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get onboardingNext;
+
+  /// No description provided for @onboardingSkip.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip'**
+  String get onboardingSkip;
+
+  /// No description provided for @notificationTabPosts.
+  ///
+  /// In en, this message translates to:
+  /// **'Posts'**
+  String get notificationTabPosts;
+
+  /// No description provided for @notificationTabFriends.
+  ///
+  /// In en, this message translates to:
+  /// **'Friends'**
+  String get notificationTabFriends;
+
+  /// No description provided for @notificationEmptyPosts.
+  ///
+  /// In en, this message translates to:
+  /// **'No post notifications yet'**
+  String get notificationEmptyPosts;
+
+  /// No description provided for @notificationEmptyFriends.
+  ///
+  /// In en, this message translates to:
+  /// **'No friend requests yet'**
+  String get notificationEmptyFriends;
+
+  /// No description provided for @notificationLiked.
+  ///
+  /// In en, this message translates to:
+  /// **'liked your post'**
+  String get notificationLiked;
+
+  /// No description provided for @notificationCommented.
+  ///
+  /// In en, this message translates to:
+  /// **'commented on your post'**
+  String get notificationCommented;
+
+  /// No description provided for @notificationFollowed.
+  ///
+  /// In en, this message translates to:
+  /// **'started following you'**
+  String get notificationFollowed;
+
+  /// No description provided for @navHome.
+  ///
+  /// In en, this message translates to:
+  /// **'Home'**
+  String get navHome;
+
+  /// No description provided for @navCreate.
+  ///
+  /// In en, this message translates to:
+  /// **'Create'**
+  String get navCreate;
+
+  /// No description provided for @navNotifications.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications'**
+  String get navNotifications;
+
+  /// No description provided for @navProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile'**
+  String get navProfile;
+
+  /// No description provided for @userDefaultName.
+  ///
+  /// In en, this message translates to:
+  /// **'User'**
+  String get userDefaultName;
+
+  /// No description provided for @profilePersonalTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Personal Profile'**
+  String get profilePersonalTitle;
+
+  /// No description provided for @noSessionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No Active Session'**
+  String get noSessionTitle;
+
+  /// No description provided for @noSessionMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Please login again to view your profile.'**
+  String get noSessionMessage;
+
+  /// No description provided for @retry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get retry;
+
+  /// No description provided for @noBio.
+  ///
+  /// In en, this message translates to:
+  /// **'No bio yet.'**
+  String get noBio;
+
+  /// No description provided for @friendsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Friends'**
+  String get friendsLabel;
+
+  /// No description provided for @photosLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Photos'**
+  String get photosLabel;
+
+  /// No description provided for @unknownRecipient.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown recipient for the message'**
+  String get unknownRecipient;
+
+  /// No description provided for @startChatting.
+  ///
+  /// In en, this message translates to:
+  /// **'Start chatting...'**
+  String get startChatting;
+
+  /// No description provided for @timeNow.
+  ///
+  /// In en, this message translates to:
+  /// **'now'**
+  String get timeNow;
+
+  /// No description provided for @conversationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Conversation'**
+  String get conversationTitle;
+
+  /// No description provided for @searchCategoryTrending.
+  ///
+  /// In en, this message translates to:
+  /// **'Trending'**
+  String get searchCategoryTrending;
+
+  /// No description provided for @searchCategoryTravel.
+  ///
+  /// In en, this message translates to:
+  /// **'Travel'**
+  String get searchCategoryTravel;
+
+  /// No description provided for @searchCategoryFood.
+  ///
+  /// In en, this message translates to:
+  /// **'Food'**
+  String get searchCategoryFood;
+
+  /// No description provided for @searchCategoryMusic.
+  ///
+  /// In en, this message translates to:
+  /// **'Music'**
+  String get searchCategoryMusic;
+
+  /// No description provided for @searchCategoryLandscape.
+  ///
+  /// In en, this message translates to:
+  /// **'Landscape'**
+  String get searchCategoryLandscape;
+
+  /// No description provided for @searchCategoryTech.
+  ///
+  /// In en, this message translates to:
+  /// **'Tech'**
+  String get searchCategoryTech;
+
+  /// No description provided for @noResultsFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No results found'**
+  String get noResultsFound;
+
+  /// No description provided for @peopleLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'People'**
+  String get peopleLabel;
+
+  /// No description provided for @discoverLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Discover'**
+  String get discoverLabel;
+
+  /// No description provided for @exploreLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Explore'**
+  String get exploreLabel;
+
+  /// No description provided for @deleteChatTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete chat'**
+  String get deleteChatTitle;
+
+  /// No description provided for @deleteChatConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Do you want to delete the chat with {name}?'**
+  String deleteChatConfirm(Object name);
+
+  /// No description provided for @delete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get delete;
+
+  /// No description provided for @loadMessagesFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load messages'**
+  String get loadMessagesFailed;
+
+  /// No description provided for @noChatFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No chat found'**
+  String get noChatFound;
+
+  /// No description provided for @searchAnotherKeyword.
+  ///
+  /// In en, this message translates to:
+  /// **'Try searching with another keyword.'**
+  String get searchAnotherKeyword;
+
+  /// No description provided for @createConversationFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to create conversation'**
+  String get createConversationFailed;
+
+  /// No description provided for @loadFriendsFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load friends list'**
+  String get loadFriendsFailed;
+
+  /// No description provided for @noFriendsFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No friends found'**
+  String get noFriendsFound;
+
+  /// No description provided for @likesCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} likes'**
+  String likesCount(Object count);
+
+  /// No description provided for @commentsCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} comments'**
+  String commentsCount(Object count);
+
+  /// No description provided for @sharesCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} shares'**
+  String sharesCount(Object count);
+
+  /// No description provided for @likeAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Like'**
+  String get likeAction;
+
+  /// No description provided for @commentAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Comment'**
+  String get commentAction;
+
+  /// No description provided for @shareAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Share'**
+  String get shareAction;
+
+  /// No description provided for @userLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'User'**
+  String get userLabel;
+
+  /// No description provided for @submitCommentFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to post comment. Please try again.'**
+  String get submitCommentFailed;
+
+  /// No description provided for @updateCommentFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to update comment.'**
+  String get updateCommentFailed;
+
+  /// No description provided for @updateCommentSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Comment updated.'**
+  String get updateCommentSuccess;
+
+  /// No description provided for @deleteCommentFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to delete comment.'**
+  String get deleteCommentFailed;
+
+  /// No description provided for @deleteCommentSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Comment deleted.'**
+  String get deleteCommentSuccess;
+
+  /// No description provided for @commentsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Comments'**
+  String get commentsTitle;
+
+  /// No description provided for @noCommentsYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No comments yet. Be the first to comment!'**
+  String get noCommentsYet;
+
+  /// No description provided for @replyingStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Replying...'**
+  String get replyingStatus;
+
+  /// No description provided for @replyAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Reply'**
+  String get replyAction;
+
+  /// No description provided for @replyingTo.
+  ///
+  /// In en, this message translates to:
+  /// **'Replying to {name}'**
+  String replyingTo(Object name);
+
+  /// No description provided for @writeCommentHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Write a comment...'**
+  String get writeCommentHint;
+
+  /// No description provided for @writeReplyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Write a reply...'**
+  String get writeReplyHint;
+
+  /// No description provided for @timeJustNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Just now'**
+  String get timeJustNow;
+
+  /// No description provided for @timeMinutesAgo.
+  ///
+  /// In en, this message translates to:
+  /// **'{count}m ago'**
+  String timeMinutesAgo(Object count);
+
+  /// No description provided for @timeHoursAgo.
+  ///
+  /// In en, this message translates to:
+  /// **'{count}h ago'**
+  String timeHoursAgo(Object count);
+
+  /// No description provided for @timeDaysAgo.
+  ///
+  /// In en, this message translates to:
+  /// **'{count}d ago'**
+  String timeDaysAgo(Object count);
+
+  /// No description provided for @postAuthorTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}\'s post'**
+  String postAuthorTitle(Object name);
+
+  /// No description provided for @deletePostTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete post?'**
+  String get deletePostTitle;
+
+  /// No description provided for @deletePostConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'This action cannot be undone.'**
+  String get deletePostConfirm;
+
+  /// No description provided for @whatIsHappening.
+  ///
+  /// In en, this message translates to:
+  /// **'What\'s happening?'**
+  String get whatIsHappening;
+
+  /// No description provided for @noPostsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No posts yet'**
+  String get noPostsTitle;
+
+  /// No description provided for @loadPostsFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load posts'**
+  String get loadPostsFailed;
+
+  /// No description provided for @postsEmptyMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Posts from this profile will appear here.'**
+  String get postsEmptyMessage;
+
+  /// No description provided for @postUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Post updated.'**
+  String get postUpdated;
+
+  /// No description provided for @noChangesToUpdate.
+  ///
+  /// In en, this message translates to:
+  /// **'No changes to update.'**
+  String get noChangesToUpdate;
+
+  /// No description provided for @typeMessageHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Type a message...'**
+  String get typeMessageHint;
+
+  /// No description provided for @noPhotosTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No photos yet'**
+  String get noPhotosTitle;
+
+  /// No description provided for @photosEmptyMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Photos from this profile\'s posts will appear here.'**
+  String get photosEmptyMessage;
+
+  /// No description provided for @saveImage.
+  ///
+  /// In en, this message translates to:
+  /// **'Save image'**
+  String get saveImage;
+
+  /// No description provided for @copyImage.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy image'**
+  String get copyImage;
+
+  /// No description provided for @shareImage.
+  ///
+  /// In en, this message translates to:
+  /// **'Share image'**
+  String get shareImage;
+
+  /// No description provided for @addFriendAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Add friend'**
+  String get addFriendAction;
+
+  /// No description provided for @messageAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Message'**
+  String get messageAction;
+
+  /// No description provided for @editPostTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Post'**
+  String get editPostTitle;
+
+  /// No description provided for @editPostDescriptionWithPhotos.
+  ///
+  /// In en, this message translates to:
+  /// **'You have {count} photos (including old and new).'**
+  String editPostDescriptionWithPhotos(Object count);
+
+  /// No description provided for @editPostDescriptionNoPhotos.
+  ///
+  /// In en, this message translates to:
+  /// **'You can edit the content or add new photos.'**
+  String get editPostDescriptionNoPhotos;
+
+  /// No description provided for @editPostContentHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter new content...'**
+  String get editPostContentHint;
+
+  /// No description provided for @existingPhotosLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Current photos'**
+  String get existingPhotosLabel;
+
+  /// No description provided for @newPhotosLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Newly added photos'**
+  String get newPhotosLabel;
+
+  /// No description provided for @saveChanges.
+  ///
+  /// In en, this message translates to:
+  /// **'Save changes'**
+  String get saveChanges;
+
+  /// No description provided for @noRetainedPhotos.
+  ///
+  /// In en, this message translates to:
+  /// **'No old photos kept'**
+  String get noRetainedPhotos;
+
+  /// No description provided for @noNewPhotos.
+  ///
+  /// In en, this message translates to:
+  /// **'No new photos yet'**
+  String get noNewPhotos;
+
+  /// No description provided for @oldPhotoLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Old'**
+  String get oldPhotoLabel;
+
+  /// No description provided for @newPhotoLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'New'**
+  String get newPhotoLabel;
+
+  /// No description provided for @postNeedsContentOrMedia.
+  ///
+  /// In en, this message translates to:
+  /// **'Post needs content or at least one photo'**
+  String get postNeedsContentOrMedia;
+
+  /// No description provided for @chatAllTab.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get chatAllTab;
+
+  /// No description provided for @chatGroupsTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Groups'**
+  String get chatGroupsTab;
+
+  /// No description provided for @searchInMessages.
+  ///
+  /// In en, this message translates to:
+  /// **'Search in messages'**
+  String get searchInMessages;
+
+  /// No description provided for @newConversationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'New conversation'**
+  String get newConversationTitle;
+
+  /// No description provided for @searchFriends.
+  ///
+  /// In en, this message translates to:
+  /// **'Search friends'**
+  String get searchFriends;
+
+  /// No description provided for @createGroupChatTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Create group chat'**
+  String get createGroupChatTitle;
+
+  /// No description provided for @createGroupChatAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Create group'**
+  String get createGroupChatAction;
+
+  /// No description provided for @createGroupAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Create'**
+  String get createGroupAction;
+
+  /// No description provided for @searchMembersHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search members'**
+  String get searchMembersHint;
+
+  /// No description provided for @createGroupFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to create group chat'**
+  String get createGroupFailed;
+
+  /// No description provided for @loadFriendsListFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load friends list'**
+  String get loadFriendsListFailed;
+
+  /// No description provided for @noFriendsFoundInChat.
+  ///
+  /// In en, this message translates to:
+  /// **'No friends found'**
+  String get noFriendsFoundInChat;
+
+  /// No description provided for @showAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Show'**
+  String get showAction;
+
+  /// No description provided for @deleteChatAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get deleteChatAction;
+
+  /// No description provided for @pendingMessagesCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending messages ({count})'**
+  String pendingMessagesCount(Object count);
+
+  /// No description provided for @collapseAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Collapse'**
+  String get collapseAction;
+
+  /// No description provided for @expandAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Expand'**
+  String get expandAction;
+
+  /// No description provided for @groupDefaultName.
+  ///
+  /// In en, this message translates to:
+  /// **'Group'**
+  String get groupDefaultName;
+
+  /// No description provided for @groupCreated.
+  ///
+  /// In en, this message translates to:
+  /// **'Group created'**
+  String get groupCreated;
+
+  /// No description provided for @deleteConversationAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete conversation'**
+  String get deleteConversationAction;
+
+  /// No description provided for @audioCallAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Audio call'**
+  String get audioCallAction;
+
+  /// No description provided for @videoCallAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Video call'**
+  String get videoCallAction;
+
+  /// No description provided for @viewProfileChatAction.
+  ///
+  /// In en, this message translates to:
+  /// **'View profile'**
+  String get viewProfileChatAction;
+
+  /// No description provided for @muteNotificationsAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Mute notifications'**
+  String get muteNotificationsAction;
+
+  /// No description provided for @customizationSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Customization'**
+  String get customizationSection;
+
+  /// No description provided for @themeAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Theme'**
+  String get themeAction;
+
+  /// No description provided for @themeModeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Light/Dark mode'**
+  String get themeModeLabel;
+
+  /// No description provided for @themeLight.
+  ///
+  /// In en, this message translates to:
+  /// **'Light'**
+  String get themeLight;
+
+  /// No description provided for @themeDark.
+  ///
+  /// In en, this message translates to:
+  /// **'Dark'**
+  String get themeDark;
+
+  /// No description provided for @otherActionsSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Other actions'**
+  String get otherActionsSection;
+
+  /// No description provided for @viewMediaFilesLinks.
+  ///
+  /// In en, this message translates to:
+  /// **'View media, files & links'**
+  String get viewMediaFilesLinks;
 }
 
 class _AppLocalizationsDelegate

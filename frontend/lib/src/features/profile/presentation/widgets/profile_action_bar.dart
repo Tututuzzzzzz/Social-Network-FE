@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/l10n/l10n.dart';
+import 'package:frontend/src/core/l10n/l10n.dart';
+import 'package:frontend/src/core/theme/app_colors.dart';
 
 class ProfileActionBar extends StatelessWidget {
   const ProfileActionBar({
@@ -20,12 +21,10 @@ class ProfileActionBar extends StatelessWidget {
   final VoidCallback? onAddFriend;
   final VoidCallback? onMessage;
 
-  static const Color _mint = Color(0xFF25A97A);
-  static const Color _mintDark = Color(0xFF137B5B);
-  static const Color _messageBlue = Color(0xFF2F6FED);
-
   @override
   Widget build(BuildContext context) {
+    final colors = AppColors.of(context);
+
     return Row(
       children: [
         Expanded(
@@ -34,19 +33,19 @@ class ProfileActionBar extends StatelessWidget {
                 ? context.l10n.friends
                 : isFriendRequestSent
                 ? context.l10n.friendRequestSent
-                : 'Kết bạn',
+                : context.l10n.addFriendAction,
             icon: isFriend || isFriendRequestSent
                 ? Icons.check_rounded
                 : Icons.person_add_alt_1_rounded,
             backgroundColor: isFriend || isFriendRequestSent
-                ? const Color(0xFFE6F7F0)
-                : _mint,
+                ? colors.chipFollowingBg
+                : colors.chipFollowBg,
             foregroundColor: isFriend || isFriendRequestSent
-                ? _mintDark
-                : Colors.white,
+                ? colors.chipFollowingText
+                : colors.chipFollowText,
             borderColor: isFriend || isFriendRequestSent
-                ? const Color(0xFFBFEBD9)
-                : _mint,
+                ? colors.inputBorder
+                : colors.chipFollowBg,
             isLoading: isSendingFriendRequest,
             onPressed: isFriend || isFriendRequestSent ? null : onAddFriend,
           ),
@@ -54,14 +53,14 @@ class ProfileActionBar extends StatelessWidget {
         const SizedBox(width: 12),
         Expanded(
           child: _ProfileActionButton(
-            label: 'Nhắn tin',
+            label: context.l10n.messageAction,
             icon: Icons.chat_bubble_rounded,
-            backgroundColor: Colors.white.withValues(alpha: 0.96),
-            foregroundColor: _messageBlue,
-            borderColor: const Color(0xFFD8E5FF),
+            backgroundColor: colors.sheetSurface,
+            foregroundColor: colors.postDetailLink,
+            borderColor: colors.navBorder,
             isLoading: isOpeningMessage,
             onPressed: onMessage,
-            shadowColor: _messageBlue.withValues(alpha: 0.08),
+            shadowColor: colors.scrim,
           ),
         ),
       ],
@@ -107,9 +106,7 @@ class _ProfileActionButton extends StatelessWidget {
             border: Border.all(color: borderColor),
             boxShadow: [
               BoxShadow(
-                color:
-                    shadowColor ??
-                    const Color(0xFF1D5848).withValues(alpha: 0.12),
+                color: shadowColor ?? Colors.black.withValues(alpha: 0.08),
                 blurRadius: 14,
                 offset: const Offset(0, 8),
               ),

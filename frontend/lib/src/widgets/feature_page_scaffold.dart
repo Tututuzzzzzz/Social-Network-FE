@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import '../core/theme/app_colors.dart';
 
 class FeaturePageScaffold extends StatelessWidget {
   final String title;
@@ -68,6 +69,7 @@ class FeaturePageScaffold extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final mediaQuery = MediaQuery.of(context);
+    final colors = AppColors.of(context);
     return Material(
       color: Colors.transparent,
       child: Column(
@@ -85,10 +87,12 @@ class FeaturePageScaffold extends StatelessWidget {
                   ),
                 ),
                 if (isLoading)
-                  const Positioned.fill(
+                  Positioned.fill(
                     child: ColoredBox(
-                      color: Color(0x66000000),
-                      child: Center(child: CircularProgressIndicator()),
+                      color: colors.scrim,
+                      child: const Center(
+                        child: CircularProgressIndicator(),
+                      ),
                     ),
                   ),
               ],
@@ -100,11 +104,14 @@ class FeaturePageScaffold extends StatelessWidget {
   }
 
   Widget _buildCustomAppBar(BuildContext context) {
+    final colors = AppColors.of(context);
     return Container(
       padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        border: Border(bottom: BorderSide(color: Color(0xFFEEEEEE), width: 0.5)),
+      decoration: BoxDecoration(
+        color: colors.sheetSurface,
+        border: Border(
+          bottom: BorderSide(color: colors.subtleBorder, width: 0.5),
+        ),
       ),
       child: SizedBox(
         height: kToolbarHeight,
@@ -147,13 +154,14 @@ class _ScaffoldStatusView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = AppColors.of(context);
     return Center(
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 320),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 42, color: Colors.blueGrey),
+            Icon(icon, size: 42, color: colors.placeholderIcon),
             const SizedBox(height: 12),
             Text(
               title,
@@ -166,7 +174,7 @@ class _ScaffoldStatusView extends StatelessWidget {
               textAlign: TextAlign.center,
               style: Theme.of(
                 context,
-              ).textTheme.bodyMedium?.copyWith(color: Colors.grey[700]),
+              ).textTheme.bodyMedium?.copyWith(color: colors.placeholderText),
             ),
             if (actionLabel != null && onActionPressed != null) ...[
               const SizedBox(height: 16),
@@ -696,6 +704,7 @@ class _SvgPreviewAction extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = AppColors.of(context);
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -703,7 +712,10 @@ class _SvgPreviewAction extends StatelessWidget {
           svgData,
           width: 18,
           height: 18,
-          colorFilter: const ColorFilter.mode(Colors.black, BlendMode.srcIn),
+          colorFilter: ColorFilter.mode(
+            colors.textPrimary,
+            BlendMode.srcIn,
+          ),
         ),
         const SizedBox(width: 5),
         Text(label),

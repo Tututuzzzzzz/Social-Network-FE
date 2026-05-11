@@ -4,7 +4,8 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../configs/injector/injector_conf.dart';
 import '../../../../core/cache/secure_local_storage.dart';
-import '../../../../core/l10n/l10n.dart';
+import 'package:frontend/src/core/l10n/l10n.dart';
+import 'package:frontend/src/core/theme/app_colors.dart';
 import '../../../../routes/app_route_path.dart';
 import '../../domain/entities/profile_entity.dart';
 import '../../domain/usecases/usecase_params.dart';
@@ -165,12 +166,13 @@ class _EditProfilePageState extends State<EditProfilePage> {
       },
       builder: (context, state) {
         final isSubmitting = state is ProfileActionLoadingState;
+        final colors = AppColors.of(context);
 
         return Scaffold(
-          backgroundColor: const Color(0xFFF3F7F5),
+          backgroundColor: colors.scaffold,
           appBar: AppBar(
-            backgroundColor: const Color(0xFF31B991),
-            foregroundColor: Colors.white,
+            backgroundColor: colors.appBar,
+            foregroundColor: colors.appBarForeground,
             elevation: 0,
             centerTitle: true,
             title: Text(
@@ -185,6 +187,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
   }
 
   Widget _buildBody(ProfileState state, bool isSubmitting) {
+    final colors = AppColors.of(context);
+    final theme = Theme.of(context);
     if (_isResolvingUser ||
         (!_didFillForm &&
             (state is ProfileInitialState || state is ProfileLoadingState))) {
@@ -218,14 +222,14 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 message: state.message,
               ),
               const SizedBox(height: 18),
-              FilledButton(
-                style: FilledButton.styleFrom(
-                  backgroundColor: const Color(0xFF25A97A),
-                  foregroundColor: Colors.white,
-                ),
-                onPressed: _targetUserId.isEmpty
-                    ? _resolveAndLoadProfile
-                    : () => context.read<ProfileBloc>().add(
+                FilledButton(
+                  style: FilledButton.styleFrom(
+                    backgroundColor: colors.accent,
+                    foregroundColor: theme.colorScheme.onPrimary,
+                  ),
+                  onPressed: _targetUserId.isEmpty
+                      ? _resolveAndLoadProfile
+                      : () => context.read<ProfileBloc>().add(
                         ProfileGetEvent(ProfileParams(userId: _targetUserId)),
                       ),
                 child: Text(context.l10n.retryAction),
@@ -277,9 +281,11 @@ class _EditProfilePageState extends State<EditProfilePage> {
               FilledButton(
                 onPressed: isSubmitting ? null : _submit,
                 style: FilledButton.styleFrom(
-                  backgroundColor: const Color(0xFF25A97A),
-                  foregroundColor: Colors.white,
-                  disabledBackgroundColor: const Color(0xFFD7E0DC),
+                  backgroundColor: colors.accent,
+                  foregroundColor: theme.colorScheme.onPrimary,
+                  disabledBackgroundColor: colors.inputBorder.withValues(
+                    alpha: 0.7,
+                  ),
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   shape: const StadiumBorder(),
                 ),
@@ -310,7 +316,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
         if (isSubmitting)
           Positioned.fill(
             child: ColoredBox(
-              color: Colors.black.withValues(alpha: 0.12),
+              color: colors.scrim,
               child: const Center(
                 child: SizedBox(
                   width: 34,
@@ -350,6 +356,7 @@ class _EditProfileField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = AppColors.of(context);
     return TextFormField(
       controller: controller,
       minLines: minLines,
@@ -360,9 +367,9 @@ class _EditProfileField extends StatelessWidget {
       onFieldSubmitted: onFieldSubmitted,
       decoration: InputDecoration(
         labelText: label,
-        prefixIcon: Icon(icon),
+        prefixIcon: Icon(icon, color: colors.placeholderIcon),
         filled: true,
-        fillColor: Colors.white,
+        fillColor: colors.sheetSurface,
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 16,
           vertical: 14,
@@ -373,19 +380,19 @@ class _EditProfileField extends StatelessWidget {
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(color: Color(0xFFE3E8E5)),
+          borderSide: BorderSide(color: colors.inputBorder),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(color: Color(0xFF25A97A), width: 1.4),
+          borderSide: BorderSide(color: colors.accent, width: 1.4),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(color: Color(0xFFE53935)),
+          borderSide: BorderSide(color: colors.error),
         ),
         focusedErrorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(color: Color(0xFFE53935), width: 1.4),
+          borderSide: BorderSide(color: colors.error, width: 1.4),
         ),
       ),
     );

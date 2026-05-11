@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/src/core/theme/app_colors.dart';
 
 import 'create_post_actions.dart';
 
@@ -18,13 +19,14 @@ class CreatePostBottomTools extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = AppColors.of(context);
     return SafeArea(
       top: false,
       child: Container(
         height: 78,
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          border: Border(top: BorderSide(color: Color(0xFFE2E4E8))),
+        decoration: BoxDecoration(
+          color: colors.sheetSurface,
+          border: Border(top: BorderSide(color: colors.navBorder)),
         ),
         padding: const EdgeInsets.symmetric(horizontal: 24),
         child: Row(

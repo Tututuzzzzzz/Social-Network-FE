@@ -53,17 +53,20 @@
   "profileChooseAccount": "Choose account",
   "profileAccountSwitched": "Account switched.",
   "addAccount": "Add account",
-  "addAccountSoon": "Add account feature is coming soon.",
+  "addAccountSoon": "The add account feature will be released soon.",
   "settingsAndActivity": "Settings and activity",
-  "profileSettingsTitle": "Profile settings",
+  "profileSettingsTitle": "Settings",
+  "profileLanguageTitle": "Language",
+  "languageVietnamese": "Tiếng Việt",
+  "languageEnglish": "English",
   "logoutAction": "Log out",
   "logoutFailed": "Logout failed",
   "archive": "Archive",
   "switchToProfessionalAccount": "Switch to professional account",
   "switchToBusinessAccount": "Switch to business account",
   "switchAccount": "Switch account",
-  "featureInDevelopment": "Feature is in development.",
-  "loadingProfileInfo": "Loading profile information...",
+  "featureInDevelopment": "Feature is currently in development.",
+  "loadingProfileInfo": "Loading information...",
   "noProfileData": "No profile data available.",
   "postsLabel": "posts",
   "followersLabel": "followers",
@@ -78,32 +81,36 @@
   "displayNameLabel": "Display name",
   "editAvatarAction": "Edit photo or avatar",
   "pleaseEnterDisplayName": "Please enter display name",
-  "profileUpdateSuccess": "Profile updated.",
+  "profileUpdateSuccess": "Profile updated successfully.",
   "profileUpdateFailed": "Cannot update profile.",
   "profileNoChanges": "There are no changes to update.",
-  "profileLoadFailed": "Cannot load profile",
+  "profileLoadFailed": "Cannot load profile.",
   "retryAction": "Try again",
   "updateAvatarSuccess": "Avatar updated successfully.",
   "updateAvatarFailed": "Cannot update avatar.",
-  "profileSavedLocal": "Profile changes saved locally.",
+  "profileSavedLocal": "Profile information saved to cache.",
   "privateAccount": "Private account",
   "personalInfo": "Personal information",
   "emailLabel": "Email",
   "phoneLabel": "Phone",
   "genderLabel": "Gender",
-  "profileFormSampleData": "The form data currently uses frontend UI sample data.",
+  "profileFormSampleData": "Data is currently using a test template.",
   "mediaLibrary": "Library",
-  "mediaSelectedReady": "Image selected, ready for next step.",
+  "mediaSelectedReady": "Image selected, ready to continue.",
   "chatGroupInfoTitle": "Group info",
   "groupNotFound": "Group information not found",
   "membersCount": "{count} members",
-  "@membersCount": { "placeholders": { "count": {} } },
+  "@membersCount": {
+    "placeholders": {
+      "count": {}
+    }
+  },
   "groupRename": "Rename group",
   "groupChangeAvatar": "Change group avatar",
   "addMember": "Add member",
   "searchMessages": "Search messages",
   "photosAndVideos": "Photos and videos",
-  "adminOnlyManageGroupInfo": "Only admins can update group info and add members.",
+  "adminOnlyManageGroupInfo": "Only admins can change group info and add members.",
   "memberList": "Member list",
   "youSuffix": "you",
   "adminRole": "Admin",
@@ -116,10 +123,18 @@
   "searchPlaces": "Places",
   "searchNoResults": "No results found",
   "searchSeeAll": "See all",
+  "clearAllAction": "Clear all",
+  "seeMoreAction": "See more",
+  "searchResultsCount": "Search results ({count})",
+  "@searchResultsCount": {
+    "placeholders": {
+      "count": {}
+    }
+  },
   "leaveGroup": "Leave group",
   "lastAdminCannotLeave": "You are the last admin. Transfer admin rights before leaving.",
   "groupChatFallback": "Group chat",
-  "groupMemberAdded": "Members added to group",
+  "groupMemberAdded": "Member added to group",
   "leaveGroupQuestion": "Leave group?",
   "leaveGroupNoNewMessages": "You will no longer receive new messages from this group.",
   "selectNewAdminBeforeLeave": "You are the last admin. Choose a new admin before leaving.",
@@ -127,174 +142,407 @@
   "currentRoleAdmin": "Current role: Admin",
   "currentRoleMember": "Current role: Member",
   "cannotLeaveGroupCheckAdmin": "Cannot leave group. Please recheck admin permissions.",
-  "leftGroupSuccess": "You left the group",
-  "handoverAndLeaveSuccess": "Admin rights transferred and you left the group",
-  "secondConfirmation": "Second confirmation",
+  "leftGroupSuccess": "You have successfully left the group.",
+  "handoverAndLeaveSuccess": "Admin rights transferred and you left the group successfully.",
+  "secondConfirmation": "Confirm again",
   "aboutToHandoverAndLeave": "You are about to transfer admin rights and leave the group.",
   "newAdminWillBe": "Will become the new admin",
   "afterConfirmLeaveImmediately": "After confirmation, you will leave the group immediately.",
   "goBack": "Go back",
   "confirmHandover": "Confirm transfer",
-  "adminOnlyAction": "Only admins can perform this action",
+  "adminOnlyAction": "Only admins can perform this action.",
   "chatInviteLink": "Invite link",
-  "inviteLinkCopied": "Group invite link copied",
+  "inviteLinkCopied": "Group invite link copied.",
   "addPeople": "Add people",
   "youBlockedUser": "You blocked {name}",
-  "@youBlockedUser": { "placeholders": { "name": {} } },
+  "@youBlockedUser": {
+    "placeholders": {
+      "name": {}
+    }
+  },
   "youRestrictedUser": "You restricted {name}",
-  "@youRestrictedUser": { "placeholders": { "name": {} } },
-  "noOnlineOrReadStatus": "They will not know when you are online or read their messages",
+  "@youRestrictedUser": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "noOnlineOrReadStatus": "They will not see your active status or read receipts.",
   "blockAction": "Block",
   "unblockAction": "Unblock",
   "unrestrictAction": "Unrestrict",
-  "onlyAdminCanAddMembers": "Only admins can add members",
+  "onlyAdminCanAddMembers": "Only admins can add members.",
   "messagesSearchHint": "Search",
   "messagesTitle": "Messages",
-  "pendingMessages": "Message requests",
-  "noConversationFound": "No conversations found",
-  "chatPinned": "Chat pinned",
-  "chatUnpinned": "Chat unpinned",
-  "chatHidden": "Chat hidden",
-  "chatDeleted": "Chat deleted",
+  "pendingMessages": "Pending messages",
+  "noConversationFound": "No conversations found.",
+  "chatPinned": "Chat pinned.",
+  "chatUnpinned": "Chat unpinned.",
+  "chatHidden": "Chat hidden.",
+  "chatDeleted": "Chat deleted.",
   "pinAction": "Pin",
   "unpinAction": "Unpin",
   "hideAction": "Hide",
   "deleteAction": "Delete",
-  "mutedNow": "Muted",
-  "feedNotificationSoon": "Notifications will be added later.",
-  "sessionExpiredRelogin": "Session expired. Please sign in again.",
-  "emptyNoPosts": "No posts yet",
-  "emptyFollowFriends": "Check back later or follow more friends",
-  "shareSoon": "Share will be added later.",
-  "saveSoon": "Save post will be added later.",
-  "createPostCannotPickGallery": "Cannot pick images from gallery",
-  "createPostCannotOpenCamera": "Cannot open camera",
+  "mutedNow": "Notifications muted",
+  "feedNotificationSoon": "Notifications will be updated soon.",
+  "sessionExpiredRelogin": "Session expired. Please log in again.",
+  "emptyNoPosts": "No posts yet.",
+  "emptyFollowFriends": "Check back later or follow more friends.",
+  "shareSoon": "Share feature will be updated soon.",
+  "saveSoon": "Save post feature will be updated soon.",
+  "createPostCannotPickGallery": "Cannot pick images from gallery.",
+  "createPostCannotOpenCamera": "Cannot open camera.",
   "createPostTitle": "Create post",
   "postAction": "Post",
-  "captionHint": "What are you thinking?",
-  "addMediaForPost": "Add photo/video to your post",
+  "captionHint": "What's on your mind?",
+  "addMediaForPost": "Add photo/video to post",
   "pickFromLibrary": "Pick from library",
   "libraryLabel": "Photos",
   "cameraLabel": "Camera",
-  "templateLabel": "Template",
-  "templateSoon": "Templates will be added later.",
-  "friendsSearchHint": "Search",
+  "templateLabel": "Post template",
+  "templateSoon": "Post templates will be updated soon.",
+  "friendsSearchHint": "Search friends",
+  "cannotOpenChat": "Cannot open conversation: {error}",
+  "@cannotOpenChat": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "placeholderLastMessage": "This is a sample message content.",
+  "messageInputHint": "Type a message...",
+  "bioLabel": "Bio",
+  "myLoveLabel": "My Love",
+  "searchInConversationHint": "Search in conversation",
+  "enterKeywordToSearch": "Enter a keyword to search messages",
+  "noMatchingResults": "No matching results found.",
+  "youLabel": "You",
+  "enterNicknameHint": "Enter nickname",
+  "nicknameRemoved": "Removed nickname for {name}",
+  "@nicknameRemoved": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "nicknameUpdated": "Updated nickname for {name}",
+  "@nicknameUpdated": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "nicknameVisibleInChat": "Everyone in this chat will see this nickname for {name}.",
+  "@nicknameVisibleInChat": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "groupNameHint": "Enter group name",
+  "invitedMembers": "Invited members",
+  "searchGeneric": "Search",
+  "safetyProfile": "Profile",
+  "restrictAction": "Restrict",
+  "blockAccount": "Block account",
+  "unblockAccount": "Unblock account",
+  "nicknameAction": "Nickname",
+  "createGroupChat": "Create group chat",
+  "optionsLabel": "Options",
+  "muteOffLabel": "Off",
+  "photosAndVideoTitle": "Photos and Video",
+  "viewAll": "View all",
+  "blockedMediaHidden": "Photo and video content is hidden because you blocked this account.",
+  "mute10Minutes": "10 minutes",
+  "mute30Minutes": "30 minutes",
+  "mute1Hour": "1 hour",
+  "mute2Hours": "2 hours",
+  "mute12Hours": "12 hours",
+  "mute24Hours": "24 hours",
+  "mute48Hours": "48 hours",
+  "muteConversationTitle": "Mute chat notifications",
+  "turnOnNotifications": "Turn on notifications",
+  "grantAdmin": "Grant admin role",
+  "revokeAdmin": "Revoke admin role",
+  "revokeAdminLocked": "Revoke admin role (locked)",
+  "onlyAdminCanChangeRole": "Only admins can change roles",
+  "privateMessage": "Private message",
+  "thisIsYourAccount": "This is your account",
+  "newGroupTitle": "New group",
+  "editGroupTitle": "Edit group",
+  "createAction": "Create",
+  "peopleWhoCanContactYou": "People who can contact you",
+  "editNicknameTitle": "Edit nickname",
+  "groupRoleTitle": "Group role",
+  "memberIdTitle": "Member ID",
+  "adminGrantedTo": "Granted admin role to {name}",
+  "@adminGrantedTo": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "cannotGrantAdmin": "Cannot grant admin role",
+  "adminRevokedFrom": "Revoked admin role from {name}",
+  "@adminRevokedFrom": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "cannotRevokeAdmin": "Cannot revoke admin role",
+  "cannotRevokeOwnAdminTooltip": "You cannot revoke your own admin role. Grant admin to someone else first.",
+  "cannotRevokeOwnAdmin": "You cannot revoke your own admin role",
+  "onlyAdminCanGrantOrRevokeTooltip": "Only admins can grant or revoke admin roles.",
+  "noAdminPermissionForAction": "You do not have admin permission for this action",
+  "cannotRevokeLastAdmin": "Cannot revoke the last admin role in the group.",
+  "youAreCurrentAdmin": "You are the current admin",
+  "adminHasFullControl": "Admins have full control",
+  "canGrantOrRevokeForOthers": "You can grant/revoke admin roles for other members.",
+  "youHaveAdminRights": "You have admin rights",
+  "canChangeMemberRoles": "You can change member roles in this group.",
+  "noPermissionChangeRole": "You do not have permission to change roles",
+  "onlyAdminCanGrantOrRevoke": "Only admins are allowed to grant/revoke admin roles.",
+  "mutePriorityHint": "Highest priority: cancel all current mute states.",
+  "muteUntilTurnedOn": "Until turned back on",
+  "exploreTitle": "Explore",
+  "reelsTitle": "Reels",
+  "postOptionAddToFavorites": "Add to favorites",
+  "postOptionAboutThisAccount": "About this account",
+  "postOptionHidePost": "Hide post",
+  "postOptionReport": "Report",
+  "postOptionAddToFavoritesDone": "Added to favorites",
+  "postOptionHidePostDone": "Post hidden",
+  "postOptionReportDone": "Report submitted successfully",
+  "postOptionReportDoneWithReason": "Report submitted with reason: {reason}",
+  "@postOptionReportDoneWithReason": {
+    "placeholders": {
+      "reason": {}
+    }
+  },
+  "postReportTitle": "Report post",
+  "postReportSelectReason": "Select the most relevant reason",
+  "postReportSubmit": "Submit report",
+  "postReportReasonSpam": "Spam",
+  "postReportReasonHarassment": "Harassment or bullying",
+  "postReportReasonFalseInfo": "False information",
+  "postReportReasonHateSpeech": "Hate speech",
+  "postReportReasonViolence": "Violence or dangerous content",
+  "postReportReasonOther": "Other reason",
+  "postOptionAllHiddenTitle": "You have hidden all posts",
+  "postOptionAllHiddenDescription": "Refresh to load new content or wait for other posts.",
+  "followingStatus": "Following",
+  "yourStory": "Your Story",
+  "viewAllComments": "View all {count} comments",
+  "@viewAllComments": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "likesCountText": "{count} likes",
+  "@likesCountText": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "followAction": "Follow",
+  "recentSearchTitle": "Recent search",
+  "friendRequestSent": "Request sent",
+  "friendRequestSendSuccess": "Friend request sent successfully.",
+  "friendRequestSendError": "Cannot send friend request.",
+  "acceptFriendRequest": "Accept",
+  "rejectFriendRequest": "Reject",
+  "notificationsTitle": "Notifications",
+  "markAllAsRead": "Mark all as read",
+  "titleSearch": "Search",
+  "titleReels": "Reels",
+  "titleChat": "Chat",
+  "friends": "Friends",
+  "friendRequestAccepted": "Friend request accepted",
+  "yourFriendRequestAccepted": "Your friend request has been accepted",
+  "friendRequestReceived": "sent you a friend request",
+  "noNotifications": "No notifications yet",
+  "onboardingWelcomeTitle": "Welcome to Mochi",
+  "onboardingWelcomeDesc": "A social network connecting people, sharing meaningful moments in your life.",
+  "onboardingConnectTitle": "Connect with Friends",
+  "onboardingConnectDesc": "Search and connect with friends everywhere. Create beautiful memories together.",
+  "onboardingShareTitle": "Share Your Passion",
+  "onboardingShareDesc": "Post articles, photos, and videos of the things you love every day.",
+  "onboardingChatTitle": "Unlimited Chat",
+  "onboardingChatDesc": "Free high-quality messages and calls. Keep in touch with loved ones.",
+  "onboardingStart": "Start Now",
+  "onboardingNext": "Next",
+  "onboardingSkip": "Skip",
+  "notificationTabPosts": "Posts",
+  "notificationTabFriends": "Friends",
+  "notificationEmptyPosts": "No post notifications yet",
+  "notificationEmptyFriends": "No friend requests yet",
+  "notificationLiked": "liked your post",
+  "notificationCommented": "commented on your post",
+  "notificationFollowed": "started following you",
+  "navHome": "Home",
+  "navCreate": "Create",
+  "navNotifications": "Notifications",
+  "navProfile": "Profile",
+  "userDefaultName": "User",
+  "profilePersonalTitle": "Personal Profile",
+  "noSessionTitle": "No Active Session",
+  "noSessionMessage": "Please login again to view your profile.",
+  "retry": "Retry",
+  "noBio": "No bio yet.",
+  "friendsLabel": "Friends",
+  "postsLabel": "Posts",
+  "photosLabel": "Photos",
+  "unknownRecipient": "Unknown recipient for the message",
+  "startChatting": "Start chatting...",
+  "timeNow": "now",
+  "conversationTitle": "Conversation",
+  "searchCategoryTrending": "Trending",
+  "searchCategoryTravel": "Travel",
+  "searchCategoryFood": "Food",
+  "searchCategoryMusic": "Music",
+  "searchCategoryLandscape": "Landscape",
+  "searchCategoryTech": "Tech",
+  "noResultsFound": "No results found",
+  "peopleLabel": "People",
+  "viewAll": "See all",
+  "discoverLabel": "Discover",
+  "exploreLabel": "Explore",
+  "deleteChatTitle": "Delete chat",
+  "deleteChatConfirm": "Do you want to delete the chat with {name}?",
+  "@deleteChatConfirm": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "cancel": "Cancel",
+  "delete": "Delete",
+  "loadMessagesFailed": "Failed to load messages",
+  "noChatFound": "No chat found",
+  "searchAnotherKeyword": "Try searching with another keyword.",
+  "createConversationFailed": "Failed to create conversation",
+  "loadFriendsFailed": "Failed to load friends list",
+  "noFriendsFound": "No friends found",
+  "likesCount": "{count} likes",
+  "@likesCount": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "commentsCount": "{count} comments",
+  "@commentsCount": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "sharesCount": "{count} shares",
+  "@sharesCount": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "likeAction": "Like",
+  "commentAction": "Comment",
+  "shareAction": "Share",
+  "youLabel": "You",
+  "userLabel": "User",
+  "submitCommentFailed": "Failed to post comment. Please try again.",
+  "updateCommentFailed": "Failed to update comment.",
+  "updateCommentSuccess": "Comment updated.",
+  "deleteCommentFailed": "Failed to delete comment.",
+  "deleteCommentSuccess": "Comment deleted.",
+  "commentsTitle": "Comments",
+  "noCommentsYet": "No comments yet. Be the first to comment!",
+  "replyingStatus": "Replying...",
+  "replyAction": "Reply",
+  "replyingTo": "Replying to {name}",
+  "@replyingTo": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "writeCommentHint": "Write a comment...",
+  "writeReplyHint": "Write a reply...",
+  "timeJustNow": "Just now",
+  "timeMinutesAgo": "{count}m ago",
+  "timeHoursAgo": "{count}h ago",
+  "timeDaysAgo": "{count}d ago",
+  "postAuthorTitle": "{name}'s post",
+  "deletePostTitle": "Delete post?",
+  "deletePostConfirm": "This action cannot be undone.",
+  "friendsLabel": "Friends",
+  "whatIsHappening": "What's happening?",
+  "noPostsTitle": "No posts yet",
+  "loadPostsFailed": "Failed to load posts",
+  "postsEmptyMessage": "Posts from this profile will appear here.",
+  "featureInDevelopment": "Feature in development",
+  "postUpdated": "Post updated.",
+  "noChangesToUpdate": "No changes to update.",
+  "logoutFailed": "Logout failed",
+  "friendRequestSendSuccess": "Friend request sent",
+  "friendRequestSendError": "Failed to send friend request",
   "cannotOpenChat": "Cannot open chat: {error}",
-  "@cannotOpenChat": { "placeholders": { "error": {} } },
-  "placeholderLastMessage": "This is a placeholder for the last message.",
-  "messageInputHint": "Type a message..."
-  ,"bioLabel": "Bio"
-  ,"myLoveLabel": "my love"
-  ,"searchInConversationHint": "Search in conversation"
-  ,"enterKeywordToSearch": "Enter a keyword to search messages"
-  ,"noMatchingResults": "No matching results found"
-  ,"youLabel": "You"
-  ,"enterNicknameHint": "Enter nickname"
-  ,"nicknameRemoved": "Nickname removed for {name}"
-  ,"@nicknameRemoved": { "placeholders": { "name": {} } }
-  ,"nicknameUpdated": "Nickname updated for {name}"
-  ,"@nicknameUpdated": { "placeholders": { "name": {} } }
-  ,"nicknameVisibleInChat": "Everyone in this chat will see this nickname for {name}."
-  ,"@nicknameVisibleInChat": { "placeholders": { "name": {} } }
-  ,"groupNameHint": "Enter group name"
-  ,"invitedMembers": "Invited members"
-  ,"searchGeneric": "Search"
-  ,"safetyProfile": "Profile"
-  ,"restrictAction": "Restrict"
-  ,"blockAccount": "Block account"
-  ,"unblockAccount": "Unblock account"
-  ,"nicknameAction": "Nickname"
-  ,"createGroupChat": "Create group chat"
-  ,"optionsLabel": "Options"
-  ,"muteOffLabel": "Off"
-  ,"photosAndVideoTitle": "Photos and Videos"
-  ,"viewAll": "See all"
-  ,"blockedMediaHidden": "Photos and videos are hidden because you blocked this account."
-  ,"mute10Minutes": "10 minutes"
-  ,"mute30Minutes": "30 minutes"
-  ,"mute1Hour": "1 hour"
-  ,"mute2Hours": "2 hours"
-  ,"mute12Hours": "12 hours"
-  ,"mute24Hours": "24 hours"
-  ,"mute48Hours": "48 hours"
-  ,"muteConversationTitle": "Mute conversation notifications"
-  ,"turnOnNotifications": "Turn on notifications"
-  ,"grantAdmin": "Grant admin role"
-  ,"revokeAdmin": "Revoke admin role"
-  ,"revokeAdminLocked": "Revoke admin role (locked)"
-  ,"onlyAdminCanChangeRole": "Only admins can change roles"
-  ,"privateMessage": "Private message"
-  ,"thisIsYourAccount": "This is your account"
-  ,"newGroupTitle": "New group"
-  ,"editGroupTitle": "Edit group"
-  ,"createAction": "Create"
-  ,"peopleWhoCanContactYou": "People who can contact you"
-  ,"editNicknameTitle": "Edit nickname"
-  ,"groupRoleTitle": "Group role"
-  ,"memberIdTitle": "Member ID"
-  ,"adminGrantedTo": "Granted admin role to {name}"
-  ,"@adminGrantedTo": { "placeholders": { "name": {} } }
-  ,"cannotGrantAdmin": "Cannot grant admin role"
-  ,"adminRevokedFrom": "Revoked admin role from {name}"
-  ,"@adminRevokedFrom": { "placeholders": { "name": {} } }
-  ,"cannotRevokeAdmin": "Cannot revoke admin role"
-  ,"cannotRevokeOwnAdminTooltip": "You cannot revoke your own role. Grant admin to someone else first."
-  ,"cannotRevokeOwnAdmin": "You cannot revoke your own admin role"
-  ,"onlyAdminCanGrantOrRevokeTooltip": "Only admins can grant or revoke admin role."
-  ,"noAdminPermissionForAction": "You do not have admin permission for this action"
-  ,"cannotRevokeLastAdmin": "Cannot revoke the last admin in the group."
-  ,"youAreCurrentAdmin": "You are the current admin"
-  ,"adminHasFullControl": "Admin has full control"
-  ,"canGrantOrRevokeForOthers": "You can grant/revoke admin role for other members."
-  ,"youHaveAdminRights": "You have admin rights"
-  ,"canChangeMemberRoles": "You can change member roles in this group."
-  ,"noPermissionChangeRole": "You do not have permission to change roles"
-  ,"onlyAdminCanGrantOrRevoke": "Only admins are allowed to grant/revoke admin role."
-  ,"mutePriorityHint": "Top priority: clear all current mute states."
-  ,"muteUntilTurnedOn": "Until turned on again"
-  ,"exploreTitle": "Explore"
-  ,"reelsTitle": "Reels"
-  ,"postOptionAddToFavorites": "Add to favorites"
-  ,"postOptionAboutThisAccount": "About this account"
-  ,"postOptionHidePost": "Hide post"
-  ,"postOptionReport": "Report"
-  ,"postOptionAddToFavoritesDone": "Added to favorites"
-  ,"postOptionHidePostDone": "Post hidden"
-  ,"postOptionReportDone": "Report submitted"
-  ,"postOptionReportDoneWithReason": "Report submitted with reason: {reason}"
-  ,"@postOptionReportDoneWithReason": { "placeholders": { "reason": {} } }
-  ,"postReportTitle": "Report post"
-  ,"postReportSelectReason": "Select the most relevant reason"
-  ,"postReportSubmit": "Submit report"
-  ,"postReportReasonSpam": "Spam"
-  ,"postReportReasonHarassment": "Harassment or bullying"
-  ,"postReportReasonFalseInfo": "False information"
-  ,"postReportReasonHateSpeech": "Hate speech"
-  ,"postReportReasonViolence": "Violence or dangerous acts"
-  ,"postReportReasonOther": "Other"
-  ,"postOptionAllHiddenTitle": "You have hidden all posts"
-  ,"postOptionAllHiddenDescription": "Refresh to load new content or wait for other posts."
-  ,"followingStatus": "Following"
-  ,"yourStory": "Your Story"
-  ,"viewAllComments": "View all {count} comments"
-  ,"@viewAllComments": { "placeholders": { "count": {} } }
-  ,"likesCountText": "{count} likes"
-  ,"@likesCountText": { "placeholders": { "count": {} } }
-  ,"followAction": "Follow"
-  ,"recentSearchTitle": "Recent"
-  ,"friendRequestSent": "Sent"
-  ,"friendRequestSendSuccess": "Friend request sent"
-  ,"friendRequestSendError": "Cannot send friend request"
-  ,"acceptFriendRequest": "Accept"
-  ,"rejectFriendRequest": "Reject"
-  ,"notificationsTitle": "Notifications"
-  ,"markAllAsRead": "Read all"
-  ,"titleSearch": "Search"
-  ,"titleReels": "Reels"
-  ,"titleChat": "Chat"
-  ,"friends": "Friends"
-  ,"friendRequestAccepted": "Friend request accepted"
-  ,"yourFriendRequestAccepted": "Your friend request has been accepted"
-  ,"friendRequestReceived": "sent you a friend request"
-  ,"noNotifications": "No notifications yet"
+  "typeMessageHint": "Type a message...",
+  "noPhotosTitle": "No photos yet",
+  "photosEmptyMessage": "Photos from this profile's posts will appear here.",
+  "saveImage": "Save image",
+  "copyImage": "Copy image",
+  "shareImage": "Share image",
+  "addFriendAction": "Add friend",
+  "messageAction": "Message",
+  "editPostTitle": "Edit Post",
+  "editPostDescriptionWithPhotos": "You have {count} photos (including old and new).",
+  "@editPostDescriptionWithPhotos": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "editPostDescriptionNoPhotos": "You can edit the content or add new photos.",
+  "editPostContentHint": "Enter new content...",
+  "existingPhotosLabel": "Current photos",
+  "newPhotosLabel": "Newly added photos",
+  "saveChanges": "Save changes",
+  "noRetainedPhotos": "No old photos kept",
+  "noNewPhotos": "No new photos yet",
+  "oldPhotoLabel": "Old",
+  "newPhotoLabel": "New",
+  "postNeedsContentOrMedia": "Post needs content or at least one photo",
+  "chatAllTab": "All",
+  "chatGroupsTab": "Groups",
+  "searchInMessages": "Search in messages",
+  "newConversationTitle": "New conversation",
+  "searchFriends": "Search friends",
+  "createGroupChatTitle": "Create group chat",
+  "createGroupChatAction": "Create group",
+  "createGroupAction": "Create",
+  "groupNameHint": "Group name",
+  "searchMembersHint": "Search members",
+  "createGroupFailed": "Failed to create group chat",
+  "loadFriendsListFailed": "Failed to load friends list",
+  "noFriendsFoundInChat": "No friends found",
+  "unpinAction": "Unpin",
+  "pinAction": "Pin",
+  "showAction": "Show",
+  "hideAction": "Hide",
+  "deleteChatAction": "Delete",
+  "messagesTitle": "Messages",
+  "pendingMessages": "Pending messages",
+  "pendingMessagesCount": "Pending messages ({count})",
+  "@pendingMessagesCount": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "collapseAction": "Collapse",
+  "expandAction": "Expand",
+  "groupDefaultName": "Group",
+  "groupCreated": "Group created",
+  "blockAction": "Block",
+  "deleteConversationAction": "Delete conversation",
+  "audioCallAction": "Audio call",
+  "videoCallAction": "Video call",
+  "viewProfileChatAction": "View profile",
+  "muteNotificationsAction": "Mute notifications",
+  "customizationSection": "Customization",
+  "themeAction": "Theme",
+  "themeModeLabel": "Light/Dark mode",
+  "themeLight": "Light",
+  "themeDark": "Dark",
+  "nicknameAction": "Nickname",
+  "otherActionsSection": "Other actions",
+  "viewMediaFilesLinks": "View media, files & links"
 }

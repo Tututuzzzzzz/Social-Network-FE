@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/src/core/l10n/l10n.dart';
 
 import 'mochi_dm_search_input.dart';
 import 'mochi_dm_styles.dart';
@@ -30,9 +31,9 @@ class MochiNewConvTopBar extends StatelessWidget {
                 ),
                 color: MochiDmStyles.topBarText,
               ),
-              const Expanded(
+              Expanded(
                 child: Text(
-                  'Tạo cuộc trò chuyện mới',
+                  context.l10n.newConversationTitle,
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 18,
@@ -52,7 +53,7 @@ class MochiNewConvTopBar extends StatelessWidget {
             iconColor: MochiDmStyles.searchIcon,
             focusedBorderColor: MochiDmStyles.primaryGreenSoft,
             borderRadius: 16,
-            hintText: 'Tìm bạn bè',
+            hintText: context.l10n.searchFriends,
             dense: true,
           ),
         ],

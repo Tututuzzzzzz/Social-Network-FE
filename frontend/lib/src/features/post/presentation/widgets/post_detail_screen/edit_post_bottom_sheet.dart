@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:frontend/src/core/l10n/l10n.dart';
 import 'package:frontend/src/core/utils/url_normalizer.dart';
 import 'package:frontend/src/features/post/domain/entities/post_entity.dart';
 import 'package:frontend/src/features/post/domain/entities/post_media_entity.dart';
@@ -80,7 +81,7 @@ class _EditPostBottomSheetState extends State<_EditPostBottomSheet> {
     } catch (_) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Không thể chọn ảnh từ thư viện')),
+        SnackBar(content: Text(context.l10n.createPostCannotPickGallery)),
       );
     } finally {
       if (mounted) {
@@ -109,7 +110,7 @@ class _EditPostBottomSheetState extends State<_EditPostBottomSheet> {
       if (!mounted) return;
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('Không thể mở camera')));
+      ).showSnackBar(SnackBar(content: Text(context.l10n.createPostCannotOpenCamera)));
     } finally {
       if (mounted) {
         setState(() => _isPickingImages = false);
@@ -136,8 +137,8 @@ class _EditPostBottomSheetState extends State<_EditPostBottomSheet> {
     final content = _contentController.text.trim();
     if (!_canSubmit) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Bài viết cần có nội dung hoặc ít nhất một ảnh'),
+        SnackBar(
+          content: Text(context.l10n.postNeedsContentOrMedia),
         ),
       );
       return;
@@ -190,15 +191,15 @@ class _EditPostBottomSheetState extends State<_EditPostBottomSheet> {
                     ),
                   ),
                 ),
-                const Text(
-                  'Chỉnh sửa bài viết',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
+                Text(
+                  context.l10n.editPostTitle,
+                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   mediaCount > 0
-                      ? 'Đang có $mediaCount ảnh (bao gồm ảnh cũ và ảnh mới).'
-                      : 'Bạn có thể sửa nội dung hoặc thêm ảnh mới.',
+                      ? context.l10n.editPostDescriptionWithPhotos(mediaCount.toString())
+                      : context.l10n.editPostDescriptionNoPhotos,
                   style: const TextStyle(
                     color: Color(0xFF6F7280),
                     fontSize: 13,
@@ -212,7 +213,7 @@ class _EditPostBottomSheetState extends State<_EditPostBottomSheet> {
                   maxLength: 1500,
                   onChanged: (_) => setState(() {}),
                   decoration: InputDecoration(
-                    hintText: 'Nhập nội dung mới...',
+                    hintText: context.l10n.editPostContentHint,
                     filled: true,
                     fillColor: const Color(0xFFF5F7FA),
                     border: OutlineInputBorder(
@@ -223,16 +224,16 @@ class _EditPostBottomSheetState extends State<_EditPostBottomSheet> {
                   ),
                 ),
                 const SizedBox(height: 8),
-                const Text(
-                  'Ảnh hiện tại',
-                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+                Text(
+                  context.l10n.existingPhotosLabel,
+                  style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
                 ),
                 const SizedBox(height: 8),
                 _buildExistingMediaSection(),
                 const SizedBox(height: 10),
-                const Text(
-                  'Ảnh mới thêm',
-                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+                Text(
+                  context.l10n.newPhotosLabel,
+                  style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
                 ),
                 const SizedBox(height: 8),
                 _buildNewMediaSection(),
@@ -243,7 +244,7 @@ class _EditPostBottomSheetState extends State<_EditPostBottomSheet> {
                       child: OutlinedButton.icon(
                         onPressed: _isPickingImages ? null : _pickFromGallery,
                         icon: const Icon(Icons.photo_library_outlined),
-                        label: const Text('Thư viện'),
+                        label: Text(context.l10n.pickFromLibrary),
                         style: OutlinedButton.styleFrom(
                           shape: const StadiumBorder(),
                         ),
@@ -254,7 +255,7 @@ class _EditPostBottomSheetState extends State<_EditPostBottomSheet> {
                       child: OutlinedButton.icon(
                         onPressed: _isPickingImages ? null : _pickFromCamera,
                         icon: const Icon(Icons.photo_camera_outlined),
-                        label: const Text('Camera'),
+                        label: Text(context.l10n.cameraLabel),
                         style: OutlinedButton.styleFrom(
                           shape: const StadiumBorder(),
                         ),
@@ -271,7 +272,7 @@ class _EditPostBottomSheetState extends State<_EditPostBottomSheet> {
                         style: OutlinedButton.styleFrom(
                           shape: const StadiumBorder(),
                         ),
-                        child: const Text('Hủy'),
+                        child: Text(context.l10n.cancel),
                       ),
                     ),
                     const SizedBox(width: 10),
@@ -281,7 +282,7 @@ class _EditPostBottomSheetState extends State<_EditPostBottomSheet> {
                         style: FilledButton.styleFrom(
                           shape: const StadiumBorder(),
                         ),
-                        child: const Text('Lưu thay đổi'),
+                        child: Text(context.l10n.saveChanges),
                       ),
                     ),
                   ],
@@ -296,7 +297,7 @@ class _EditPostBottomSheetState extends State<_EditPostBottomSheet> {
 
   Widget _buildExistingMediaSection() {
     if (_retainedMedia.isEmpty) {
-      return _emptyMediaBox('Hiện không giữ ảnh cũ nào');
+      return _emptyMediaBox(context.l10n.noRetainedPhotos);
     }
 
     return SizedBox(
@@ -310,7 +311,7 @@ class _EditPostBottomSheetState extends State<_EditPostBottomSheet> {
           final mediaUrl = (media.mediaUrl ?? '').normalizeClientUrl();
 
           return _mediaTile(
-            label: 'Ảnh cũ',
+            label: context.l10n.oldPhotoLabel,
             onRemove: () => _removeExistingMediaAt(index),
             child: mediaUrl.isNotEmpty
                 ? Image.network(
@@ -327,7 +328,7 @@ class _EditPostBottomSheetState extends State<_EditPostBottomSheet> {
 
   Widget _buildNewMediaSection() {
     if (_newImages.isEmpty) {
-      return _emptyMediaBox('Chưa có ảnh mới');
+      return _emptyMediaBox(context.l10n.noNewPhotos);
     }
 
     return SizedBox(
@@ -339,7 +340,7 @@ class _EditPostBottomSheetState extends State<_EditPostBottomSheet> {
         itemBuilder: (_, index) {
           final image = _newImages[index];
           return _mediaTile(
-            label: 'Ảnh mới',
+            label: context.l10n.newPhotoLabel,
             onRemove: () => _removeNewImageAt(index),
             child: kIsWeb
                 ? Image.network(image.path, fit: BoxFit.cover)

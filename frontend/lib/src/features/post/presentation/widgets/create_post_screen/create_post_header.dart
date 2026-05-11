@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../../core/api/api_constants.dart';
-import '../../../../../core/l10n/l10n.dart';
+import 'package:frontend/src/core/l10n/l10n.dart';
 import '../../../../../core/utils/url_normalizer.dart';
 import 'create_post_theme.dart';
 
@@ -26,6 +26,7 @@ class CreatePostHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final hasDisplayName = displayName.trim().isNotEmpty;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return SizedBox(
       height: 92,
@@ -49,8 +50,8 @@ class CreatePostHeader extends StatelessWidget {
                       displayName,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        color: CreatePostTheme.textColor,
+                      style: TextStyle(
+                        color: isDark ? Colors.white : Colors.black,
                         fontSize: 21,
                         fontWeight: FontWeight.w800,
                         height: 1.1,

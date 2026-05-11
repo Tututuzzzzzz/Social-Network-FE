@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/src/core/theme/app_colors.dart';
 
 import '../../../../core/utils/url_normalizer.dart';
 
@@ -18,6 +19,7 @@ class ProfileAvatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = AppColors.of(context);
     final normalizedAvatarUrl = avatarUrl?.trim().normalizeClientUrl();
     final hasAvatar =
         normalizedAvatarUrl != null && normalizedAvatarUrl.isNotEmpty;
@@ -27,10 +29,10 @@ class ProfileAvatar extends StatelessWidget {
       padding: const EdgeInsets.all(3),
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: Colors.white,
+        color: colors.sheetSurface,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.12),
+            color: colors.scrim,
             blurRadius: 18,
             offset: const Offset(0, 8),
           ),
@@ -38,7 +40,7 @@ class ProfileAvatar extends StatelessWidget {
       ),
       child: CircleAvatar(
         radius: radius,
-        backgroundColor: const Color(0xFFD8F2E8),
+        backgroundColor: colors.avatarPlaceholder,
         backgroundImage: hasAvatar ? NetworkImage(normalizedAvatarUrl) : null,
         onBackgroundImageError: hasAvatar ? (_, _) {} : null,
         child: hasAvatar
@@ -46,7 +48,7 @@ class ProfileAvatar extends StatelessWidget {
             : Text(
                 initial,
                 style: TextStyle(
-                  color: const Color(0xFF168C68),
+                  color: colors.accent,
                   fontSize: radius * 0.62,
                   fontWeight: FontWeight.w800,
                 ),

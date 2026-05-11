@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../core/theme/app_colors.dart';
 
 class FollowStatusChip extends StatelessWidget {
   const FollowStatusChip({
@@ -16,10 +17,11 @@ class FollowStatusChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final backgroundColor = isFollowing
-        ? const Color(0xFFE9E9EB)
-        : const Color(0xFF1689F6);
-    final textColor = isFollowing ? const Color(0xFF202025) : Colors.white;
+    final colors = AppColors.of(context);
+    final backgroundColor =
+      isFollowing ? colors.chipFollowingBg : colors.chipFollowBg;
+    final textColor =
+      isFollowing ? colors.chipFollowingText : colors.chipFollowText;
 
     return InkWell(
       borderRadius: BorderRadius.circular(999),

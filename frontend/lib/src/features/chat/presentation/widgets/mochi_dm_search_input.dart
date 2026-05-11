@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../../core/l10n/l10n.dart';
+import 'package:frontend/src/core/l10n/l10n.dart';
 import 'mochi_dm_styles.dart';
 
 class MochiDmSearchInput extends StatelessWidget {

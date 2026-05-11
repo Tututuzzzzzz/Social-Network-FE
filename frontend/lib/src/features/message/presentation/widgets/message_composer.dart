@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/src/core/l10n/l10n.dart';
 
 class MessageComposer extends StatelessWidget {
   const MessageComposer({
@@ -46,8 +47,8 @@ class MessageComposer extends StatelessWidget {
                 textInputAction: TextInputAction.send,
                 onSubmitted: (_) => onSend(),
                 textAlignVertical: TextAlignVertical.center,
-                decoration: const InputDecoration(
-                  hintText: 'Nhập tin nhắn...',
+                decoration: InputDecoration(
+                  hintText: context.l10n.typeMessageHint,
                   isDense: true,
                   contentPadding: EdgeInsets.symmetric(horizontal: 16),
                   border: InputBorder.none,

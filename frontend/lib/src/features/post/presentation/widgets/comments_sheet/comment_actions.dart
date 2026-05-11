@@ -1,21 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/src/core/theme/app_colors.dart';
 
 enum CommentAction { edit, delete }
 
 Future<CommentAction?> showCommentActionsSheet(BuildContext context) {
+  final colors = AppColors.of(context);
   return showModalBottomSheet<CommentAction>(
     context: context,
     backgroundColor: Colors.transparent,
-    barrierColor: Colors.black.withValues(alpha: 0.18),
+    barrierColor: colors.scrim,
     isScrollControlled: false,
     builder: (sheetContext) {
+      final sheetColors = AppColors.of(sheetContext);
       return SafeArea(
         top: false,
         child: Padding(
           padding: const EdgeInsets.fromLTRB(12, 0, 12, 10),
           child: DecoratedBox(
             decoration: BoxDecoration(
-              color: const Color(0xFFF2F2F4),
+              color: sheetColors.sheetSurface,
               borderRadius: BorderRadius.circular(20),
             ),
             child: Column(
@@ -26,25 +29,32 @@ Future<CommentAction?> showCommentActionsSheet(BuildContext context) {
                   width: 34,
                   height: 3,
                   decoration: BoxDecoration(
-                    color: const Color(0xFFD2D2D6),
+                    color: sheetColors.sheetHandle,
                     borderRadius: BorderRadius.circular(99),
                   ),
                 ),
                 const SizedBox(height: 10),
                 ListTile(
-                  leading: const Icon(Icons.edit_outlined, size: 18),
-                  title: const Text('Chinh sua'),
+                  leading: Icon(
+                    Icons.edit_outlined,
+                    size: 18,
+                    color: sheetColors.textPrimary,
+                  ),
+                  title: Text(
+                    'Chinh sua',
+                    style: TextStyle(color: sheetColors.textPrimary),
+                  ),
                   onTap: () => Navigator.pop(sheetContext, CommentAction.edit),
                 ),
                 ListTile(
-                  leading: const Icon(
+                  leading: Icon(
                     Icons.delete_outline,
                     size: 18,
-                    color: Color(0xFFE53935),
+                    color: sheetColors.error,
                   ),
-                  title: const Text(
+                  title: Text(
                     'Xoa',
-                    style: TextStyle(color: Color(0xFFE53935)),
+                    style: TextStyle(color: sheetColors.error),
                   ),
                   onTap: () => Navigator.pop(sheetContext, CommentAction.delete),
                 ),
@@ -69,6 +79,7 @@ Future<String?> showEditCommentSheet(
     isScrollControlled: true,
     backgroundColor: Colors.transparent,
     builder: (sheetContext) {
+      final colors = AppColors.of(sheetContext);
       return AnimatedPadding(
         duration: const Duration(milliseconds: 180),
         curve: Curves.easeOut,
@@ -79,7 +90,7 @@ Future<String?> showEditCommentSheet(
             padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
             child: DecoratedBox(
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: colors.sheetSurface,
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Padding(
@@ -88,11 +99,12 @@ Future<String?> showEditCommentSheet(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
+                    Text(
                       'Chinh sua binh luan',
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
+                        color: colors.textPrimary,
                       ),
                     ),
                     const SizedBox(height: 10),
@@ -106,7 +118,7 @@ Future<String?> showEditCommentSheet(
                       decoration: InputDecoration(
                         hintText: 'Nhap noi dung...',
                         filled: true,
-                        fillColor: const Color(0xFFF4F4F4),
+                        fillColor: colors.inputFill,
                         contentPadding: const EdgeInsets.symmetric(
                           horizontal: 12,
                           vertical: 10,

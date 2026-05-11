@@ -158,13 +158,22 @@ class AppLocalizationsVi extends AppLocalizations {
   String get addAccount => 'Thêm tài khoản';
 
   @override
-  String get addAccountSoon => 'Tính năng thêm tài khoản sẽ có sớm.';
+  String get addAccountSoon => 'Tính năng thêm tài khoản sẽ sớm được ra mắt.';
 
   @override
   String get settingsAndActivity => 'Cài đặt và hoạt động';
 
   @override
   String get profileSettingsTitle => 'Cài Đặt';
+
+  @override
+  String get profileLanguageTitle => 'Ngôn ngữ';
+
+  @override
+  String get languageVietnamese => 'Tiếng Việt';
+
+  @override
+  String get languageEnglish => 'English';
 
   @override
   String get logoutAction => 'Đăng xuất';
@@ -186,7 +195,7 @@ class AppLocalizationsVi extends AppLocalizations {
   String get switchAccount => 'Chuyển tài khoản';
 
   @override
-  String get featureInDevelopment => 'Tính năng đang phát triển.';
+  String get featureInDevelopment => 'Tính năng đang được phát triển';
 
   @override
   String get loadingProfileInfo => 'Đang tải thông tin...';
@@ -195,7 +204,7 @@ class AppLocalizationsVi extends AppLocalizations {
   String get noProfileData => 'Chưa có dữ liệu hồ sơ.';
 
   @override
-  String get postsLabel => 'bài viết';
+  String get postsLabel => 'Bài viết';
 
   @override
   String get followersLabel => 'người theo dõi';
@@ -216,7 +225,7 @@ class AppLocalizationsVi extends AppLocalizations {
   String get taggedPostsEmpty => 'Chưa có bài viết được gắn thẻ.';
 
   @override
-  String get linkCopied => 'Đã sao liên kết';
+  String get linkCopied => 'Đã sao chép liên kết';
 
   @override
   String get pageNotImplemented => 'Trang này chưa được triển khai.';
@@ -234,7 +243,7 @@ class AppLocalizationsVi extends AppLocalizations {
   String get pleaseEnterDisplayName => 'Vui lòng nhập tên hiển thị';
 
   @override
-  String get profileUpdateSuccess => 'Đã cập nhật trang cá nhân.';
+  String get profileUpdateSuccess => 'Đã cập nhật trang cá nhân thành công.';
 
   @override
   String get profileUpdateFailed => 'Không thể cập nhật trang cá nhân.';
@@ -243,20 +252,20 @@ class AppLocalizationsVi extends AppLocalizations {
   String get profileNoChanges => 'Chưa có thay đổi nào để cập nhật.';
 
   @override
-  String get profileLoadFailed => 'Không tải được trang cá nhân';
+  String get profileLoadFailed => 'Không thể tải trang cá nhân.';
 
   @override
   String get retryAction => 'Thử lại';
 
   @override
-  String get updateAvatarSuccess => 'Đã cập nhật ảnh đại diện.';
+  String get updateAvatarSuccess => 'Đã cập nhật ảnh đại diện thành công.';
 
   @override
   String get updateAvatarFailed => 'Không thể cập nhật ảnh đại diện.';
 
   @override
   String get profileSavedLocal =>
-      'Đã lưu thông tin trang cá nhân (lưu cục bộ).';
+      'Đã lưu thông tin trang cá nhân vào bộ nhớ tạm.';
 
   @override
   String get privateAccount => 'Tài khoản riêng tư';
@@ -274,14 +283,13 @@ class AppLocalizationsVi extends AppLocalizations {
   String get genderLabel => 'Giới tính';
 
   @override
-  String get profileFormSampleData =>
-      'Dữ liệu form đang dùng mẫu UI cho phần frontend.';
+  String get profileFormSampleData => 'Dữ liệu đang sử dụng mẫu thử nghiệm.';
 
   @override
   String get mediaLibrary => 'Thư viện';
 
   @override
-  String get mediaSelectedReady => 'Đã chọn ảnh, sẵn sàng bước tiếp.';
+  String get mediaSelectedReady => 'Đã chọn ảnh, sẵn sàng tiếp tục.';
 
   @override
   String get chatGroupInfoTitle => 'Thông tin nhóm';
@@ -311,7 +319,7 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get adminOnlyManageGroupInfo =>
-      'Chỉ quản trị viên mới có thể đổi thông tin và thêm thành viên.';
+      'Chỉ quản trị viên mới có quyền thay đổi thông tin và thêm thành viên.';
 
   @override
   String get memberList => 'Danh sách thành viên';
@@ -350,11 +358,22 @@ class AppLocalizationsVi extends AppLocalizations {
   String get searchSeeAll => 'Xem tất cả';
 
   @override
+  String get clearAllAction => 'Xóa tất cả';
+
+  @override
+  String get seeMoreAction => 'Xem thêm';
+
+  @override
+  String searchResultsCount(Object count) {
+    return 'Kết quả tìm kiếm ($count)';
+  }
+
+  @override
   String get leaveGroup => 'Rời nhóm';
 
   @override
   String get lastAdminCannotLeave =>
-      'Bạn là quản trị viên cuối cùng. Hãy chuyển quyền admin trước khi rời nhóm.';
+      'Bạn là quản trị viên cuối cùng. Hãy chuyển quyền quản trị trước khi rời nhóm.';
 
   @override
   String get groupChatFallback => 'Nhóm chat';
@@ -371,7 +390,7 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get selectNewAdminBeforeLeave =>
-      'Bạn là quản trị viên cuối cùng. Hãy chọn người nhận quyền trước khi rời nhóm.';
+      'Bạn là quản trị viên cuối cùng. Hãy chọn quản trị viên mới trước khi rời nhóm.';
 
   @override
   String get noMemberToTransfer =>
@@ -388,14 +407,14 @@ class AppLocalizationsVi extends AppLocalizations {
       'Không thể rời nhóm. Vui lòng kiểm tra lại quyền quản trị.';
 
   @override
-  String get leftGroupSuccess => 'Bạn đã rời nhóm';
+  String get leftGroupSuccess => 'Bạn đã rời nhóm thành công.';
 
   @override
   String get handoverAndLeaveSuccess =>
-      'Đã chuyển quyền admin và rời nhóm thành công';
+      'Đã chuyển quyền quản trị và rời nhóm thành công.';
 
   @override
-  String get secondConfirmation => 'Xác nhận lần 2';
+  String get secondConfirmation => 'Xác nhận lần nữa';
 
   @override
   String get aboutToHandoverAndLeave =>
@@ -406,7 +425,7 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get afterConfirmLeaveImmediately =>
-      'Sau khi xác nhận, bạn sẽ rời nhóm ngay.';
+      'Sau khi xác nhận, bạn sẽ rời nhóm ngay lập tức.';
 
   @override
   String get goBack => 'Quay lại';
@@ -416,13 +435,13 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get adminOnlyAction =>
-      'Chỉ quản trị viên mới có quyền thực hiện thao tác này';
+      'Chỉ quản trị viên mới có quyền thực hiện thao tác này.';
 
   @override
   String get chatInviteLink => 'Liên kết mời';
 
   @override
-  String get inviteLinkCopied => 'Đã sao chép liên kết mời nhóm';
+  String get inviteLinkCopied => 'Đã sao chép liên kết mời nhóm.';
 
   @override
   String get addPeople => 'Thêm người';
@@ -439,7 +458,7 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get noOnlineOrReadStatus =>
-      'Họ sẽ không biết khi nào bạn online hoặc đọc tin nhắn của họ';
+      'Họ sẽ không thấy trạng thái hoạt động hoặc đã đọc của bạn.';
 
   @override
   String get blockAction => 'Chặn';
@@ -452,7 +471,7 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get onlyAdminCanAddMembers =>
-      'Chỉ quản trị viên mới có thể thêm thành viên';
+      'Chỉ quản trị viên mới có thể thêm thành viên.';
 
   @override
   String get messagesSearchHint => 'Tìm kiếm';
@@ -464,19 +483,19 @@ class AppLocalizationsVi extends AppLocalizations {
   String get pendingMessages => 'Tin nhắn đang chờ';
 
   @override
-  String get noConversationFound => 'Không tìm thấy cuộc trò chuyện';
+  String get noConversationFound => 'Không tìm thấy cuộc trò chuyện nào.';
 
   @override
-  String get chatPinned => 'Đã ghim đoạn chat';
+  String get chatPinned => 'Đã ghim đoạn chat.';
 
   @override
-  String get chatUnpinned => 'Đã bỏ ghim đoạn chat';
+  String get chatUnpinned => 'Đã bỏ ghim đoạn chat.';
 
   @override
-  String get chatHidden => 'Đã ẩn đoạn chat';
+  String get chatHidden => 'Đã ẩn đoạn chat.';
 
   @override
-  String get chatDeleted => 'Đã xóa đoạn chat';
+  String get chatDeleted => 'Đã xóa đoạn chat.';
 
   @override
   String get pinAction => 'Ghim';
@@ -491,32 +510,33 @@ class AppLocalizationsVi extends AppLocalizations {
   String get deleteAction => 'Xóa';
 
   @override
-  String get mutedNow => 'Đang tắt';
+  String get mutedNow => 'Đang tắt thông báo';
 
   @override
-  String get feedNotificationSoon => 'Thông báo sẽ được thêm sau.';
+  String get feedNotificationSoon => 'Thông báo sẽ sớm được cập nhật.';
 
   @override
   String get sessionExpiredRelogin =>
-      'Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.';
+      'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.';
 
   @override
-  String get emptyNoPosts => 'Chưa có bài viết nào';
+  String get emptyNoPosts => 'Chưa có bài viết nào.';
 
   @override
-  String get emptyFollowFriends => 'Hãy quay lại sau hoặc theo dõi thêm bạn bè';
+  String get emptyFollowFriends =>
+      'Hãy quay lại sau hoặc theo dõi thêm bạn bè.';
 
   @override
-  String get shareSoon => 'Chia sẻ sẽ được thêm sau.';
+  String get shareSoon => 'Tính năng chia sẻ sẽ sớm được cập nhật.';
 
   @override
-  String get saveSoon => 'Lưu bài viết sẽ được thêm sau.';
+  String get saveSoon => 'Tính năng lưu bài viết sẽ sớm được cập nhật.';
 
   @override
-  String get createPostCannotPickGallery => 'Không thể chọn ảnh từ thư viện';
+  String get createPostCannotPickGallery => 'Không thể chọn ảnh từ thư viện.';
 
   @override
-  String get createPostCannotOpenCamera => 'Không thể mở camera';
+  String get createPostCannotOpenCamera => 'Không thể mở máy ảnh.';
 
   @override
   String get createPostTitle => 'Tạo bài viết';
@@ -537,25 +557,24 @@ class AppLocalizationsVi extends AppLocalizations {
   String get libraryLabel => 'Hình ảnh';
 
   @override
-  String get cameraLabel => 'Camera';
+  String get cameraLabel => 'Máy ảnh';
 
   @override
-  String get templateLabel => 'Template';
+  String get templateLabel => 'Mẫu bài viết';
 
   @override
-  String get templateSoon => 'Template sẽ được thêm sau.';
+  String get templateSoon => 'Các mẫu bài viết sẽ sớm được cập nhật.';
 
   @override
-  String get friendsSearchHint => 'Search';
+  String get friendsSearchHint => 'Tìm kiếm bạn bè';
 
   @override
   String cannotOpenChat(Object error) {
-    return 'Không thể mở chat: $error';
+    return 'Không thể mở cuộc trò chuyện: $error';
   }
 
   @override
-  String get placeholderLastMessage =>
-      'This is a placeholder for the last message.';
+  String get placeholderLastMessage => 'Đây là nội dung tin nhắn mẫu.';
 
   @override
   String get messageInputHint => 'Nhắn tin...';
@@ -564,7 +583,7 @@ class AppLocalizationsVi extends AppLocalizations {
   String get bioLabel => 'Tiểu sử';
 
   @override
-  String get myLoveLabel => 'my love';
+  String get myLoveLabel => 'Tình yêu của tôi';
 
   @override
   String get searchInConversationHint => 'Tìm trong cuộc trò chuyện';
@@ -573,7 +592,7 @@ class AppLocalizationsVi extends AppLocalizations {
   String get enterKeywordToSearch => 'Nhập từ khóa để tìm tin nhắn';
 
   @override
-  String get noMatchingResults => 'Không tìm thấy kết quả phù hợp';
+  String get noMatchingResults => 'Không tìm thấy kết quả phù hợp.';
 
   @override
   String get youLabel => 'Bạn';
@@ -597,7 +616,7 @@ class AppLocalizationsVi extends AppLocalizations {
   }
 
   @override
-  String get groupNameHint => 'Nhập tên nhóm';
+  String get groupNameHint => 'Tên nhóm';
 
   @override
   String get invitedMembers => 'Thành viên được mời';
@@ -676,7 +695,7 @@ class AppLocalizationsVi extends AppLocalizations {
   String get revokeAdminLocked => 'Gỡ quyền quản trị viên (bị khóa)';
 
   @override
-  String get onlyAdminCanChangeRole => 'Quản trị viên mới được đổi quyền';
+  String get onlyAdminCanChangeRole => 'Chỉ quản trị viên mới được đổi vai trò';
 
   @override
   String get privateMessage => 'Nhắn tin riêng';
@@ -707,30 +726,30 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String adminGrantedTo(Object name) {
-    return 'Đã cấp quyền admin cho $name';
+    return 'Đã cấp quyền quản trị cho $name';
   }
 
   @override
-  String get cannotGrantAdmin => 'Không thể cấp quyền admin';
+  String get cannotGrantAdmin => 'Không thể cấp quyền quản trị';
 
   @override
   String adminRevokedFrom(Object name) {
-    return 'Đã gỡ quyền admin của $name';
+    return 'Đã gỡ quyền quản trị của $name';
   }
 
   @override
-  String get cannotRevokeAdmin => 'Không thể gỡ quyền admin';
+  String get cannotRevokeAdmin => 'Không thể gỡ quyền quản trị';
 
   @override
   String get cannotRevokeOwnAdminTooltip =>
-      'Bạn không thể tự gỡ quyền của chính mình. Hãy cấp quyền admin cho người khác trước.';
+      'Bạn không thể tự gỡ quyền quản trị của chính mình. Hãy cấp quyền cho người khác trước.';
 
   @override
   String get cannotRevokeOwnAdmin => 'Bạn không thể tự gỡ quyền quản trị viên';
 
   @override
   String get onlyAdminCanGrantOrRevokeTooltip =>
-      'Chỉ quản trị viên mới có thể cấp hoặc gỡ quyền admin.';
+      'Chỉ quản trị viên mới có thể cấp hoặc gỡ vai trò quản trị.';
 
   @override
   String get noAdminPermissionForAction =>
@@ -738,38 +757,38 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get cannotRevokeLastAdmin =>
-      'Không thể gỡ quyền admin cuối cùng trong nhóm.';
+      'Không thể gỡ quyền quản trị cuối cùng trong nhóm.';
 
   @override
-  String get youAreCurrentAdmin => 'Bạn là admin hiện tại';
+  String get youAreCurrentAdmin => 'Bạn là quản trị viên hiện tại';
 
   @override
-  String get adminHasFullControl => 'Admin có toàn quyền';
+  String get adminHasFullControl => 'Quản trị viên có toàn quyền';
 
   @override
   String get canGrantOrRevokeForOthers =>
-      'Bạn có thể cấp/gỡ quyền admin cho thành viên khác.';
+      'Bạn có thể cấp/gỡ quyền quản trị cho thành viên khác.';
 
   @override
   String get youHaveAdminRights => 'Bạn có quyền quản trị';
 
   @override
   String get canChangeMemberRoles =>
-      'Bạn có thể thay đổi quyền thành viên trong nhóm.';
+      'Bạn có thể thay đổi vai trò thành viên trong nhóm.';
 
   @override
-  String get noPermissionChangeRole => 'Bạn không có quyền đổi role';
+  String get noPermissionChangeRole => 'Bạn không có quyền đổi vai trò';
 
   @override
   String get onlyAdminCanGrantOrRevoke =>
-      'Chỉ quản trị viên mới được phép cấp/gỡ quyền admin.';
+      'Chỉ quản trị viên mới được phép cấp/gỡ quyền quản trị.';
 
   @override
   String get mutePriorityHint =>
       'Ưu tiên cao nhất: Hủy toàn bộ trạng thái tắt thông báo hiện tại.';
 
   @override
-  String get muteUntilTurnedOn => 'Cho đến khi bật lại';
+  String get muteUntilTurnedOn => 'Cho đến khi được bật lại';
 
   @override
   String get exploreTitle => 'Khám phá';
@@ -796,7 +815,7 @@ class AppLocalizationsVi extends AppLocalizations {
   String get postOptionHidePostDone => 'Đã ẩn bài viết';
 
   @override
-  String get postOptionReportDone => 'Đã gửi báo cáo';
+  String get postOptionReportDone => 'Đã gửi báo cáo thành công';
 
   @override
   String postOptionReportDoneWithReason(Object reason) {
@@ -813,7 +832,7 @@ class AppLocalizationsVi extends AppLocalizations {
   String get postReportSubmit => 'Gửi báo cáo';
 
   @override
-  String get postReportReasonSpam => 'Spam';
+  String get postReportReasonSpam => 'Nội dung rác (Spam)';
 
   @override
   String get postReportReasonHarassment => 'Quấy rối hoặc bắt nạt';
@@ -825,7 +844,7 @@ class AppLocalizationsVi extends AppLocalizations {
   String get postReportReasonHateSpeech => 'Ngôn từ thù ghét';
 
   @override
-  String get postReportReasonViolence => 'Bạo lực hoặc nguy hiểm';
+  String get postReportReasonViolence => 'Bạo lực hoặc nội dung nguy hiểm';
 
   @override
   String get postReportReasonOther => 'Lý do khác';
@@ -841,7 +860,7 @@ class AppLocalizationsVi extends AppLocalizations {
   String get followingStatus => 'Đang theo dõi';
 
   @override
-  String get yourStory => 'Your Story';
+  String get yourStory => 'Tin của bạn';
 
   @override
   String viewAllComments(Object count) {
@@ -857,16 +876,16 @@ class AppLocalizationsVi extends AppLocalizations {
   String get followAction => 'Theo dõi';
 
   @override
-  String get recentSearchTitle => 'Gần đây';
+  String get recentSearchTitle => 'Tìm kiếm gần đây';
 
   @override
-  String get friendRequestSent => 'Đã gửi';
+  String get friendRequestSent => 'Đã gửi lời mời';
 
   @override
   String get friendRequestSendSuccess => 'Đã gửi lời mời kết bạn';
 
   @override
-  String get friendRequestSendError => 'Không thể gửi lời mời kết bạn';
+  String get friendRequestSendError => 'Gửi lời mời kết bạn thất bại';
 
   @override
   String get acceptFriendRequest => 'Chấp nhận';
@@ -904,4 +923,442 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get noNotifications => 'Chưa có thông báo nào';
+
+  @override
+  String get onboardingWelcomeTitle => 'Chào mừng đến với Mochi';
+
+  @override
+  String get onboardingWelcomeDesc =>
+      'Mạng xã hội kết nối mọi người, sẻ chia khoảnh khắc ý nghĩa trong cuộc sống của bạn.';
+
+  @override
+  String get onboardingConnectTitle => 'Kết nối bạn bè';
+
+  @override
+  String get onboardingConnectDesc =>
+      'Tìm kiếm và kết nối với bạn bè ở khắp mọi nơi. Cùng nhau tạo nên những kỷ niệm đẹp.';
+
+  @override
+  String get onboardingShareTitle => 'Chia sẻ đam mê';
+
+  @override
+  String get onboardingShareDesc =>
+      'Đăng tải những bài viết, hình ảnh và video về những điều bạn yêu thích mỗi ngày.';
+
+  @override
+  String get onboardingChatTitle => 'Trò chuyện không giới hạn';
+
+  @override
+  String get onboardingChatDesc =>
+      'Nhắn tin, gọi điện miễn phí với chất lượng cao. Giữ liên lạc với những người thân yêu.';
+
+  @override
+  String get onboardingStart => 'Bắt đầu ngay';
+
+  @override
+  String get onboardingNext => 'Tiếp theo';
+
+  @override
+  String get onboardingSkip => 'Bỏ qua';
+
+  @override
+  String get notificationTabPosts => 'Bài viết';
+
+  @override
+  String get notificationTabFriends => 'Kết bạn';
+
+  @override
+  String get notificationEmptyPosts => 'Chưa có thông báo bài viết nào';
+
+  @override
+  String get notificationEmptyFriends => 'Chưa có lời mời kết bạn nào';
+
+  @override
+  String get notificationLiked => 'đã thích bài viết của bạn';
+
+  @override
+  String get notificationCommented => 'đã bình luận về bài viết của bạn';
+
+  @override
+  String get notificationFollowed => 'đã bắt đầu theo dõi bạn';
+
+  @override
+  String get navHome => 'Trang chủ';
+
+  @override
+  String get navCreate => 'Bài viết';
+
+  @override
+  String get navNotifications => 'Thông báo';
+
+  @override
+  String get navProfile => 'Hồ sơ';
+
+  @override
+  String get userDefaultName => 'Người dùng';
+
+  @override
+  String get profilePersonalTitle => 'Hồ Sơ Cá Nhân';
+
+  @override
+  String get noSessionTitle => 'Chưa có phiên đăng nhập';
+
+  @override
+  String get noSessionMessage => 'Vui lòng đăng nhập lại để xem hồ sơ cá nhân.';
+
+  @override
+  String get retry => 'Thử lại';
+
+  @override
+  String get noBio => 'Chưa có giới thiệu.';
+
+  @override
+  String get friendsLabel => 'Bạn bè';
+
+  @override
+  String get photosLabel => 'Ảnh';
+
+  @override
+  String get unknownRecipient => 'Không xác định được người nhận tin nhắn';
+
+  @override
+  String get startChatting => 'Bắt đầu trò chuyện...';
+
+  @override
+  String get timeNow => 'vừa xong';
+
+  @override
+  String get conversationTitle => 'Cuộc trò chuyện';
+
+  @override
+  String get searchCategoryTrending => 'Xu hướng';
+
+  @override
+  String get searchCategoryTravel => 'Du lịch';
+
+  @override
+  String get searchCategoryFood => 'Ẩm thực';
+
+  @override
+  String get searchCategoryMusic => 'Âm nhạc';
+
+  @override
+  String get searchCategoryLandscape => 'Phong cảnh';
+
+  @override
+  String get searchCategoryTech => 'Công nghệ';
+
+  @override
+  String get noResultsFound => 'Không tìm thấy kết quả';
+
+  @override
+  String get peopleLabel => 'Mọi người';
+
+  @override
+  String get discoverLabel => 'Khám phá';
+
+  @override
+  String get exploreLabel => 'Tìm hiểu';
+
+  @override
+  String get deleteChatTitle => 'Xóa đoạn chat';
+
+  @override
+  String deleteChatConfirm(Object name) {
+    return 'Bạn có muốn xóa đoạn chat với $name không?';
+  }
+
+  @override
+  String get delete => 'Xóa';
+
+  @override
+  String get loadMessagesFailed => 'Không thể tải tin nhắn';
+
+  @override
+  String get noChatFound => 'Không tìm thấy đoạn chat';
+
+  @override
+  String get searchAnotherKeyword => 'Thử tìm với từ khóa khác.';
+
+  @override
+  String get createConversationFailed => 'Không tạo được cuộc trò chuyện';
+
+  @override
+  String get loadFriendsFailed => 'Không tải được danh sách bạn bè';
+
+  @override
+  String get noFriendsFound => 'Không có bạn bè nào';
+
+  @override
+  String likesCount(Object count) {
+    return '$count lượt thích';
+  }
+
+  @override
+  String commentsCount(Object count) {
+    return '$count bình luận';
+  }
+
+  @override
+  String sharesCount(Object count) {
+    return '$count lượt chia sẻ';
+  }
+
+  @override
+  String get likeAction => 'Thích';
+
+  @override
+  String get commentAction => 'Bình luận';
+
+  @override
+  String get shareAction => 'Chia sẻ';
+
+  @override
+  String get userLabel => 'Người dùng';
+
+  @override
+  String get submitCommentFailed => 'Không thể gửi bình luận. Hãy thử lại.';
+
+  @override
+  String get updateCommentFailed => 'Không thể cập nhật bình luận.';
+
+  @override
+  String get updateCommentSuccess => 'Đã cập nhật bình luận.';
+
+  @override
+  String get deleteCommentFailed => 'Không thể xóa bình luận.';
+
+  @override
+  String get deleteCommentSuccess => 'Đã xóa bình luận.';
+
+  @override
+  String get commentsTitle => 'Bình luận';
+
+  @override
+  String get noCommentsYet => 'Chưa có bình luận nào. Hãy là người đầu tiên!';
+
+  @override
+  String get replyingStatus => 'Đang trả lời...';
+
+  @override
+  String get replyAction => 'Trả lời';
+
+  @override
+  String replyingTo(Object name) {
+    return 'Đang trả lời $name';
+  }
+
+  @override
+  String get writeCommentHint => 'Viết bình luận...';
+
+  @override
+  String get writeReplyHint => 'Viết trả lời...';
+
+  @override
+  String get timeJustNow => 'Vừa xong';
+
+  @override
+  String timeMinutesAgo(Object count) {
+    return '$count phút trước';
+  }
+
+  @override
+  String timeHoursAgo(Object count) {
+    return '$count giờ trước';
+  }
+
+  @override
+  String timeDaysAgo(Object count) {
+    return '$count ngày trước';
+  }
+
+  @override
+  String postAuthorTitle(Object name) {
+    return 'Bài viết của $name';
+  }
+
+  @override
+  String get deletePostTitle => 'Xóa bài viết?';
+
+  @override
+  String get deletePostConfirm => 'Hành động này không thể hoàn tác.';
+
+  @override
+  String get whatIsHappening => 'Hôm nay bạn thế nào?';
+
+  @override
+  String get noPostsTitle => 'Chưa có bài viết';
+
+  @override
+  String get loadPostsFailed => 'Chưa tải được bài viết';
+
+  @override
+  String get postsEmptyMessage =>
+      'Các bài viết của hồ sơ này sẽ xuất hiện tại đây.';
+
+  @override
+  String get postUpdated => 'Đã cập nhật bài viết.';
+
+  @override
+  String get noChangesToUpdate => 'Không có thay đổi nào để cập nhật.';
+
+  @override
+  String get typeMessageHint => 'Nhập tin nhắn...';
+
+  @override
+  String get noPhotosTitle => 'Chưa có ảnh';
+
+  @override
+  String get photosEmptyMessage =>
+      'Ảnh từ các bài viết của hồ sơ này sẽ nằm ở đây.';
+
+  @override
+  String get saveImage => 'Lưu ảnh';
+
+  @override
+  String get copyImage => 'Sao chép ảnh';
+
+  @override
+  String get shareImage => 'Chia sẻ ảnh';
+
+  @override
+  String get addFriendAction => 'Kết bạn';
+
+  @override
+  String get messageAction => 'Nhắn tin';
+
+  @override
+  String get editPostTitle => 'Chỉnh sửa bài viết';
+
+  @override
+  String editPostDescriptionWithPhotos(Object count) {
+    return 'Đang có $count ảnh (bao gồm ảnh cũ và ảnh mới).';
+  }
+
+  @override
+  String get editPostDescriptionNoPhotos =>
+      'Bạn có thể sửa nội dung hoặc thêm ảnh mới.';
+
+  @override
+  String get editPostContentHint => 'Nhập nội dung mới...';
+
+  @override
+  String get existingPhotosLabel => 'Ảnh hiện tại';
+
+  @override
+  String get newPhotosLabel => 'Ảnh mới thêm';
+
+  @override
+  String get saveChanges => 'Lưu thay đổi';
+
+  @override
+  String get noRetainedPhotos => 'Hiện không giữ ảnh cũ nào';
+
+  @override
+  String get noNewPhotos => 'Chưa có ảnh mới';
+
+  @override
+  String get oldPhotoLabel => 'Ảnh cũ';
+
+  @override
+  String get newPhotoLabel => 'Ảnh mới';
+
+  @override
+  String get postNeedsContentOrMedia =>
+      'Bài viết cần có nội dung hoặc ít nhất một ảnh';
+
+  @override
+  String get chatAllTab => 'Tất cả';
+
+  @override
+  String get chatGroupsTab => 'Nhóm';
+
+  @override
+  String get searchInMessages => 'Tìm kiếm trong tin nhắn';
+
+  @override
+  String get newConversationTitle => 'Tạo cuộc trò chuyện mới';
+
+  @override
+  String get searchFriends => 'Tìm bạn bè';
+
+  @override
+  String get createGroupChatTitle => 'Tạo nhóm chat';
+
+  @override
+  String get createGroupChatAction => 'Tạo nhóm';
+
+  @override
+  String get createGroupAction => 'Tạo';
+
+  @override
+  String get searchMembersHint => 'Tìm thành viên';
+
+  @override
+  String get createGroupFailed => 'Không tạo được nhóm chat';
+
+  @override
+  String get loadFriendsListFailed => 'Không tải được danh sách bạn bè';
+
+  @override
+  String get noFriendsFoundInChat => 'Không có bạn bè nào';
+
+  @override
+  String get showAction => 'Hiện';
+
+  @override
+  String get deleteChatAction => 'Xóa';
+
+  @override
+  String pendingMessagesCount(Object count) {
+    return 'Tin nhắn đang chờ ($count)';
+  }
+
+  @override
+  String get collapseAction => 'Thu gọn';
+
+  @override
+  String get expandAction => 'Mở rộng';
+
+  @override
+  String get groupDefaultName => 'Nhóm';
+
+  @override
+  String get groupCreated => 'Nhóm đã được tạo';
+
+  @override
+  String get deleteConversationAction => 'Xóa cuộc trò chuyện';
+
+  @override
+  String get audioCallAction => 'Gọi thoại';
+
+  @override
+  String get videoCallAction => 'Gọi video';
+
+  @override
+  String get viewProfileChatAction => 'Trang cá nhân';
+
+  @override
+  String get muteNotificationsAction => 'Tắt thông báo';
+
+  @override
+  String get customizationSection => 'Tùy chỉnh';
+
+  @override
+  String get themeAction => 'Chủ đề';
+
+  @override
+  String get themeModeLabel => 'Chế độ sáng/tối';
+
+  @override
+  String get themeLight => 'Sáng';
+
+  @override
+  String get themeDark => 'Tối';
+
+  @override
+  String get otherActionsSection => 'Hành động khác';
+
+  @override
+  String get viewMediaFilesLinks => 'Xem file phương tiện, file và liên kết';
 }

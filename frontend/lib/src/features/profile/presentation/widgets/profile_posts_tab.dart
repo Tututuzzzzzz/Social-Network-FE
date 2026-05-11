@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/src/core/l10n/l10n.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../configs/injector/injector_conf.dart';
@@ -99,7 +100,7 @@ class _ProfilePostsTabState extends State<ProfilePostsTab> {
   void _showFeatureSoon() {
     ScaffoldMessenger.of(
       context,
-    ).showSnackBar(const SnackBar(content: Text('Feature in development')));
+    ).showSnackBar(SnackBar(content: Text(context.l10n.featureInDevelopment)));
   }
 
   @override
@@ -117,11 +118,11 @@ class _ProfilePostsTabState extends State<ProfilePostsTab> {
                   ? Icons.article_outlined
                   : Icons.error_outline_rounded,
               title: widget.postsErrorMessage == null
-                  ? 'Chưa có bài viết'
-                  : 'Chưa tải được bài viết',
+                  ? context.l10n.noPostsTitle
+                  : context.l10n.loadPostsFailed,
               message:
                   widget.postsErrorMessage ??
-                  'Các bài viết của hồ sơ này sẽ xuất hiện tại đây.',
+                  context.l10n.postsEmptyMessage,
             ),
           ],
         ),
@@ -137,11 +138,16 @@ class _ProfilePostsTabState extends State<ProfilePostsTab> {
         separatorBuilder: (_, _) => const SizedBox(height: 8),
         itemBuilder: (context, index) {
           final post = widget.posts[index];
+          final commentCountOverride = _commentCountOverrides[post.id];
+          final displayPost = commentCountOverride == null
+              ? post
+              : post.copyWith(commentsCount: commentCountOverride);
+
           return GestureDetector(
             behavior: HitTestBehavior.opaque,
-            onTap: () => _openPostDetail(post),
+            onTap: () => _openPostDetail(displayPost),
             child: PostCard(
-              post: post,
+              post: displayPost,
               isLikedByMe:
                   widget.currentUserId.isNotEmpty &&
                   post.likes.contains(widget.currentUserId),

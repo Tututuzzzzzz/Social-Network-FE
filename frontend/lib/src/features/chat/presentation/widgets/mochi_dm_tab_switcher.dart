@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/src/core/l10n/l10n.dart';
 
 import 'mochi_dm_styles.dart';
 
@@ -20,14 +21,14 @@ class MochiDmTabSwitcher extends StatelessWidget {
         children: [
           Expanded(
             child: _TabItem(
-              label: 'Tất Cả',
+              label: context.l10n.chatAllTab,
               isActive: currentIndex == 0,
               onTap: () => onChanged(0),
             ),
           ),
           Expanded(
             child: _TabItem(
-              label: 'Nhóm',
+              label: context.l10n.chatGroupsTab,
               isActive: currentIndex == 1,
               onTap: () => onChanged(1),
             ),

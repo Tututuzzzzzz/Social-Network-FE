@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
-import '../../../../../core/l10n/l10n.dart';
+import 'package:frontend/src/core/l10n/l10n.dart';
 import 'create_post_actions.dart';
 import 'create_post_media_grid.dart';
 import 'create_post_theme.dart';
@@ -33,6 +33,7 @@ class CreatePostComposerBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final hasImages = selectedImages.isNotEmpty;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -60,8 +61,8 @@ class CreatePostComposerBody extends StatelessWidget {
                     keyboardType: TextInputType.multiline,
                     textInputAction: TextInputAction.newline,
                     onChanged: onCaptionChanged,
-                    style: const TextStyle(
-                      color: CreatePostTheme.textColor,
+                    style: TextStyle(
+                      color: isDark ? Colors.white : Colors.black,
                       fontSize: 21,
                       fontWeight: FontWeight.w400,
                       height: 1.42,
@@ -69,8 +70,10 @@ class CreatePostComposerBody extends StatelessWidget {
                     ),
                     decoration: InputDecoration(
                       hintText: context.l10n.captionHint,
-                      hintStyle: const TextStyle(
-                        color: Color(0xFFB9BEC6),
+                      hintStyle: TextStyle(
+                        color: isDark
+                            ? const Color(0xFFB9BEC6)
+                            : Colors.black54,
                         fontSize: 21,
                         fontWeight: FontWeight.w400,
                         height: 1.42,

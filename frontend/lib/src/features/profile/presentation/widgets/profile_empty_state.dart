@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/src/core/theme/app_colors.dart';
 
 class ProfileEmptyState extends StatelessWidget {
   const ProfileEmptyState({
@@ -14,6 +15,8 @@ class ProfileEmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = AppColors.of(context);
+
     return Center(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 32),
@@ -23,18 +26,18 @@ class ProfileEmptyState extends StatelessWidget {
             Container(
               width: 58,
               height: 58,
-              decoration: const BoxDecoration(
-                color: Color(0xFFE4F7EF),
+              decoration: BoxDecoration(
+                color: colors.chipFollowBg.withValues(alpha: 0.16),
                 shape: BoxShape.circle,
               ),
-              child: Icon(icon, color: Color(0xFF25A97A), size: 28),
+              child: Icon(icon, color: colors.accent, size: 28),
             ),
             const SizedBox(height: 14),
             Text(
               title,
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                color: const Color(0xFF1A2521),
+                color: colors.textPrimary,
                 fontWeight: FontWeight.w800,
               ),
             ),
@@ -43,7 +46,7 @@ class ProfileEmptyState extends StatelessWidget {
               message,
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: const Color(0xFF6C7773),
+                color: colors.textSecondary,
                 height: 1.35,
               ),
             ),

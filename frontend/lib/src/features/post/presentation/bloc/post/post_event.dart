@@ -60,6 +60,31 @@ class PostCommentsChangedEvent extends PostEvent {
   List<Object?> get props => [postId, comments, commentsCount];
 }
 
+class PostRealtimeEngagementChangedEvent extends PostEvent {
+  final String postId;
+  final String notificationId;
+  final String actorId;
+  final int likeDelta;
+  final int commentDelta;
+
+  const PostRealtimeEngagementChangedEvent({
+    required this.postId,
+    required this.notificationId,
+    this.actorId = '',
+    this.likeDelta = 0,
+    this.commentDelta = 0,
+  });
+
+  @override
+  List<Object?> get props => [
+    postId,
+    notificationId,
+    actorId,
+    likeDelta,
+    commentDelta,
+  ];
+}
+
 class PostLocalPostChangedEvent extends PostEvent {
   final PostEntity post;
 

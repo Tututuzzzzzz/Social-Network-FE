@@ -11,6 +11,7 @@ import '../widgets/mochi_dm_status_view.dart';
 import '../widgets/mochi_dm_styles.dart';
 import '../widgets/mochi_dm_tab_switcher.dart';
 import '../widgets/mochi_dm_top_bar.dart';
+import 'package:frontend/src/core/l10n/l10n.dart';
 
 class MochiDirectMessagesPage extends StatefulWidget {
   const MochiDirectMessagesPage({super.key});
@@ -64,18 +65,18 @@ class _MochiDirectMessagesPageState extends State<MochiDirectMessagesPage> {
 
   String _displayName(ChatEntity item) {
     final value = item.senderName.trim();
-    return value.isEmpty ? 'Conversation' : value;
+    return value.isEmpty ? context.l10n.conversationTitle : value;
   }
 
   String _displayPreview(ChatEntity item) {
     final value = item.messagePreview.trim();
-    return value.isEmpty ? 'Start chatting...' : value;
+    return value.isEmpty ? context.l10n.startChatting : value;
   }
 
   String _displayTimeLabel(ChatEntity item) {
     final value = item.timeLabel.trim();
     if (value.isEmpty) {
-      return '.now';
+      return '.${context.l10n.timeNow}';
     }
 
     return value.startsWith('.') ? value : '.$value';
@@ -95,16 +96,16 @@ class _MochiDirectMessagesPageState extends State<MochiDirectMessagesPage> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Xoa doan chat'),
-          content: Text('Ban co muon xoa doan chat voi $name khong?'),
+          title: Text(context.l10n.deleteChatTitle),
+          content: Text(context.l10n.deleteChatConfirm(name)),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(false),
-              child: const Text('Huy'),
+              child: Text(context.l10n.cancel),
             ),
             FilledButton(
               onPressed: () => Navigator.of(context).pop(true),
-              child: const Text('Xoa'),
+              child: Text(context.l10n.delete),
             ),
           ],
         );
@@ -157,7 +158,7 @@ class _MochiDirectMessagesPageState extends State<MochiDirectMessagesPage> {
           if (state is ChatFailureState && loadedThreads.isEmpty) {
             listContent = MochiDmStatusView(
               icon: Icons.error_outline,
-              title: 'Khong the tai tin nhan',
+              title: context.l10n.loadMessagesFailed,
               subtitle: state.message,
               onRetry: () =>
                   context.read<ChatBloc>().add(const ChatFetchedEvent()),
@@ -165,10 +166,10 @@ class _MochiDirectMessagesPageState extends State<MochiDirectMessagesPage> {
           } else if (isInitialLoading) {
             listContent = const Center(child: CircularProgressIndicator());
           } else if (visibleThreads.isEmpty) {
-            listContent = const MochiDmStatusView(
+            listContent = MochiDmStatusView(
               icon: Icons.search_off_outlined,
-              title: 'Khong tim thay doan chat',
-              subtitle: 'Thu tim voi tu khoa khac.',
+              title: context.l10n.noChatFound,
+              subtitle: context.l10n.searchAnotherKeyword,
             );
           } else {
             listContent = ListView.separated(

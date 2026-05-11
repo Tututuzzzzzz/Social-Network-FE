@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/src/core/l10n/l10n.dart';
+import 'package:frontend/src/core/theme/app_colors.dart';
 
 import '../../../../core/utils/url_normalizer.dart';
 
@@ -20,6 +22,8 @@ class ProfileAvatarViewer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final colors = AppColors.of(context);
     final normalizedAvatarUrl = avatarUrl?.trim().normalizeClientUrl();
     final hasAvatar =
         normalizedAvatarUrl != null && normalizedAvatarUrl.isNotEmpty;
@@ -28,7 +32,7 @@ class ProfileAvatarViewer extends StatelessWidget {
         : displayName.trim()[0].toUpperCase();
 
     return Dialog.fullscreen(
-      backgroundColor: Colors.black,
+      backgroundColor: colors.mediaBackground,
       child: SafeArea(
         child: Stack(
           children: [
@@ -58,18 +62,18 @@ class ProfileAvatarViewer extends StatelessWidget {
               top: 4,
               left: 4,
               child: IconButton(
-                tooltip: 'Đóng',
+                tooltip: l10n.cancel,
                 onPressed: () => Navigator.of(context).pop(),
-                icon: const Icon(Icons.close, color: Colors.white),
+                icon: Icon(Icons.close, color: colors.postDetailText),
               ),
             ),
             Positioned(
               top: 4,
               right: 4,
               child: PopupMenuButton<ProfileAvatarMenuAction>(
-                tooltip: 'Tùy chọn',
-                icon: const Icon(Icons.more_vert, color: Colors.white),
-                color: Colors.white,
+                tooltip: l10n.optionsLabel,
+                icon: Icon(Icons.more_vert, color: colors.postDetailText),
+                color: colors.sheetSurface,
                 onSelected: (action) {
                   switch (action) {
                     case ProfileAvatarMenuAction.upload:
@@ -81,23 +85,29 @@ class ProfileAvatarViewer extends StatelessWidget {
                 },
                 itemBuilder: (context) => [
                   if (canUpdateAvatar)
-                    const PopupMenuItem(
+                    PopupMenuItem(
                       value: ProfileAvatarMenuAction.upload,
                       child: Row(
                         children: [
-                          Icon(Icons.upload_rounded),
-                          SizedBox(width: 10),
-                          Text('Tải ảnh đại diện mới'),
+                          Icon(Icons.upload_rounded, color: colors.textPrimary),
+                          const SizedBox(width: 10),
+                          Text(
+                            l10n.editAvatarAction,
+                            style: TextStyle(color: colors.textPrimary),
+                          ),
                         ],
                       ),
                     ),
-                  const PopupMenuItem(
+                  PopupMenuItem(
                     value: ProfileAvatarMenuAction.cancel,
                     child: Row(
                       children: [
-                        Icon(Icons.close_rounded),
-                        SizedBox(width: 10),
-                        Text('Hủy'),
+                        Icon(Icons.close_rounded, color: colors.textPrimary),
+                        const SizedBox(width: 10),
+                        Text(
+                          l10n.cancel,
+                          style: TextStyle(color: colors.textPrimary),
+                        ),
                       ],
                     ),
                   ),
@@ -118,16 +128,17 @@ class _AvatarFallback extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = AppColors.of(context);
     return DecoratedBox(
-      decoration: const BoxDecoration(
-        color: Color(0xFFD8F2E8),
+      decoration: BoxDecoration(
+        color: colors.avatarPlaceholder,
         shape: BoxShape.circle,
       ),
       child: Center(
         child: Text(
           initial,
-          style: const TextStyle(
-            color: Color(0xFF168C68),
+          style: TextStyle(
+            color: colors.accent,
             fontSize: 116,
             fontWeight: FontWeight.w800,
             decoration: TextDecoration.none,
