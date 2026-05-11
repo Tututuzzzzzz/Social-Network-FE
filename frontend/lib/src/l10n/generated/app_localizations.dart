@@ -2000,6 +2000,36 @@ abstract class AppLocalizations {
   /// **'Unknown recipient for the message'**
   String get unknownRecipient;
 
+  /// No description provided for @unknownSenderLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown'**
+  String get unknownSenderLabel;
+
+  /// No description provided for @deletedMessageLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Deleted message'**
+  String get deletedMessageLabel;
+
+  /// No description provided for @todayLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get todayLabel;
+
+  /// No description provided for @attachmentLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Attachment'**
+  String get attachmentLabel;
+
+  /// No description provided for @messagePickMediaFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Cannot pick or capture media.'**
+  String get messagePickMediaFailed;
+
   /// No description provided for @startChatting.
   ///
   /// In en, this message translates to:

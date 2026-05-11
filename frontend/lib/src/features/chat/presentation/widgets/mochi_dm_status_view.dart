@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/src/core/l10n/l10n.dart';
 
 import 'mochi_dm_styles.dart';
 
@@ -48,7 +49,10 @@ class MochiDmStatusView extends StatelessWidget {
             ],
             if (onRetry != null) ...[
               const SizedBox(height: 12),
-              FilledButton(onPressed: onRetry, child: const Text('Thu lai')),
+              FilledButton(
+                onPressed: onRetry,
+                child: Text(context.l10n.retryAction),
+              ),
             ],
           ],
         ),

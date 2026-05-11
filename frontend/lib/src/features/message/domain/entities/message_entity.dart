@@ -1,5 +1,22 @@
 import 'package:equatable/equatable.dart';
 
+class MessageReadByEntity extends Equatable {
+  final String userId;
+  final String displayName;
+  final String avatarUrl;
+  final DateTime? readAt;
+
+  const MessageReadByEntity({
+    required this.userId,
+    this.displayName = '',
+    this.avatarUrl = '',
+    this.readAt,
+  });
+
+  @override
+  List<Object?> get props => [userId, displayName, avatarUrl, readAt];
+}
+
 class MessageMediaEntity extends Equatable {
   final String bucket;
   final String objectKey;
@@ -19,6 +36,21 @@ class MessageMediaEntity extends Equatable {
   List<Object?> get props => [bucket, objectKey, mimeType, size, mediaUrl];
 }
 
+class MessageReactionEntity extends Equatable {
+  final String userId;
+  final String emoji;
+  final DateTime? reactedAt;
+
+  const MessageReactionEntity({
+    required this.userId,
+    required this.emoji,
+    this.reactedAt,
+  });
+
+  @override
+  List<Object?> get props => [userId, emoji, reactedAt];
+}
+
 class MessageEntity extends Equatable {
   final String id;
   final String conversationId;
@@ -27,6 +59,8 @@ class MessageEntity extends Equatable {
   final String senderAvatarUrl;
   final String content;
   final List<MessageMediaEntity> media;
+  final List<MessageReactionEntity> reactions;
+  final List<MessageReadByEntity> readBy;
   final DateTime? createdAt;
   final DateTime? updatedAt;
 
@@ -38,6 +72,8 @@ class MessageEntity extends Equatable {
     this.senderAvatarUrl = '',
     this.content = '',
     this.media = const [],
+    this.reactions = const [],
+    this.readBy = const [],
     this.createdAt,
     this.updatedAt,
   });
@@ -50,6 +86,8 @@ class MessageEntity extends Equatable {
     String? senderAvatarUrl,
     String? content,
     List<MessageMediaEntity>? media,
+    List<MessageReactionEntity>? reactions,
+    List<MessageReadByEntity>? readBy,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -61,6 +99,8 @@ class MessageEntity extends Equatable {
       senderAvatarUrl: senderAvatarUrl ?? this.senderAvatarUrl,
       content: content ?? this.content,
       media: media ?? this.media,
+      reactions: reactions ?? this.reactions,
+      readBy: readBy ?? this.readBy,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
@@ -75,6 +115,8 @@ class MessageEntity extends Equatable {
     senderAvatarUrl,
     content,
     media,
+    reactions,
+    readBy,
     createdAt,
     updatedAt,
   ];

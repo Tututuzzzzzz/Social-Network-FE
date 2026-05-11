@@ -9,6 +9,8 @@ class MessageModel extends MessageEntity {
     super.senderAvatarUrl,
     super.content,
     super.media,
+    super.reactions,
+    super.readBy,
     super.createdAt,
     super.updatedAt,
   });
@@ -33,6 +35,41 @@ class MessageModel extends MessageEntity {
             mimeType: map['mimeType']?.toString() ?? '',
             size: (map['size'] as num?)?.toInt() ?? 0,
             mediaUrl: map['mediaUrl']?.toString() ?? '',
+          ),
+        );
+      }
+    }
+
+    final rawReadBy = map['readBy'];
+    final readByItems = <MessageReadByEntity>[];
+
+    if (rawReadBy is List) {
+      for (final item in rawReadBy) {
+        if (item is! Map) continue;
+        final rMap = Map<String, dynamic>.from(item);
+
+        final rUser = rMap['userId'];
+        String rUserId = '';
+        String rDisplayName = '';
+        String rAvatarUrl = '';
+
+        if (rUser is Map) {
+          final uMap = Map<String, dynamic>.from(rUser);
+          rUserId = (uMap['_id'] ?? uMap['id'] ?? '').toString();
+          rDisplayName =
+              uMap['displayName']?.toString() ?? uMap['name']?.toString() ?? '';
+          rAvatarUrl =
+              uMap['avatarUrl']?.toString() ?? uMap['avatar']?.toString() ?? '';
+        } else {
+          rUserId = rUser?.toString() ?? '';
+        }
+
+        readByItems.add(
+          MessageReadByEntity(
+            userId: rUserId,
+            displayName: rDisplayName,
+            avatarUrl: rAvatarUrl,
+            readAt: DateTime.tryParse(rMap['readAt']?.toString() ?? ''),
           ),
         );
       }
@@ -76,6 +113,32 @@ class MessageModel extends MessageEntity {
       senderId = senderRaw?.toString() ?? '';
     }
 
+    final rawReactions = map['reactions'];
+    final reactionItems = <MessageReactionEntity>[];
+    if (rawReactions is List) {
+      for (final item in rawReactions) {
+        if (item is! Map) continue;
+        final rMap = Map<String, dynamic>.from(item);
+
+        final reactedUserId = rMap['userId'];
+        String userId = '';
+        if (reactedUserId is Map) {
+          userId = (reactedUserId['_id'] ?? reactedUserId['id'] ?? '')
+              .toString();
+        } else {
+          userId = reactedUserId?.toString() ?? '';
+        }
+
+        reactionItems.add(
+          MessageReactionEntity(
+            userId: userId,
+            emoji: rMap['emoji']?.toString() ?? '',
+            reactedAt: DateTime.tryParse(rMap['reactedAt']?.toString() ?? ''),
+          ),
+        );
+      }
+    }
+
     return MessageModel(
       id: (map['_id'] ?? map['id'] ?? '').toString(),
       conversationId: conversationId,
@@ -84,6 +147,8 @@ class MessageModel extends MessageEntity {
       senderAvatarUrl: senderAvatarUrl,
       content: map['content']?.toString() ?? '',
       media: mediaItems,
+      reactions: reactionItems,
+      readBy: readByItems,
       createdAt: DateTime.tryParse(map['createdAt']?.toString() ?? ''),
       updatedAt: DateTime.tryParse(map['updatedAt']?.toString() ?? ''),
     );
@@ -98,6 +163,8 @@ class MessageModel extends MessageEntity {
       senderAvatarUrl: entity.senderAvatarUrl,
       content: entity.content,
       media: entity.media,
+      reactions: entity.reactions,
+      readBy: entity.readBy,
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,
     );
@@ -121,6 +188,19 @@ class MessageModel extends MessageEntity {
           },
         )
         .toList(),
+    'readBy': readBy
+        .map(
+          (item) => {
+            // Serialize as a full object so fromJson can recover displayName & avatarUrl
+            'userId': {
+              '_id': item.userId,
+              'displayName': item.displayName,
+              'avatarUrl': item.avatarUrl,
+            },
+            'readAt': item.readAt?.toIso8601String(),
+          },
+        )
+        .toList(),
     'createdAt': createdAt?.toIso8601String(),
     'updatedAt': updatedAt?.toIso8601String(),
   };
@@ -130,10 +210,14 @@ class MessageActionResultModel extends MessageActionResultEntity {
   const MessageActionResultModel({super.message, super.data});
 
   factory MessageActionResultModel.fromJson(Map<String, dynamic> json) {
+    final rawMessage = json['message'];
+
     return MessageActionResultModel(
-      message: json['message']?.toString() ?? '',
+      message: rawMessage is String ? rawMessage : '',
       data: json['data'] is Map
           ? Map<String, dynamic>.from(json['data'])
+          : rawMessage is Map
+          ? {'message': Map<String, dynamic>.from(rawMessage)}
           : null,
     );
   }

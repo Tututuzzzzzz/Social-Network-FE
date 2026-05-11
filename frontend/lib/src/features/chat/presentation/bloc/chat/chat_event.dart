@@ -61,3 +61,22 @@ class ChatThreadUnreadClearedEvent extends ChatEvent {
   @override
   List<Object?> get props => [threadId];
 }
+
+class ChatMessageReceivedEvent extends ChatEvent {
+  final String conversationId;
+  final Map<String, dynamic> message;
+
+  const ChatMessageReceivedEvent(this.conversationId, this.message);
+
+  @override
+  List<Object?> get props => [conversationId, message];
+}
+
+class ChatConversationSeenEvent extends ChatEvent {
+  final String conversationId;
+
+  const ChatConversationSeenEvent(this.conversationId);
+
+  @override
+  List<Object?> get props => [conversationId];
+}

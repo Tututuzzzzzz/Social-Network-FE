@@ -1,7 +1,10 @@
+import 'package:dio/dio.dart';
+
 import '../../../../core/api/api_constants.dart';
 import '../../../../core/api/api_helper.dart';
 import '../../../../core/errors/exceptions.dart';
 import '../../../../core/utils/logger.dart';
+import '../../domain/entities/message_media_upload_file.dart';
 import '../models/message_model.dart';
 
 abstract class MessageRemoteDataSource {
@@ -19,7 +22,8 @@ abstract class MessageRemoteDataSource {
 
   Future<MessageActionResultModel> sendDirectMedia({
     required String conversationId,
-    required List<Map<String, dynamic>> media,
+    required String recipientId,
+    required List<MessageMediaUploadFile> files,
     String? content,
   });
 
@@ -30,7 +34,7 @@ abstract class MessageRemoteDataSource {
 
   Future<MessageActionResultModel> sendGroupMedia({
     required String conversationId,
-    required List<Map<String, dynamic>> media,
+    required List<MessageMediaUploadFile> files,
     String? content,
   });
 
@@ -64,6 +68,11 @@ abstract class MessageRemoteDataSource {
   Future<MessageActionResultModel> markAllMessagesAsRead({
     required String conversationId,
     String? lastMessageId,
+  });
+
+  Future<MessageActionResultModel> deleteMessage({
+    required String conversationId,
+    required String messageId,
   });
 }
 
@@ -155,18 +164,20 @@ class MessageRemoteDataSourceImpl implements MessageRemoteDataSource {
   @override
   Future<MessageActionResultModel> sendDirectMedia({
     required String conversationId,
-    required List<Map<String, dynamic>> media,
+    required String recipientId,
+    required List<MessageMediaUploadFile> files,
     String? content,
   }) async {
     try {
       final response = await _apiHelper.execute(
         url: ApiConstants.messagesDirectMedia,
         method: Method.post,
-        data: {
-          'conversationId': conversationId,
-          if (content != null && content.trim().isNotEmpty) 'content': content,
-          'media': media,
-        },
+        data: await _mediaFormData(
+          conversationId: conversationId,
+          recipientId: recipientId,
+          files: files,
+          content: content,
+        ),
       );
       return _extractActionResult(response);
     } catch (e, st) {
@@ -196,24 +207,56 @@ class MessageRemoteDataSourceImpl implements MessageRemoteDataSource {
   @override
   Future<MessageActionResultModel> sendGroupMedia({
     required String conversationId,
-    required List<Map<String, dynamic>> media,
+    required List<MessageMediaUploadFile> files,
     String? content,
   }) async {
     try {
       final response = await _apiHelper.execute(
         url: ApiConstants.messagesGroupMedia,
         method: Method.post,
-        data: {
-          'conversationId': conversationId,
-          if (content != null && content.trim().isNotEmpty) 'content': content,
-          'media': media,
-        },
+        data: await _mediaFormData(
+          conversationId: conversationId,
+          files: files,
+          content: content,
+        ),
       );
       return _extractActionResult(response);
     } catch (e, st) {
       logger.e(e, stackTrace: st);
       throw ServerException();
     }
+  }
+
+  Future<FormData> _mediaFormData({
+    required String conversationId,
+    String recipientId = '',
+    required List<MessageMediaUploadFile> files,
+    String? content,
+  }) async {
+    final multipartFiles = <MultipartFile>[];
+
+    for (final file in files) {
+      if (file.hasBytes) {
+        multipartFiles.add(
+          MultipartFile.fromBytes(file.bytes!, filename: file.name),
+        );
+        continue;
+      }
+
+      if (file.hasPath) {
+        multipartFiles.add(
+          await MultipartFile.fromFile(file.path!, filename: file.name),
+        );
+      }
+    }
+
+    return FormData.fromMap({
+      'conversationId': conversationId,
+      if (recipientId.trim().isNotEmpty) 'recipientId': recipientId.trim(),
+      if (content != null && content.trim().isNotEmpty)
+        'content': content.trim(),
+      'files': multipartFiles,
+    });
   }
 
   @override
@@ -332,6 +375,23 @@ class MessageRemoteDataSourceImpl implements MessageRemoteDataSource {
           if (lastMessageId != null && lastMessageId.trim().isNotEmpty)
             'lastMessageId': lastMessageId,
         },
+      );
+      return _extractActionResult(response);
+    } catch (e, st) {
+      logger.e(e, stackTrace: st);
+      throw ServerException();
+    }
+  }
+
+  @override
+  Future<MessageActionResultModel> deleteMessage({
+    required String conversationId,
+    required String messageId,
+  }) async {
+    try {
+      final response = await _apiHelper.execute(
+        url: ApiConstants.messageDelete(conversationId, messageId),
+        method: Method.delete,
       );
       return _extractActionResult(response);
     } catch (e, st) {

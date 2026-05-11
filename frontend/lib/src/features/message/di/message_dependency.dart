@@ -6,6 +6,7 @@ import '../data/datasources/message_local_datasource.dart';
 import '../data/datasources/message_remote_datasource.dart';
 import '../data/repositories/message_repository_impl.dart';
 import '../domain/usecases/add_reaction_usecase.dart';
+import '../domain/usecases/delete_message_usecase.dart';
 import '../domain/usecases/fetch_conversation_history_usecase.dart';
 import '../domain/usecases/load_cached_conversation_history_usecase.dart';
 import '../domain/usecases/mark_all_messages_as_read_usecase.dart';
@@ -29,10 +30,15 @@ class MessageDependency {
         () => MessageBloc(
           getIt<SendDirectTextUseCase>(),
           getIt<SendGroupTextUseCase>(),
+          getIt<SendDirectMediaUseCase>(),
+          getIt<SendGroupMediaUseCase>(),
           getIt<FetchConversationHistoryUseCase>(),
           getIt<LoadCachedConversationHistoryUseCase>(),
           getIt<SaveCachedConversationHistoryUseCase>(),
           getIt<MarkAllMessagesAsReadUseCase>(),
+          getIt<AddReactionUseCase>(),
+          getIt<RemoveReactionUseCase>(),
+          getIt<DeleteMessageUseCase>(),
           getIt<RealtimeSocketService>(),
         ),
       );
@@ -83,6 +89,12 @@ class MessageDependency {
     if (!getIt.isRegistered<RemoveReactionUseCase>()) {
       getIt.registerLazySingleton(
         () => RemoveReactionUseCase(getIt<MessageRepositoryImpl>()),
+      );
+    }
+
+    if (!getIt.isRegistered<DeleteMessageUseCase>()) {
+      getIt.registerLazySingleton(
+        () => DeleteMessageUseCase(getIt<MessageRepositoryImpl>()),
       );
     }
 

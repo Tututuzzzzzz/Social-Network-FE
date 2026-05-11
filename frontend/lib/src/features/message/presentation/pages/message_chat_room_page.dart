@@ -1,16 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter/foundation.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../../../chat/domain/entities/chat_entity.dart';
 import 'package:frontend/src/core/l10n/l10n.dart';
 import '../../../../routes/app_route_path.dart';
+import '../../domain/entities/message_media_upload_file.dart';
 import '../bloc/message_bloc.dart';
 import '../bloc/message_event.dart';
 import '../bloc/message_state.dart';
 import '../widgets/message_chat_room_app_bar.dart';
 import '../widgets/message_composer.dart';
 import '../widgets/message_history_list.dart';
+
+part 'message_chat_room_actions.dart';
 
 class MessageChatRoomPage extends StatefulWidget {
   final ChatEntity thread;
@@ -21,7 +26,8 @@ class MessageChatRoomPage extends StatefulWidget {
   State<MessageChatRoomPage> createState() => _MessageChatRoomPageState();
 }
 
-class _MessageChatRoomPageState extends State<MessageChatRoomPage> {
+class _MessageChatRoomPageState extends State<MessageChatRoomPage>
+    with MessageChatRoomActions {
   static const Color _accentGreen = Color(0xFF3CC18E);
   static const Color _pageBackground = Color(0xFFF7F8FA);
   static const Color _peerBubble = Color(0xFFF2F4F7);
@@ -30,13 +36,43 @@ class _MessageChatRoomPageState extends State<MessageChatRoomPage> {
 
   final TextEditingController _composerController = TextEditingController();
   final ScrollController _historyScrollController = ScrollController();
+  final ImagePicker _imagePicker = ImagePicker();
   double _previousMaxScrollExtentBeforeOlderLoad = 0.0;
   MessageChatRoomState? _previousChatState;
 
   @override
+  ScrollController get historyScrollController => _historyScrollController;
+
+  @override
+  TextEditingController get composerController => _composerController;
+
+  @override
+  ImagePicker get imagePicker => _imagePicker;
+
+  @override
+  double get previousMaxScrollExtentBeforeOlderLoad =>
+      _previousMaxScrollExtentBeforeOlderLoad;
+
+  @override
+  set previousMaxScrollExtentBeforeOlderLoad(double value) {
+    _previousMaxScrollExtentBeforeOlderLoad = value;
+  }
+
+  @override
+  int get historyPageLimit => _historyPageLimit;
+
+  @override
+  MessageChatRoomState? get previousChatState => _previousChatState;
+
+  @override
+  set previousChatState(MessageChatRoomState? value) {
+    _previousChatState = value;
+  }
+
+  @override
   void initState() {
     super.initState();
-    _historyScrollController.addListener(_onHistoryScroll);
+    _historyScrollController.addListener(onHistoryScroll);
     context.read<MessageBloc>().add(
       MessageChatRoomStarted(thread: widget.thread, limit: _historyPageLimit),
     );
@@ -45,156 +81,10 @@ class _MessageChatRoomPageState extends State<MessageChatRoomPage> {
   @override
   void dispose() {
     _historyScrollController
-      ..removeListener(_onHistoryScroll)
+      ..removeListener(onHistoryScroll)
       ..dispose();
     _composerController.dispose();
     super.dispose();
-  }
-
-  void _onHistoryScroll() {
-    if (!_historyScrollController.hasClients) {
-      return;
-    }
-
-    if (_historyScrollController.position.pixels <= 80) {
-      _maybeLoadOlderHistory();
-    }
-  }
-
-  void _maybeLoadOlderHistory() {
-    final currentState = context.read<MessageBloc>().state;
-    if (currentState is! MessageChatRoomState) {
-      return;
-    }
-
-    final cursor = currentState.nextCursor?.trim();
-    if (currentState.isLoadingOlderHistory ||
-        !currentState.hasMoreHistory ||
-        cursor == null ||
-        cursor.isEmpty) {
-      return;
-    }
-
-    _previousMaxScrollExtentBeforeOlderLoad =
-        _historyScrollController.hasClients
-        ? _historyScrollController.position.maxScrollExtent
-        : 0.0;
-
-    context.read<MessageBloc>().add(
-      MessageHistoryLoadOlderRequested(
-        conversationId: widget.thread.id,
-        cursor: cursor,
-        limit: _historyPageLimit,
-      ),
-    );
-  }
-
-  void _restoreScrollAfterOlderLoaded() {
-    if (!_historyScrollController.hasClients) {
-      return;
-    }
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!_historyScrollController.hasClients) {
-        return;
-      }
-
-      final newMaxScrollExtent =
-          _historyScrollController.position.maxScrollExtent;
-      final delta =
-          newMaxScrollExtent - _previousMaxScrollExtentBeforeOlderLoad;
-      if (delta > 0) {
-        _historyScrollController.jumpTo(
-          _historyScrollController.position.pixels + delta,
-        );
-      }
-    });
-  }
-
-  void _scrollToLatestAfterHydration() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!_historyScrollController.hasClients) {
-        return;
-      }
-
-      final maxScrollExtent = _historyScrollController.position.maxScrollExtent;
-      _historyScrollController.jumpTo(maxScrollExtent);
-    });
-  }
-
-  void _onSendPressed(BuildContext blocContext) {
-    final text = _composerController.text.trim();
-    if (text.isEmpty) {
-      return;
-    }
-
-    if (widget.thread.isGroup) {
-      blocContext.read<MessageBloc>().add(
-        SendGroupTextEvent(conversationId: widget.thread.id, content: text),
-      );
-      return;
-    }
-
-    final recipientId = widget.thread.recipientId.trim();
-    if (recipientId.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(context.l10n.unknownRecipient),
-        ),
-      );
-      return;
-    }
-
-    blocContext.read<MessageBloc>().add(
-      SendDirectTextEvent(
-        conversationId: widget.thread.id,
-        recipientId: recipientId,
-        content: text,
-      ),
-    );
-  }
-
-  ChatEntity _buildUpdatedThread(MessageChatRoomState? chatState) {
-    final messages = chatState?.messages ?? const <MessageLine>[];
-    final lastMessage = messages.isNotEmpty ? messages.last.text.trim() : '';
-    final preview = lastMessage.isNotEmpty
-        ? lastMessage
-        : (widget.thread.messagePreview.trim().isNotEmpty
-              ? widget.thread.messagePreview.trim()
-              : context.l10n.startChatting);
-
-    final fullConversation = messages
-        .map((line) => '${line.author}: ${line.text}')
-        .join('\n');
-
-    return widget.thread.copyWith(
-      messagePreview: preview,
-      timeLabel: context.l10n.timeNow,
-      fullConversation: fullConversation,
-      unreadCount: 0,
-    );
-  }
-
-  String _resolvePeerAvatarUrl(MessageChatRoomState? chatState) {
-    final messages = chatState?.messages ?? const <MessageLine>[];
-
-    for (var index = messages.length - 1; index >= 0; index -= 1) {
-      final line = messages[index];
-      final avatarUrl = line.senderAvatarUrl.trim();
-      if (!line.fromMe && avatarUrl.isNotEmpty) {
-        return avatarUrl;
-      }
-    }
-
-    return widget.thread.avatarUrl.trim();
-  }
-
-  void _closeWithResult() {
-    final currentState = context.read<MessageBloc>().state;
-    final chatState = currentState is MessageChatRoomState
-        ? currentState
-        : _previousChatState;
-    Navigator.of(context).pop(_buildUpdatedThread(chatState));
   }
 
   @override
@@ -206,7 +96,7 @@ class _MessageChatRoomPageState extends State<MessageChatRoomPage> {
     final chatState = currentState is MessageChatRoomState
         ? currentState
         : _previousChatState;
-    final threadAvatarUrl = _resolvePeerAvatarUrl(chatState);
+    final threadAvatarUrl = resolvePeerAvatarUrl(chatState);
 
     return PopScope<ChatEntity>(
       canPop: false,
@@ -214,7 +104,7 @@ class _MessageChatRoomPageState extends State<MessageChatRoomPage> {
         if (didPop) {
           return;
         }
-        _closeWithResult();
+        closeWithResult();
       },
       child: Scaffold(
         backgroundColor: _pageBackground,
@@ -222,7 +112,7 @@ class _MessageChatRoomPageState extends State<MessageChatRoomPage> {
           title: threadName,
           avatarUrl: threadAvatarUrl,
           accentColor: _accentGreen,
-          onBack: _closeWithResult,
+          onBack: closeWithResult,
           onManage: () {
             context.pushNamed(
               AppRoutes.chatConversationManage.name,
@@ -253,13 +143,13 @@ class _MessageChatRoomPageState extends State<MessageChatRoomPage> {
 
             if (state.scrollToLatestVersion != previousScrollToLatestVersion) {
               if (state.scrollToLatestVersion > 0) {
-                _scrollToLatestAfterHydration();
+                scrollToLatestAfterHydration();
               }
             }
 
             if (state.restoreScrollVersion != previousRestoreScrollVersion) {
               if (state.restoreScrollVersion > 0) {
-                _restoreScrollAfterOlderLoaded();
+                restoreScrollAfterOlderLoaded();
               }
             }
 
@@ -297,11 +187,40 @@ class _MessageChatRoomPageState extends State<MessageChatRoomPage> {
                       messages: chatState.messages,
                       accentColor: _accentGreen,
                       peerBubbleColor: _peerBubble,
+                      isGroupChat: widget.thread.isGroup,
+                      currentUserId: chatState.currentUserId,
+                      onReaction: (messageId, emoji, isRemove) {
+                        if (isRemove) {
+                          blocContext.read<MessageBloc>().add(
+                            MessageRemoveReactionRequested(
+                              messageId: messageId,
+                              emoji: emoji,
+                            ),
+                          );
+                        } else {
+                          blocContext.read<MessageBloc>().add(
+                            MessageAddReactionRequested(
+                              messageId: messageId,
+                              emoji: emoji,
+                            ),
+                          );
+                        }
+                      },
+                      onDelete: (messageId) {
+                        blocContext.read<MessageBloc>().add(
+                          MessageDeleteRequested(
+                            conversationId: widget.thread.id,
+                            messageId: messageId,
+                          ),
+                        );
+                      },
                     ),
                   ),
                   MessageComposer(
                     controller: _composerController,
-                    onSend: () => _onSendPressed(blocContext),
+                    onSend: () => onSendPressed(blocContext),
+                    onPickImage: () => onPickMediaPressed(ImageSource.gallery),
+                    onTakePhoto: () => onPickMediaPressed(ImageSource.camera),
                     isSending: isSending,
                     accentColor: _accentGreen,
                     fillColor: _composerFill,

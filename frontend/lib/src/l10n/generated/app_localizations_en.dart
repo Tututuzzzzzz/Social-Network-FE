@@ -1017,6 +1017,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get unknownRecipient => 'Unknown recipient for the message';
 
   @override
+  String get unknownSenderLabel => 'Unknown';
+
+  @override
+  String get deletedMessageLabel => 'Deleted message';
+
+  @override
+  String get todayLabel => 'Today';
+
+  @override
+  String get attachmentLabel => 'Attachment';
+
+  @override
+  String get messagePickMediaFailed => 'Cannot pick or capture media.';
+
+  @override
   String get startChatting => 'Start chatting...';
 
   @override

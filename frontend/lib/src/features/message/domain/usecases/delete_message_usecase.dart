@@ -6,21 +6,19 @@ import '../entities/message_entity.dart';
 import '../repositories/message_repository.dart';
 import 'usecase_params.dart';
 
-class SendDirectMediaUseCase
-    implements UseCase<MessageActionResultEntity, SendMediaMessageParams> {
+class DeleteMessageUseCase
+    implements UseCase<MessageActionResultEntity, DeleteMessageParams> {
   final MessageRepository _repository;
 
-  SendDirectMediaUseCase(this._repository);
+  DeleteMessageUseCase(this._repository);
 
   @override
   Future<Either<Failure, MessageActionResultEntity>> call(
-    SendMediaMessageParams params,
+    DeleteMessageParams params,
   ) {
-    return _repository.sendDirectMedia(
+    return _repository.deleteMessage(
       conversationId: params.conversationId,
-      recipientId: params.recipientId,
-      files: params.files,
-      content: params.content,
+      messageId: params.messageId,
     );
   }
 }

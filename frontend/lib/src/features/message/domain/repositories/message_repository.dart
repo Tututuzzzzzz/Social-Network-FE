@@ -2,6 +2,7 @@ import 'package:fpdart/fpdart.dart';
 
 import '../../../../core/errors/failures.dart';
 import '../entities/message_entity.dart';
+import '../entities/message_media_upload_file.dart';
 
 abstract class MessageRepository {
   Future<Either<Failure, MessageHistoryPageEntity>> fetchConversationHistory({
@@ -26,7 +27,8 @@ abstract class MessageRepository {
 
   Future<Either<Failure, MessageActionResultEntity>> sendDirectMedia({
     required String conversationId,
-    required List<Map<String, dynamic>> media,
+    required String recipientId,
+    required List<MessageMediaUploadFile> files,
     String? content,
   });
 
@@ -37,7 +39,7 @@ abstract class MessageRepository {
 
   Future<Either<Failure, MessageActionResultEntity>> sendGroupMedia({
     required String conversationId,
-    required List<Map<String, dynamic>> media,
+    required List<MessageMediaUploadFile> files,
     String? content,
   });
 
@@ -71,5 +73,10 @@ abstract class MessageRepository {
   Future<Either<Failure, MessageActionResultEntity>> markAllMessagesAsRead({
     required String conversationId,
     String? lastMessageId,
+  });
+
+  Future<Either<Failure, MessageActionResultEntity>> deleteMessage({
+    required String conversationId,
+    required String messageId,
   });
 }
