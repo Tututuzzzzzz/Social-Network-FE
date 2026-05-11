@@ -20,11 +20,12 @@ class ProfileGetEvent extends ProfileEvent {
 
 class ProfilePostLikeToggleEvent extends ProfileEvent {
   final String postId;
+  final String currentUserId;
 
-  const ProfilePostLikeToggleEvent(this.postId);
+  const ProfilePostLikeToggleEvent(this.postId, {required this.currentUserId});
 
   @override
-  List<Object?> get props => [postId];
+  List<Object?> get props => [postId, currentUserId];
 }
 
 class ProfileUpdateEvent extends ProfileEvent {
