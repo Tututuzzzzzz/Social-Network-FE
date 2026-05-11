@@ -182,7 +182,8 @@ class PostCard extends StatelessWidget {
                 ),
               ),
             ),
-          _PostMedia(imageUrls: imageUrls),
+          if (imageUrls.isNotEmpty)
+            _PostMedia(imageUrls: imageUrls),
           Padding(
             padding: const EdgeInsets.fromLTRB(14, 10, 14, 0),
             child: Column(
