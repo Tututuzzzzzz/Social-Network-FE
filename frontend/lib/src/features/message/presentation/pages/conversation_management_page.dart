@@ -22,6 +22,7 @@ class _ConversationManagementPageState
     final theme = Theme.of(context);
     final onSurface = theme.colorScheme.onSurface;
     final surfaceContainer = onSurface.withValues(alpha: 0.1);
+    final isGroup = widget.thread.isGroup;
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
@@ -101,14 +102,38 @@ class _ConversationManagementPageState
                 children: [
                   Expanded(child: _buildActionButton(Icons.call, context.l10n.audioCallAction, context)),
                   Expanded(child: _buildActionButton(Icons.videocam, context.l10n.videoCallAction, context)),
-                  Expanded(child: _buildActionButton(Icons.person, context.l10n.viewProfileChatAction, context, onTap: () {
-                    if (widget.thread.recipientId.isNotEmpty) {
-                      context.pushNamed(
-                        AppRoutes.otherProfile.name,
-                        pathParameters: {'userId': widget.thread.recipientId},
-                      );
-                    }
-                  })),
+                  Expanded(
+                    child: isGroup
+                        ? _buildActionButton(
+                            Icons.group,
+                            context.l10n.memberList,
+                            context,
+                            onTap: () {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    context.l10n.featureInDevelopment,
+                                  ),
+                                ),
+                              );
+                            },
+                          )
+                        : _buildActionButton(
+                            Icons.person,
+                            context.l10n.viewProfileChatAction,
+                            context,
+                            onTap: () {
+                              if (widget.thread.recipientId.isNotEmpty) {
+                                context.pushNamed(
+                                  AppRoutes.otherProfile.name,
+                                  pathParameters: {
+                                    'userId': widget.thread.recipientId,
+                                  },
+                                );
+                              }
+                            },
+                          ),
+                  ),
                   Expanded(child: _buildActionButton(Icons.notifications, context.l10n.muteNotificationsAction, context)),
                 ],
               ),
@@ -128,19 +153,6 @@ class _ConversationManagementPageState
               title: context.l10n.themeAction,
               context: context,
             ),
-            _buildCustomMenuItem(
-              leading: Text(
-                'Aa',
-                style: TextStyle(
-                  color: onSurface,
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              title: context.l10n.nicknameAction,
-              context: context,
-            ),
-
             const SizedBox(height: 20),
             // Hành động khác Section
             _buildSectionHeader(context.l10n.otherActionsSection, context),

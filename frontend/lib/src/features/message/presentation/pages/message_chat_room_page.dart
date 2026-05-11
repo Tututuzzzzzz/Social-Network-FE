@@ -15,6 +15,8 @@ import '../widgets/message_chat_room_app_bar.dart';
 import '../widgets/message_composer.dart';
 import '../widgets/message_history_list.dart';
 
+part 'message_chat_room_actions.dart';
+
 class MessageChatRoomPage extends StatefulWidget {
   final ChatEntity thread;
 
@@ -24,7 +26,8 @@ class MessageChatRoomPage extends StatefulWidget {
   State<MessageChatRoomPage> createState() => _MessageChatRoomPageState();
 }
 
-class _MessageChatRoomPageState extends State<MessageChatRoomPage> {
+class _MessageChatRoomPageState extends State<MessageChatRoomPage>
+    with MessageChatRoomActions {
   static const Color _accentGreen = Color(0xFF3CC18E);
   static const Color _pageBackground = Color(0xFFF7F8FA);
   static const Color _peerBubble = Color(0xFFF2F4F7);
@@ -38,9 +41,38 @@ class _MessageChatRoomPageState extends State<MessageChatRoomPage> {
   MessageChatRoomState? _previousChatState;
 
   @override
+  ScrollController get historyScrollController => _historyScrollController;
+
+  @override
+  TextEditingController get composerController => _composerController;
+
+  @override
+  ImagePicker get imagePicker => _imagePicker;
+
+  @override
+  double get previousMaxScrollExtentBeforeOlderLoad =>
+      _previousMaxScrollExtentBeforeOlderLoad;
+
+  @override
+  set previousMaxScrollExtentBeforeOlderLoad(double value) {
+    _previousMaxScrollExtentBeforeOlderLoad = value;
+  }
+
+  @override
+  int get historyPageLimit => _historyPageLimit;
+
+  @override
+  MessageChatRoomState? get previousChatState => _previousChatState;
+
+  @override
+  set previousChatState(MessageChatRoomState? value) {
+    _previousChatState = value;
+  }
+
+  @override
   void initState() {
     super.initState();
-    _historyScrollController.addListener(_onHistoryScroll);
+    _historyScrollController.addListener(onHistoryScroll);
     context.read<MessageBloc>().add(
       MessageChatRoomStarted(thread: widget.thread, limit: _historyPageLimit),
     );
@@ -49,242 +81,10 @@ class _MessageChatRoomPageState extends State<MessageChatRoomPage> {
   @override
   void dispose() {
     _historyScrollController
-      ..removeListener(_onHistoryScroll)
+      ..removeListener(onHistoryScroll)
       ..dispose();
     _composerController.dispose();
     super.dispose();
-  }
-
-  void _onHistoryScroll() {
-    if (!_historyScrollController.hasClients) {
-      return;
-    }
-
-    if (_historyScrollController.position.pixels <= 80) {
-      _maybeLoadOlderHistory();
-    }
-  }
-
-  void _maybeLoadOlderHistory() {
-    final currentState = context.read<MessageBloc>().state;
-    if (currentState is! MessageChatRoomState) {
-      return;
-    }
-
-    final cursor = currentState.nextCursor?.trim();
-    if (currentState.isLoadingOlderHistory ||
-        !currentState.hasMoreHistory ||
-        cursor == null ||
-        cursor.isEmpty) {
-      return;
-    }
-
-    _previousMaxScrollExtentBeforeOlderLoad =
-        _historyScrollController.hasClients
-        ? _historyScrollController.position.maxScrollExtent
-        : 0.0;
-
-    context.read<MessageBloc>().add(
-      MessageHistoryLoadOlderRequested(
-        conversationId: widget.thread.id,
-        cursor: cursor,
-        limit: _historyPageLimit,
-      ),
-    );
-  }
-
-  void _restoreScrollAfterOlderLoaded() {
-    if (!_historyScrollController.hasClients) {
-      return;
-    }
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!_historyScrollController.hasClients) {
-        return;
-      }
-
-      final newMaxScrollExtent =
-          _historyScrollController.position.maxScrollExtent;
-      final delta =
-          newMaxScrollExtent - _previousMaxScrollExtentBeforeOlderLoad;
-      if (delta > 0) {
-        _historyScrollController.jumpTo(
-          _historyScrollController.position.pixels + delta,
-        );
-      }
-    });
-  }
-
-  void _scrollToLatestAfterHydration() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!_historyScrollController.hasClients) {
-        return;
-      }
-
-      final maxScrollExtent = _historyScrollController.position.maxScrollExtent;
-      _historyScrollController.jumpTo(maxScrollExtent);
-    });
-  }
-
-  void _onSendPressed(BuildContext blocContext) {
-    final text = _composerController.text.trim();
-    if (text.isEmpty) {
-      return;
-    }
-
-    if (widget.thread.isGroup) {
-      blocContext.read<MessageBloc>().add(
-        SendGroupTextEvent(conversationId: widget.thread.id, content: text),
-      );
-      return;
-    }
-
-    final recipientId = widget.thread.recipientId.trim();
-    if (recipientId.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(context.l10n.unknownRecipient),
-        ),
-      );
-      return;
-    }
-
-    blocContext.read<MessageBloc>().add(
-      SendDirectTextEvent(
-        conversationId: widget.thread.id,
-        recipientId: recipientId,
-        content: text,
-      ),
-    );
-  }
-
-  Future<void> _onPickMediaPressed(ImageSource source) async {
-    try {
-      final image = await _imagePicker.pickImage(
-        source: source,
-        imageQuality: 88,
-      );
-      if (image == null) {
-        return;
-      }
-
-      final file = await _toUploadFile(image);
-      if (!mounted) {
-        return;
-      }
-
-      final content = _composerController.text.trim();
-
-      if (widget.thread.isGroup) {
-        context.read<MessageBloc>().add(
-          SendGroupMediaEvent(
-            conversationId: widget.thread.id,
-            files: [file],
-            content: content.isEmpty ? null : content,
-          ),
-        );
-        return;
-      }
-
-      final recipientId = widget.thread.recipientId.trim();
-      if (recipientId.isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(context.l10n.unknownRecipient),
-          ),
-        );
-        return;
-      }
-
-      context.read<MessageBloc>().add(
-        SendDirectMediaEvent(
-          conversationId: widget.thread.id,
-          recipientId: recipientId,
-          files: [file],
-          content: content.isEmpty ? null : content,
-        ),
-      );
-    } catch (_) {
-      if (!mounted) {
-        return;
-      }
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(context.l10n.messagePickMediaFailed)),
-      );
-    }
-  }
-
-  Future<MessageMediaUploadFile> _toUploadFile(XFile image) async {
-    final bytes = kIsWeb ? await image.readAsBytes() : null;
-    return MessageMediaUploadFile(
-      name: image.name.trim().isEmpty ? 'message-image.jpg' : image.name,
-      path: kIsWeb ? null : image.path,
-      bytes: bytes,
-      mimeType: image.mimeType,
-    );
-  }
-
-  ChatEntity _buildUpdatedThread(MessageChatRoomState? chatState) {
-    final messages = chatState?.messages ?? const <MessageLine>[];
-    final lastLine = messages.isNotEmpty ? messages.last : null;
-    final lastMessage = lastLine == null
-        ? ''
-        : (lastLine.content.trim().isNotEmpty
-              ? lastLine.content.trim()
-              : (lastLine.media.isNotEmpty
-                    ? context.l10n.attachmentLabel
-                    : lastLine.text.trim()));
-    final preview = lastMessage.isNotEmpty
-        ? lastMessage
-        : (widget.thread.messagePreview.trim().isNotEmpty
-              ? widget.thread.messagePreview.trim()
-              : context.l10n.startChatting);
-
-    final fullConversation = messages
-        .map((line) {
-          final text = line.content.trim().isNotEmpty
-              ? line.content.trim()
-              : (line.media.isNotEmpty
-                    ? context.l10n.attachmentLabel
-                    : line.text);
-          return '${line.author}: $text';
-        })
-        .join('\n');
-
-    return widget.thread.copyWith(
-      messagePreview: preview,
-      timeLabel: context.l10n.timeNow,
-      fullConversation: fullConversation,
-      unreadCount: 0,
-    );
-  }
-
-  String _resolvePeerAvatarUrl(MessageChatRoomState? chatState) {
-    // For group chats, use the group avatar directly — don't pick a random member's avatar.
-    if (widget.thread.isGroup) {
-      return widget.thread.avatarUrl.trim();
-    }
-
-    // For direct (1:1) chats, try to find the peer's avatar from messages.
-    final messages = chatState?.messages ?? const <MessageLine>[];
-
-    for (var index = messages.length - 1; index >= 0; index -= 1) {
-      final line = messages[index];
-      final avatarUrl = line.senderAvatarUrl.trim();
-      if (!line.fromMe && avatarUrl.isNotEmpty) {
-        return avatarUrl;
-      }
-    }
-
-    return widget.thread.avatarUrl.trim();
-  }
-
-  void _closeWithResult() {
-    final currentState = context.read<MessageBloc>().state;
-    final chatState = currentState is MessageChatRoomState
-        ? currentState
-        : _previousChatState;
-    Navigator.of(context).pop(_buildUpdatedThread(chatState));
   }
 
   @override
@@ -296,7 +96,7 @@ class _MessageChatRoomPageState extends State<MessageChatRoomPage> {
     final chatState = currentState is MessageChatRoomState
         ? currentState
         : _previousChatState;
-    final threadAvatarUrl = _resolvePeerAvatarUrl(chatState);
+    final threadAvatarUrl = resolvePeerAvatarUrl(chatState);
 
     return PopScope<ChatEntity>(
       canPop: false,
@@ -304,7 +104,7 @@ class _MessageChatRoomPageState extends State<MessageChatRoomPage> {
         if (didPop) {
           return;
         }
-        _closeWithResult();
+        closeWithResult();
       },
       child: Scaffold(
         backgroundColor: _pageBackground,
@@ -312,7 +112,7 @@ class _MessageChatRoomPageState extends State<MessageChatRoomPage> {
           title: threadName,
           avatarUrl: threadAvatarUrl,
           accentColor: _accentGreen,
-          onBack: _closeWithResult,
+          onBack: closeWithResult,
           onManage: () {
             context.pushNamed(
               AppRoutes.chatConversationManage.name,
@@ -343,13 +143,13 @@ class _MessageChatRoomPageState extends State<MessageChatRoomPage> {
 
             if (state.scrollToLatestVersion != previousScrollToLatestVersion) {
               if (state.scrollToLatestVersion > 0) {
-                _scrollToLatestAfterHydration();
+                scrollToLatestAfterHydration();
               }
             }
 
             if (state.restoreScrollVersion != previousRestoreScrollVersion) {
               if (state.restoreScrollVersion > 0) {
-                _restoreScrollAfterOlderLoaded();
+                restoreScrollAfterOlderLoaded();
               }
             }
 
@@ -418,9 +218,9 @@ class _MessageChatRoomPageState extends State<MessageChatRoomPage> {
                   ),
                   MessageComposer(
                     controller: _composerController,
-                    onSend: () => _onSendPressed(blocContext),
-                    onPickImage: () => _onPickMediaPressed(ImageSource.gallery),
-                    onTakePhoto: () => _onPickMediaPressed(ImageSource.camera),
+                    onSend: () => onSendPressed(blocContext),
+                    onPickImage: () => onPickMediaPressed(ImageSource.gallery),
+                    onTakePhoto: () => onPickMediaPressed(ImageSource.camera),
                     isSending: isSending,
                     accentColor: _accentGreen,
                     fillColor: _composerFill,
