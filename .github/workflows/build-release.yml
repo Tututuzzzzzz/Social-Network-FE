@@ -53,6 +53,14 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
+      # 6.5. Tạo file .env.production an toàn qua Github Secrets
+      - name: Create .env.production
+        run: |
+          echo "API_HOST=${{ secrets.API_HOST }}" > .env.production
+          echo "API_PORT=${{ secrets.API_PORT }}" >> .env.production
+          echo "API_SCHEME=${{ secrets.API_SCHEME }}" >> .env.production
+          echo "ENABLE_LOGGING=true" >> .env.production
+
       # 7. Build ra file APK
       # Ở đây giả sử bạn cần build cho production
       - name: Build APK Release
