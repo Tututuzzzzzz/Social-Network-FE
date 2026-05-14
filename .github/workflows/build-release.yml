@@ -32,7 +32,7 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.19.0' # Hoặc phiên bản Flutter bạn đang dùng
+          flutter-version: '3.38.6' # Phiên bản Flutter cài ở máy bạn (Dart 3.10.7)
           channel: 'stable'
 
       # 4. (Quan trọng) Khôi phục Keystore từ Secret để ký số app
