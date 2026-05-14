@@ -1,0 +1,71 @@
+name: Build and Release Android APK
+
+# Chạy quy trình này khi có một "tag" mới được đẩy lên (ví dụ: v1.0.0)
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    name: Build APK and Create Release
+    runs-on: ubuntu-latest
+    
+    # Đặt thư mục làm việc mặc định là frontend
+    defaults:
+      run:
+        working-directory: ./frontend
+
+    steps:
+      # 1. Lấy source code về máy chủ ảo của GitHub
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 2. Cài đặt Java (Bắt buộc để build Android)
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      # 3. Cài đặt Flutter
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.19.0' # Hoặc phiên bản Flutter bạn đang dùng
+          channel: 'stable'
+
+      # 4. (Quan trọng) Khôi phục Keystore từ Secret để ký số app
+      # Ở máy bạn thì có sẵn, nhưng máy chủ GitHub không có file này nên ta phải mã hóa nó thành chuỗi chữ, lưu trên web GitHub, rồi ở bước này giải mã lại thành file.
+      - name: Decode Keystore
+        run: |
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > android/app/social-network.jks
+
+      # 5. Tạo file key.properties cho Gradle đọc
+      - name: Create key.properties
+        run: |
+          echo "storePassword=${{ secrets.STORE_PASSWORD }}" > android/key.properties
+          echo "keyPassword=${{ secrets.KEY_PASSWORD }}"    >> android/key.properties
+          echo "keyAlias=${{ secrets.KEY_ALIAS }}"          >> android/key.properties
+          echo "storeFile=app/social-network.jks"           >> android/key.properties
+
+      # 6. Tải các package (thư viện)
+      - name: Install dependencies
+        run: flutter pub get
+
+      # 7. Build ra file APK
+      # Ở đây giả sử bạn cần build cho production
+      - name: Build APK Release
+        run: flutter build apk --release --dart-define-from-file=.env.production
+
+      # 8. Tự động tạo Release trên repo GitHub và đính kèm file APK vào đó
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: frontend/build/app/outputs/flutter-apk/app-release.apk
+          name: Release ${{ github.ref_name }}
+          draft: false
+          prerelease: false
+          generate_release_notes: true # Tự động tạo changelog dựa trên các commit
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
