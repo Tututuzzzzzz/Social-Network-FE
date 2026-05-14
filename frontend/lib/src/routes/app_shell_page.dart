@@ -12,6 +12,7 @@ import '../features/notifications/presentation/bloc/notification_event.dart';
 import '../features/notifications/presentation/bloc/notification_state.dart';
 import '../features/post/presentation/bloc/post/post_bloc.dart';
 import '../widgets/app_shell_bottom_nav_bar.dart';
+import '../core/utils/app_updater.dart';
 import 'app_route_path.dart';
 
 /// Shell chung cho các trang đã login.
@@ -47,6 +48,9 @@ class _AppShellPageState extends State<AppShellPage> {
       _syncRealtimePostEngagement(payload);
     });
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      // 1. Kiểm tra có bản cập nhật mới không
+      AppUpdater.checkForUpdate(context);
+
       if (!mounted || _didLoadNotificationBadge) return;
       _didLoadNotificationBadge = true;
       context.read<NotificationBloc>().add(
