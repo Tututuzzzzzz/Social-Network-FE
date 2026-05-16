@@ -6,6 +6,9 @@ on:
     tags:
       - 'v*'
 
+permissions:
+  contents: write
+
 jobs:
   build:
     name: Build APK and Create Release
@@ -76,4 +79,4 @@ jobs:
           prerelease: false
           generate_release_notes: true # Tự động tạo changelog dựa trên các commit
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ github.token }}
