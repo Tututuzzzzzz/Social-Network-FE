@@ -55,7 +55,7 @@ class AppUpdater {
       context: context,
       barrierDismissible: false,
       builder: (context) => AlertDialog(
-        title: const Text('🎉 Có bản cập nhật mới!'),
+        title: const Text('Có bản cập nhật mới!'),
         content: Text('Đã có phiên bản $newVersion với nhiều tính năng mới. Cập nhật ngay nhé!'),
         actions: [
           TextButton(
