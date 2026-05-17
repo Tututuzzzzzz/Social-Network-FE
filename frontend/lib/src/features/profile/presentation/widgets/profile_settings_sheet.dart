@@ -7,6 +7,7 @@ import 'package:frontend/src/core/blocs/theme/theme_event.dart';
 import 'package:frontend/src/core/blocs/theme/theme_state.dart';
 import 'package:frontend/src/core/theme/app_colors.dart';
 import '../../../auth/presentation/bloc/language_bloc.dart';
+import 'package:frontend/src/core/testing/test_keys.dart';
 
 enum ProfileSettingsAction { editProfile, logout }
 
@@ -343,6 +344,7 @@ class _ProfileThemeTile extends StatelessWidget {
 
 class _ProfileSettingsTile extends StatelessWidget {
   const _ProfileSettingsTile({
+    super.key,
     required this.icon,
     required this.label,
     required this.onTap,

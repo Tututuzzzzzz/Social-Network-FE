@@ -4,6 +4,7 @@ import 'package:frontend/src/core/utils/url_normalizer.dart';
 import 'package:frontend/src/core/theme/app_colors.dart';
 import 'package:frontend/src/widgets/follow_status_chip.dart';
 import 'package:intl/intl.dart';
+import 'package:frontend/src/core/testing/test_keys.dart';
 
 import '../../../domain/entities/post_entity.dart';
 
@@ -225,6 +226,7 @@ class PostCard extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
                     _BottomAction(
+                      key: TestKeys.postLikeButton,
                       icon: isLikedByMe
                           ? Icons.favorite
                           : Icons.favorite_border,
@@ -235,6 +237,7 @@ class PostCard extends StatelessWidget {
                       onTap: onLike,
                     ),
                     _BottomAction(
+                      key: TestKeys.postCommentButton,
                       icon: Icons.chat_bubble_outline,
                       label: context.l10n.commentAction,
                       onTap: onComment,
@@ -504,6 +507,7 @@ class _UserAvatar extends StatelessWidget {
 
 class _BottomAction extends StatelessWidget {
   const _BottomAction({
+    super.key,
     required this.icon,
     this.color,
     required this.label,

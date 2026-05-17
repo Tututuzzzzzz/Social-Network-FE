@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:frontend/src/routes/app_route_path.dart';
 import 'package:frontend/src/widgets/custom_button.dart';
+import 'package:frontend/src/core/testing/test_keys.dart';
 
 import '../widgets/auth_theme.dart';
 
@@ -33,6 +34,7 @@ class RegisterSuccessScreen extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   CustomButton(
+                    key: TestKeys.registerSuccessStartButton,
                     label: 'Bắt đầu',
                     color: colors.authPrimaryAction,
                     onPressed: () {

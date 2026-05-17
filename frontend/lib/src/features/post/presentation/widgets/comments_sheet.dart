@@ -12,6 +12,7 @@ import 'package:intl/intl.dart';
 import 'package:frontend/src/core/l10n/l10n.dart';
 import 'package:frontend/src/core/theme/app_colors.dart';
 import 'package:frontend/src/routes/app_route_path.dart';
+import 'package:frontend/src/core/testing/test_keys.dart';
 import 'comments_sheet/comment_actions.dart';
 import 'comments_sheet/comment_avatar.dart';
 import 'comments_sheet/comment_models.dart';
@@ -664,6 +665,7 @@ class _CommentsSheetState extends State<CommentsSheet>
                               children: [
                                 Expanded(
                                   child: TextField(
+                                    key: TestKeys.postCommentTextField,
                                     controller: _controller,
                                     focusNode: _inputFocusNode,
                                     minLines: 1,
@@ -690,6 +692,7 @@ class _CommentsSheetState extends State<CommentsSheet>
                                 ),
                                 const SizedBox(width: 6),
                                 IconButton(
+                                  key: TestKeys.postCommentSendButton,
                                   onPressed: _isSubmitting
                                       ? null
                                       : _submitComment,

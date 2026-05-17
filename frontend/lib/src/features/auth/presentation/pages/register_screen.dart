@@ -8,6 +8,7 @@ import 'package:frontend/src/core/l10n/l10n.dart';
 import 'package:frontend/src/routes/app_route_path.dart';
 import 'package:frontend/src/widgets/custom_button.dart';
 import 'package:frontend/src/widgets/snackbar_widget.dart';
+import 'package:frontend/src/core/testing/test_keys.dart';
 
 import '../bloc/auth/auth_bloc.dart';
 import '../bloc/auth_register_form/auth_register_form_bloc.dart';
@@ -108,6 +109,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         children: [
                           Expanded(
                             child: TextField(
+                              key: TestKeys.registerFirstNameField,
                               controller: _firstNameController,
                               decoration: _inputDecoration(
                                 context,
@@ -121,6 +123,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           10.wS,
                           Expanded(
                             child: TextField(
+                              key: TestKeys.registerLastNameField,
                               controller: _lastNameController,
                               decoration: _inputDecoration(
                                 context,
@@ -135,6 +138,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                       10.hS,
                       TextField(
+                        key: TestKeys.registerUsernameField,
                         controller: _usernameController,
                         onChanged: (value) {
                           context.read<AuthRegisterFormBloc>().add(
@@ -149,6 +153,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                       10.hS,
                       TextField(
+                        key: TestKeys.registerEmailField,
                         controller: _emailController,
                         keyboardType: TextInputType.emailAddress,
                         onChanged: (value) {
@@ -164,6 +169,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                       10.hS,
                       TextField(
+                        key: TestKeys.registerPasswordField,
                         controller: _passwordController,
                         obscureText: _obscurePassword,
                         onChanged: (value) {
@@ -192,6 +198,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                       10.hS,
                       TextField(
+                        key: TestKeys.registerConfirmField,
                         controller: _confirmController,
                         obscureText: _obscurePassword,
                         onChanged: (value) {
@@ -227,6 +234,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               _lastNameController.text.trim().isNotEmpty;
 
                           return CustomButton(
+                            key: TestKeys.registerSubmitButton,
                             label: l10n.register,
                             color: isValid
                                 ? authColors.authPrimaryAction

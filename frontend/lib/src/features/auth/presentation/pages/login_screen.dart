@@ -8,6 +8,7 @@ import 'package:frontend/src/core/l10n/l10n.dart';
 import 'package:frontend/src/routes/app_route_path.dart';
 import 'package:frontend/src/widgets/custom_button.dart';
 import 'package:frontend/src/widgets/snackbar_widget.dart';
+import 'package:frontend/src/core/testing/test_keys.dart';
 
 import '../bloc/auth/auth_bloc.dart';
 import '../bloc/auth_login_form/auth_login_form_bloc.dart';
@@ -90,6 +91,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           TextField(
+                            key: TestKeys.loginUsernameField,
                             controller: _usernameController,
                             keyboardType: TextInputType.text,
                             textInputAction: TextInputAction.next,
@@ -134,6 +136,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                           12.hS,
                           TextField(
+                            key: TestKeys.loginPasswordField,
                             controller: _passwordController,
                             obscureText: _obscurePassword,
                             textInputAction: TextInputAction.done,
@@ -166,6 +169,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               Row(
                                 children: [
                                   Checkbox(
+                                    key: TestKeys.loginRememberCheckbox,
                                     value: _rememberMe,
                                     onChanged: (v) => setState(
                                       () => _rememberMe = v ?? false,
@@ -194,6 +198,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             builder: (context, formState) {
                               final isValid = formState.isValid;
                               return CustomButton(
+                                key: TestKeys.loginSubmitButton,
                                 label: l10n.login,
                                 color: isValid
                                     ? authColors.authPrimaryAction
@@ -293,6 +298,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               style: TextStyle(color: authColors.authBody),
                             ),
                             GestureDetector(
+                              key: TestKeys.loginRegisterLink,
                               onTap: () =>
                                   context.push(AppRoutes.register.path),
                               child: Text(

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/src/core/l10n/l10n.dart';
+import 'package:frontend/src/core/testing/test_keys.dart';
 
 class MessageComposer extends StatelessWidget {
   const MessageComposer({
@@ -57,6 +58,7 @@ class MessageComposer extends StatelessWidget {
                 borderRadius: BorderRadius.circular(22),
               ),
               child: TextField(
+                key: TestKeys.messageInputField,
                 controller: controller,
                 textInputAction: TextInputAction.send,
                 onSubmitted: (_) => onSend(),
@@ -86,6 +88,7 @@ class MessageComposer extends StatelessWidget {
                 shape: BoxShape.circle,
               ),
               child: IconButton(
+                key: TestKeys.messageSendButton,
                 onPressed: isSending ? null : onSend,
                 icon: isSending
                     ? const SizedBox(

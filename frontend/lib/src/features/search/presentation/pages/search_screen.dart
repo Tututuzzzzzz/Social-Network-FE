@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:frontend/src/core/l10n/l10n.dart';
 import 'package:frontend/src/core/theme/app_colors.dart';
+import 'package:frontend/src/core/testing/test_keys.dart';
 
 import '../../../../routes/app_route_path.dart';
 import '../../domain/entities/search_entity.dart';
@@ -61,6 +62,7 @@ class _SearchPageState extends State<SearchPage> {
           onPressed: () => context.go(AppRoutes.home.path),
         ),
         title: TextField(
+          key: TestKeys.searchTextField,
           controller: _searchController,
           decoration: InputDecoration(
             hintText: l10n.searchLabel,

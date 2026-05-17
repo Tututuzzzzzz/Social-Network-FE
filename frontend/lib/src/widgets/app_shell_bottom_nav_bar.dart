@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../core/l10n/l10n.dart';
 import '../core/theme/app_colors.dart';
+import '../core/testing/test_keys.dart';
 
 class AppShellBottomNavBar extends StatelessWidget {
   final int selectedIndex;
@@ -49,11 +50,19 @@ class AppShellBottomNavBar extends StatelessWidget {
               final isSelected = index == safeSelectedIndex;
                 final color =
                   isSelected ? colors.navActive : colors.navInactive;
+              final key = switch (index) {
+                0 => TestKeys.navHome,
+                1 => TestKeys.navCreate,
+                2 => TestKeys.navNotifications,
+                3 => TestKeys.navProfile,
+                _ => null,
+              };
 
               return Expanded(
                 child: Material(
                   color: Colors.transparent,
                   child: InkWell(
+                    key: key,
                     onTap: () => onTap(index),
                     child: Stack(
                       children: [
