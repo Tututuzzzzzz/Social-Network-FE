@@ -8,6 +8,7 @@ import 'injector.dart';
 import '../../features/search/di/search_dependency.dart';
 import '../../core/blocs/theme/theme_bloc.dart';
 import '../../core/theme/theme_repository.dart';
+import '../../routes/app_route_conf.dart'; // Thay bằng đường dẫn thực tế chứa file AppRoutesConf của bạn
 
 final getIt = GetIt.I;
 
@@ -48,6 +49,7 @@ void configureDepedencies() {
     () => SecureLocalStorage(getIt<FlutterSecureStorage>()),
   );
 
+
   getIt.registerLazySingleton(
     () => RealtimeSocketService(getIt<SecureLocalStorage>()),
   );
@@ -65,4 +67,5 @@ void configureDepedencies() {
   );
 
   getIt.registerLazySingleton(() => const FlutterSecureStorage());
+  getIt.registerLazySingleton(() => AppRoutesConf());
 }
