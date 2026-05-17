@@ -4,6 +4,7 @@ import '../../../../../core/api/api_constants.dart';
 import 'package:frontend/src/core/l10n/l10n.dart';
 import '../../../../../core/utils/url_normalizer.dart';
 import 'create_post_theme.dart';
+import 'package:frontend/src/core/testing/test_keys.dart';
 
 class CreatePostHeader extends StatelessWidget {
   const CreatePostHeader({
@@ -35,6 +36,7 @@ class CreatePostHeader extends StatelessWidget {
         child: Row(
           children: [
             IconButton(
+              key: TestKeys.createPostCloseButton,
               onPressed: onClose,
               icon: const Icon(Icons.close, size: 32, color: Color(0xFF7A7F87)),
               splashRadius: 24,
@@ -62,6 +64,7 @@ class CreatePostHeader extends StatelessWidget {
             ),
             const SizedBox(width: 16),
             FilledButton(
+              key: TestKeys.createPostSubmitButton,
               onPressed: (isSubmitting || !canSubmit) ? null : onSubmit,
               style: ButtonStyle(
                 minimumSize: const WidgetStatePropertyAll(Size(92, 50)),

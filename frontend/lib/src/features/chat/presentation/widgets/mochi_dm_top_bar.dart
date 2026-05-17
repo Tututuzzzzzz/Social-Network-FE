@@ -3,6 +3,7 @@ import 'package:frontend/src/core/l10n/l10n.dart';
 
 import 'mochi_dm_styles.dart';
 import 'mochi_dm_search_input.dart';
+import 'package:frontend/src/core/testing/test_keys.dart';
 
 class MochiDmTopBar extends StatelessWidget {
   final ValueChanged<String> onSearchChanged;
@@ -48,6 +49,7 @@ class MochiDmTopBar extends StatelessWidget {
               ),
             ),
             IconButton(
+              key: TestKeys.chatNewConversationButton,
               onPressed: onEditPressed,
               icon: const Icon(Icons.edit_outlined, size: 20),
               color: MochiDmStyles.topBarText,

@@ -16,6 +16,7 @@ import '../bloc/post/post_bloc.dart';
 import '../widgets/feed_widgets.dart';
 import '../widgets/feed_screen/post_options_sheet.dart';
 import 'post_detail_screen.dart';
+import 'package:frontend/src/core/testing/test_keys.dart';
 
 class FeedScreen extends StatefulWidget {
   const FeedScreen({super.key});
@@ -320,6 +321,7 @@ class _FeedScreenState extends State<FeedScreen> {
             ),
             actions: [
               IconButton(
+                key: TestKeys.feedSearchButton,
                 onPressed: _openSearchScreen,
                 icon: Icon(
                   Icons.search_rounded,
@@ -331,6 +333,7 @@ class _FeedScreenState extends State<FeedScreen> {
               Padding(
                 padding: const EdgeInsets.only(right: 10),
                 child: IconButton(
+                  key: TestKeys.feedChatButton,
                   onPressed: _openChatScreen,
                   icon: Icon(
                     Icons.wechat_outlined,

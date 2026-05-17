@@ -163,6 +163,7 @@ class _MochiNewConversationPageState extends State<MochiNewConversationPage> {
                       final friend = friends[index];
                       return MochiNewConvFriendTile(
                         friend: friend,
+                        index: index,
                         onTap: () => _createConversationAndClose(friend),
                       );
                     },

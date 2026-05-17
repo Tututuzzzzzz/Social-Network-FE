@@ -7,6 +7,7 @@ import 'package:frontend/src/core/blocs/theme/theme_event.dart';
 import 'package:frontend/src/core/blocs/theme/theme_state.dart';
 import 'package:frontend/src/core/theme/app_colors.dart';
 import '../../../auth/presentation/bloc/language_bloc.dart';
+import 'package:frontend/src/core/testing/test_keys.dart';
 
 enum ProfileSettingsAction { editProfile, logout }
 
@@ -60,6 +61,7 @@ Future<ProfileSettingsAction?> showProfileSettingsSheet(BuildContext context) {
                   ),
                 ),
                 _ProfileSettingsTile(
+                  key: TestKeys.profileEditAction,
                   icon: Icons.person_outline_rounded,
                   label: l10n.editProfileTitle,
                   onTap: () => Navigator.pop(
@@ -110,6 +112,7 @@ Future<ProfileSettingsAction?> showProfileSettingsSheet(BuildContext context) {
                   },
                 ),
                 _ProfileSettingsTile(
+                  key: TestKeys.profileLogoutAction,
                   icon: Icons.logout_rounded,
                   label: l10n.logoutAction,
                   labelColor: const Color(0xFFE53935),
@@ -331,6 +334,7 @@ class _ProfileThemeTile extends StatelessWidget {
 
 class _ProfileSettingsTile extends StatelessWidget {
   const _ProfileSettingsTile({
+    super.key,
     required this.icon,
     required this.label,
     required this.onTap,

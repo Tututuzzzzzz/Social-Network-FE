@@ -23,6 +23,7 @@ import '../widgets/profile_photos_tab.dart';
 import '../widgets/profile_posts_tab.dart';
 import '../widgets/profile_settings_sheet.dart';
 import '../widgets/profile_sliver_tab_bar.dart';
+import 'package:frontend/src/core/testing/test_keys.dart';
 
 class MochiProfilePage extends StatefulWidget {
   const MochiProfilePage({super.key, this.userId});
@@ -321,6 +322,7 @@ class _MochiProfilePageState extends State<MochiProfilePage> {
                 actions: [
                   if (_isOwnProfile)
                     IconButton(
+                      key: TestKeys.profileSettingsButton,
                       tooltip: context.l10n.profileSettingsTitle,
                       onPressed: isLoggingOut ? null : _openProfileSettings,
                       icon: const Icon(Icons.settings_rounded),

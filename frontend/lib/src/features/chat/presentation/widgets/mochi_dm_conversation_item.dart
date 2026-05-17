@@ -5,6 +5,7 @@ import 'package:frontend/src/core/l10n/l10n.dart';
 import '../../domain/entities/chat_entity.dart';
 import '../../../../core/utils/url_normalizer.dart';
 import 'mochi_dm_styles.dart';
+import 'package:frontend/src/core/testing/test_keys.dart';
 
 class MochiDmConversationItem extends StatelessWidget {
   final ChatEntity item;
@@ -73,6 +74,7 @@ class MochiDmConversationItem extends StatelessWidget {
         ],
       ),
       child: InkWell(
+        key: TestKeys.chatThreadItem(index),
         onTap: onTap,
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
