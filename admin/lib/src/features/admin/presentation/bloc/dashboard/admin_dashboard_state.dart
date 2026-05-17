@@ -13,6 +13,7 @@ class AdminDashboardState extends Equatable {
   final String? message;
   final String? busyPostId;
   final String? busyReportId;
+  final Set<String> hiddenPostIds;
 
   const AdminDashboardState({
     required this.status,
@@ -21,6 +22,7 @@ class AdminDashboardState extends Equatable {
     this.message,
     this.busyPostId,
     this.busyReportId,
+    this.hiddenPostIds = const {},
   });
 
   const AdminDashboardState.initial()
@@ -37,6 +39,7 @@ class AdminDashboardState extends Equatable {
     String? message,
     String? busyPostId,
     String? busyReportId,
+    Set<String>? hiddenPostIds,
     bool clearMessage = false,
     bool clearBusyPost = false,
     bool clearBusyReport = false,
@@ -48,6 +51,7 @@ class AdminDashboardState extends Equatable {
       message: clearMessage ? null : message ?? this.message,
       busyPostId: clearBusyPost ? null : busyPostId ?? this.busyPostId,
       busyReportId: clearBusyReport ? null : busyReportId ?? this.busyReportId,
+      hiddenPostIds: hiddenPostIds ?? this.hiddenPostIds,
     );
   }
 
@@ -59,5 +63,6 @@ class AdminDashboardState extends Equatable {
     message,
     busyPostId,
     busyReportId,
+    hiddenPostIds,
   ];
 }

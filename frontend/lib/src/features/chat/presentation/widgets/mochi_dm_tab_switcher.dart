@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/src/core/l10n/l10n.dart';
-
-import 'mochi_dm_styles.dart';
+import 'package:frontend/src/core/theme/app_colors.dart';
 
 class MochiDmTabSwitcher extends StatelessWidget {
   final int currentIndex;
@@ -52,6 +51,8 @@ class _TabItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = AppColors.of(context);
+
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(12),
@@ -65,9 +66,7 @@ class _TabItem extends StatelessWidget {
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
-                color: isActive
-                    ? MochiDmStyles.primaryGreen
-                    : MochiDmStyles.tabInactive,
+                color: isActive ? colors.accent : colors.textSecondary,
               ),
             ),
             const SizedBox(height: 6),
@@ -76,9 +75,7 @@ class _TabItem extends StatelessWidget {
               height: 2.4,
               width: 44,
               decoration: BoxDecoration(
-                color: isActive
-                    ? MochiDmStyles.primaryGreen
-                    : Colors.transparent,
+                color: isActive ? colors.accent : Colors.transparent,
                 borderRadius: BorderRadius.circular(999),
               ),
             ),

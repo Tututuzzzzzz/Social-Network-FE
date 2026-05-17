@@ -1,6 +1,8 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../post/domain/usecases/delete_admin_post_usecase.dart';
+import '../../../../post/domain/usecases/hide_admin_post_usecase.dart';
+import '../../../../post/domain/usecases/restore_admin_post_usecase.dart';
 import '../../../../report/domain/usecases/resolve_admin_report_usecase.dart';
 import '../../../domain/usecases/get_admin_dashboard_usecase.dart';
 import 'admin_dashboard_state.dart';
@@ -8,9 +10,17 @@ import 'admin_dashboard_state.dart';
 class AdminDashboardCubit extends Cubit<AdminDashboardState> {
   final GetAdminDashboardUseCase _getDashboard;
   final DeleteAdminPostUseCase _deletePost;
+  final HideAdminPostUseCase _hidePost;
+  final RestoreAdminPostUseCase _restorePost;
   final ResolveAdminReportUseCase _resolveReport;
 
-  AdminDashboardCubit(this._getDashboard, this._deletePost, this._resolveReport)
+  AdminDashboardCubit(
+    this._getDashboard,
+    this._deletePost,
+    this._hidePost,
+    this._restorePost,
+    this._resolveReport,
+  )
     : super(const AdminDashboardState.initial());
 
   Future<void> load() async {
@@ -52,6 +62,41 @@ class AdminDashboardCubit extends Cubit<AdminDashboardState> {
       await load();
     } catch (error) {
       emit(state.copyWith(message: error.toString(), clearBusyPost: true));
+    }
+  }
+
+  Future<void> hidePost(String postId) async {
+    emit(state.copyWith(busyReportId: postId, clearMessage: true));
+
+    try {
+      await _hidePost(postId);
+      emit(
+        state.copyWith(
+          hiddenPostIds: {...state.hiddenPostIds, postId},
+          clearBusyReport: true,
+          clearMessage: true,
+        ),
+      );
+    } catch (error) {
+      emit(state.copyWith(message: error.toString(), clearBusyReport: true));
+    }
+  }
+
+  Future<void> restorePost(String postId) async {
+    emit(state.copyWith(busyReportId: postId, clearMessage: true));
+
+    try {
+      await _restorePost(postId);
+      final hiddenPostIds = {...state.hiddenPostIds}..remove(postId);
+      emit(
+        state.copyWith(
+          hiddenPostIds: hiddenPostIds,
+          clearBusyReport: true,
+          clearMessage: true,
+        ),
+      );
+    } catch (error) {
+      emit(state.copyWith(message: error.toString(), clearBusyReport: true));
     }
   }
 

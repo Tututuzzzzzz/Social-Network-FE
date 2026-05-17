@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:frontend/src/core/extensions/integer_sizedbox_extension.dart';
-import 'package:frontend/src/core/l10n/l10n.dart';
 import 'package:frontend/src/routes/app_route_path.dart';
 import 'package:frontend/src/widgets/custom_button.dart';
 import 'package:frontend/src/core/testing/test_keys.dart';
+
+import '../widgets/auth_theme.dart';
 
 class RegisterSuccessScreen extends StatelessWidget {
   const RegisterSuccessScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final colors = AuthTheme.colorsOf(context);
+
     return Scaffold(
       body: Stack(
         children: [
@@ -34,7 +36,7 @@ class RegisterSuccessScreen extends StatelessWidget {
                   CustomButton(
                     key: TestKeys.registerSuccessStartButton,
                     label: 'Bắt đầu',
-                    color: const Color(0xFF3CC18E),
+                    color: colors.authPrimaryAction,
                     onPressed: () {
                       context.go(AppRoutes.login.path);
                     },

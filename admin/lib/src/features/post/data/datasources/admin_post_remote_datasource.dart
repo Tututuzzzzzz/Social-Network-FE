@@ -8,6 +8,10 @@ abstract class AdminPostRemoteDataSource {
 
   Future<AdminPostDetailModel> fetchPostDetail(String postId);
 
+  Future<void> hidePost(String postId);
+
+  Future<void> restorePost(String postId);
+
   Future<void> deletePost(String postId);
 }
 
@@ -29,9 +33,12 @@ class AdminPostRemoteDataSourceImpl implements AdminPostRemoteDataSource {
   @override
   Future<AdminPostDetailModel> fetchPostDetail(String postId) async {
     final postResult = await _apiClient.get(ApiConstants.postById(postId));
-    final commentsResult = await _apiClient.get(
-      ApiConstants.postComments(postId),
-    );
+    dynamic commentsResult = const [];
+    try {
+      commentsResult = await _apiClient.get(ApiConstants.postComments(postId));
+    } catch (_) {
+      commentsResult = const [];
+    }
 
     return AdminPostDetailModel.fromResponses(
       postJson: _extractMap(postResult),
@@ -40,8 +47,21 @@ class AdminPostRemoteDataSourceImpl implements AdminPostRemoteDataSource {
   }
 
   @override
+  Future<void> hidePost(String postId) {
+    return _apiClient.patch(ApiConstants.adminPostHide(postId), data: const {});
+  }
+
+  @override
+  Future<void> restorePost(String postId) {
+    return _apiClient.patch(
+      ApiConstants.adminPostRestore(postId),
+      data: const {},
+    );
+  }
+
+  @override
   Future<void> deletePost(String postId) {
-    return _apiClient.delete(ApiConstants.postById(postId));
+    return _apiClient.delete(ApiConstants.adminPostDelete(postId));
   }
 
   Map<String, dynamic> _extractMap(dynamic result) {

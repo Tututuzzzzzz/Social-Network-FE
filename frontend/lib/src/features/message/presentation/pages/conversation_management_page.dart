@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:frontend/src/core/l10n/l10n.dart';
 
+import '../../../../core/theme/app_colors.dart';
 import '../../../../routes/app_route_path.dart';
 import '../../../chat/domain/entities/chat_entity.dart';
 
@@ -19,15 +20,15 @@ class _ConversationManagementPageState
     extends State<ConversationManagementPage> {
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final onSurface = theme.colorScheme.onSurface;
-    final surfaceContainer = onSurface.withValues(alpha: 0.1);
+    final colors = AppColors.of(context);
+    final onSurface = colors.textPrimary;
+    final surfaceContainer = colors.inputFill;
     final isGroup = widget.thread.isGroup;
 
     return Scaffold(
-      backgroundColor: theme.scaffoldBackgroundColor,
+      backgroundColor: colors.scaffold,
       appBar: AppBar(
-        backgroundColor: theme.scaffoldBackgroundColor,
+        backgroundColor: colors.scaffold,
         foregroundColor: onSurface,
         elevation: 0,
         leading: IconButton(
@@ -147,7 +148,7 @@ class _ConversationManagementPageState
                 height: 28,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: theme.colorScheme.primary,
+                  color: colors.accent,
                 ),
               ),
               title: context.l10n.themeAction,
@@ -167,8 +168,9 @@ class _ConversationManagementPageState
   }
 
   Widget _buildActionButton(IconData icon, String label, BuildContext context, {VoidCallback? onTap}) {
-    final onSurface = Theme.of(context).colorScheme.onSurface;
-    final surfaceContainer = onSurface.withValues(alpha: 0.1);
+    final colors = AppColors.of(context);
+    final onSurface = colors.textPrimary;
+    final surfaceContainer = colors.inputFill;
     return GestureDetector(
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
@@ -206,7 +208,7 @@ class _ConversationManagementPageState
         child: Text(
           title,
           style: TextStyle(
-            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+            color: AppColors.of(context).textSecondary,
             fontSize: 14,
             fontWeight: FontWeight.w500,
           ),
@@ -228,7 +230,7 @@ class _ConversationManagementPageState
       title: Text(
         title,
         style: TextStyle(
-            color: Theme.of(context).colorScheme.onSurface, fontSize: 16),
+            color: AppColors.of(context).textPrimary, fontSize: 16),
       ),
       onTap: () {},
     );
@@ -249,7 +251,7 @@ class _ConversationManagementPageState
       title: Text(
         title,
         style: TextStyle(
-            color: Theme.of(context).colorScheme.onSurface, fontSize: 16),
+            color: AppColors.of(context).textPrimary, fontSize: 16),
       ),
       onTap: () {},
     );
