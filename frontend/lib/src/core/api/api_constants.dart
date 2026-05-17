@@ -100,6 +100,7 @@ class ApiConstants {
   static String notificationRead(String notificationId) =>
       '/notifications/$notificationId/read';
 
+  static const String saveFcmToken = '/notifications/fcm-token';
   // ── Admin ────────────────────────────────────────────
 
   static const String adminReports = '/admin/reports';

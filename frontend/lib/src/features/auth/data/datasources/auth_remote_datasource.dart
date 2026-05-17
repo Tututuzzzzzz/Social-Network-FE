@@ -1,5 +1,5 @@
 import 'dart:convert';
-
+import 'package:firebase_messaging/firebase_messaging.dart';
 import '../../../../core/api/api_constants.dart';
 import '../../../../core/api/api_exception.dart';
 import '../../../../core/api/api_helper.dart';
@@ -16,6 +16,7 @@ sealed class AuthRemoteDataSource {
   Future<String> refreshSession();
   Future<void> register(RegisterModel model);
   Future<void> forgotPassword(String email);
+  Future<void> saveFcmToken(String token, String platform);
 }
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
@@ -79,18 +80,45 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   @override
   Future<void> logout() async {
     try {
-      final refreshToken = await _secureLocalStorage.load(key: 'refresh_token');
+      // 1. XÓA FCM TOKEN TRƯỚC
       try {
-        await _apiHelper.execute(
-          method: Method.post,
-          url: ApiConstants.logout,
-          data: {
-            if (refreshToken.trim().isNotEmpty)
-              'refreshToken': refreshToken.trim(),
-          },
-        );
+        final fcmToken = await FirebaseMessaging.instance.getToken();
+        if (fcmToken != null) {
+          await _apiHelper.execute(
+            method: Method.post,
+            url: '/notifications/remove-fcm-token', 
+            data: {'token': fcmToken},
+          );
+          logger.i("🧹 Đã dọn dẹp FCM Token trên Backend");
+        }
+        // Xóa luôn token lưu dưới cache của Firebase
+        await FirebaseMessaging.instance.deleteToken();
+      } catch (e) {
+        logger.w("Không thể xóa FCM Token, nhưng vẫn tiếp tục đăng xuất: $e");
+      }
+
+      // 2. GỌI API LOGOUT CHÍNH THỨC
+      final refreshToken = await _secureLocalStorage.load(key: 'refresh_token');
+      
+      // 👇 Dòng log này sẽ hoạt động như một "camera giám sát"
+      logger.i("🔎 Refresh Token chuẩn bị gửi lên là: '$refreshToken'");
+
+      try {
+        // Chỉ gọi API sang Backend khi và chỉ khi token thực sự có dữ liệu
+        if (refreshToken.trim().isNotEmpty) {
+          await _apiHelper.execute(
+            method: Method.post,
+            url: ApiConstants.logout,
+            data: {
+              'refreshToken': refreshToken.trim(), 
+            },
+          );
+          logger.i("✅ Gọi API Logout Backend thành công!");
+        } else {
+          logger.w("⚠️ Refresh Token bị trống, tự động bỏ qua bước gọi API Logout.");
+        }
       } catch (_) {
-        // If the server session is already expired, local cleanup still proceeds.
+        // Bỏ qua lỗi nếu session trên server đã hết hạn
       }
       return;
     } catch (e) {
@@ -180,6 +208,25 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       return;
     } catch (e) {
       logger.e(e);
+      throw ServerException();
+    }
+  }
+
+  // 👇 ĐÂY LÀ HÀM MỚI ĐƯỢC THÊM VÀO
+  @override
+  Future<void> saveFcmToken(String token, String platform) async {
+    try {
+      await _apiHelper.execute(
+        method: Method.post,
+        url: ApiConstants.saveFcmToken, // Gọi đúng API lưu Token của Backend
+        data: {
+          'token': token,
+          'platform': platform,
+        },
+      );
+      logger.i("✅ Đã gửi FCM Token lên Backend thành công!");
+    } catch (e) {
+      logger.e("Lỗi gửi FCM Token: $e");
       throw ServerException();
     }
   }

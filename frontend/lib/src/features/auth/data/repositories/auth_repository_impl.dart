@@ -12,6 +12,8 @@ import '../datasources/auth_remote_datasource.dart';
 import '../models/login_model.dart';
 import '../models/register_model.dart';
 import '../models/user_model.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'dart:io';
 
 class AuthRepositoryImpl implements AuthRepository {
   final AuthRemoteDataSource _authRemoteDataSource;
@@ -51,7 +53,20 @@ class AuthRepositoryImpl implements AuthRepository {
         value: userModel.toJson(),
         boxName: "cache",
       );
-
+      try {
+        final messaging = FirebaseMessaging.instance;
+        final fcmToken = await messaging.getToken();
+        
+        if (fcmToken != null) {
+          // Lấy nền tảng hiện tại (android hoặc ios)
+          final platform = Platform.isIOS ? 'ios' : 'android';
+          
+          // Gọi qua Remote DataSource để gửi lên API
+          await _authRemoteDataSource.saveFcmToken(fcmToken, platform);
+        }
+      } catch (e) {
+        print("Lỗi khi gửi FCM Token lên server (bỏ qua để không chặn login): $e");
+      }
       return Right(result);
     } on AuthException {
       return Left(CredentialFailure());
