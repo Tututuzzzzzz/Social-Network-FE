@@ -31,6 +31,23 @@ String reportReasonLabel(PostReportReason reason, dynamic l10n) {
   }
 }
 
+String reportReasonValue(PostReportReason reason) {
+  switch (reason) {
+    case PostReportReason.spam:
+      return 'spam';
+    case PostReportReason.harassment:
+      return 'harassment';
+    case PostReportReason.falseInfo:
+      return 'false_info';
+    case PostReportReason.hateSpeech:
+      return 'hate_speech';
+    case PostReportReason.violence:
+      return 'violence';
+    case PostReportReason.other:
+      return 'other';
+  }
+}
+
 Future<PostOptionAction?> showPostOptionsSheet(
   BuildContext context,
   PostEntity post,

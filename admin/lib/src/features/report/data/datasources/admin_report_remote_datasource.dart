@@ -6,7 +6,9 @@ import '../models/admin_report_model.dart';
 abstract class AdminReportRemoteDataSource {
   Future<List<AdminReportModel>> fetchReports();
 
-  Future<void> resolveReport(String reportId);
+  Future<List<AdminReportModel>> fetchReportsByPost(String postId);
+
+  Future<void> reviewReport(String reportId, String status);
 }
 
 class AdminReportRemoteDataSourceImpl implements AdminReportRemoteDataSource {
@@ -28,10 +30,23 @@ class AdminReportRemoteDataSourceImpl implements AdminReportRemoteDataSource {
   }
 
   @override
-  Future<void> resolveReport(String reportId) async {
+  Future<List<AdminReportModel>> fetchReportsByPost(String postId) async {
+    try {
+      final result = await _apiClient.get(ApiConstants.reportsByPost(postId));
+      return _extractMaps(result).map(AdminReportModel.fromJson).toList();
+    } on ApiException catch (error) {
+      if (error.statusCode == 404) {
+        return const [];
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<void> reviewReport(String reportId, String status) async {
     await _apiClient.patch(
       ApiConstants.reportById(reportId),
-      data: const {'status': 'resolved'},
+      data: {'status': status},
     );
   }
 
@@ -42,11 +57,23 @@ class AdminReportRemoteDataSourceImpl implements AdminReportRemoteDataSource {
       if (data is Map && data['items'] is List) {
         return _mapsFromList(data['items'] as List);
       }
+      if (data is Map && data['reports'] is List) {
+        return _mapsFromList(data['reports'] as List);
+      }
+      if (data is Map && data['docs'] is List) {
+        return _mapsFromList(data['docs'] as List);
+      }
       if (data is List) {
         return _mapsFromList(data);
       }
       if (map['items'] is List) {
         return _mapsFromList(map['items'] as List);
+      }
+      if (map['reports'] is List) {
+        return _mapsFromList(map['reports'] as List);
+      }
+      if (map['docs'] is List) {
+        return _mapsFromList(map['docs'] as List);
       }
     }
 

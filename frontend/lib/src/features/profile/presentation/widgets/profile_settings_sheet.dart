@@ -11,8 +11,6 @@ import '../../../auth/presentation/bloc/language_bloc.dart';
 enum ProfileSettingsAction { editProfile, logout }
 
 Future<ProfileSettingsAction?> showProfileSettingsSheet(BuildContext context) {
-  final l10n = context.l10n;
-
   return showModalBottomSheet<ProfileSettingsAction>(
     context: context,
     backgroundColor: Colors.transparent,
@@ -50,22 +48,30 @@ Future<ProfileSettingsAction?> showProfileSettingsSheet(BuildContext context) {
                   ),
                   child: Align(
                     alignment: Alignment.centerLeft,
-                    child: Text(
-                      l10n.profileSettingsTitle,
-                      style: textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w800,
-                        color: colors.title,
-                      ),
+                    child: BlocBuilder<LanguageBloc, LanguageState>(
+                      builder: (context, _) {
+                        return Text(
+                          context.l10n.profileSettingsTitle,
+                          style: textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.w800,
+                            color: colors.title,
+                          ),
+                        );
+                      },
                     ),
                   ),
                 ),
-                _ProfileSettingsTile(
-                  icon: Icons.person_outline_rounded,
-                  label: l10n.editProfileTitle,
-                  onTap: () => Navigator.pop(
-                    sheetContext,
-                    ProfileSettingsAction.editProfile,
-                  ),
+                BlocBuilder<LanguageBloc, LanguageState>(
+                  builder: (context, _) {
+                    return _ProfileSettingsTile(
+                      icon: Icons.person_outline_rounded,
+                      label: context.l10n.editProfileTitle,
+                      onTap: () => Navigator.pop(
+                        sheetContext,
+                        ProfileSettingsAction.editProfile,
+                      ),
+                    );
+                  },
                 ),
                 BlocBuilder<LanguageBloc, LanguageState>(
                   builder: (context, languageState) {
@@ -109,13 +115,19 @@ Future<ProfileSettingsAction?> showProfileSettingsSheet(BuildContext context) {
                     );
                   },
                 ),
-                _ProfileSettingsTile(
-                  icon: Icons.logout_rounded,
-                  label: l10n.logoutAction,
-                  labelColor: const Color(0xFFE53935),
-                  iconColor: const Color(0xFFE53935),
-                  onTap: () =>
-                      Navigator.pop(sheetContext, ProfileSettingsAction.logout),
+                BlocBuilder<LanguageBloc, LanguageState>(
+                  builder: (context, _) {
+                    return _ProfileSettingsTile(
+                      icon: Icons.logout_rounded,
+                      label: context.l10n.logoutAction,
+                      labelColor: const Color(0xFFE53935),
+                      iconColor: const Color(0xFFE53935),
+                      onTap: () => Navigator.pop(
+                        sheetContext,
+                        ProfileSettingsAction.logout,
+                      ),
+                    );
+                  },
                 ),
                 const SizedBox(height: 8),
               ],

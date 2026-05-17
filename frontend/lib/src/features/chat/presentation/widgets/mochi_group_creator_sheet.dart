@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/src/core/l10n/l10n.dart';
+import 'package:frontend/src/core/theme/app_colors.dart';
 
 import '../../../../core/utils/url_normalizer.dart';
 import '../../../friend/presentation/pages/friend_picker_bottom_sheet.dart';
 import '../../domain/entities/chat_entity.dart';
 import 'mochi_dm_search_input.dart';
-import 'mochi_dm_styles.dart';
 
 /// Bottom sheet cho phép đặt tên nhóm và chọn thành viên từ danh sách bạn bè.
 class MochiGroupCreatorSheet extends StatefulWidget {
@@ -76,6 +76,7 @@ class _MochiGroupCreatorSheetState extends State<MochiGroupCreatorSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = AppColors.of(context);
     final createEnabled =
         _nameController.text.trim().isNotEmpty && _selectedIds.isNotEmpty;
 
@@ -89,8 +90,8 @@ class _MochiGroupCreatorSheetState extends State<MochiGroupCreatorSheet> {
             // ── Header ─────────────────────────────────────────────────────
             Container(
               padding: const EdgeInsets.fromLTRB(8, 12, 8, 8),
-              decoration: const BoxDecoration(
-                color: MochiDmStyles.primaryGreen,
+              decoration: BoxDecoration(
+                color: colors.primary,
                 borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
               ),
               child: Row(
@@ -98,7 +99,7 @@ class _MochiGroupCreatorSheetState extends State<MochiGroupCreatorSheet> {
                   IconButton(
                     onPressed: () => Navigator.of(context).maybePop(),
                     icon: const Icon(Icons.close_rounded, size: 20),
-                    color: MochiDmStyles.topBarText,
+                    color: colors.appBarForeground,
                   ),
                   Expanded(
                     child: Text(
@@ -107,25 +108,25 @@ class _MochiGroupCreatorSheetState extends State<MochiGroupCreatorSheet> {
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w700,
-                        color: MochiDmStyles.topBarText,
+                        color: colors.appBarForeground,
                       ),
                     ),
                   ),
                   TextButton(
                     onPressed: createEnabled ? _handleCreate : null,
                     child: _isSubmitting
-                        ? const SizedBox(
+                        ? SizedBox(
                             width: 16,
                             height: 16,
                             child: CircularProgressIndicator(
                               strokeWidth: 2,
-                              color: Colors.white,
+                              color: colors.appBarForeground,
                             ),
                           )
                         : Text(
                             context.l10n.createGroupAction,
                             style: TextStyle(
-                              color: Colors.white,
+                              color: colors.appBarForeground,
                               fontWeight: FontWeight.w700,
                             ),
                           ),
@@ -144,34 +145,33 @@ class _MochiGroupCreatorSheetState extends State<MochiGroupCreatorSheet> {
                     onChanged: (_) => setState(() {}),
                     decoration: InputDecoration(
                       hintText: context.l10n.groupNameHint,
+                      hintStyle: TextStyle(color: colors.textSecondary),
                       filled: true,
-                      fillColor: Colors.white,
+                      fillColor: colors.inputFill,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(14),
-                        borderSide:
-                            const BorderSide(color: Color(0xFFE2E6E8)),
+                        borderSide: BorderSide(color: colors.inputBorder),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(14),
-                        borderSide: const BorderSide(
-                          color: MochiDmStyles.primaryGreen,
-                        ),
+                        borderSide: BorderSide(color: colors.accent),
                       ),
                       contentPadding: const EdgeInsets.symmetric(
                         horizontal: 14,
                         vertical: 12,
                       ),
                     ),
+                    style: TextStyle(color: colors.textPrimary),
                   ),
                   const SizedBox(height: 10),
                   MochiDmSearchInput(
                     onChanged: (value) =>
                         setState(() => _query = value.trim()),
                     padding: EdgeInsets.zero,
-                    fillColor: MochiDmStyles.searchBackground,
-                    hintColor: MochiDmStyles.searchHint,
-                    iconColor: MochiDmStyles.searchIcon,
-                    focusedBorderColor: MochiDmStyles.primaryGreenSoft,
+                    fillColor: colors.inputFill,
+                    hintColor: colors.textSecondary,
+                    iconColor: colors.accent,
+                    focusedBorderColor: colors.inputBorder,
                     borderRadius: 14,
                     hintText: context.l10n.searchMembersHint,
                     dense: true,
@@ -180,7 +180,7 @@ class _MochiGroupCreatorSheetState extends State<MochiGroupCreatorSheet> {
               ),
             ),
 
-            const Divider(height: 1),
+            Divider(height: 1, color: colors.subtleBorder),
 
             // ── Friends list ───────────────────────────────────────────────
             Expanded(
@@ -206,7 +206,8 @@ class _MochiGroupCreatorSheetState extends State<MochiGroupCreatorSheet> {
 
                   return ListView.separated(
                     itemCount: friends.length,
-                    separatorBuilder: (_, _) => const Divider(height: 1),
+                    separatorBuilder: (_, _) =>
+                        Divider(height: 1, color: colors.subtleBorder),
                     itemBuilder: (context, index) {
                       final friend = friends[index];
                       final avatar = friend.avatarUrl.normalizeClientUrl();
@@ -215,7 +216,7 @@ class _MochiGroupCreatorSheetState extends State<MochiGroupCreatorSheet> {
 
                       return CheckboxListTile(
                         value: isSelected,
-                        activeColor: const Color(0xFF3CC18E),
+                        activeColor: colors.accent,
                         onChanged: (value) {
                           setState(() {
                             if (value == true) {
@@ -225,12 +226,18 @@ class _MochiGroupCreatorSheetState extends State<MochiGroupCreatorSheet> {
                             }
                           });
                         },
-                        title: Text(friend.name),
+                        title: Text(
+                          friend.name,
+                          style: TextStyle(color: colors.textPrimary),
+                        ),
                         subtitle: friend.username.isEmpty
                             ? null
-                            : Text('@${friend.username}'),
+                            : Text(
+                                '@${friend.username}',
+                                style: TextStyle(color: colors.textSecondary),
+                              ),
                         secondary: CircleAvatar(
-                          backgroundColor: const Color(0xFFE8EBF4),
+                          backgroundColor: colors.avatarPlaceholder,
                           backgroundImage:
                               hasAvatar ? NetworkImage(avatar) : null,
                           child: hasAvatar

@@ -72,10 +72,19 @@ class _NotificationScreenState extends State<NotificationScreen> {
   }
 
   void _openActorProfile(NotificationEntity item) {
-    if (item.actorId.isEmpty) return;
+    final actorId = item.actorId.trim();
+    if (actorId.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('${context.l10n.userDefaultName} không có thông tin'),
+        ),
+      );
+      return;
+    }
+    
     context.pushNamed(
-      AppRoutes.profile.name,
-      pathParameters: {'userId': item.actorId},
+      AppRoutes.otherProfile.name,
+      pathParameters: {'userId': actorId},
     );
   }
 
@@ -221,51 +230,49 @@ class _NotificationScreenState extends State<NotificationScreen> {
                 ),
               ),
             ),
-            body: state.isLoading && state.items.isEmpty
-                ? const Center(child: CircularProgressIndicator())
-                : TabBarView(
-                    children: [
-                      _NotificationListView(
-                        items: postNotifications,
-                        hasMore: state.hasMore,
-                        emptyMessage: l10n.notificationEmptyPosts,
-                        onRefresh: _onRefresh,
-                        onLoadMore: () {
-                          context.read<NotificationBloc>().add(
-                            NotificationLoadMoreRequested(),
-                          );
-                        },
-                        itemBuilder: (item) => _NotificationTile(
-                          item: item,
-                          showFriendRequestActions: false,
-                          isSubmitting: state.isSubmitting,
-                          isOpening: _openingPostNotificationId == item.id,
-                          onTap: () => _openPostNotification(item),
-                        ),
-                      ),
-                      _NotificationListView(
-                        items: friendRequestNotifications,
-                        hasMore: state.hasMore,
-                        emptyMessage: l10n.notificationEmptyFriends,
-                        onRefresh: _onRefresh,
-                        onLoadMore: () {
-                          context.read<NotificationBloc>().add(
-                            NotificationLoadMoreRequested(),
-                          );
-                        },
-                        itemBuilder: (item) => _NotificationTile(
-                          item: item,
-                          showFriendRequestActions: true,
-                          isSubmitting: state.isSubmitting,
-                          isOpening: false,
-                          onTap: () {
-                            _markAsReadIfNeeded(item);
-                            _openActorProfile(item);
-                          },
-                        ),
-                      ),
-                    ],
+            body: TabBarView(
+              children: [
+                _NotificationListView(
+                  items: postNotifications,
+                  hasMore: state.hasMore,
+                  emptyMessage: l10n.notificationEmptyPosts,
+                  onRefresh: _onRefresh,
+                  onLoadMore: () {
+                    context.read<NotificationBloc>().add(
+                      NotificationLoadMoreRequested(),
+                    );
+                  },
+                  itemBuilder: (item) => _NotificationTile(
+                    item: item,
+                    showFriendRequestActions: false,
+                    isSubmitting: state.isSubmitting,
+                    isOpening: _openingPostNotificationId == item.id,
+                    onTap: () => _openPostNotification(item),
                   ),
+                ),
+                _NotificationListView(
+                  items: friendRequestNotifications,
+                  hasMore: state.hasMore,
+                  emptyMessage: l10n.notificationEmptyFriends,
+                  onRefresh: _onRefresh,
+                  onLoadMore: () {
+                    context.read<NotificationBloc>().add(
+                      NotificationLoadMoreRequested(),
+                    );
+                  },
+                  itemBuilder: (item) => _NotificationTile(
+                    item: item,
+                    showFriendRequestActions: true,
+                    isSubmitting: state.isSubmitting,
+                    isOpening: false,
+                    onTap: () {
+                      _markAsReadIfNeeded(item);
+                      _openActorProfile(item);
+                    },
+                  ),
+                ),
+              ],
+            ),
           ),
         );
       },
@@ -351,10 +358,7 @@ class _NotificationListViewState extends State<_NotificationListView> {
               ),
               itemBuilder: (context, index) {
                 if (index >= widget.items.length) {
-                  return const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 16),
-                    child: Center(child: CircularProgressIndicator()),
-                  );
+                  return const SizedBox.shrink();
                 }
 
                 return widget.itemBuilder(widget.items[index]);
@@ -369,14 +373,14 @@ class _NotificationTile extends StatelessWidget {
   final bool showFriendRequestActions;
   final bool isSubmitting;
   final bool isOpening;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
 
   const _NotificationTile({
     required this.item,
     required this.showFriendRequestActions,
     required this.isSubmitting,
     required this.isOpening,
-    required this.onTap,
+    this.onTap,
   });
 
   bool get _isFriendRequestNotification =>
@@ -384,12 +388,9 @@ class _NotificationTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final createdAt = item.createdAt;
-    final timeText = createdAt != null
-        ? DateFormat('dd/MM/yyyy HH:mm').format(createdAt.toLocal())
-        : '';
+    final colors = AppColors.of(context);
 
-    return _buildTile(context, timeText);
+    return _buildTile(context, colors);
   }
 
   String _resolveNotificationText(BuildContext context) {
@@ -412,9 +413,7 @@ class _NotificationTile extends StatelessWidget {
     return item.body;
   }
 
-  Widget _buildTile(BuildContext context, String timeText) {
-    final notificationText = _resolveNotificationText(context);
-    final colors = AppColors.of(context);
+  Widget _buildTile(BuildContext context, AppColors colors) {
 
     return Material(
       color: item.isRead ? colors.sheetSurface : colors.inputFill,
@@ -459,43 +458,12 @@ class _NotificationTile extends StatelessWidget {
                     text: '${item.actorName} ',
                     style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
-                  TextSpan(text: notificationText),
+                  TextSpan(text: _resolveNotificationText(context)),
                 ],
               ),
             ),
-            subtitle: timeText.isNotEmpty
-                ? Padding(
-                    padding: const EdgeInsets.only(top: 4),
-                    child: Text(
-                      timeText,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: item.isRead
-                            ? colors.textSecondary
-                            : colors.accent,
-                        fontWeight: item.isRead
-                            ? FontWeight.normal
-                            : FontWeight.w600,
-                      ),
-                    ),
-                  )
-                : null,
-            trailing: isOpening
-                ? const SizedBox(
-                    width: 18,
-                    height: 18,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
-                : item.isRead
-                ? null
-                : Container(
-                    width: 10,
-                    height: 10,
-                    decoration: BoxDecoration(
-                      color: colors.accent,
-                      shape: BoxShape.circle,
-                    ),
-                  ),
+            subtitle: _buildSubtitle(context, colors),
+            trailing: _buildTrailing(context, colors),
             contentPadding: const EdgeInsets.symmetric(
               horizontal: 16,
               vertical: 8,
@@ -508,12 +476,15 @@ class _NotificationTile extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   TextButton(
-                    onPressed: isSubmitting
+                    onPressed: isSubmitting || item.entityId == null || item.entityId!.isEmpty
                         ? null
                         : () {
+                            final entityId = item.entityId!.trim();
+                            if (entityId.isEmpty) return;
+                            
                             context.read<NotificationBloc>().add(
                               NotificationRejectFriendRequestRequested(
-                                item.entityId!,
+                                entityId,
                                 item.id,
                               ),
                             );
@@ -522,12 +493,15 @@ class _NotificationTile extends StatelessWidget {
                   ),
                   const SizedBox(width: 8),
                   FilledButton(
-                    onPressed: isSubmitting
+                    onPressed: isSubmitting || item.entityId == null || item.entityId!.isEmpty
                         ? null
                         : () {
+                            final entityId = item.entityId!.trim();
+                            if (entityId.isEmpty) return;
+                            
                             context.read<NotificationBloc>().add(
                               NotificationAcceptFriendRequestRequested(
-                                item.entityId!,
+                                entityId,
                                 item.id,
                               ),
                             );
@@ -538,6 +512,48 @@ class _NotificationTile extends StatelessWidget {
               ),
             ),
         ],
+      ),
+    );
+  }
+
+  Widget? _buildSubtitle(BuildContext context, AppColors colors) {
+    final createdAt = item.createdAt;
+    if (createdAt == null) return null;
+
+    final timeText = DateFormat('dd/MM/yyyy HH:mm').format(createdAt.toLocal());
+    
+    return Padding(
+      padding: const EdgeInsets.only(top: 4),
+      child: Text(
+        timeText,
+        style: TextStyle(
+          fontSize: 12,
+          color: item.isRead ? colors.textSecondary : colors.accent,
+          fontWeight: item.isRead ? FontWeight.normal : FontWeight.w600,
+        ),
+      ),
+    );
+  }
+
+  Widget? _buildTrailing(BuildContext context, AppColors colors) {
+    if (isOpening) {
+      return const SizedBox(
+        width: 18,
+        height: 18,
+        child: CircularProgressIndicator(strokeWidth: 2),
+      );
+    }
+
+    if (item.isRead) {
+      return null;
+    }
+
+    return Container(
+      width: 10,
+      height: 10,
+      decoration: BoxDecoration(
+        color: colors.accent,
+        shape: BoxShape.circle,
       ),
     );
   }

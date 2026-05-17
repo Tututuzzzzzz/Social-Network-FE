@@ -7,6 +7,7 @@ import 'package:frontend/src/routes/app_route_path.dart';
 import 'package:frontend/src/widgets/custom_button.dart';
 
 import '../bloc/auth/auth_bloc.dart';
+import '../widgets/auth_theme.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({super.key});
@@ -44,6 +45,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
+    final authColors = AuthTheme.colorsOf(context);
 
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) {
@@ -51,7 +53,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(state.message),
-              backgroundColor: const Color(0xFF3CC18E),
+              backgroundColor: authColors.authPrimaryAction,
             ),
           );
           context.go(AppRoutes.login.path);
@@ -67,12 +69,12 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         }
       },
       child: Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor: authColors.authBackground,
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           elevation: 0,
-          leading: IconButton(
-            icon: const Icon(Icons.chevron_left, color: Colors.black, size: 32),
+          leading: AuthTheme.backButton(
+            context,
             onPressed: () => context.pop(),
           ),
         ),
@@ -85,36 +87,24 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                 40.hS,
                 Text(
                   l10n.forgotPasswordTitle,
-                  style: const TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
-                  ),
+                  style: AuthTheme.titleStyle(context),
                   textAlign: TextAlign.center,
                 ),
                 16.hS,
                 Text(
                   l10n.forgotPasswordDescription,
-                  style: const TextStyle(fontSize: 14, color: Colors.black54),
+                  style: AuthTheme.bodyStyle(context),
                   textAlign: TextAlign.center,
                 ),
                 32.hS,
                 TextField(
                   controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
-                  decoration: InputDecoration(
-                    hintText: l10n.enterEmailHint,
-                    filled: true,
-                    fillColor: const Color(0xFFF5F5F5),
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 12,
-                    ),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(30),
-                      borderSide: BorderSide.none,
-                    ),
+                  decoration: AuthTheme.inputDecoration(
+                    context,
+                    l10n.enterEmailHint,
                   ),
+                  style: TextStyle(color: authColors.authInputText),
                 ),
                 24.hS,
                 BlocBuilder<AuthBloc, AuthState>(
@@ -124,8 +114,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                     return CustomButton(
                       label: l10n.sendVerificationCode,
                       color: (_isValid && !isLoading)
-                          ? const Color(0xFF3CC18E)
-                          : const Color(0xFFB7BBC1),
+                          ? authColors.authPrimaryAction
+                          : authColors.authDisabledAction,
                       onPressed: () {
                         if (_isValid && !isLoading) {
                           context.read<AuthBloc>().add(

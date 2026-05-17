@@ -74,6 +74,9 @@ class _AdminBody extends StatelessWidget {
       case AdminSection.reports:
         return AdminReportsTable(
           reports: state.snapshot.reports,
+          posts: state.snapshot.posts,
+          users: state.snapshot.users,
+          hiddenPostIds: state.hiddenPostIds,
           busyReportId: state.busyReportId,
         );
     }

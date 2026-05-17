@@ -29,6 +29,20 @@ class AppColors {
     required this.inputFill,
     required this.inputBorder,
     required this.error,
+    required this.authBackground,
+    required this.authInputFill,
+    required this.authInputBorder,
+    required this.authInputText,
+    required this.authInputHint,
+    required this.authPrimaryAction,
+    required this.authDisabledAction,
+    required this.authLink,
+    required this.authDivider,
+    required this.authGoogleButton,
+    required this.authGoogleBorder,
+    required this.authIcon,
+    required this.authTitle,
+    required this.authBody,
     required this.avatarPlaceholder,
     required this.postDetailSurface,
     required this.postDetailText,
@@ -66,6 +80,20 @@ class AppColors {
   final Color inputFill;
   final Color inputBorder;
   final Color error;
+  final Color authBackground;
+  final Color authInputFill;
+  final Color authInputBorder;
+  final Color authInputText;
+  final Color authInputHint;
+  final Color authPrimaryAction;
+  final Color authDisabledAction;
+  final Color authLink;
+  final Color authDivider;
+  final Color authGoogleButton;
+  final Color authGoogleBorder;
+  final Color authIcon;
+  final Color authTitle;
+  final Color authBody;
   final Color avatarPlaceholder;
   final Color postDetailSurface;
   final Color postDetailText;
@@ -103,6 +131,20 @@ class AppColors {
     inputFill: Color(0xFFF5F6F8),
     inputBorder: Color(0xFFD7DBE0),
     error: Color(0xFFE53935),
+    authBackground: Colors.white,
+    authInputFill: Color(0xFFF5F5F5),
+    authInputBorder: Colors.transparent,
+    authInputText: Color(0xFF111111),
+    authInputHint: Color(0xFF8A8A90),
+    authPrimaryAction: Color(0xFF3CC18E),
+    authDisabledAction: Color(0xFFB7BBC1),
+    authLink: Color(0xFF3797EF),
+    authDivider: Color(0xFFE0E0E0),
+    authGoogleButton: Colors.white,
+    authGoogleBorder: Color(0xFFE0E0E0),
+    authIcon: Color(0xFF111111),
+    authTitle: Color(0xFF111111),
+    authBody: Color(0x8A000000),
     avatarPlaceholder: Color(0xFFD7DADB),
     postDetailSurface: Color(0xFF242526),
     postDetailText: Colors.white,
@@ -141,6 +183,20 @@ class AppColors {
     inputFill: Color(0xFF1B1F24),
     inputBorder: Color(0xFF2A2F36),
     error: Color(0xFFEF5350),
+    authBackground: Color(0xFF0F1113),
+    authInputFill: Color(0xFF1B1F24),
+    authInputBorder: Color(0xFF2A2F36),
+    authInputText: Color(0xFFEDEFF2),
+    authInputHint: Color(0xFF8A9099),
+    authPrimaryAction: Color(0xFF3CCFA0),
+    authDisabledAction: Color(0xFF3A4148),
+    authLink: Color(0xFF6AA8FF),
+    authDivider: Color(0xFF2B3036),
+    authGoogleButton: Color(0xFF15181B),
+    authGoogleBorder: Color(0xFF2A2F36),
+    authIcon: Color(0xFFEDEFF2),
+    authTitle: Color(0xFFF5F5F5),
+    authBody: Color(0xFFB0B3B8),
     avatarPlaceholder: Color(0xFF2B3036),
     postDetailSurface: Color(0xFF14171A),
     postDetailText: Color(0xFFF5F5F5),

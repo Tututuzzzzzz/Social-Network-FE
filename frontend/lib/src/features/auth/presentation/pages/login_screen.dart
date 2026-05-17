@@ -11,6 +11,7 @@ import 'package:frontend/src/widgets/snackbar_widget.dart';
 
 import '../bloc/auth/auth_bloc.dart';
 import '../bloc/auth_login_form/auth_login_form_bloc.dart';
+import '../widgets/auth_theme.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -57,18 +58,15 @@ class _LoginScreenState extends State<LoginScreen> {
         child: Builder(
           builder: (context) {
             final l10n = context.l10n;
+            final authColors = AuthTheme.colorsOf(context);
 
             return Scaffold(
-              backgroundColor: const Color(0xFFFFffff),
+              backgroundColor: authColors.authBackground,
               appBar: AppBar(
                 backgroundColor: Colors.transparent,
                 elevation: 0,
-                leading: IconButton(
-                  icon: const Icon(
-                    Icons.chevron_left,
-                    color: Colors.black,
-                    size: 32,
-                  ),
+                leading: AuthTheme.backButton(
+                  context,
                   onPressed: () => Navigator.of(context).pop(),
                 ),
               ),
@@ -83,7 +81,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     children: [
                       16.hS,
                       Image.asset(
-                        'assets/images/logo.jpg',
+                        AuthTheme.logoAssetOf(context),
                         height: 104,
                         width: 187,
                       ),
@@ -102,17 +100,37 @@ class _LoginScreenState extends State<LoginScreen> {
                             },
                             decoration: InputDecoration(
                               hintText: l10n.loginUsernameHint,
+                            ).copyWith(
+                              hintStyle: TextStyle(
+                                color: authColors.authInputHint,
+                              ),
                               filled: true,
-                              fillColor: const Color(0xFFF5F5F5),
+                              fillColor: authColors.authInputFill,
                               contentPadding: const EdgeInsets.symmetric(
                                 horizontal: 16,
                                 vertical: 12,
                               ),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(30),
-                                borderSide: BorderSide.none,
+                                borderSide: BorderSide(
+                                  color: authColors.authInputBorder,
+                                ),
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(30),
+                                borderSide: BorderSide(
+                                  color: authColors.authInputBorder,
+                                ),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(30),
+                                borderSide: BorderSide(
+                                  color: authColors.authPrimaryAction,
+                                  width: 1.4,
+                                ),
                               ),
                             ),
+                            style: TextStyle(color: authColors.authInputText),
                           ),
                           12.hS,
                           TextField(
@@ -124,29 +142,22 @@ class _LoginScreenState extends State<LoginScreen> {
                                 LoginFormPasswordChangedEvent(value),
                               );
                             },
-                            decoration: InputDecoration(
-                              hintText: l10n.loginPasswordHint,
-                              filled: true,
-                              fillColor: const Color(0xFFF5F5F5),
-                              contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 12,
-                              ),
+                            decoration: AuthTheme.inputDecoration(
+                              context,
+                              l10n.loginPasswordHint,
                               suffixIcon: IconButton(
                                 icon: Icon(
                                   _obscurePassword
                                       ? Icons.visibility_off
                                       : Icons.visibility,
+                                  color: authColors.authIcon,
                                 ),
                                 onPressed: () => setState(
                                   () => _obscurePassword = !_obscurePassword,
                                 ),
                               ),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(30),
-                                borderSide: BorderSide.none,
-                              ),
                             ),
+                            style: TextStyle(color: authColors.authInputText),
                           ),
                           4.hS,
                           Row(
@@ -160,7 +171,12 @@ class _LoginScreenState extends State<LoginScreen> {
                                       () => _rememberMe = v ?? false,
                                     ),
                                   ),
-                                  Text(l10n.rememberPassword),
+                                  Text(
+                                    l10n.rememberPassword,
+                                    style: TextStyle(
+                                      color: authColors.authBody,
+                                    ),
+                                  ),
                                 ],
                               ),
                               TextButton(
@@ -168,9 +184,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                     context.push(AppRoutes.forgotPassword.path),
                                 child: Text(
                                   l10n.forgotPassword,
-                                  style: const TextStyle(
-                                    color: Color(0xFF3797EF),
-                                  ),
+                                  style: AuthTheme.linkStyle(context),
                                 ),
                               ),
                             ],
@@ -182,8 +196,8 @@ class _LoginScreenState extends State<LoginScreen> {
                               return CustomButton(
                                 label: l10n.login,
                                 color: isValid
-                                    ? const Color(0xFF3CC18E)
-                                    : const Color(0xFFB7BBC1),
+                                    ? authColors.authPrimaryAction
+                                    : authColors.authDisabledAction,
                                 onPressed: () async {
                                   if (!isValid) return;
 
@@ -210,10 +224,10 @@ class _LoginScreenState extends State<LoginScreen> {
                           11.hS,
                           Row(
                             children: [
-                              const Expanded(
+                              Expanded(
                                 child: Divider(
                                   thickness: 1,
-                                  color: Colors.grey,
+                                  color: authColors.authDivider,
                                 ),
                               ),
                               Padding(
@@ -222,13 +236,15 @@ class _LoginScreenState extends State<LoginScreen> {
                                 ),
                                 child: Text(
                                   l10n.orText,
-                                  style: const TextStyle(color: Colors.grey),
+                                  style: TextStyle(
+                                    color: authColors.authBody,
+                                  ),
                                 ),
                               ),
-                              const Expanded(
+                              Expanded(
                                 child: Divider(
                                   thickness: 1,
-                                  color: Colors.grey,
+                                  color: authColors.authDivider,
                                 ),
                               ),
                             ],
@@ -247,19 +263,21 @@ class _LoginScreenState extends State<LoginScreen> {
                               padding: const EdgeInsets.symmetric(vertical: 12),
                               child: Text(
                                 l10n.loginWithGoogle,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
-                                  color: Colors.black,
+                                  color: authColors.authTitle,
                                 ),
                               ),
                             ),
                             style: OutlinedButton.styleFrom(
-                              side: BorderSide(color: Colors.grey.shade300),
+                              side: BorderSide(
+                                color: authColors.authGoogleBorder,
+                              ),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(30),
                               ),
-                              backgroundColor: Colors.white,
+                              backgroundColor: authColors.authGoogleButton,
                             ),
                           ),
                         ],
@@ -272,17 +290,14 @@ class _LoginScreenState extends State<LoginScreen> {
                           children: [
                             Text(
                               '${l10n.noAccountQuestion} ',
-                              style: const TextStyle(color: Colors.black54),
+                              style: TextStyle(color: authColors.authBody),
                             ),
                             GestureDetector(
                               onTap: () =>
                                   context.push(AppRoutes.register.path),
                               child: Text(
                                 l10n.register,
-                                style: const TextStyle(
-                                  color: Color(0xFF3797EF),
-                                  fontWeight: FontWeight.w600,
-                                ),
+                                style: AuthTheme.linkStyle(context),
                               ),
                             ),
                           ],

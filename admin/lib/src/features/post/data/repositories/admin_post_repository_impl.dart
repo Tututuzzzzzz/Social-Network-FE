@@ -19,6 +19,16 @@ class AdminPostRepositoryImpl implements AdminPostRepository {
   }
 
   @override
+  Future<void> hidePost(String postId) {
+    return _remoteDataSource.hidePost(postId);
+  }
+
+  @override
+  Future<void> restorePost(String postId) {
+    return _remoteDataSource.restorePost(postId);
+  }
+
+  @override
   Future<void> deletePost(String postId) {
     return _remoteDataSource.deletePost(postId);
   }

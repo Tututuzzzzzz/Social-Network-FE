@@ -6,11 +6,13 @@ import '../../../../configs/injector/injector_conf.dart';
 import 'package:frontend/src/core/l10n/l10n.dart';
 import 'package:frontend/src/core/theme/app_colors.dart';
 import '../../../../core/cache/secure_local_storage.dart';
+import '../../../../core/utils/failure_converter.dart';
 import '../../../friend/data/repositories/friend_repository_impl.dart';
 import '../../../friend/domain/usecases/send_friend_request.dart';
 import '../../../../routes/app_route_path.dart';
 import '../../domain/entities/post_comments_entity.dart';
 import '../../domain/entities/post_entity.dart';
+import '../../domain/usecases/report_post_usecase.dart';
 import '../../domain/usecases/usecase_params.dart';
 import '../bloc/post/post_bloc.dart';
 import '../widgets/feed_widgets.dart';
@@ -173,14 +175,30 @@ class _FeedScreenState extends State<FeedScreen> {
       case PostOptionAction.report:
         final reason = await showReportReasonSheet(context);
         if (!mounted || reason == null) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              l10n.postOptionReportDoneWithReason(
-                reportReasonLabel(reason, l10n),
-              ),
-            ),
+        final reasonLabel = reportReasonLabel(reason, l10n);
+        final result = await getIt<ReportPostUseCase>().call(
+          ReportPostParams(
+            postId: post.id,
+            reason: reportReasonValue(reason),
+            description: reasonLabel,
           ),
+        );
+        if (!mounted) return;
+        result.match(
+          (failure) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(mapFailureToMessage(failure))),
+            );
+          },
+          (_) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  l10n.postOptionReportDoneWithReason(reasonLabel),
+                ),
+              ),
+            );
+          },
         );
         break;
     }

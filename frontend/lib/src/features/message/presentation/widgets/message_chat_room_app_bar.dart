@@ -9,6 +9,8 @@ class MessageChatRoomAppBar extends StatelessWidget
     required this.title,
     this.avatarUrl = '',
     required this.accentColor,
+    this.foregroundColor = Colors.white,
+    this.avatarBackgroundColor = Colors.white,
     required this.onBack,
     this.onCall,
     this.onVideoCall,
@@ -18,6 +20,8 @@ class MessageChatRoomAppBar extends StatelessWidget
   final String title;
   final String avatarUrl;
   final Color accentColor;
+  final Color foregroundColor;
+  final Color avatarBackgroundColor;
   final VoidCallback onBack;
   final VoidCallback? onCall;
   final VoidCallback? onVideoCall;
@@ -35,7 +39,7 @@ class MessageChatRoomAppBar extends StatelessWidget
 
     return AppBar(
       backgroundColor: accentColor,
-      foregroundColor: Colors.white,
+      foregroundColor: foregroundColor,
       elevation: 0,
       leading: IconButton(
         onPressed: onBack,
@@ -49,7 +53,7 @@ class MessageChatRoomAppBar extends StatelessWidget
           children: [
             CircleAvatar(
               radius: 16,
-              backgroundColor: Colors.white,
+              backgroundColor: avatarBackgroundColor,
               backgroundImage: hasAvatar
                   ? NetworkImage(normalizedAvatarUrl)
                   : null,
