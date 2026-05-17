@@ -8,6 +8,11 @@ class AdminReport extends Equatable {
   final String reporterName;
   final String status;
   final DateTime createdAt;
+  final String? targetAuthorName;
+  final String? targetAuthorUsername;
+  final String? targetAuthorAvatarUrl;
+  final String? targetContent;
+  final List<String> targetMediaUrls;
 
   const AdminReport({
     required this.id,
@@ -17,9 +22,17 @@ class AdminReport extends Equatable {
     required this.reporterName,
     required this.status,
     required this.createdAt,
+    this.targetAuthorName,
+    this.targetAuthorUsername,
+    this.targetAuthorAvatarUrl,
+    this.targetContent,
+    this.targetMediaUrls = const [],
   });
 
-  bool get isOpen => status.toLowerCase() == 'open';
+  bool get isOpen {
+    final normalizedStatus = status.toLowerCase();
+    return normalizedStatus == 'open' || normalizedStatus == 'pending';
+  }
 
   @override
   List<Object?> get props => [
@@ -30,5 +43,10 @@ class AdminReport extends Equatable {
     reporterName,
     status,
     createdAt,
+    targetAuthorName,
+    targetAuthorUsername,
+    targetAuthorAvatarUrl,
+    targetContent,
+    targetMediaUrls,
   ];
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/src/core/l10n/l10n.dart';
+import 'package:frontend/src/core/theme/app_colors.dart';
 import 'mochi_dm_styles.dart';
 
 class MochiDmSearchInput extends StatelessWidget {
@@ -28,10 +29,13 @@ class MochiDmSearchInput extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = AppColors.of(context);
+
     return Padding(
       padding: padding,
       child: TextField(
         onChanged: onChanged,
+        style: TextStyle(color: colors.textPrimary),
         decoration: InputDecoration(
           hintText: hintText ?? context.l10n.searchLabel,
           hintStyle: TextStyle(

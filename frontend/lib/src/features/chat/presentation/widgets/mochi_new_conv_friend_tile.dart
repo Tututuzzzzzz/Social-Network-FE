@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/src/core/theme/app_colors.dart';
 
 import '../../../../core/utils/url_normalizer.dart';
 import '../../../friend/presentation/pages/friend_picker_bottom_sheet.dart';
@@ -16,12 +17,13 @@ class MochiNewConvFriendTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = AppColors.of(context);
     final avatar = friend.avatarUrl.normalizeClientUrl();
     final hasAvatar = avatar.isNotEmpty;
 
     return ListTile(
       leading: CircleAvatar(
-        backgroundColor: const Color(0xFFE8EBF4),
+        backgroundColor: colors.avatarPlaceholder,
         backgroundImage: hasAvatar ? NetworkImage(avatar) : null,
         child: hasAvatar
             ? null
@@ -29,10 +31,22 @@ class MochiNewConvFriendTile extends StatelessWidget {
                 friend.name.isNotEmpty ? friend.name[0].toUpperCase() : '?',
               ),
       ),
-      title: Text(friend.name),
+      title: Text(
+        friend.name,
+        style: TextStyle(color: colors.textPrimary),
+      ),
       subtitle:
-          friend.username.isEmpty ? null : Text('@${friend.username}'),
-      trailing: const Icon(Icons.chat_bubble_outline, size: 20),
+          friend.username.isEmpty
+              ? null
+              : Text(
+                  '@${friend.username}',
+                  style: TextStyle(color: colors.textSecondary),
+                ),
+      trailing: Icon(
+        Icons.chat_bubble_outline,
+        size: 20,
+        color: colors.textSecondary,
+      ),
       onTap: onTap,
     );
   }

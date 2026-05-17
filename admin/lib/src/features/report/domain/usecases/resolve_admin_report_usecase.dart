@@ -5,7 +5,7 @@ class ResolveAdminReportUseCase {
 
   const ResolveAdminReportUseCase(this._repository);
 
-  Future<void> call(String reportId) {
-    return _repository.resolveReport(reportId);
+  Future<void> call(String reportId, {String status = 'resolved'}) {
+    return _repository.reviewReport(reportId, status);
   }
 }

@@ -1,14 +1,18 @@
 class ApiConstants {
-  static const String baseUrl = String.fromEnvironment(
-    'ADMIN_API_BASE_URL',
-    defaultValue: '',
-  );
+  static const String baseUrl = 'ADMIN_API_BASE_URL';
 
   static const String login = '/auth/login';
   static const String postsFeed = '/posts/feed';
-  static const String reports = '/reports';
+  static const String reports = '/admin/reports';
 
   static String postById(String postId) => '/posts/$postId';
+
+  static String adminPostHide(String postId) => '/admin/posts/$postId/hide';
+
+  static String adminPostRestore(String postId) =>
+      '/admin/posts/$postId/restore';
+
+  static String adminPostDelete(String postId) => '/admin/posts/$postId';
 
   static String postComments(String postId) => '/posts/$postId/comments';
 
@@ -16,5 +20,7 @@ class ApiConstants {
 
   static String userPosts(String userId) => '/users/$userId/posts';
 
-  static String reportById(String reportId) => '/reports/$reportId';
+  static String reportsByPost(String postId) => '/admin/reports/post/$postId';
+
+  static String reportById(String reportId) => '/admin/reports/$reportId';
 }

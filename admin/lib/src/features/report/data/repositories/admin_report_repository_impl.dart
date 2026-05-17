@@ -13,7 +13,12 @@ class AdminReportRepositoryImpl implements AdminReportRepository {
   }
 
   @override
-  Future<void> resolveReport(String reportId) {
-    return _remoteDataSource.resolveReport(reportId);
+  Future<List<AdminReport>> getReportsByPost(String postId) {
+    return _remoteDataSource.fetchReportsByPost(postId);
+  }
+
+  @override
+  Future<void> reviewReport(String reportId, String status) {
+    return _remoteDataSource.reviewReport(reportId, status);
   }
 }

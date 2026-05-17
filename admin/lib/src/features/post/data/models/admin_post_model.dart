@@ -33,11 +33,15 @@ class AdminPostModel extends AdminPost {
       _idFromValue(root['user']),
       _idFromValue(root['owner']),
       _idFromValue(root['createdBy']),
+      _idFromValue(root['postedBy']),
+      _idFromValue(root['creator']),
+      _idFromValue(root['created_by']),
       _idFromValue(authorMap),
     ]);
     final username = _firstText([
       root['authorUsername'],
       root['username'],
+      root['userName'],
       authorMap?['username'],
       authorMap?['userName'],
       authorId,
@@ -47,6 +51,8 @@ class AdminPostModel extends AdminPost {
       root['authorDisplayName'],
       root['displayName'],
       root['fullName'],
+      root['authorName'],
+      root['name'],
       authorMap?['displayName'],
       authorMap?['fullName'],
       authorMap?['name'],
@@ -62,10 +68,20 @@ class AdminPostModel extends AdminPost {
         root['authorAvatarUrl'],
         root['avatarUrl'],
         root['avatar'],
+        root['profilePicture'],
+        root['profileImage'],
         authorMap?['avatarUrl'],
         authorMap?['avatar'],
+        authorMap?['profilePicture'],
+        authorMap?['profileImage'],
       ]),
-      content: _firstText([root['content'], root['caption'], root['text']]),
+      content: _firstText([
+        root['content'],
+        root['caption'],
+        root['text'],
+        root['body'],
+        root['description'],
+      ]),
       likesCount: (root['likesCount'] as num?)?.toInt() ?? likes.length,
       commentsCount:
           (root['commentsCount'] as num?)?.toInt() ?? comments.length,
@@ -94,6 +110,9 @@ class AdminPostModel extends AdminPost {
       'user',
       'owner',
       'createdBy',
+      'postedBy',
+      'creator',
+      'created_by',
     ]) {
       final value = json[key];
       if (value is Map) {

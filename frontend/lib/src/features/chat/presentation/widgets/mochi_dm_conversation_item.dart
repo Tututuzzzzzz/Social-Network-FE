@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:frontend/src/core/l10n/l10n.dart';
+import 'package:frontend/src/core/theme/app_colors.dart';
 
 import '../../domain/entities/chat_entity.dart';
 import '../../../../core/utils/url_normalizer.dart';
@@ -36,6 +37,7 @@ class MochiDmConversationItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = AppColors.of(context);
     final avatarColor =
         MochiDmStyles.avatarColors[index % MochiDmStyles.avatarColors.length];
     final normalizedAvatar = item.avatarUrl.normalizeClientUrl();
@@ -49,8 +51,8 @@ class MochiDmConversationItem extends StatelessWidget {
         children: [
           SlidableAction(
             onPressed: (_) => onPinToggle(),
-            backgroundColor: MochiDmStyles.primaryGreen,
-            foregroundColor: Colors.white,
+            backgroundColor: colors.accent,
+            foregroundColor: colors.appBarForeground,
             icon: item.isPinned ? Icons.push_pin : Icons.push_pin_outlined,
             label: item.isPinned ? context.l10n.unpinAction : context.l10n.pinAction,
           ),
@@ -88,7 +90,7 @@ class MochiDmConversationItem extends StatelessWidget {
                     color: avatarColor,
                     shape: BoxShape.circle,
                     border: Border.all(
-                      color: const Color(0xFFDCDDDF),
+                      color: colors.subtleBorder,
                       width: 1.1,
                     ),
                   ),
@@ -104,10 +106,10 @@ class MochiDmConversationItem extends StatelessWidget {
                         )
                       : Text(
                           initial,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 17,
                             fontWeight: FontWeight.w700,
-                            color: Color(0xFF2A2B2F),
+                            color: colors.textPrimary,
                           ),
                         ),
                 ),
@@ -129,7 +131,7 @@ class MochiDmConversationItem extends StatelessWidget {
                               fontWeight: item.unreadCount > 0
                                   ? FontWeight.w700
                                   : FontWeight.w600,
-                              color: const Color(0xFF1A1A1D),
+                              color: colors.textPrimary,
                               height: 1,
                             ),
                           ),
@@ -139,18 +141,18 @@ class MochiDmConversationItem extends StatelessWidget {
                             margin: const EdgeInsets.only(left: 6),
                             width: 7,
                             height: 7,
-                            decoration: const BoxDecoration(
-                              color: MochiDmStyles.primaryGreen,
+                            decoration: BoxDecoration(
+                              color: colors.accent,
                               shape: BoxShape.circle,
                             ),
                           ),
                         if (item.isPinned)
-                          const Padding(
-                            padding: EdgeInsets.only(left: 6),
+                          Padding(
+                            padding: const EdgeInsets.only(left: 6),
                             child: Icon(
                               Icons.push_pin,
                               size: 14,
-                              color: MochiDmStyles.primaryGreenDark,
+                              color: colors.accent,
                             ),
                           ),
                       ],
@@ -163,8 +165,8 @@ class MochiDmConversationItem extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 14,
                         color: item.unreadCount > 0
-                            ? const Color(0xFF50525A)
-                            : const Color(0xFF7C7E84),
+                            ? colors.textPrimary
+                            : colors.textSecondary,
                         fontWeight: item.unreadCount > 0
                             ? FontWeight.w500
                             : FontWeight.w400,
@@ -182,9 +184,9 @@ class MochiDmConversationItem extends StatelessWidget {
                     padding: const EdgeInsets.only(top: 2),
                     child: Text(
                       timeLabel,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 13,
-                        color: MochiDmStyles.tertiaryText,
+                        color: colors.textSecondary,
                         fontWeight: FontWeight.w400,
                         height: 1,
                       ),
@@ -199,7 +201,7 @@ class MochiDmConversationItem extends StatelessWidget {
                         vertical: 2,
                       ),
                       decoration: BoxDecoration(
-                        color: MochiDmStyles.primaryGreen,
+                        color: colors.accent,
                         borderRadius: BorderRadius.circular(999),
                       ),
                       alignment: Alignment.center,
@@ -207,8 +209,8 @@ class MochiDmConversationItem extends StatelessWidget {
                         item.unreadCount > 99
                             ? '99+'
                             : item.unreadCount.toString(),
-                        style: const TextStyle(
-                          color: Colors.white,
+                        style: TextStyle(
+                          color: colors.appBarForeground,
                           fontSize: 10.5,
                           fontWeight: FontWeight.w700,
                         ),

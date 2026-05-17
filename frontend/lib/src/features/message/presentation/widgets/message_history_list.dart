@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/src/core/l10n/l10n.dart';
+import 'package:frontend/src/core/theme/app_colors.dart';
 
 import '../../../../core/utils/url_normalizer.dart';
 import '../../domain/entities/message_entity.dart';
@@ -38,6 +39,7 @@ class MessageHistoryList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = AppColors.of(context);
     final items = _buildItems(context, messages);
 
     return ListView.separated(
@@ -92,9 +94,9 @@ class MessageHistoryList extends StatelessWidget {
                           message.author.trim().isNotEmpty
                               ? message.author.trim()
                               : context.l10n.unknownSenderLabel,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 12,
-                            color: Color(0xFF6B7280),
+                            color: colors.textSecondary,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
@@ -376,6 +378,8 @@ class _MessageBubbleWithReactionsState
             message: widget.message,
             accentColor: widget.accentColor,
             peerBubbleColor: widget.peerBubbleColor,
+            peerTextColor: AppColors.of(context).textPrimary,
+            mutedTextColor: AppColors.of(context).textSecondary,
             isGroupChat: widget.isGroupChat,
           ),
           if (!isDeleted && widget.message.reactions.isNotEmpty)
@@ -401,11 +405,11 @@ class _MessageBubbleWithReactionsState
   }
 
   Widget _build1to1ReadReceipt() {
-    return const Text(
+    return Text(
       'Đã xem',
       style: TextStyle(
         fontSize: 11,
-        color: Color(0xFF9CA3AF),
+        color: AppColors.of(context).textSecondary,
         fontWeight: FontWeight.w500,
       ),
     );
@@ -425,7 +429,7 @@ class _MessageBubbleWithReactionsState
             widthFactor: 0.6,
             child: CircleAvatar(
               radius: 9,
-              backgroundColor: Colors.white,
+              backgroundColor: AppColors.of(context).sheetSurface,
               child: _MiniAvatar(
                 avatarUrl: displayUsers[i].avatarUrl,
                 label: displayUsers[i].displayName,
@@ -437,13 +441,13 @@ class _MessageBubbleWithReactionsState
             widthFactor: 0.6,
             child: CircleAvatar(
               radius: 8,
-              backgroundColor: const Color(0xFFE5E7EB),
+              backgroundColor: AppColors.of(context).inputFill,
               child: Text(
                 '+$overflow',
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 7,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF4B5563),
+                  color: AppColors.of(context).textPrimary,
                 ),
               ),
             ),
@@ -470,16 +474,18 @@ class _FloatingActionBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = AppColors.of(context);
+
     return Material(
       elevation: 8,
       borderRadius: BorderRadius.circular(28),
       shadowColor: Colors.black26,
-      color: Colors.white,
+      color: colors.sheetSurface,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(28),
-          border: Border.all(color: const Color(0xFFE5E7EB), width: 0.5),
+          border: Border.all(color: colors.subtleBorder, width: 0.5),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -495,7 +501,7 @@ class _FloatingActionBar extends StatelessWidget {
                 width: 1,
                 height: 24,
                 margin: const EdgeInsets.symmetric(horizontal: 6),
-                color: const Color(0xFFE5E7EB),
+                color: colors.subtleBorder,
               ),
               IconButton(
                 icon: const Icon(
@@ -577,12 +583,16 @@ class _MessageBubble extends StatelessWidget {
     required this.message,
     required this.accentColor,
     required this.peerBubbleColor,
+    required this.peerTextColor,
+    required this.mutedTextColor,
     required this.isGroupChat,
   });
 
   final MessageLine message;
   final Color accentColor;
   final Color peerBubbleColor;
+  final Color peerTextColor;
+  final Color mutedTextColor;
   final bool isGroupChat;
 
   @override
@@ -598,13 +608,13 @@ class _MessageBubble extends StatelessWidget {
             color:
                 (message.fromMe ? accentColor : peerBubbleColor) == accentColor
                 ? Colors.white70
-                : const Color(0xFF6B7280),
+                : mutedTextColor,
             fontWeight: FontWeight.w400,
             fontStyle: FontStyle.italic,
           )
         : TextStyle(
             height: 1.32,
-            color: message.fromMe ? Colors.white : const Color(0xFF2E3138),
+            color: message.fromMe ? Colors.white : peerTextColor,
             fontWeight: FontWeight.w500,
           );
 
@@ -662,6 +672,7 @@ class _BubbleContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = AppColors.of(context);
     final hasText = message.content.trim().isNotEmpty;
 
     if (mediaUrls.isEmpty) {
@@ -692,12 +703,12 @@ class _BubbleContent extends StatelessWidget {
               child: Image.network(
                 mediaUrls[index],
                 fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) => const ColoredBox(
-                  color: Color(0xFFE5E7EB),
+                errorBuilder: (context, error, stackTrace) => ColoredBox(
+                  color: colors.inputFill,
                   child: Center(
                     child: Icon(
                       Icons.broken_image_outlined,
-                      color: Color(0xFF6B7280),
+                      color: colors.textSecondary,
                     ),
                   ),
                 ),
@@ -731,6 +742,8 @@ class _ReactionsDisplay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = AppColors.of(context);
+
     // Group reactions by emoji and count them
     final reactionCounts = <String, int>{};
     final userReactedEmojis = <String>{};
@@ -763,14 +776,14 @@ class _ReactionsDisplay extends StatelessWidget {
             decoration: BoxDecoration(
               border: Border.all(
                 color: isHighlighted
-                    ? const Color(0xFF3CC18E)
-                    : const Color(0xFFD1D5DB),
+                    ? colors.accent
+                    : colors.inputBorder,
                 width: isHighlighted ? 1.5 : 1.0,
               ),
               borderRadius: BorderRadius.circular(12),
               color: isHighlighted
-                  ? const Color(0xFFECFDF5)
-                  : const Color(0xFFFAFAFA),
+                  ? colors.accent.withValues(alpha: 0.14)
+                  : colors.sheetSurface,
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
@@ -782,8 +795,8 @@ class _ReactionsDisplay extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 10,
                     color: isHighlighted
-                        ? const Color(0xFF059669)
-                        : const Color(0xFF6B7280),
+                        ? colors.accent
+                        : colors.textSecondary,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -812,7 +825,7 @@ class _MiniAvatar extends StatelessWidget {
 
     return CircleAvatar(
       radius: 8,
-      backgroundColor: const Color(0xFFD1D5DB),
+      backgroundColor: AppColors.of(context).avatarPlaceholder,
       backgroundImage: normalizedUrl.isNotEmpty
           ? NetworkImage(normalizedUrl)
           : null,
@@ -820,10 +833,10 @@ class _MiniAvatar extends StatelessWidget {
           ? null
           : Text(
               initial,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 8,
                 fontWeight: FontWeight.w600,
-                color: Color(0xFF374151),
+                color: AppColors.of(context).textPrimary,
               ),
             ),
     );
@@ -859,7 +872,7 @@ class _AvatarSlot extends StatelessWidget {
 
     return CircleAvatar(
       radius: MessageHistoryList._avatarSize / 2,
-      backgroundColor: const Color(0xFFD1D5DB),
+      backgroundColor: AppColors.of(context).avatarPlaceholder,
       backgroundImage: normalizedAvatarUrl.isNotEmpty
           ? NetworkImage(normalizedAvatarUrl)
           : null,
@@ -867,10 +880,10 @@ class _AvatarSlot extends StatelessWidget {
           ? null
           : Text(
               initial,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
-                color: Color(0xFF374151),
+                color: AppColors.of(context).textPrimary,
               ),
             ),
     );
@@ -884,19 +897,21 @@ class _DateHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = AppColors.of(context);
+
     return Center(
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
         decoration: BoxDecoration(
-          color: const Color(0xFFF3F4F6),
+          color: colors.inputFill,
           borderRadius: BorderRadius.circular(12),
         ),
         child: Text(
           label,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 11,
             fontWeight: FontWeight.w500,
-            color: Color(0xFF6B7280),
+            color: colors.textSecondary,
           ),
         ),
       ),

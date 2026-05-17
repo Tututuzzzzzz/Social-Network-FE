@@ -11,6 +11,10 @@ class MessageComposer extends StatelessWidget {
     required this.isSending,
     required this.accentColor,
     required this.fillColor,
+    required this.backgroundColor,
+    required this.iconColor,
+    required this.textColor,
+    required this.hintColor,
   });
 
   final TextEditingController controller;
@@ -20,11 +24,15 @@ class MessageComposer extends StatelessWidget {
   final bool isSending;
   final Color accentColor;
   final Color fillColor;
+  final Color backgroundColor;
+  final Color iconColor;
+  final Color textColor;
+  final Color hintColor;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: const Color(0xFFF7F8FA),
+      color: backgroundColor,
       padding: const EdgeInsets.fromLTRB(12, 10, 12, 16),
       child: Row(
         children: [
@@ -32,13 +40,13 @@ class MessageComposer extends StatelessWidget {
             onPressed: isSending ? null : onPickImage,
             icon: const Icon(Icons.image_outlined),
             tooltip: context.l10n.mediaLibrary,
-            color: const Color(0xFF7A7F87),
+            color: iconColor,
           ),
           IconButton(
             onPressed: isSending ? null : onTakePhoto,
             icon: const Icon(Icons.photo_camera_outlined),
             tooltip: context.l10n.cameraLabel,
-            color: const Color(0xFF7A7F87),
+            color: iconColor,
           ),
           Expanded(
             child: Container(
@@ -53,8 +61,10 @@ class MessageComposer extends StatelessWidget {
                 textInputAction: TextInputAction.send,
                 onSubmitted: (_) => onSend(),
                 textAlignVertical: TextAlignVertical.center,
+                style: TextStyle(color: textColor),
                 decoration: InputDecoration(
                   hintText: context.l10n.typeMessageHint,
+                  hintStyle: TextStyle(color: hintColor),
                   isDense: true,
                   contentPadding: const EdgeInsets.symmetric(horizontal: 16),
                   border: InputBorder.none,
@@ -65,7 +75,7 @@ class MessageComposer extends StatelessWidget {
           IconButton(
             onPressed: () {},
             icon: const Icon(Icons.emoji_emotions_outlined),
-            color: const Color(0xFF7A7F87),
+            color: iconColor,
           ),
           SizedBox(
             height: 42,

@@ -3,12 +3,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../configs/injector/injector_conf.dart';
+import '../../../../core/theme/app_colors.dart';
 import '../../../../routes/app_route_path.dart';
 import '../../domain/entities/chat_entity.dart';
 import '../bloc/chat/chat_bloc.dart';
 import '../widgets/mochi_dm_conversation_item.dart';
 import '../widgets/mochi_dm_status_view.dart';
-import '../widgets/mochi_dm_styles.dart';
 import '../widgets/mochi_dm_tab_switcher.dart';
 import '../widgets/mochi_dm_top_bar.dart';
 import 'package:frontend/src/core/l10n/l10n.dart';
@@ -161,6 +161,7 @@ class _MochiDirectMessagesPageState extends State<MochiDirectMessagesPage> {
           final isInitialLoading =
               (state is ChatInitialState || state is ChatLoadingState) &&
               loadedThreads.isEmpty;
+          final colors = AppColors.of(context);
 
           Widget listContent;
           if (state is ChatFailureState && loadedThreads.isEmpty) {
@@ -214,17 +215,17 @@ class _MochiDirectMessagesPageState extends State<MochiDirectMessagesPage> {
                 );
               },
               separatorBuilder: (context, index) {
-                return const Divider(
+                return Divider(
                   height: 1,
                   thickness: 0.6,
-                  color: Color(0xFFD0D0D0),
+                  color: colors.subtleBorder,
                 );
               },
             );
           }
 
           return Scaffold(
-            backgroundColor: MochiDmStyles.pageBackground,
+            backgroundColor: colors.scaffold,
             body: SafeArea(
               child: Column(
                 children: [

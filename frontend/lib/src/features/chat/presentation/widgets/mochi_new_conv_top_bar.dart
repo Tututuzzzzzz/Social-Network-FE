@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/src/core/l10n/l10n.dart';
+import 'package:frontend/src/core/theme/app_colors.dart';
 
 import 'mochi_dm_search_input.dart';
-import 'mochi_dm_styles.dart';
 
 /// Top bar dùng cho MochiNewConversationPage.
 /// Gồm: back button, tiêu đề, search input.
@@ -16,8 +16,10 @@ class MochiNewConvTopBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = AppColors.of(context);
+
     return Container(
-      color: MochiDmStyles.primaryGreen,
+      color: colors.primary,
       padding: const EdgeInsets.fromLTRB(8, 8, 8, 12),
       child: Column(
         children: [
@@ -29,7 +31,7 @@ class MochiNewConvTopBar extends StatelessWidget {
                   Icons.arrow_back_ios_new_rounded,
                   size: 18,
                 ),
-                color: MochiDmStyles.topBarText,
+                color: colors.appBarForeground,
               ),
               Expanded(
                 child: Text(
@@ -38,7 +40,7 @@ class MochiNewConvTopBar extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w700,
-                    color: MochiDmStyles.topBarText,
+                    color: colors.appBarForeground,
                   ),
                 ),
               ),
@@ -48,10 +50,10 @@ class MochiNewConvTopBar extends StatelessWidget {
           MochiDmSearchInput(
             onChanged: onSearchChanged,
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-            fillColor: Colors.white,
-            hintColor: MochiDmStyles.searchHint,
-            iconColor: MochiDmStyles.searchIcon,
-            focusedBorderColor: MochiDmStyles.primaryGreenSoft,
+            fillColor: colors.authGoogleButton,
+            hintColor: colors.textSecondary,
+            iconColor: colors.accent,
+            focusedBorderColor: colors.inputBorder,
             borderRadius: 16,
             hintText: context.l10n.searchFriends,
             dense: true,

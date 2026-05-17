@@ -14,6 +14,11 @@ abstract class PostRepository {
   Future<Either<Failure, void>> create(CreatePostParams params);
   Future<Either<Failure, void>> update(UpdatePostParams params);
   Future<Either<Failure, void>> delete(DeletePostParams params);
+  Future<Either<Failure, void>> reportPost({
+    required String postId,
+    required String reason,
+    required String description,
+  });
   Future<Either<Failure, List<PostMediaEntity>>> uploadMedia(
     List<PostMediaUploadFile> files,
   );

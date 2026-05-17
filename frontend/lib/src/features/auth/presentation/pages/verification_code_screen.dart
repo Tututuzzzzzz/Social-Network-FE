@@ -5,6 +5,8 @@ import 'package:frontend/src/core/l10n/l10n.dart';
 import 'package:frontend/src/routes/app_route_path.dart';
 import 'package:frontend/src/widgets/custom_button.dart';
 
+import '../widgets/auth_theme.dart';
+
 class VerificationCodeScreen extends StatefulWidget {
   final String email;
   const VerificationCodeScreen({super.key, required this.email});
@@ -53,14 +55,15 @@ class _VerificationCodeScreenState extends State<VerificationCodeScreen> {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final maskedEmail = _maskEmail(widget.email);
+    final authColors = AuthTheme.colorsOf(context);
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: authColors.authBackground,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.chevron_left, color: Colors.black, size: 32),
+        leading: AuthTheme.backButton(
+          context,
           onPressed: () => context.pop(),
         ),
       ),
@@ -73,20 +76,13 @@ class _VerificationCodeScreenState extends State<VerificationCodeScreen> {
               40.hS,
               Text(
                 l10n.otpEnterCodeTitle,
-                style: const TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
-                ),
+                style: AuthTheme.titleStyle(context),
                 textAlign: TextAlign.center,
               ),
               16.hS,
               Text(
                 l10n.otpDescription(maskedEmail),
-                style: const TextStyle(
-                  fontSize: 14,
-                  color: Colors.black54,
-                ),
+                style: AuthTheme.bodyStyle(context),
                 textAlign: TextAlign.center,
               ),
               32.hS,
@@ -95,29 +91,27 @@ class _VerificationCodeScreenState extends State<VerificationCodeScreen> {
                 keyboardType: TextInputType.number,
                 maxLength: 6,
                 textAlign: TextAlign.center,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
                   letterSpacing: 8,
+                  color: authColors.authInputText,
                 ),
-                decoration: InputDecoration(
-                  hintText: '000000',
-                  counterText: '',
-                  filled: true,
-                  fillColor: const Color(0xFFF5F5F5),
+                decoration: AuthTheme.inputDecoration(
+                  context,
+                  '000000',
+                  radius: 15,
                   contentPadding: const EdgeInsets.symmetric(
                     vertical: 16,
                   ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(15),
-                    borderSide: BorderSide.none,
-                  ),
-                ),
+                ).copyWith(counterText: ''),
               ),
               24.hS,
               CustomButton(
                 label: l10n.next,
-                color: _isValid ? const Color(0xFF3CC18E) : const Color(0xFFB7BBC1),
+                color: _isValid
+                    ? authColors.authPrimaryAction
+                    : authColors.authDisabledAction,
                 onPressed: () {
                   if (_isValid) {
                     context.push(AppRoutes.resetPassword.path);
@@ -130,7 +124,7 @@ class _VerificationCodeScreenState extends State<VerificationCodeScreen> {
                 children: [
                   Text(
                     l10n.didNotReceiveCode,
-                    style: const TextStyle(color: Colors.black54),
+                    style: TextStyle(color: authColors.authBody),
                   ),
                   TextButton(
                     onPressed: () {
@@ -138,10 +132,7 @@ class _VerificationCodeScreenState extends State<VerificationCodeScreen> {
                     },
                     child: Text(
                       l10n.resendCode,
-                      style: const TextStyle(
-                        color: Color(0xFF3797EF),
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style: AuthTheme.linkStyle(context),
                     ),
                   ),
                 ],
