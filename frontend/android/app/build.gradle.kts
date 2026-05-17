@@ -32,7 +32,7 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
-        // 👇 Đã sửa lại cú pháp cho chuẩn Kotlin DSL
+      
         isCoreLibraryDesugaringEnabled = true
     }
 
