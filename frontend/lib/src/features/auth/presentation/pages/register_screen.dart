@@ -8,9 +8,11 @@ import 'package:frontend/src/core/l10n/l10n.dart';
 import 'package:frontend/src/routes/app_route_path.dart';
 import 'package:frontend/src/widgets/custom_button.dart';
 import 'package:frontend/src/widgets/snackbar_widget.dart';
+import 'package:frontend/src/core/testing/test_keys.dart';
 
 import '../bloc/auth/auth_bloc.dart';
 import '../bloc/auth_register_form/auth_register_form_bloc.dart';
+import '../widgets/auth_theme.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -39,16 +41,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
     super.dispose();
   }
 
-  InputDecoration _inputDecoration(String hint) => InputDecoration(
-    hintText: hint,
-    filled: true,
-    fillColor: const Color(0xFFF5F5F5),
-    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-    border: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(30),
-      borderSide: BorderSide.none,
-    ),
-  );
+  InputDecoration _inputDecoration(BuildContext context, String hint) {
+    return AuthTheme.inputDecoration(context, hint);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -82,14 +77,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
         child: Builder(
           builder: (context) {
             final l10n = context.l10n;
+            final authColors = AuthTheme.colorsOf(context);
 
             return Scaffold(
-              backgroundColor: Colors.white,
+              backgroundColor: authColors.authBackground,
               appBar: AppBar(
                 backgroundColor: Colors.transparent,
                 elevation: 0,
-                leading: IconButton(
-                  icon: const Icon(Icons.chevron_left, color: Colors.black, size: 32),
+                leading: AuthTheme.backButton(
+                  context,
                   onPressed: () => Navigator.of(context).pop(),
                 ),
               ),
@@ -104,7 +100,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     children: [
                       8.hS,
                       Image.asset(
-                        'assets/images/logo.jpg',
+                        AuthTheme.logoAssetOf(context),
                         height: 120,
                         width: 220,
                       ),
@@ -113,31 +109,51 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         children: [
                           Expanded(
                             child: TextField(
+                              key: TestKeys.registerFirstNameField,
                               controller: _firstNameController,
-                              decoration: _inputDecoration(l10n.firstNameHint),
+                              decoration: _inputDecoration(
+                                context,
+                                l10n.firstNameHint,
+                              ),
+                              style: TextStyle(
+                                color: authColors.authInputText,
+                              ),
                             ),
                           ),
                           10.wS,
                           Expanded(
                             child: TextField(
+                              key: TestKeys.registerLastNameField,
                               controller: _lastNameController,
-                              decoration: _inputDecoration(l10n.lastNameHint),
+                              decoration: _inputDecoration(
+                                context,
+                                l10n.lastNameHint,
+                              ),
+                              style: TextStyle(
+                                color: authColors.authInputText,
+                              ),
                             ),
                           ),
                         ],
                       ),
                       10.hS,
                       TextField(
+                        key: TestKeys.registerUsernameField,
                         controller: _usernameController,
                         onChanged: (value) {
                           context.read<AuthRegisterFormBloc>().add(
                             RegisterFormUsernameChangedEvent(value.trim()),
                           );
                         },
-                        decoration: _inputDecoration(l10n.usernameHint),
+                        decoration: _inputDecoration(
+                          context,
+                          l10n.usernameHint,
+                        ),
+                        style: TextStyle(color: authColors.authInputText),
                       ),
                       10.hS,
                       TextField(
+                        key: TestKeys.registerEmailField,
                         controller: _emailController,
                         keyboardType: TextInputType.emailAddress,
                         onChanged: (value) {
@@ -145,10 +161,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             RegisterFormEmailChangedEvent(value.trim()),
                           );
                         },
-                        decoration: _inputDecoration(l10n.enterEmailHint),
+                        decoration: _inputDecoration(
+                          context,
+                          l10n.enterEmailHint,
+                        ),
+                        style: TextStyle(color: authColors.authInputText),
                       ),
                       10.hS,
                       TextField(
+                        key: TestKeys.registerPasswordField,
                         controller: _passwordController,
                         obscureText: _obscurePassword,
                         onChanged: (value) {
@@ -156,7 +177,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             RegisterFormPasswordChangedEvent(value),
                           );
                         },
-                        decoration: _inputDecoration(l10n.loginPasswordHint)
+                        decoration: _inputDecoration(
+                          context,
+                          l10n.loginPasswordHint,
+                        )
                             .copyWith(
                               suffixIcon: IconButton(
                                 icon: Icon(
@@ -167,12 +191,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 onPressed: () => setState(
                                   () => _obscurePassword = !_obscurePassword,
                                 ),
-                                color: Colors.black,
+                                color: authColors.authIcon,
                               ),
                             ),
+                        style: TextStyle(color: authColors.authInputText),
                       ),
                       10.hS,
                       TextField(
+                        key: TestKeys.registerConfirmField,
                         controller: _confirmController,
                         obscureText: _obscurePassword,
                         onChanged: (value) {
@@ -180,7 +206,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             RegisterFormConfirmPasswordChangedEvent(value),
                           );
                         },
-                        decoration: _inputDecoration(l10n.reenterPasswordHint)
+                        decoration: _inputDecoration(
+                          context,
+                          l10n.reenterPasswordHint,
+                        )
                             .copyWith(
                               suffixIcon: IconButton(
                                 icon: Icon(
@@ -191,9 +220,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 onPressed: () => setState(
                                   () => _obscurePassword = !_obscurePassword,
                                 ),
-                                color: Colors.black,
+                                color: authColors.authIcon,
                               ),
                             ),
+                        style: TextStyle(color: authColors.authInputText),
                       ),
                       18.hS,
                       BlocBuilder<AuthRegisterFormBloc, RegisterFormState>(
@@ -204,10 +234,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               _lastNameController.text.trim().isNotEmpty;
 
                           return CustomButton(
+                            key: TestKeys.registerSubmitButton,
                             label: l10n.register,
                             color: isValid
-                                ? const Color(0xFF3CC18E)
-                                : const Color(0xFFB7BBC1),
+                                ? authColors.authPrimaryAction
+                                : authColors.authDisabledAction,
                             onPressed: () {
                               if (!isValid) {
                                 appSnackBar(
@@ -236,7 +267,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       Center(
                         child: Text(
                           l10n.orText,
-                          style: const TextStyle(color: Colors.grey),
+                          style: TextStyle(color: authColors.authBody),
                         ),
                       ),
                       12.hS,
@@ -251,19 +282,21 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           padding: const EdgeInsets.symmetric(vertical: 12),
                           child: Text(
                             l10n.loginWithGoogle,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
-                              color: Colors.black,
+                              color: authColors.authTitle,
                             ),
                           ),
                         ),
                         style: OutlinedButton.styleFrom(
-                          side: BorderSide(color: Colors.grey.shade300),
+                          side: BorderSide(
+                            color: authColors.authGoogleBorder,
+                          ),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(30),
                           ),
-                          backgroundColor: Colors.white,
+                          backgroundColor: authColors.authGoogleButton,
                         ),
                       ),
                       18.hS,
@@ -273,14 +306,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           child: RichText(
                             text: TextSpan(
                               text: '${l10n.haveAccountQuestion} ',
-                              style: const TextStyle(color: Colors.black54),
+                              style: TextStyle(color: authColors.authBody),
                               children: [
                                 TextSpan(
                                   text: l10n.login,
-                                  style: const TextStyle(
-                                    color: Color(0xFF3797EF),
-                                    fontWeight: FontWeight.w600,
-                                  ),
+                                  style: AuthTheme.linkStyle(context),
                                 ),
                               ],
                             ),

@@ -153,6 +153,34 @@ class PostRepositoryImpl implements PostRepository {
   }
 
   @override
+  Future<Either<Failure, void>> reportPost({
+    required String postId,
+    required String reason,
+    required String description,
+  }) async {
+    if (postId.trim().isEmpty || reason.trim().isEmpty) {
+      return Left(EmptyFailure());
+    }
+
+    if (!await _networkInfo.checkIsConnected) {
+      return Left(CacheFailure());
+    }
+
+    try {
+      final result = await _postRemoteDatasource.reportPost(
+        postId,
+        ReportPostModel(
+          reason: reason.trim(),
+          description: description.trim(),
+        ),
+      );
+      return Right(result);
+    } on ServerException {
+      return Left(ServerFailure());
+    }
+  }
+
+  @override
   Future<Either<Failure, List<PostMediaEntity>>> uploadMedia(
     List<PostMediaUploadFile> files,
   ) async {

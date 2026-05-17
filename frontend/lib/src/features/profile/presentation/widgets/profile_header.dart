@@ -83,12 +83,6 @@ class ProfileHeader extends StatelessWidget {
                                         ),
                                   ),
                                 ),
-                                const SizedBox(width: 5),
-                                const Icon(
-                                  Icons.verified_rounded,
-                                  color: Color(0xFFF5B848),
-                                  size: 18,
-                                ),
                               ],
                             ),
                             if (username.isNotEmpty) ...[

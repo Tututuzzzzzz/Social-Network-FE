@@ -13,6 +13,12 @@ void initAdminDependency() {
       () => GetAdminDashboardUseCase(injector()),
     )
     ..registerFactory<AdminDashboardCubit>(
-      () => AdminDashboardCubit(injector(), injector(), injector()),
+      () => AdminDashboardCubit(
+        injector(),
+        injector(),
+        injector(),
+        injector(),
+        injector(),
+      ),
     );
 }

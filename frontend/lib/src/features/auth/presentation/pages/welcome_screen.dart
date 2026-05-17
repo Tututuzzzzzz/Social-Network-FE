@@ -8,6 +8,7 @@ import 'package:frontend/src/configs/injector/injector_conf.dart';
 import 'package:frontend/src/core/cache/secure_local_storage.dart';
 import 'package:frontend/src/routes/app_route_path.dart';
 import 'package:frontend/src/widgets/custom_button.dart';
+import 'package:frontend/src/core/testing/test_keys.dart';
 
 class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key});
@@ -125,6 +126,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
 
                 // Buttons
                 CustomButton(
+                  key: TestKeys.welcomeLoginButton,
                   label: l10n.login,
                   color: const Color(0xFF3CC18E),
                   onPressed: () => context.push(AppRoutes.login.path),
@@ -133,6 +135,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                 12.hS,
 
                 CustomButton(
+                  key: TestKeys.welcomeRegisterButton,
                   label: l10n.register,
                   color: const Color(0xFF3CC18E),
                   onPressed: () => context.push(AppRoutes.register.path),

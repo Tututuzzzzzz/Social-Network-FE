@@ -1,6 +1,35 @@
+# Environment files
 .env
-node_modules
-dist
+.env.*
+!.env.example
+!.env.*.example
+
+# Local tool configuration
+.mcpservers.json
+
+# Firebase / Google Cloud server-side secrets
+**/*serviceAccount*.json
+**/firebase-adminsdk*.json
+**/*adminsdk*.json
+**/*service-account*.json
+
+# Apple push notification keys and certificates
+**/AuthKey_*.p8
+**/*.p8
+**/*.pem
+**/*.key
+**/*.p12
+**/*.pfx
+**/*.mobileprovision
+**/*.provisionprofile
+
+# Android signing keys
+**/key.properties
+**/*.keystore
+**/*.jks
+
+node_modules/
+dist/
 
 # Miscellaneous
 *.class
@@ -34,8 +63,8 @@ migrate_working_dir/
 .flutter-plugins-dependencies
 .pub-cache/
 .pub/
-/build/
-/coverage/
+build/
+coverage/
 
 # Symbolication related
 app.*.symbols
@@ -44,6 +73,10 @@ app.*.symbols
 app.*.map.json
 
 # Android Studio will place build artifacts here
-/android/app/debug
-/android/app/profile
-/android/app/release
+**/android/app/debug
+**/android/app/profile
+**/android/app/release
+
+# Generated prototype mapping artifacts
+**/prototype-*.json
+**/prototype-*.txt

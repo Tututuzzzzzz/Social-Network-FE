@@ -3,11 +3,11 @@ import 'package:frontend/src/core/l10n/l10n.dart';
 
 import '../../../../configs/injector/injector_conf.dart';
 import '../../../../core/api/api_helper.dart';
+import '../../../../core/theme/app_colors.dart';
 import '../../../friend/presentation/pages/friend_picker_bottom_sheet.dart';
 import '../../domain/entities/chat_entity.dart';
 import '../../domain/usecases/create_direct_conversation_usecase.dart';
 import '../../domain/usecases/usecase_params.dart';
-import '../widgets/mochi_dm_styles.dart';
 import '../widgets/mochi_group_creator_sheet.dart';
 import '../widgets/mochi_new_conv_friend_tile.dart';
 import '../widgets/mochi_new_conv_group_row.dart';
@@ -85,10 +85,11 @@ class _MochiNewConversationPageState extends State<MochiNewConversationPage> {
   // ── Open group creator sheet ──────────────────────────────────────────────
 
   Future<void> _openGroupCreator() async {
+    final colors = AppColors.of(context);
     final result = await showModalBottomSheet<ChatEntity>(
       context: context,
       isScrollControlled: true,
-      backgroundColor: MochiDmStyles.pageBackground,
+      backgroundColor: colors.sheetSurface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -125,8 +126,10 @@ class _MochiNewConversationPageState extends State<MochiNewConversationPage> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = AppColors.of(context);
+
     return Scaffold(
-      backgroundColor: MochiDmStyles.pageBackground,
+      backgroundColor: colors.scaffold,
       body: SafeArea(
         child: Column(
           children: [
@@ -158,11 +161,15 @@ class _MochiNewConversationPageState extends State<MochiNewConversationPage> {
 
                   return ListView.separated(
                     itemCount: friends.length,
-                    separatorBuilder: (_, _) => const Divider(height: 1),
+                    separatorBuilder: (_, _) => Divider(
+                      height: 1,
+                      color: colors.subtleBorder,
+                    ),
                     itemBuilder: (context, index) {
                       final friend = friends[index];
                       return MochiNewConvFriendTile(
                         friend: friend,
+                        index: index,
                         onTap: () => _createConversationAndClose(friend),
                       );
                     },

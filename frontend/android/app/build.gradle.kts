@@ -3,6 +3,9 @@ import java.io.FileInputStream
 
 plugins {
     id("com.android.application")
+    // START: FlutterFire Configuration
+    id("com.google.gms.google-services")
+    // END: FlutterFire Configuration
     id("kotlin-android")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
@@ -14,6 +17,12 @@ val keystorePropertiesFile = rootProject.file("key.properties")
 if (keystorePropertiesFile.exists()) {
     keystoreProperties.load(FileInputStream(keystorePropertiesFile))
 }
+val hasReleaseKeystore = keystorePropertiesFile.exists() && listOf(
+    "keyAlias",
+    "keyPassword",
+    "storeFile",
+    "storePassword"
+).all { !keystoreProperties.getProperty(it).isNullOrBlank() }
 
 android {
     namespace = "com.example.frontend"
@@ -23,19 +32,25 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
+        // 👇 Đã sửa lại cú pháp cho chuẩn Kotlin DSL
+        isCoreLibraryDesugaringEnabled = true
     }
 
-    kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_17.toString()
+    kotlin {
+        compilerOptions {
+            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
+        }
     }
 
     // ─── Cấu hình Signing ────────────────────────────────────────────────────
     signingConfigs {
-        create("release") {
-            keyAlias     = keystoreProperties["keyAlias"]     as String
-            keyPassword  = keystoreProperties["keyPassword"]  as String
-            storeFile    = keystoreProperties["storeFile"]?.let { rootProject.file(it) }
-            storePassword = keystoreProperties["storePassword"] as String
+        if (hasReleaseKeystore) {
+            create("release") {
+                keyAlias      = keystoreProperties.getProperty("keyAlias")
+                keyPassword   = keystoreProperties.getProperty("keyPassword")
+                storeFile     = rootProject.file(keystoreProperties.getProperty("storeFile"))
+                storePassword = keystoreProperties.getProperty("storePassword")
+            }
         }
     }
 
@@ -50,7 +65,12 @@ android {
     buildTypes {
         release {
             // Dùng release signing key thay vì debug key
-            signingConfig    = signingConfigs.getByName("release")
+            if (hasReleaseKeystore) {
+                signingConfig = signingConfigs.getByName("release")
+            } else {
+                // Fallback cho debug build khi chưa có key.properties
+                signingConfig = signingConfigs.getByName("debug")
+            }
             isMinifyEnabled  = true   // Bật ProGuard/R8 (giảm kích thước)
             isShrinkResources = true  // Loại bỏ tài nguyên không dùng
         }
@@ -63,4 +83,9 @@ android {
 
 flutter {
     source = "../.."
+}
+
+
+dependencies {
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4") 
 }

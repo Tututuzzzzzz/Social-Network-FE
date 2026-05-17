@@ -11,6 +11,7 @@ import '../../domain/entities/profile_entity.dart';
 import '../../domain/usecases/usecase_params.dart';
 import '../bloc/profile/profile_bloc.dart';
 import '../widgets/profile_empty_state.dart';
+import 'package:frontend/src/core/testing/test_keys.dart';
 
 class EditProfilePage extends StatefulWidget {
   const EditProfilePage({super.key, this.userId});
@@ -248,6 +249,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
             padding: const EdgeInsets.fromLTRB(20, 20, 20, 28),
             children: [
               _EditProfileField(
+                fieldKey: TestKeys.editProfileDisplayNameField,
                 controller: _displayNameController,
                 label: context.l10n.displayNameLabel,
                 icon: Icons.badge_outlined,
@@ -261,6 +263,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
               ),
               const SizedBox(height: 14),
               _EditProfileField(
+                fieldKey: TestKeys.editProfileBioField,
                 controller: _bioController,
                 label: context.l10n.bioLabel,
                 icon: Icons.notes_rounded,
@@ -270,6 +273,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
               ),
               const SizedBox(height: 14),
               _EditProfileField(
+                fieldKey: TestKeys.editProfilePhoneField,
                 controller: _phoneController,
                 label: context.l10n.phoneLabel,
                 icon: Icons.phone_outlined,
@@ -279,6 +283,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
               ),
               const SizedBox(height: 24),
               FilledButton(
+                key: TestKeys.editProfileSaveButton,
                 onPressed: isSubmitting ? null : _submit,
                 style: FilledButton.styleFrom(
                   backgroundColor: colors.accent,
@@ -333,6 +338,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
 class _EditProfileField extends StatelessWidget {
   const _EditProfileField({
+    this.fieldKey,
     required this.controller,
     required this.label,
     required this.icon,
@@ -345,6 +351,7 @@ class _EditProfileField extends StatelessWidget {
   });
 
   final TextEditingController controller;
+  final Key? fieldKey;
   final String label;
   final IconData icon;
   final int minLines;
@@ -358,6 +365,7 @@ class _EditProfileField extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = AppColors.of(context);
     return TextFormField(
+      key: fieldKey,
       controller: controller,
       minLines: minLines,
       maxLines: maxLines,

@@ -6,5 +6,9 @@ abstract class AdminPostRepository {
 
   Future<AdminPostDetail> getPostDetail(String postId);
 
+  Future<void> hidePost(String postId);
+
+  Future<void> restorePost(String postId);
+
   Future<void> deletePost(String postId);
 }

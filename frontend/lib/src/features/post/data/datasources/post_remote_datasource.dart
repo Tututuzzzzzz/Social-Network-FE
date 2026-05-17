@@ -15,6 +15,7 @@ sealed class PostRemoteDatasource {
   Future<void> createPost(CreatePostModel post);
   Future<void> updatePost(UpdatePostModel post);
   Future<void> deletePost(String postId);
+  Future<void> reportPost(String postId, ReportPostModel report);
   Future<List<PostMediaEntity>> uploadMedia(List<PostMediaUploadFile> files);
   Future<PostModel> toggleLike(String postId);
   Future<PostCommentEntity> createComment(
@@ -108,6 +109,21 @@ class PostRemoteDatasourceImpl implements PostRemoteDatasource {
       await _apiHelper.execute(
         method: Method.delete,
         url: ApiConstants.postById(postId),
+      );
+      return;
+    } catch (e, st) {
+      logger.e(e, stackTrace: st);
+      throw ServerException();
+    }
+  }
+
+  @override
+  Future<void> reportPost(String postId, ReportPostModel report) async {
+    try {
+      await _apiHelper.execute(
+        method: Method.post,
+        url: ApiConstants.postReport(postId),
+        data: report.toJson(),
       );
       return;
     } catch (e, st) {

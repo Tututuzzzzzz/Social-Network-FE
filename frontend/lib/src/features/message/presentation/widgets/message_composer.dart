@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/src/core/l10n/l10n.dart';
+import 'package:frontend/src/core/testing/test_keys.dart';
 
 class MessageComposer extends StatelessWidget {
   const MessageComposer({
@@ -11,6 +12,10 @@ class MessageComposer extends StatelessWidget {
     required this.isSending,
     required this.accentColor,
     required this.fillColor,
+    required this.backgroundColor,
+    required this.iconColor,
+    required this.textColor,
+    required this.hintColor,
   });
 
   final TextEditingController controller;
@@ -20,11 +25,15 @@ class MessageComposer extends StatelessWidget {
   final bool isSending;
   final Color accentColor;
   final Color fillColor;
+  final Color backgroundColor;
+  final Color iconColor;
+  final Color textColor;
+  final Color hintColor;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: const Color(0xFFF7F8FA),
+      color: backgroundColor,
       padding: const EdgeInsets.fromLTRB(12, 10, 12, 16),
       child: Row(
         children: [
@@ -32,13 +41,13 @@ class MessageComposer extends StatelessWidget {
             onPressed: isSending ? null : onPickImage,
             icon: const Icon(Icons.image_outlined),
             tooltip: context.l10n.mediaLibrary,
-            color: const Color(0xFF7A7F87),
+            color: iconColor,
           ),
           IconButton(
             onPressed: isSending ? null : onTakePhoto,
             icon: const Icon(Icons.photo_camera_outlined),
             tooltip: context.l10n.cameraLabel,
-            color: const Color(0xFF7A7F87),
+            color: iconColor,
           ),
           Expanded(
             child: Container(
@@ -49,12 +58,15 @@ class MessageComposer extends StatelessWidget {
                 borderRadius: BorderRadius.circular(22),
               ),
               child: TextField(
+                key: TestKeys.messageInputField,
                 controller: controller,
                 textInputAction: TextInputAction.send,
                 onSubmitted: (_) => onSend(),
                 textAlignVertical: TextAlignVertical.center,
+                style: TextStyle(color: textColor),
                 decoration: InputDecoration(
                   hintText: context.l10n.typeMessageHint,
+                  hintStyle: TextStyle(color: hintColor),
                   isDense: true,
                   contentPadding: const EdgeInsets.symmetric(horizontal: 16),
                   border: InputBorder.none,
@@ -65,7 +77,7 @@ class MessageComposer extends StatelessWidget {
           IconButton(
             onPressed: () {},
             icon: const Icon(Icons.emoji_emotions_outlined),
-            color: const Color(0xFF7A7F87),
+            color: iconColor,
           ),
           SizedBox(
             height: 42,
@@ -76,6 +88,7 @@ class MessageComposer extends StatelessWidget {
                 shape: BoxShape.circle,
               ),
               child: IconButton(
+                key: TestKeys.messageSendButton,
                 onPressed: isSending ? null : onSend,
                 icon: isSending
                     ? const SizedBox(

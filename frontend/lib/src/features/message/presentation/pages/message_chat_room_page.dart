@@ -6,6 +6,7 @@ import 'package:image_picker/image_picker.dart';
 
 import '../../../chat/domain/entities/chat_entity.dart';
 import 'package:frontend/src/core/l10n/l10n.dart';
+import '../../../../core/theme/app_colors.dart';
 import '../../../../routes/app_route_path.dart';
 import '../../domain/entities/message_media_upload_file.dart';
 import '../bloc/message_bloc.dart';
@@ -28,10 +29,6 @@ class MessageChatRoomPage extends StatefulWidget {
 
 class _MessageChatRoomPageState extends State<MessageChatRoomPage>
     with MessageChatRoomActions {
-  static const Color _accentGreen = Color(0xFF3CC18E);
-  static const Color _pageBackground = Color(0xFFF7F8FA);
-  static const Color _peerBubble = Color(0xFFF2F4F7);
-  static const Color _composerFill = Color(0xFFF3F4F6);
   static const int _historyPageLimit = 30;
 
   final TextEditingController _composerController = TextEditingController();
@@ -97,6 +94,7 @@ class _MessageChatRoomPageState extends State<MessageChatRoomPage>
         ? currentState
         : _previousChatState;
     final threadAvatarUrl = resolvePeerAvatarUrl(chatState);
+    final colors = AppColors.of(context);
 
     return PopScope<ChatEntity>(
       canPop: false,
@@ -107,11 +105,13 @@ class _MessageChatRoomPageState extends State<MessageChatRoomPage>
         closeWithResult();
       },
       child: Scaffold(
-        backgroundColor: _pageBackground,
+        backgroundColor: colors.scaffold,
         appBar: MessageChatRoomAppBar(
           title: threadName,
           avatarUrl: threadAvatarUrl,
-          accentColor: _accentGreen,
+          accentColor: colors.primary,
+          foregroundColor: colors.appBarForeground,
+          avatarBackgroundColor: colors.sheetSurface,
           onBack: closeWithResult,
           onManage: () {
             context.pushNamed(
@@ -185,8 +185,8 @@ class _MessageChatRoomPageState extends State<MessageChatRoomPage>
                     child: MessageHistoryList(
                       controller: _historyScrollController,
                       messages: chatState.messages,
-                      accentColor: _accentGreen,
-                      peerBubbleColor: _peerBubble,
+                      accentColor: colors.accent,
+                      peerBubbleColor: colors.inputFill,
                       isGroupChat: widget.thread.isGroup,
                       currentUserId: chatState.currentUserId,
                       onReaction: (messageId, emoji, isRemove) {
@@ -222,8 +222,12 @@ class _MessageChatRoomPageState extends State<MessageChatRoomPage>
                     onPickImage: () => onPickMediaPressed(ImageSource.gallery),
                     onTakePhoto: () => onPickMediaPressed(ImageSource.camera),
                     isSending: isSending,
-                    accentColor: _accentGreen,
-                    fillColor: _composerFill,
+                    accentColor: colors.accent,
+                    fillColor: colors.inputFill,
+                    backgroundColor: colors.scaffold,
+                    iconColor: colors.textSecondary,
+                    textColor: colors.textPrimary,
+                    hintColor: colors.textSecondary,
                   ),
                 ],
               ),

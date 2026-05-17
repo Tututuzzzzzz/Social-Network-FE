@@ -5,6 +5,7 @@ import 'package:frontend/src/core/l10n/l10n.dart';
 import 'create_post_actions.dart';
 import 'create_post_media_grid.dart';
 import 'create_post_theme.dart';
+import 'package:frontend/src/core/testing/test_keys.dart';
 
 class CreatePostComposerBody extends StatelessWidget {
   const CreatePostComposerBody({
@@ -53,6 +54,7 @@ class CreatePostComposerBody extends StatelessWidget {
                 children: [
                   const SizedBox(height: 10),
                   TextField(
+                    key: TestKeys.createPostCaptionField,
                     controller: captionController,
                     minLines: 1,
                     maxLines: null,

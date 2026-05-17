@@ -5,6 +5,8 @@ import 'package:frontend/src/core/l10n/l10n.dart';
 import 'package:frontend/src/routes/app_route_path.dart';
 import 'package:frontend/src/widgets/custom_button.dart';
 
+import '../widgets/auth_theme.dart';
+
 class ResetPasswordScreen extends StatefulWidget {
   const ResetPasswordScreen({super.key});
 
@@ -49,14 +51,15 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
+    final authColors = AuthTheme.colorsOf(context);
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: authColors.authBackground,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.chevron_left, color: Colors.black, size: 32),
+        leading: AuthTheme.backButton(
+          context,
           onPressed: () => context.pop(),
         ),
       ),
@@ -69,77 +72,58 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
               40.hS,
               Text(
                 l10n.createNewPasswordTitle,
-                style: const TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
-                ),
+                style: AuthTheme.titleStyle(context),
                 textAlign: TextAlign.center,
               ),
               16.hS,
               Text(
                 l10n.createNewPasswordDescription,
-                style: const TextStyle(
-                  fontSize: 14,
-                  color: Colors.black54,
-                ),
+                style: AuthTheme.bodyStyle(context),
                 textAlign: TextAlign.center,
               ),
               32.hS,
               TextField(
                 controller: _passwordController,
                 obscureText: _obscurePassword,
-                decoration: InputDecoration(
-                  hintText: l10n.loginPasswordHint,
-                  filled: true,
-                  fillColor: const Color(0xFFF5F5F5),
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 12,
-                  ),
+                decoration: AuthTheme.inputDecoration(
+                  context,
+                  l10n.loginPasswordHint,
                   suffixIcon: IconButton(
                     icon: Icon(
                       _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                      color: authColors.authIcon,
                     ),
                     onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
                   ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(30),
-                    borderSide: BorderSide.none,
-                  ),
                 ),
+                style: TextStyle(color: authColors.authInputText),
               ),
               12.hS,
               TextField(
                 controller: _confirmController,
                 obscureText: _obscureConfirmPassword,
-                decoration: InputDecoration(
-                  hintText: l10n.confirmPasswordHint,
-                  filled: true,
-                  fillColor: const Color(0xFFF5F5F5),
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 12,
-                  ),
+                decoration: AuthTheme.inputDecoration(
+                  context,
+                  l10n.confirmPasswordHint,
                   suffixIcon: IconButton(
                     icon: Icon(
                       _obscureConfirmPassword
                           ? Icons.visibility_off
                           : Icons.visibility,
+                      color: authColors.authIcon,
                     ),
                     onPressed: () => setState(
                         () => _obscureConfirmPassword = !_obscureConfirmPassword),
                   ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(30),
-                    borderSide: BorderSide.none,
-                  ),
                 ),
+                style: TextStyle(color: authColors.authInputText),
               ),
               24.hS,
               CustomButton(
                 label: l10n.done,
-                color: _isValid ? const Color(0xFF3CC18E) : const Color(0xFFB7BBC1),
+                color: _isValid
+                    ? authColors.authPrimaryAction
+                    : authColors.authDisabledAction,
                 onPressed: () {
                   if (_isValid) {
                     context.go(AppRoutes.login.path);
