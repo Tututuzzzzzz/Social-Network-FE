@@ -19,6 +19,7 @@ class SocketEvents {
   static const String messageSeen = 'message:seen';
   static const String conversationSeen = 'conversation:seen';
   static const String notificationNew = 'notification:new';
+  static const String postEngagement = 'post:engagement';
   static const String userOnline = 'user:online';
   static const String userOffline = 'user:offline';
 }
@@ -59,6 +60,8 @@ class RealtimeSocketService {
       StreamController<Map<String, dynamic>>.broadcast();
   final _notificationNewController =
       StreamController<Map<String, dynamic>>.broadcast();
+  final _postEngagementController =
+      StreamController<Map<String, dynamic>>.broadcast();
   final _userOnlineController =
       StreamController<Map<String, dynamic>>.broadcast();
   final _userOfflineController =
@@ -88,6 +91,10 @@ class RealtimeSocketService {
   /// Stream khi có notification mới.
   Stream<Map<String, dynamic>> get notificationNewStream =>
       _notificationNewController.stream;
+
+  /// Stream khi có like/comment realtime.
+  Stream<Map<String, dynamic>> get postEngagementStream =>
+      _postEngagementController.stream;
 
   /// Stream khi bạn bè online.
   Stream<Map<String, dynamic>> get userOnlineStream =>
@@ -177,6 +184,7 @@ class RealtimeSocketService {
     _messageSeenController.close();
     _conversationSeenController.close();
     _notificationNewController.close();
+    _postEngagementController.close();
     _userOnlineController.close();
     _userOfflineController.close();
     _connectionStateController.close();
@@ -294,6 +302,10 @@ class RealtimeSocketService {
 
     _socket?.on(SocketEvents.notificationNew, (payload) {
       _safeAddMap(_notificationNewController, payload);
+    });
+
+    _socket?.on(SocketEvents.postEngagement, (payload) {
+      _safeAddMap(_postEngagementController, payload);
     });
 
     _socket?.on(SocketEvents.userOnline, (payload) {

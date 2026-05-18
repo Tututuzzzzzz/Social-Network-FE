@@ -7,6 +7,7 @@ import '../../../../configs/injector/injector_conf.dart';
 import 'package:frontend/src/core/l10n/l10n.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/failure_converter.dart';
+import '../../../chat/domain/entities/chat_entity.dart';
 import '../../../post/domain/entities/post_entity.dart';
 import '../../../post/domain/usecases/get_post_by_id_usecase.dart';
 import '../../../post/presentation/bloc/post/post_bloc.dart';
@@ -46,7 +47,16 @@ class _NotificationScreenState extends State<NotificationScreen> {
   bool _isFriendRequest(NotificationEntity item) =>
       item.type.toUpperCase() == 'FRIEND_REQUEST';
 
-  bool _isPostNotification(NotificationEntity item) => !_isFriendRequest(item);
+  bool _isMessageNotification(NotificationEntity item) =>
+      item.type.toUpperCase() == 'MESSAGE_NEW';
+
+  bool _isPostNotification(NotificationEntity item) =>
+      !_isFriendRequest(item) && !_isMessageNotification(item);
+
+  bool _isGroupMessage(NotificationEntity item) {
+    final title = item.title.toLowerCase();
+    return title.contains('nhom');
+  }
 
   String _resolvePostId(NotificationEntity item) {
     final entityId = item.entityId?.trim() ?? '';
@@ -62,6 +72,14 @@ class _NotificationScreenState extends State<NotificationScreen> {
 
     // Current backend groups all non-friend notifications under post updates.
     return entityId;
+  }
+
+  String _resolveConversationId(NotificationEntity item) {
+    if (!_isMessageNotification(item)) {
+      return '';
+    }
+
+    return item.entityId?.trim() ?? '';
   }
 
   void _markAsReadIfNeeded(NotificationEntity item) {
@@ -101,8 +119,41 @@ class _NotificationScreenState extends State<NotificationScreen> {
     return null;
   }
 
+  Future<void> _openMessageNotification(NotificationEntity item) async {
+    _markAsReadIfNeeded(item);
+
+    final conversationId = _resolveConversationId(item);
+    if (conversationId.isEmpty) {
+      _openActorProfile(item);
+      return;
+    }
+
+    final thread = ChatEntity(
+      id: conversationId,
+      senderName: item.actorName.trim().isEmpty
+          ? context.l10n.conversationTitle
+          : item.actorName,
+      messagePreview: item.body,
+      avatarUrl: item.actorAvatarUrl,
+      isGroup: _isGroupMessage(item),
+    );
+
+    if (!mounted) return;
+
+    context.pushNamed(
+      AppRoutes.chatMochiChatRoom.name,
+      pathParameters: {'threadId': conversationId},
+      extra: thread,
+    );
+  }
+
   Future<void> _openPostNotification(NotificationEntity item) async {
     if (_openingPostNotificationId != null) return;
+
+    if (_isMessageNotification(item)) {
+      await _openMessageNotification(item);
+      return;
+    }
 
     _markAsReadIfNeeded(item);
 
@@ -176,7 +227,10 @@ class _NotificationScreenState extends State<NotificationScreen> {
         final l10n = context.l10n;
         final colors = AppColors.of(context);
         final postNotifications = state.items
-            .where(_isPostNotification)
+            .where(
+              (item) =>
+                  _isPostNotification(item) || _isMessageNotification(item),
+            )
             .toList();
         final friendRequestNotifications = state.items
             .where(_isFriendRequest)
