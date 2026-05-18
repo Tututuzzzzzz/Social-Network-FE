@@ -9,6 +9,18 @@ mixin MessageChatRoomActions on State<MessageChatRoomPage> {
   int get historyPageLimit;
   MessageChatRoomState? get previousChatState;
   set previousChatState(MessageChatRoomState? value);
+  bool get showScrollToLatestButton;
+  set showScrollToLatestButton(bool value);
+
+  bool get isNearLatestMessage {
+    if (!historyScrollController.hasClients) {
+      return true;
+    }
+
+    final position = historyScrollController.position;
+    final distanceToLatest = position.maxScrollExtent - position.pixels;
+    return distanceToLatest <= 96;
+  }
 
   void onHistoryScroll() {
     if (!historyScrollController.hasClients) {
@@ -18,6 +30,33 @@ mixin MessageChatRoomActions on State<MessageChatRoomPage> {
     if (historyScrollController.position.pixels <= 80) {
       _maybeLoadOlderHistory();
     }
+
+    updateScrollToLatestButtonVisibility();
+  }
+
+  void updateScrollToLatestButtonVisibility() {
+    if (!historyScrollController.hasClients || !mounted) {
+      return;
+    }
+
+    final shouldShow = !isNearLatestMessage;
+    if (showScrollToLatestButton == shouldShow) {
+      return;
+    }
+
+    setState(() {
+      showScrollToLatestButton = shouldShow;
+    });
+  }
+
+  void hideScrollToLatestButton() {
+    if (!mounted || !showScrollToLatestButton) {
+      return;
+    }
+
+    setState(() {
+      showScrollToLatestButton = false;
+    });
   }
 
   void _maybeLoadOlderHistory() {
@@ -76,6 +115,23 @@ mixin MessageChatRoomActions on State<MessageChatRoomPage> {
 
       final maxScrollExtent = historyScrollController.position.maxScrollExtent;
       historyScrollController.jumpTo(maxScrollExtent);
+      hideScrollToLatestButton();
+    });
+  }
+
+  void animateToLatestMessage() {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!historyScrollController.hasClients) {
+        return;
+      }
+
+      final maxScrollExtent = historyScrollController.position.maxScrollExtent;
+      await historyScrollController.animateTo(
+        maxScrollExtent,
+        duration: const Duration(milliseconds: 260),
+        curve: Curves.easeOutCubic,
+      );
+      hideScrollToLatestButton();
     });
   }
 

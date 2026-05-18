@@ -207,16 +207,6 @@ class PostCard extends StatelessWidget {
                         fontWeight: FontWeight.w700,
                       ),
                     ),
-                    if (showShareStat) ...[
-                      const Spacer(),
-                      Text(
-                        context.l10n.sharesCount('1'), // Placeholder for now
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          color: colors.textPrimary,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                    ],
                   ],
                 ),
                 const SizedBox(height: 10),
@@ -242,12 +232,6 @@ class PostCard extends StatelessWidget {
                       label: context.l10n.commentAction,
                       onTap: onComment,
                     ),
-                    if (showShareAction)
-                      _BottomAction(
-                        icon: Icons.send,
-                        label: context.l10n.shareAction,
-                        onTap: onShare,
-                      ),
                   ],
                 ),
               ],
