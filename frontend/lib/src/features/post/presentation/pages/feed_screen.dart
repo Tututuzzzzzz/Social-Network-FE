@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/services.dart';
@@ -5,6 +7,9 @@ import 'package:go_router/go_router.dart';
 import '../../../../configs/injector/injector_conf.dart';
 import 'package:frontend/src/core/l10n/l10n.dart';
 import 'package:frontend/src/core/theme/app_colors.dart';
+import 'package:frontend/src/core/realtime/realtime_socket_service.dart';
+import 'package:frontend/src/features/chat/domain/usecases/fetch_chat_items_usecase.dart';
+import 'package:frontend/src/features/chat/domain/usecases/usecase_params.dart';
 import '../../../../core/cache/secure_local_storage.dart';
 import '../../../../core/utils/failure_converter.dart';
 import '../../../friend/data/repositories/friend_repository_impl.dart';
@@ -33,6 +38,8 @@ class _FeedScreenState extends State<FeedScreen> {
   List<PostEntity> _posts = const [];
   final Map<String, int> _commentCountOverrides = <String, int>{};
   String _currentUserId = '';
+  bool _hasUnreadMessages = false;
+  StreamSubscription<Map<String, dynamic>>? _messageNewSubscription;
   final Set<String> _friendIds = <String>{};
   final Set<String> _sendingFriendRequestAuthorIds = <String>{};
   final Set<String> _sentFriendRequestAuthorIds = <String>{};
@@ -44,11 +51,36 @@ class _FeedScreenState extends State<FeedScreen> {
       if (!mounted) return;
       _bootstrapFeed();
     });
+    _bindMessageBadgeListener();
+  }
+
+  void _bindMessageBadgeListener() {
+    final socket = getIt<RealtimeSocketService>();
+    _messageNewSubscription = socket.notificationNewStream.listen((payload) {
+      if (!mounted) return;
+
+      final notificationRaw = payload['notification'];
+      final notification = notificationRaw is Map
+          ? Map<String, dynamic>.from(notificationRaw)
+          : payload;
+
+      final type = notification['type']?.toString().toUpperCase() ?? '';
+      if (type != 'MESSAGE_NEW') {
+        return;
+      }
+
+      if (!_hasUnreadMessages) {
+        setState(() {
+          _hasUnreadMessages = true;
+        });
+      }
+    });
   }
 
   Future<void> _bootstrapFeed() async {
     await _resolveCurrentUserId();
     await _resolveFriendIds();
+    await _syncUnreadChatBadge();
     if (!mounted) return;
 
     final postState = context.read<PostBloc>().state;
@@ -87,6 +119,27 @@ class _FeedScreenState extends State<FeedScreen> {
       });
     } catch (_) {
       // Keep feed usable even if the friend list fails to load.
+    }
+  }
+
+  Future<void> _syncUnreadChatBadge() async {
+    try {
+      final useCase = getIt<FetchChatItemsUseCase>();
+      final result = await useCase(const ChatQueryParams(page: 1));
+      result.fold(
+        (_) {
+          // Ignore unread badge sync errors to keep feed responsive.
+        },
+        (items) {
+          final hasUnread = items.any((item) => item.unreadCount > 0);
+          if (!mounted) return;
+          setState(() {
+            _hasUnreadMessages = hasUnread;
+          });
+        },
+      );
+    } catch (_) {
+      // Keep badge state as-is if chat fetch fails.
     }
   }
 
@@ -133,6 +186,11 @@ class _FeedScreenState extends State<FeedScreen> {
   }
 
   void _openChatScreen() {
+    if (_hasUnreadMessages) {
+      setState(() {
+        _hasUnreadMessages = false;
+      });
+    }
     context.go(AppRoutes.chat.path);
   }
 
@@ -257,6 +315,7 @@ class _FeedScreenState extends State<FeedScreen> {
   @override
   void dispose() {
     _scrollController.dispose();
+    _messageNewSubscription?.cancel();
     super.dispose();
   }
 
@@ -350,14 +409,36 @@ class _FeedScreenState extends State<FeedScreen> {
               const SizedBox(width: 4),
               Padding(
                 padding: const EdgeInsets.only(right: 10),
-                child: IconButton(
-                  key: TestKeys.feedChatButton,
-                  onPressed: _openChatScreen,
-                  icon: Icon(
-                    Icons.wechat_outlined,
-                    color: headerColors.textPrimary,
-                    size: 26,
-                  ),
+                child: Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    IconButton(
+                      key: TestKeys.feedChatButton,
+                      onPressed: _openChatScreen,
+                      icon: Icon(
+                        Icons.wechat_outlined,
+                        color: headerColors.textPrimary,
+                        size: 26,
+                      ),
+                    ),
+                    if (_hasUnreadMessages)
+                      Positioned(
+                        right: 6,
+                        top: 6,
+                        child: Container(
+                          width: 9,
+                          height: 9,
+                          decoration: BoxDecoration(
+                            color: headerColors.badge,
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: headerColors.badgeBorder,
+                              width: 1.5,
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
                 ),
               ),
             ],

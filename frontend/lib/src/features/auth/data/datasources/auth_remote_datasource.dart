@@ -224,7 +224,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
           'platform': platform,
         },
       );
-      logger.i("✅ Đã gửi FCM Token lên Backend thành công!");
+      logger.i("Đã gửi FCM Token lên Backend thành công!");
     } catch (e) {
       logger.e("Lỗi gửi FCM Token: $e");
       throw ServerException();

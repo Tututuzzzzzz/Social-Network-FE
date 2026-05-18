@@ -31,6 +31,7 @@ class AppShellPage extends StatefulWidget {
 class _AppShellPageState extends State<AppShellPage> {
   bool _didLoadNotificationBadge = false;
   StreamSubscription<Map<String, dynamic>>? _notificationSubscription;
+  StreamSubscription<Map<String, dynamic>>? _postEngagementSubscription;
 
   @override
   void initState() {
@@ -45,6 +46,11 @@ class _AppShellPageState extends State<AppShellPage> {
       context.read<NotificationBloc>().add(
         NotificationRealtimeReceived(payload),
       );
+        });
+    _postEngagementSubscription = getIt<RealtimeSocketService>()
+        .postEngagementStream
+        .listen((payload) {
+          if (!mounted) return;
       _syncRealtimePostEngagement(payload);
     });
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -62,33 +68,44 @@ class _AppShellPageState extends State<AppShellPage> {
   @override
   void dispose() {
     _notificationSubscription?.cancel();
+    _postEngagementSubscription?.cancel();
     super.dispose();
   }
 
   void _syncRealtimePostEngagement(Map<String, dynamic> payload) {
-    final type = _readRealtimeText(payload, const ['type']).toUpperCase();
-    final entityType = _readRealtimeText(
-      payload,
-      const ['entityType'],
-    ).toUpperCase();
-    final isLike = type.contains('LIKE') || entityType.contains('LIKE');
-    final isComment =
-        type.contains('COMMENT') || entityType.contains('COMMENT');
+    final normalized = _unwrapNotificationPayload(payload);
+    final type = _readRealtimeText(normalized, const ['type']).toLowerCase();
+    final isLike = type == 'like' || type.contains('like');
+    final isComment = type == 'comment' || type.contains('comment');
 
     if (!isLike && !isComment) return;
 
-    final postId = _resolveRealtimePostId(payload);
+    final postId = _resolveRealtimePostId(normalized);
     if (postId.isEmpty) return;
 
     getIt<PostBloc>().add(
       PostRealtimeEngagementChangedEvent(
         postId: postId,
-        notificationId: _readRealtimeText(payload, const ['_id', 'id']),
-        actorId: _resolveRealtimeActorId(payload),
+        notificationId: _readRealtimeText(normalized, const [
+          'eventId',
+          '_id',
+          'id',
+        ]),
+        actorId: _resolveRealtimeActorId(normalized),
         likeDelta: isLike ? 1 : 0,
         commentDelta: isComment ? 1 : 0,
       ),
     );
+  }
+
+  Map<String, dynamic> _unwrapNotificationPayload(
+    Map<String, dynamic> payload,
+  ) {
+    final notificationRaw = payload['notification'];
+    if (notificationRaw is Map) {
+      return Map<String, dynamic>.from(notificationRaw);
+    }
+    return payload;
   }
 
   String _resolveRealtimePostId(Map<String, dynamic> payload) {
