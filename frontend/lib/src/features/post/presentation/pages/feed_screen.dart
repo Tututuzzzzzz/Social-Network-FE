@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/services.dart';
@@ -6,6 +8,7 @@ import '../../../../configs/injector/injector_conf.dart';
 import 'package:frontend/src/core/l10n/l10n.dart';
 import 'package:frontend/src/core/theme/app_colors.dart';
 import '../../../../core/cache/secure_local_storage.dart';
+import '../../../../core/realtime/realtime_socket_service.dart';
 import '../../../../core/utils/failure_converter.dart';
 import '../../../friend/data/repositories/friend_repository_impl.dart';
 import '../../../friend/domain/usecases/send_friend_request.dart';
@@ -36,6 +39,8 @@ class _FeedScreenState extends State<FeedScreen> {
   final Set<String> _friendIds = <String>{};
   final Set<String> _sendingFriendRequestAuthorIds = <String>{};
   final Set<String> _sentFriendRequestAuthorIds = <String>{};
+  StreamSubscription<Map<String, dynamic>>? _messageNewSubscription;
+  bool _hasUnreadMessage = false;
 
   @override
   void initState() {
@@ -43,6 +48,45 @@ class _FeedScreenState extends State<FeedScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       _bootstrapFeed();
+    });
+    _listenForNewMessages();
+  }
+
+  Future<void> _listenForNewMessages() async {
+    final realtimeSocketService = getIt<RealtimeSocketService>();
+    await realtimeSocketService.ensureConnected();
+    if (!mounted) return;
+
+    final currentUserId = await realtimeSocketService.getCurrentUserId();
+    if (!mounted) return;
+
+    if (currentUserId.trim().isNotEmpty && _currentUserId.isEmpty) {
+      setState(() {
+        _currentUserId = currentUserId.trim();
+      });
+    }
+
+    await _messageNewSubscription?.cancel();
+    _messageNewSubscription = realtimeSocketService.newMessageStream.listen((
+      payload,
+    ) {
+      if (!mounted) {
+        return;
+      }
+
+      final senderId = _extractMessageSenderId(payload);
+      final normalizedCurrentUserId = _currentUserId.trim();
+      if (senderId.isNotEmpty &&
+          normalizedCurrentUserId.isNotEmpty &&
+          senderId == normalizedCurrentUserId) {
+        return;
+      }
+
+      if (!_hasUnreadMessage) {
+        setState(() {
+          _hasUnreadMessage = true;
+        });
+      }
     });
   }
 
@@ -133,7 +177,41 @@ class _FeedScreenState extends State<FeedScreen> {
   }
 
   void _openChatScreen() {
+    if (_hasUnreadMessage) {
+      setState(() {
+        _hasUnreadMessage = false;
+      });
+    }
     context.go(AppRoutes.chat.path);
+  }
+
+  String _extractMessageSenderId(Map<String, dynamic> payload) {
+    final directSenderId = _extractSenderValue(payload['senderId']);
+    if (directSenderId.isNotEmpty) {
+      return directSenderId;
+    }
+
+    final message = payload['message'];
+    if (message is Map) {
+      final messageMap = Map<String, dynamic>.from(message);
+      final senderId = _extractSenderValue(messageMap['senderId']);
+      if (senderId.isNotEmpty) {
+        return senderId;
+      }
+
+      return _extractSenderValue(messageMap['sender']);
+    }
+
+    return '';
+  }
+
+  String _extractSenderValue(dynamic rawSender) {
+    if (rawSender is Map) {
+      final senderMap = Map<String, dynamic>.from(rawSender);
+      return (senderMap['_id'] ?? senderMap['id'] ?? '').toString().trim();
+    }
+
+    return rawSender?.toString().trim() ?? '';
   }
 
   void _openAuthorProfile(PostEntity post) {
@@ -256,6 +334,7 @@ class _FeedScreenState extends State<FeedScreen> {
 
   @override
   void dispose() {
+    _messageNewSubscription?.cancel();
     _scrollController.dispose();
     super.dispose();
   }
@@ -353,10 +432,32 @@ class _FeedScreenState extends State<FeedScreen> {
                 child: IconButton(
                   key: TestKeys.feedChatButton,
                   onPressed: _openChatScreen,
-                  icon: Icon(
-                    Icons.wechat_outlined,
-                    color: headerColors.textPrimary,
-                    size: 26,
+                  icon: Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      Icon(
+                        Icons.wechat_outlined,
+                        color: headerColors.textPrimary,
+                        size: 26,
+                      ),
+                      if (_hasUnreadMessage)
+                        Positioned(
+                          top: -2,
+                          right: -2,
+                          child: Container(
+                            width: 9,
+                            height: 9,
+                            decoration: BoxDecoration(
+                              color: Colors.redAccent,
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: headerColors.appBar,
+                                width: 1.5,
+                              ),
+                            ),
+                          ),
+                        ),
+                    ],
                   ),
                 ),
               ),

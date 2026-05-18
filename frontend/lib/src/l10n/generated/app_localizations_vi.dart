@@ -1231,10 +1231,16 @@ class AppLocalizationsVi extends AppLocalizations {
   String get saveImage => 'Lưu ảnh';
 
   @override
-  String get copyImage => 'Sao chép ảnh';
+  String get shareImage => 'Chia sẻ ảnh';
 
   @override
-  String get shareImage => 'Chia sẻ ảnh';
+  String get savingImage => 'Đang lưu ảnh...';
+
+  @override
+  String get imageSavedToDevice => 'Đã lưu ảnh vào thiết bị';
+
+  @override
+  String get saveImageFailed => 'Không thể lưu ảnh. Vui lòng thử lại.';
 
   @override
   String get addFriendAction => 'Kết bạn';

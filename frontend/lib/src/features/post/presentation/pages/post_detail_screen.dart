@@ -1,9 +1,13 @@
+import 'dart:typed_data';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:dio/dio.dart';
 import 'package:frontend/src/configs/injector/injector_conf.dart';
 import 'package:frontend/src/core/cache/secure_local_storage.dart';
 import 'package:frontend/src/core/l10n/l10n.dart';
@@ -41,6 +45,10 @@ class PostDetailScreen extends StatefulWidget {
 }
 
 class _PostDetailScreenState extends State<PostDetailScreen> {
+  static const MethodChannel _mediaSaverChannel = MethodChannel(
+    'mochi/media_saver',
+  );
+
   late PostEntity _post;
   String _currentUserId = '';
   bool _isFollowing = false;
@@ -201,12 +209,111 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
   }
 
   Future<void> _openImageActionsSheet() {
+    final imageUrls = _resolveImageUrls();
+    final singleImageUrl = imageUrls.length == 1 ? imageUrls.first : '';
+    if (singleImageUrl.isEmpty) {
+      _showFeatureSoon();
+      return Future<void>.value();
+    }
+
+    return _openImageActionsSheetFor(singleImageUrl);
+  }
+
+  Future<void> _openImageActionsSheetFor(String imageUrl) {
     return showPostDetailImageActionsSheet(
       context,
-      onSaveImage: _showFeatureSoon,
-      onCopyImage: _showFeatureSoon,
+      onSaveImage: () => _saveSingleImageToDevice(imageUrl),
       onShareImage: _showFeatureSoon,
     );
+  }
+
+  Future<void> _openSingleImageViewer(String imageUrl) async {
+    await Navigator.of(context).push<void>(
+      MaterialPageRoute(
+        builder: (viewerContext) => _SingleImageFacebookDetail(
+          post: _post,
+          imageUrl: imageUrl,
+          authorName: _resolveAuthorName(_post),
+          timeText: _formatPostTime(_post.createdAt),
+          isLiked: _isLiked,
+          likesCount: _likesCount,
+          commentCount: _commentCount,
+          onClose: () => Navigator.pop(viewerContext),
+          onMore: () => _openImageActionsSheetFor(imageUrl),
+          onLike: _toggleLike,
+          onComment: () => _openCommentsSheet(),
+          onShare: _showFeatureSoon,
+          onAuthorTap: _openAuthorProfile,
+        ),
+      ),
+    );
+  }
+
+  Future<void> _saveSingleImageToDevice(String imageUrl) async {
+    final normalizedUrl = imageUrl.trim();
+    if (normalizedUrl.isEmpty) {
+      _showFeatureSoon();
+      return;
+    }
+
+    final messenger = ScaffoldMessenger.of(context);
+    messenger.showSnackBar(
+      SnackBar(content: Text(context.l10n.savingImage)),
+    );
+
+    try {
+      final bytes = await _downloadImageBytes(normalizedUrl);
+
+      await _mediaSaverChannel.invokeMethod<String>('saveImageToGallery', {
+        'bytes': bytes,
+        'fileName': _buildImageFileName(normalizedUrl),
+        'mimeType': _resolveImageMimeType(normalizedUrl),
+      });
+
+      if (!mounted) return;
+      messenger.showSnackBar(
+        SnackBar(content: Text(context.l10n.imageSavedToDevice)),
+      );
+    } catch (_) {
+      if (!mounted) return;
+      messenger.showSnackBar(
+        SnackBar(content: Text(context.l10n.saveImageFailed)),
+      );
+    }
+  }
+
+  Future<Uint8List> _downloadImageBytes(String imageUrl) async {
+    final response = await Dio().get<List<int>>(
+      imageUrl,
+      options: Options(responseType: ResponseType.bytes),
+    );
+    final bytes = Uint8List.fromList(response.data ?? const <int>[]);
+    if (bytes.isEmpty) {
+      throw StateError('Downloaded image is empty');
+    }
+    return bytes;
+  }
+
+  String _buildImageFileName(String imageUrl) {
+    final uri = Uri.tryParse(imageUrl);
+    final pathName = uri?.pathSegments.isNotEmpty == true
+        ? uri!.pathSegments.last
+        : '';
+    final cleanName = pathName.split('?').first.trim();
+    final safeName = cleanName.replaceAll(RegExp(r'[^a-zA-Z0-9._-]'), '_');
+    if (safeName.contains('.') && safeName.length <= 80) {
+      return safeName;
+    }
+
+    return 'mochi_${DateTime.now().millisecondsSinceEpoch}.jpg';
+  }
+
+  String _resolveImageMimeType(String imageUrl) {
+    final lowerUrl = imageUrl.toLowerCase();
+    if (lowerUrl.contains('.png')) return 'image/png';
+    if (lowerUrl.contains('.webp')) return 'image/webp';
+    if (lowerUrl.contains('.gif')) return 'image/gif';
+    return 'image/jpeg';
   }
 
   Future<void> _openOwnerActionsSheet() async {
@@ -487,7 +594,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
               likesCount: likesCount,
               commentCount: commentCount,
               onClose: () => Navigator.pop(context),
-              onMore: () => _openMoreActions(),
+              onMore: _openMoreActions,
               onLike: _toggleLike,
               onComment: () => _openCommentsSheet(),
               onShare: _showFeatureSoon,
@@ -505,7 +612,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
               likesCount: likesCount,
               commentCount: commentCount,
               onClose: () => Navigator.pop(context),
-              onMore: () => _openMoreActions(),
+              onImageTap: _openSingleImageViewer,
               onFollowTap: () => _onFollowTap(),
               onLike: _toggleLike,
               onComment: () => _openCommentsSheet(),
@@ -623,7 +730,7 @@ class _ScrollableFacebookDetail extends StatelessWidget {
     required this.likesCount,
     required this.commentCount,
     required this.onClose,
-    required this.onMore,
+    required this.onImageTap,
     required this.onFollowTap,
     required this.onLike,
     required this.onComment,
@@ -642,7 +749,7 @@ class _ScrollableFacebookDetail extends StatelessWidget {
   final int likesCount;
   final int commentCount;
   final VoidCallback onClose;
-  final VoidCallback onMore;
+  final ValueChanged<String> onImageTap;
   final VoidCallback onFollowTap;
   final VoidCallback onLike;
   final VoidCallback onComment;
@@ -678,12 +785,6 @@ class _ScrollableFacebookDetail extends StatelessWidget {
             fontWeight: FontWeight.w800,
           ),
         ),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.more_horiz, color: colors.postDetailText),
-            onPressed: onMore,
-          ),
-        ],
       ),
       body: ListView(
         padding: EdgeInsets.zero,
@@ -732,10 +833,14 @@ class _ScrollableFacebookDetail extends StatelessWidget {
           ),
           for (final imageUrl in imageUrls) ...[
             Container(height: 8, color: colors.postDetailDivider),
-            _FacebookImage(
-              imageUrl: imageUrl,
-              fit: BoxFit.contain,
-              backgroundColor: colors.mediaBackground,
+            GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: () => onImageTap(imageUrl),
+              child: _FacebookImage(
+                imageUrl: imageUrl,
+                fit: BoxFit.contain,
+                backgroundColor: colors.mediaBackground,
+              ),
             ),
           ],
         ],
@@ -1080,12 +1185,6 @@ class _FacebookActionBar extends StatelessWidget {
           onTap: onComment,
         ),
         const SizedBox(width: 22),
-        _ActionMetric(
-          icon: Icons.reply_rounded,
-          text: shareCount > 0 ? _formatCount(shareCount) : '',
-          color: color,
-          onTap: onShare,
-        ),
       ],
     );
   }
