@@ -44,7 +44,6 @@ class _FeedScreenState extends State<FeedScreen> {
   final Set<String> _friendIds = <String>{};
   final Set<String> _sendingFriendRequestAuthorIds = <String>{};
   final Set<String> _sentFriendRequestAuthorIds = <String>{};
-  StreamSubscription<Map<String, dynamic>>? _messageNewSubscription;
   bool _hasUnreadMessage = false;
 
   @override
