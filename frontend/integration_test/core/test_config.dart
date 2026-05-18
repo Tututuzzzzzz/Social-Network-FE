@@ -21,7 +21,7 @@ class TestConfig {
 
   /// Khởi động ứng dụng trong môi trường test
   static Future<void> pumpApp(WidgetTester tester) async {
-    app.main();
+    await app.main();
     await tester.pumpAndSettle(const Duration(seconds: 5));
   }
 
