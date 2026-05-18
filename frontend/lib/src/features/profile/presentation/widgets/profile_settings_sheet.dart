@@ -65,6 +65,7 @@ Future<ProfileSettingsAction?> showProfileSettingsSheet(BuildContext context) {
                 BlocBuilder<LanguageBloc, LanguageState>(
                   builder: (context, _) {
                     return _ProfileSettingsTile(
+                      key: TestKeys.profileEditAction,
                       icon: Icons.person_outline_rounded,
                       label: context.l10n.editProfileTitle,
                       onTap: () => Navigator.pop(
@@ -119,6 +120,7 @@ Future<ProfileSettingsAction?> showProfileSettingsSheet(BuildContext context) {
                 BlocBuilder<LanguageBloc, LanguageState>(
                   builder: (context, _) {
                     return _ProfileSettingsTile(
+                      key: TestKeys.profileLogoutAction,
                       icon: Icons.logout_rounded,
                       label: context.l10n.logoutAction,
                       labelColor: const Color(0xFFE53935),
