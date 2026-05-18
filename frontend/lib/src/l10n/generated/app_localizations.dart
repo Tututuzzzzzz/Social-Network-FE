@@ -2378,17 +2378,29 @@ abstract class AppLocalizations {
   /// **'Save image'**
   String get saveImage;
 
-  /// No description provided for @copyImage.
-  ///
-  /// In en, this message translates to:
-  /// **'Copy image'**
-  String get copyImage;
-
   /// No description provided for @shareImage.
   ///
   /// In en, this message translates to:
   /// **'Share image'**
   String get shareImage;
+
+  /// No description provided for @savingImage.
+  ///
+  /// In en, this message translates to:
+  /// **'Saving image...'**
+  String get savingImage;
+
+  /// No description provided for @imageSavedToDevice.
+  ///
+  /// In en, this message translates to:
+  /// **'Image saved to device'**
+  String get imageSavedToDevice;
+
+  /// No description provided for @saveImageFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Cannot save image. Please try again.'**
+  String get saveImageFailed;
 
   /// No description provided for @addFriendAction.
   ///

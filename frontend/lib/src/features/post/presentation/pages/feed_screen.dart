@@ -11,6 +11,7 @@ import 'package:frontend/src/core/realtime/realtime_socket_service.dart';
 import 'package:frontend/src/features/chat/domain/usecases/fetch_chat_items_usecase.dart';
 import 'package:frontend/src/features/chat/domain/usecases/usecase_params.dart';
 import '../../../../core/cache/secure_local_storage.dart';
+import '../../../../core/realtime/realtime_socket_service.dart';
 import '../../../../core/utils/failure_converter.dart';
 import '../../../friend/data/repositories/friend_repository_impl.dart';
 import '../../../friend/domain/usecases/send_friend_request.dart';
@@ -43,6 +44,8 @@ class _FeedScreenState extends State<FeedScreen> {
   final Set<String> _friendIds = <String>{};
   final Set<String> _sendingFriendRequestAuthorIds = <String>{};
   final Set<String> _sentFriendRequestAuthorIds = <String>{};
+  StreamSubscription<Map<String, dynamic>>? _messageNewSubscription;
+  bool _hasUnreadMessage = false;
 
   @override
   void initState() {
@@ -51,27 +54,42 @@ class _FeedScreenState extends State<FeedScreen> {
       if (!mounted) return;
       _bootstrapFeed();
     });
-    _bindMessageBadgeListener();
+    _listenForNewMessages();
   }
 
-  void _bindMessageBadgeListener() {
-    final socket = getIt<RealtimeSocketService>();
-    _messageNewSubscription = socket.notificationNewStream.listen((payload) {
-      if (!mounted) return;
+  Future<void> _listenForNewMessages() async {
+    final realtimeSocketService = getIt<RealtimeSocketService>();
+    await realtimeSocketService.ensureConnected();
+    if (!mounted) return;
 
-      final notificationRaw = payload['notification'];
-      final notification = notificationRaw is Map
-          ? Map<String, dynamic>.from(notificationRaw)
-          : payload;
+    final currentUserId = await realtimeSocketService.getCurrentUserId();
+    if (!mounted) return;
 
-      final type = notification['type']?.toString().toUpperCase() ?? '';
-      if (type != 'MESSAGE_NEW') {
+    if (currentUserId.trim().isNotEmpty && _currentUserId.isEmpty) {
+      setState(() {
+        _currentUserId = currentUserId.trim();
+      });
+    }
+
+    await _messageNewSubscription?.cancel();
+    _messageNewSubscription = realtimeSocketService.newMessageStream.listen((
+      payload,
+    ) {
+      if (!mounted) {
         return;
       }
 
-      if (!_hasUnreadMessages) {
+      final senderId = _extractMessageSenderId(payload);
+      final normalizedCurrentUserId = _currentUserId.trim();
+      if (senderId.isNotEmpty &&
+          normalizedCurrentUserId.isNotEmpty &&
+          senderId == normalizedCurrentUserId) {
+        return;
+      }
+
+      if (!_hasUnreadMessage) {
         setState(() {
-          _hasUnreadMessages = true;
+          _hasUnreadMessage = true;
         });
       }
     });
@@ -186,12 +204,41 @@ class _FeedScreenState extends State<FeedScreen> {
   }
 
   void _openChatScreen() {
-    if (_hasUnreadMessages) {
+    if (_hasUnreadMessage) {
       setState(() {
-        _hasUnreadMessages = false;
+        _hasUnreadMessage = false;
       });
     }
     context.go(AppRoutes.chat.path);
+  }
+
+  String _extractMessageSenderId(Map<String, dynamic> payload) {
+    final directSenderId = _extractSenderValue(payload['senderId']);
+    if (directSenderId.isNotEmpty) {
+      return directSenderId;
+    }
+
+    final message = payload['message'];
+    if (message is Map) {
+      final messageMap = Map<String, dynamic>.from(message);
+      final senderId = _extractSenderValue(messageMap['senderId']);
+      if (senderId.isNotEmpty) {
+        return senderId;
+      }
+
+      return _extractSenderValue(messageMap['sender']);
+    }
+
+    return '';
+  }
+
+  String _extractSenderValue(dynamic rawSender) {
+    if (rawSender is Map) {
+      final senderMap = Map<String, dynamic>.from(rawSender);
+      return (senderMap['_id'] ?? senderMap['id'] ?? '').toString().trim();
+    }
+
+    return rawSender?.toString().trim() ?? '';
   }
 
   void _openAuthorProfile(PostEntity post) {
@@ -314,6 +361,7 @@ class _FeedScreenState extends State<FeedScreen> {
 
   @override
   void dispose() {
+    _messageNewSubscription?.cancel();
     _scrollController.dispose();
     _messageNewSubscription?.cancel();
     super.dispose();
@@ -409,36 +457,36 @@ class _FeedScreenState extends State<FeedScreen> {
               const SizedBox(width: 4),
               Padding(
                 padding: const EdgeInsets.only(right: 10),
-                child: Stack(
-                  clipBehavior: Clip.none,
-                  children: [
-                    IconButton(
-                      key: TestKeys.feedChatButton,
-                      onPressed: _openChatScreen,
-                      icon: Icon(
+                child: IconButton(
+                  key: TestKeys.feedChatButton,
+                  onPressed: _openChatScreen,
+                  icon: Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      Icon(
                         Icons.wechat_outlined,
                         color: headerColors.textPrimary,
                         size: 26,
                       ),
-                    ),
-                    if (_hasUnreadMessages)
-                      Positioned(
-                        right: 6,
-                        top: 6,
-                        child: Container(
-                          width: 9,
-                          height: 9,
-                          decoration: BoxDecoration(
-                            color: headerColors.badge,
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: headerColors.badgeBorder,
-                              width: 1.5,
+                      if (_hasUnreadMessage)
+                        Positioned(
+                          top: -2,
+                          right: -2,
+                          child: Container(
+                            width: 9,
+                            height: 9,
+                            decoration: BoxDecoration(
+                              color: Colors.redAccent,
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: headerColors.appBar,
+                                width: 1.5,
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ],

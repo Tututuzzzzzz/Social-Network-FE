@@ -1225,10 +1225,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get saveImage => 'Save image';
 
   @override
-  String get copyImage => 'Copy image';
+  String get shareImage => 'Share image';
 
   @override
-  String get shareImage => 'Share image';
+  String get savingImage => 'Saving image...';
+
+  @override
+  String get imageSavedToDevice => 'Image saved to device';
+
+  @override
+  String get saveImageFailed => 'Cannot save image. Please try again.';
 
   @override
   String get addFriendAction => 'Add friend';

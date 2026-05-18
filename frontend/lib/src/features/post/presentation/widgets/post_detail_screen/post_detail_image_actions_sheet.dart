@@ -4,7 +4,6 @@ import 'package:frontend/src/core/l10n/l10n.dart';
 Future<void> showPostDetailImageActionsSheet(
   BuildContext context, {
   required VoidCallback onSaveImage,
-  required VoidCallback onCopyImage,
   required VoidCallback onShareImage,
 }) {
   return showModalBottomSheet<void>(
@@ -31,14 +30,6 @@ Future<void> showPostDetailImageActionsSheet(
                   onTap: () {
                     Navigator.pop(sheetContext);
                     onSaveImage();
-                  },
-                ),
-                _ImageActionTile(
-                  label: context.l10n.copyImage,
-                  labelColor: const Color(0xFFE53935),
-                  onTap: () {
-                    Navigator.pop(sheetContext);
-                    onCopyImage();
                   },
                 ),
                 _ImageActionTile(
