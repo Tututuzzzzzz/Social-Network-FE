@@ -7,7 +7,6 @@ import 'package:go_router/go_router.dart';
 import '../../../../configs/injector/injector_conf.dart';
 import 'package:frontend/src/core/l10n/l10n.dart';
 import 'package:frontend/src/core/theme/app_colors.dart';
-import 'package:frontend/src/core/realtime/realtime_socket_service.dart';
 import 'package:frontend/src/features/chat/domain/usecases/fetch_chat_items_usecase.dart';
 import 'package:frontend/src/features/chat/domain/usecases/usecase_params.dart';
 import '../../../../core/cache/secure_local_storage.dart';
@@ -39,12 +38,10 @@ class _FeedScreenState extends State<FeedScreen> {
   List<PostEntity> _posts = const [];
   final Map<String, int> _commentCountOverrides = <String, int>{};
   String _currentUserId = '';
-  bool _hasUnreadMessages = false;
   StreamSubscription<Map<String, dynamic>>? _messageNewSubscription;
   final Set<String> _friendIds = <String>{};
   final Set<String> _sendingFriendRequestAuthorIds = <String>{};
   final Set<String> _sentFriendRequestAuthorIds = <String>{};
-  StreamSubscription<Map<String, dynamic>>? _messageNewSubscription;
   bool _hasUnreadMessage = false;
 
   @override
@@ -152,7 +149,7 @@ class _FeedScreenState extends State<FeedScreen> {
           final hasUnread = items.any((item) => item.unreadCount > 0);
           if (!mounted) return;
           setState(() {
-            _hasUnreadMessages = hasUnread;
+            _hasUnreadMessage = hasUnread;
           });
         },
       );
@@ -361,7 +358,6 @@ class _FeedScreenState extends State<FeedScreen> {
 
   @override
   void dispose() {
-    _messageNewSubscription?.cancel();
     _scrollController.dispose();
     _messageNewSubscription?.cancel();
     super.dispose();
@@ -494,95 +490,93 @@ class _FeedScreenState extends State<FeedScreen> {
           body: MediaQuery.removeViewInsets(
             context: context,
             removeBottom: true,
-              child: isLoadingInitial
-                  ? const FeedSkeletonList(itemCount: 2)
-                  : sortedPosts.isEmpty
-                  ? Center(
-                      child: Text(
-                        l10n.postOptionAllHiddenDescription,
-                        style: TextStyle(color: colors.textSecondary),
-                      ),
-                    )
-                  : RefreshIndicator(
-                      onRefresh: _refreshPosts,
-                      child: ListView.builder(
-                        controller: _scrollController,
-                        physics: const AlwaysScrollableScrollPhysics(),
-                        padding: const EdgeInsets.only(top: 6, bottom: 4),
-                        itemCount: sortedPosts.length,
-                        itemBuilder: (context, index) {
-                          final post = sortedPosts[index];
-                          final isSelfPost =
-                              _currentUserId.isNotEmpty &&
-                              post.authorId == _currentUserId;
-                          final isAlreadyFriend = _friendIds.contains(
-                            post.authorId,
-                          );
-                          final isSendingRequest =
-                              _sendingFriendRequestAuthorIds.contains(
-                                post.authorId,
+            child: isLoadingInitial
+                ? const FeedSkeletonList(itemCount: 2)
+                : sortedPosts.isEmpty
+                ? Center(
+                    child: Text(
+                      l10n.postOptionAllHiddenDescription,
+                      style: TextStyle(color: colors.textSecondary),
+                    ),
+                  )
+                : RefreshIndicator(
+                    onRefresh: _refreshPosts,
+                    child: ListView.builder(
+                      controller: _scrollController,
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      padding: const EdgeInsets.only(top: 6, bottom: 4),
+                      itemCount: sortedPosts.length,
+                      itemBuilder: (context, index) {
+                        final post = sortedPosts[index];
+                        final isSelfPost =
+                            _currentUserId.isNotEmpty &&
+                            post.authorId == _currentUserId;
+                        final isAlreadyFriend = _friendIds.contains(
+                          post.authorId,
+                        );
+                        final isSendingRequest = _sendingFriendRequestAuthorIds
+                            .contains(post.authorId);
+                        final commentCountOverride =
+                            _commentCountOverrides[post.id];
+                        final displayPost = commentCountOverride == null
+                            ? post
+                            : post.copyWith(
+                                commentsCount: commentCountOverride,
                               );
-                          final commentCountOverride =
-                              _commentCountOverrides[post.id];
-                          final displayPost = commentCountOverride == null
-                              ? post
-                              : post.copyWith(
-                                  commentsCount: commentCountOverride,
-                                );
 
-                          return GestureDetector(
-                            behavior: HitTestBehavior.opaque,
-                            onTap: () async {
-                              final postBloc = context.read<PostBloc>();
-                              final deleted =
-                                  await Navigator.of(
-                                    context,
-                                    rootNavigator: true,
-                                  ).push<bool>(
-                                    MaterialPageRoute(
-                                      builder: (_) => BlocProvider.value(
-                                        value: postBloc,
-                                        child: PostDetailScreen(
-                                          initialPost: displayPost,
-                                          currentUserId: _currentUserId.isEmpty
-                                              ? null
-                                              : _currentUserId,
-                                        ),
+                        return GestureDetector(
+                          behavior: HitTestBehavior.opaque,
+                          onTap: () async {
+                            final postBloc = context.read<PostBloc>();
+                            final deleted =
+                                await Navigator.of(
+                                  context,
+                                  rootNavigator: true,
+                                ).push<bool>(
+                                  MaterialPageRoute(
+                                    builder: (_) => BlocProvider.value(
+                                      value: postBloc,
+                                      child: PostDetailScreen(
+                                        initialPost: displayPost,
+                                        currentUserId: _currentUserId.isEmpty
+                                            ? null
+                                            : _currentUserId,
                                       ),
                                     ),
-                                  );
-                              if (!mounted || deleted != true) return;
-                              postBloc.add(PostLocalPostDeletedEvent(post.id));
-                            },
-                            child: PostCard(
-                              post: displayPost,
-                              isLikedByMe:
-                                  _currentUserId.isNotEmpty &&
-                                  post.likes.contains(_currentUserId),
-                              commentCountOverride:
-                                  _commentCountOverrides[post.id],
-                              isFollowing: isAlreadyFriend,
-                              showFollowButton: !isSelfPost && isAlreadyFriend,
-                              onLike: () {
-                                context.read<PostBloc>().add(
-                                  PostLikeToggleEvent(post.id),
+                                  ),
                                 );
-                              },
-                              onFollowTap: isSelfPost || isAlreadyFriend
-                                  ? null
-                                  : isSendingRequest
-                                      ? null
-                                      : () => _onFollowTap(post),
-                              onAuthorTap: () => _openAuthorProfile(post),
-                              onComment: () => _openCommentsSheet(post),
-                              onViewComments: () => _openCommentsSheet(post),
-                              onShare: _showFeatureSoon,
-                              onSave: _showFeatureSoon,
-                              onMore: () => _showPostOptionsSheet(post),
-                              followingLabel: l10n.friendsLabel,
-                              followLabel: '',
-                            ),
-                          );
+                            if (!mounted || deleted != true) return;
+                            postBloc.add(PostLocalPostDeletedEvent(post.id));
+                          },
+                          child: PostCard(
+                            post: displayPost,
+                            isLikedByMe:
+                                _currentUserId.isNotEmpty &&
+                                post.likes.contains(_currentUserId),
+                            commentCountOverride:
+                                _commentCountOverrides[post.id],
+                            isFollowing: isAlreadyFriend,
+                            showFollowButton: !isSelfPost && !isAlreadyFriend,
+                            onLike: () {
+                              context.read<PostBloc>().add(
+                                PostLikeToggleEvent(post.id),
+                              );
+                            },
+                            onFollowTap: isSelfPost || isAlreadyFriend
+                                ? null
+                                : isSendingRequest
+                                ? null
+                                : () => _onFollowTap(post),
+                            onAuthorTap: () => _openAuthorProfile(post),
+                            onComment: () => _openCommentsSheet(post),
+                            onViewComments: () => _openCommentsSheet(post),
+                            onShare: _showFeatureSoon,
+                            onSave: _showFeatureSoon,
+                            onMore: () => _showPostOptionsSheet(post),
+                            followingLabel: l10n.friendsLabel,
+                            followLabel: '',
+                          ),
+                        );
                       },
                     ),
                   ),
