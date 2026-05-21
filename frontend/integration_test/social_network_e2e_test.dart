@@ -12,6 +12,8 @@ import 'pages/profile/profile_page.dart';
 
 import 'tests/auth_e2e_test.dart';
 import 'tests/feed_e2e_test.dart';
+import 'tests/friends_e2e_test.dart';
+import 'tests/notifications_e2e_test.dart';
 import 'tests/chat_e2e_test.dart';
 import 'tests/profile_e2e_test.dart';
 
@@ -47,6 +49,12 @@ void main() {
 
     // Tầng B: Tương tác Feed (Like, Comment, Search, Post)
     await runFeedFlow(tester, feedPage, searchPage, createPostPage, currentUsername);
+
+    // Mở rộng: Luồng nghiệp vụ Bạn bè (Tìm kiếm & kết bạn)
+    await runFriendsFlow(tester, feedPage, searchPage);
+
+    // Mở rộng: Luồng kiểm tra thông báo thời gian thực
+    await runNotificationsFlow(tester, feedPage);
 
     // Tầng C: Nhắn tin Socket qua Chat Room
     await runChatFlow(tester, chatPage);
