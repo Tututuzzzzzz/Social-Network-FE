@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:frontend/main.dart' as app;
 
@@ -18,6 +19,33 @@ class TestConfig {
   static const apiPort = String.fromEnvironment('API_PORT');
   static const apiScheme = String.fromEnvironment('API_SCHEME');
   static const enableLogging = String.fromEnvironment('ENABLE_LOGGING');
+
+  /// Reset cơ sở dữ liệu trên E2E Backend Server
+  static Future<void> resetDatabase() async {
+    try {
+      final client = HttpClient();
+      client.badCertificateCallback = (cert, host, port) => true;
+
+      final url = Uri(
+        scheme: apiScheme,
+        host: apiHost,
+        port: int.tryParse(apiPort),
+        path: '/api/test/reset',
+      );
+      
+      print('🧹 [E2E] Đang gửi yêu cầu reset database tới: $url');
+      final request = await client.postUrl(url);
+      final response = await request.close();
+      
+      if (response.statusCode == 200) {
+        print('✅ [E2E] Reset database thành công!');
+      } else {
+        print('❌ [E2E] Reset database thất bại. Mã trạng thái: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('⚠️ [E2E] Lỗi khi reset database: $e');
+    }
+  }
 
   /// Khởi động ứng dụng trong môi trường test
   static Future<void> pumpApp(WidgetTester tester) async {

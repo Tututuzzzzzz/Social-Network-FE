@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
 import 'core/test_config.dart';
 import 'pages/auth/login_page.dart';
@@ -25,10 +26,23 @@ void main() {
     // 1. Kiểm tra cấu hình môi trường cốt lõi trước khi thực thi
     TestConfig.validateCoreEnvironment();
 
-    // 2. Khởi động và tải giao diện ứng dụng (Pump)
+    // 2. Reset database backend để đảm bảo môi trường E2E sạch hoàn toàn
+    await TestConfig.resetDatabase();
+
+    // 3. Dọn dẹp Hive local storage cũ trên Emulator
+    try {
+      print('🧹 [E2E] Đang dọn dẹp Hive local storage trên Emulator...');
+      await Hive.initFlutter();
+      await Hive.deleteFromDisk();
+      print('✅ [E2E] Dọn dẹp Hive local storage thành công!');
+    } catch (e) {
+      print('⚠️ [E2E] Lỗi khi dọn dẹp Hive local storage: $e');
+    }
+
+    // 4. Khởi động và tải giao diện ứng dụng (Pump)
     await TestConfig.pumpApp(tester);
 
-    // 3. Khởi tạo các trang theo mô hình Page Object Model (POM)
+    // 5. Khởi tạo các trang theo mô hình Page Object Model (POM)
     final registerPage = RegisterPage(tester);
     final loginPage = LoginPage(tester);
     final feedPage = FeedPage(tester);
@@ -37,10 +51,10 @@ void main() {
     final chatPage = ChatPage(tester);
     final profilePage = ProfilePage(tester);
 
-    // 4. Khai báo Map chia sẻ session dữ liệu giữa các luồng test
+    // 6. Khai báo Map chia sẻ session dữ liệu giữa các luồng test
     final sessionData = <String, String>{};
 
-    // 5. Thực thi tuần tự 4 tầng kịch bản nghiệp vụ E2E
+    // 7. Thực thi tuần tự các tầng kịch bản nghiệp vụ E2E
     
     // Tầng A: Đăng ký & Đăng nhập
     await runAuthFlow(tester, registerPage, loginPage, sessionData);
