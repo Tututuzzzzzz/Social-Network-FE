@@ -88,9 +88,26 @@ class BasePage {
     Finder finder, {
     bool warnIfMissed = false,
   }) async {
+    await safeTap(finder, warnIfMissed: warnIfMissed);
+  }
+
+  /// Tap an toàn qua gesture system — thay thế onTap?.call() trực tiếp.
+  /// Tự động xử lý ensureVisible và tìm child tappable nếu widget gốc
+  /// là container (InkWell wrap InkWell, Column chứa GestureDetector...).
+  Future<void> safeTap(Finder finder, {bool warnIfMissed = false}) async {
     await tester.ensureVisible(finder);
     await tester.pumpAndSettle();
     await tester.tap(finder, warnIfMissed: warnIfMissed);
+    await tester.pumpAndSettle();
+  }
+
+  /// Chờ cho đến khi một Finder xuất hiện, rồi pumpAndSettle.
+  /// Thay thế các pumpAndSettle(Duration(seconds: N)) cứng.
+  Future<void> waitAndSettle(
+    Finder finder, {
+    Duration timeout = const Duration(seconds: 10),
+  }) async {
+    await waitForFinder(finder, timeout: timeout);
     await tester.pumpAndSettle();
   }
 }

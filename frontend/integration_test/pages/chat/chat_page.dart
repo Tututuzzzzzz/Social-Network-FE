@@ -10,9 +10,7 @@ class ChatPage extends BasePage {
   Future<void> navigateToChat() async {
     final chatButtonFinder = find.byKey(TestKeys.feedChatButton);
     if (chatButtonFinder.evaluate().isNotEmpty) {
-      final chatIconButton = tester.widget<IconButton>(chatButtonFinder);
-      chatIconButton.onPressed?.call();
-      await tester.pumpAndSettle();
+      await safeTap(chatButtonFinder, warnIfMissed: true);
     }
   }
 
@@ -23,15 +21,13 @@ class ChatPage extends BasePage {
 
   /// Mở cuộc hội thoại đầu tiên trong danh sách chat
   Future<void> openFirstThread() async {
-    await tap(find.byKey(TestKeys.chatThreadItem(0)), warnIfMissed: false);
-    await tester.pumpAndSettle(const Duration(seconds: 4));
+    await safeTap(find.byKey(TestKeys.chatThreadItem(0)), warnIfMissed: true);
   }
 
   /// Nhấp vào nút để bắt đầu một cuộc hội thoại mới
   Future<void> openNewConversation() async {
     final newConvBtnFinder = find.byKey(TestKeys.chatNewConversationButton);
-    await tap(newConvBtnFinder, warnIfMissed: false);
-    await tester.pumpAndSettle(const Duration(seconds: 2));
+    await safeTap(newConvBtnFinder, warnIfMissed: true);
   }
 
   /// Chọn người bạn đầu tiên trong danh sách để nhắn tin
@@ -42,8 +38,7 @@ class ChatPage extends BasePage {
       timeout: const Duration(seconds: 5),
     );
     if (hasFriend) {
-      await tap(friendFinder, warnIfMissed: false);
-      await tester.pumpAndSettle(const Duration(seconds: 4));
+      await safeTap(friendFinder, warnIfMissed: true);
     }
     return hasFriend;
   }
@@ -51,19 +46,18 @@ class ChatPage extends BasePage {
   /// Soạn tin nhắn và bấm gửi
   Future<void> sendMessage(String text) async {
     await enterTextFieldText(TestKeys.messageInputField, text);
-    await tap(find.byKey(TestKeys.messageSendButton), warnIfMissed: false);
-    await tester.pumpAndSettle(const Duration(seconds: 4));
+    await safeTap(find.byKey(TestKeys.messageSendButton), warnIfMissed: true);
   }
 
   /// Quay lại danh sách Chat
   Future<void> goBackToChatList(String chatRoutePath) async {
     goRouterGo(chatRoutePath);
-    await tester.pumpAndSettle(const Duration(seconds: 2));
+    await tester.pumpAndSettle();
   }
 
   /// Quay lại trang chủ Bảng tin từ màn hình danh sách Chat
   Future<void> goBackToFeed(String homeRoutePath) async {
     goRouterGo(homeRoutePath);
-    await tester.pumpAndSettle(const Duration(seconds: 2));
+    await tester.pumpAndSettle();
   }
 }

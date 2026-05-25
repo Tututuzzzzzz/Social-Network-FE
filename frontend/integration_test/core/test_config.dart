@@ -22,29 +22,31 @@ class TestConfig {
 
   /// Reset cơ sở dữ liệu trên E2E Backend Server
   static Future<void> resetDatabase() async {
-    try {
-      final client = HttpClient();
-      client.badCertificateCallback = (cert, host, port) => true;
+    final client = HttpClient();
+    client.badCertificateCallback = (cert, host, port) => true;
 
-      final url = Uri(
-        scheme: apiScheme,
-        host: apiHost,
-        port: int.tryParse(apiPort),
-        path: '/api/test/reset',
+    final resolvedHost = (Platform.isAndroid && (apiHost == 'localhost' || apiHost == '127.0.0.1'))
+        ? '10.0.2.2'
+        : apiHost;
+
+    final url = Uri(
+      scheme: apiScheme,
+      host: resolvedHost,
+      port: int.tryParse(apiPort),
+      path: '/api/test/reset',
+    );
+    
+    print('🧹 [E2E] Đang gửi yêu cầu reset database tới: $url');
+    final request = await client.postUrl(url);
+    final response = await request.close();
+    
+    if (response.statusCode != 200) {
+      throw TestFailure(
+        '❌ [E2E] Reset database thất bại. Status: ${response.statusCode}. '
+        'Kiểm tra E2E backend tại [$apiScheme://$apiHost:$apiPort] đã khởi động.',
       );
-      
-      print('🧹 [E2E] Đang gửi yêu cầu reset database tới: $url');
-      final request = await client.postUrl(url);
-      final response = await request.close();
-      
-      if (response.statusCode == 200) {
-        print('✅ [E2E] Reset database thành công!');
-      } else {
-        print('❌ [E2E] Reset database thất bại. Mã trạng thái: ${response.statusCode}');
-      }
-    } catch (e) {
-      print('⚠️ [E2E] Lỗi khi reset database: $e');
     }
+    print('✅ [E2E] Reset database thành công!');
   }
 
   /// Khởi động ứng dụng trong môi trường test

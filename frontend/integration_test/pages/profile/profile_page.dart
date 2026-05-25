@@ -10,9 +10,7 @@ class ProfilePage extends BasePage {
   Future<void> navigateToProfile() async {
     final navProfileFinder = find.byKey(TestKeys.navProfile);
     if (navProfileFinder.evaluate().isNotEmpty) {
-      final navProfileInkWell = tester.widget<InkWell>(navProfileFinder);
-      navProfileInkWell.onTap?.call();
-      await tester.pumpAndSettle();
+      await safeTap(navProfileFinder, warnIfMissed: true);
     }
   }
 
@@ -20,9 +18,7 @@ class ProfilePage extends BasePage {
   Future<void> openSettingsSheet() async {
     final settingsButtonFinder = find.byKey(TestKeys.profileSettingsButton);
     if (settingsButtonFinder.evaluate().isNotEmpty) {
-      final settingsButton = tester.widget<IconButton>(settingsButtonFinder);
-      settingsButton.onPressed?.call();
-      await tester.pumpAndSettle();
+      await safeTap(settingsButtonFinder, warnIfMissed: true);
     }
   }
 
@@ -30,14 +26,7 @@ class ProfilePage extends BasePage {
   Future<void> navigateToEditProfile() async {
     final profileEditActionFinder = find.byKey(TestKeys.profileEditAction);
     if (profileEditActionFinder.evaluate().isNotEmpty) {
-      final editActionInkWell = tester.widget<InkWell>(
-        find.descendant(
-          of: profileEditActionFinder,
-          matching: find.byType(InkWell),
-        ),
-      );
-      editActionInkWell.onTap?.call();
-      await tester.pumpAndSettle();
+      await safeTap(profileEditActionFinder, warnIfMissed: true);
     }
   }
 
@@ -54,9 +43,7 @@ class ProfilePage extends BasePage {
   Future<void> saveProfileChanges() async {
     final editProfileSaveFinder = find.byKey(TestKeys.editProfileSaveButton);
     if (editProfileSaveFinder.evaluate().isNotEmpty) {
-      final saveButton = tester.widget<FilledButton>(editProfileSaveFinder);
-      saveButton.onPressed?.call();
-      await tester.pumpAndSettle(const Duration(seconds: 4));
+      await safeTap(editProfileSaveFinder, warnIfMissed: true);
     }
   }
 
@@ -64,13 +51,14 @@ class ProfilePage extends BasePage {
   Future<void> logout() async {
     final logoutButtonFinder = find.byKey(TestKeys.profileLogoutAction);
     if (logoutButtonFinder.evaluate().isNotEmpty) {
-      final logoutActionInkWell = tester.widget<InkWell>(
-        find.descendant(
-          of: logoutButtonFinder,
-          matching: find.byType(InkWell),
-        ),
+      await waitForFinder(
+        logoutButtonFinder,
+        timeout: const Duration(seconds: 10),
       );
-      logoutActionInkWell.onTap?.call();
+      await tester.pumpAndSettle();
+      await tester.ensureVisible(logoutButtonFinder);
+      await tester.pumpAndSettle();
+      await tester.tap(logoutButtonFinder, warnIfMissed: false);
       await tester.pumpAndSettle();
     }
   }

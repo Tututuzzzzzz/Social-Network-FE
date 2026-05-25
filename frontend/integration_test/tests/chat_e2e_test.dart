@@ -43,7 +43,7 @@ Future<void> runChatFlow(
   );
 
   // Chờ danh sách cuộc hội thoại được fetch từ API và render xong trên UI
-  await tester.pumpAndSettle(const Duration(seconds: 4));
+  await tester.pumpAndSettle();
 
   // ── Bước 2: Thực hiện gửi tin nhắn ──────────────────────────────────────────
   if (chatPage.hasThreadItem()) {
@@ -74,7 +74,7 @@ Future<void> runChatFlow(
     await chatPage.openNewConversation();
 
     // Chờ danh sách bạn bè load xong trên màn hình New Conversation
-    await tester.pumpAndSettle(const Duration(seconds: 4));
+    await tester.pumpAndSettle();
 
     // [SOFT CHECK] Kiểm tra xem có bạn bè được accept không
     // Nếu không có → bỏ qua bước gửi tin nhắn, KHÔNG fail test
@@ -105,8 +105,10 @@ Future<void> runChatFlow(
     } else {
       // Không có friend được accept → log cảnh báo và quay lại danh sách chat
       print(
-        '⚠️ [E2E Chat] Không tìm thấy friend được accept trong NewConversation. '
-        'Bỏ qua bước gửi tin nhắn. Kiểm tra backend seed.ts đã tạo friendship admin↔seed_user.',
+        '⚠️ [E2E Chat] Không tìm thấy friend được accept. '
+        'Đây là hành vi MONG ĐỢI trong kiến trúc single-journey test vì '
+        'friend request ở runFriendsFlow chưa được accept (không có user thứ 2). '
+        'Nếu backend seed friendship admin↔seed_user, kiểm tra lại seed.ts.',
       );
       // Quay lại danh sách chat (nếu đang ở màn hình NewConversation)
       await chatPage.goBackToChatList(AppRoutes.chat.path);

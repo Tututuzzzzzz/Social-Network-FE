@@ -30,13 +30,7 @@ Future<void> runNotificationsFlow(
         'Kiểm tra TestKeys.navNotifications đã được gán đúng cho widget NavBar.',
   );
 
-  await tester.ensureVisible(navNotificationsFinder);
-  await tester.pumpAndSettle();
-
-  // Gọi onTap trực tiếp vì widget là InkWell (không phải GestureDetector)
-  final navNotificationsInkWell = tester.widget<InkWell>(navNotificationsFinder);
-  navNotificationsInkWell.onTap?.call();
-  await tester.pumpAndSettle(const Duration(seconds: 4));
+  await feedPage.safeTap(navNotificationsFinder, warnIfMissed: true);
 
   // ── Bước 2: Xác nhận màn hình Thông báo đã load ────────────────────────────
 
@@ -47,18 +41,23 @@ Future<void> runNotificationsFlow(
     reason: 'Màn hình Thông báo phải load thành công sau khi nhấn tab NavBar',
   );
 
-  // ── Bước 3: Tương tác thông báo đầu tiên (nếu có) ──────────────────────────
-  // Không assert bắt buộc phải có thông báo vì số lượng phụ thuộc vào các
-  // bước trước. Test chỉ tương tác nếu có, không fail nếu rỗng.
+  // ── Bước 3: Tương tác thông báo đầu tiên ──────────────────────────
   final listTilesFinder = find.byType(ListTile);
   if (listTilesFinder.evaluate().isNotEmpty) {
-    await tester.tap(listTilesFinder.first);
-    await tester.pumpAndSettle(const Duration(seconds: 3));
+    print('✅ [E2E Notifications] Tìm thấy thông báo trong danh sách, đang tương tác...');
+    await feedPage.safeTap(listTilesFinder.first, warnIfMissed: true);
+  } else {
+    print(
+      '⚠️ [E2E Notifications] Danh sách thông báo rỗng. '
+      'Đây là hành vi BÌNH THƯỜNG đối với tài khoản vừa đăng ký mới vì '
+      'các hoạt động trước đó (Like, Comment, Friend Request) là do tài khoản này '
+      'gửi đi (người nhận khác nhận thông báo, không phải tài khoản này).'
+    );
   }
 
   // ── Bước 4: Quay lại màn hình Feed ─────────────────────────────────────────
   feedPage.goRouterGo(AppRoutes.home.path);
-  await tester.pumpAndSettle(const Duration(seconds: 3));
+  await tester.pumpAndSettle();
 
   // [ASSERTION] Phải quay lại Feed thành công
   expect(

@@ -9,7 +9,6 @@ class SearchPage extends BasePage {
   /// Tìm kiếm người dùng dựa trên từ khóa/tên đăng nhập
   Future<void> searchUser(String query) async {
     await enterTextFieldText(TestKeys.searchTextField, query);
-    await tester.pumpAndSettle(const Duration(seconds: 3));
   }
 
   /// Quay lại trang Feed từ trang Tìm kiếm
@@ -25,14 +24,12 @@ class SearchPage extends BasePage {
         matching: find.byType(IconButton),
       );
       if (iconButtonFinder.evaluate().isNotEmpty) {
-        final iconButton = tester.widget<IconButton>(iconButtonFinder.first);
-        iconButton.onPressed?.call();
-        await tester.pumpAndSettle(const Duration(seconds: 4));
+        await safeTap(iconButtonFinder.first, warnIfMissed: true);
         return;
       }
     }
     // Fallback nếu không thấy nút bấm
     goRouterGo(homeRoutePath);
-    await tester.pumpAndSettle(const Duration(seconds: 2));
+    await tester.pumpAndSettle();
   }
 }

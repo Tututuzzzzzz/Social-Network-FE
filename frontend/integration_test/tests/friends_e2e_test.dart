@@ -35,7 +35,10 @@ Future<void> runFriendsFlow(
 
   // ── Bước 2: Tìm kiếm tài khoản seed (admin) ────────────────────────────────
   await searchPage.searchUser(MockData.seedAdminUsername);
-  await tester.pumpAndSettle(const Duration(seconds: 3));
+  await searchPage.waitForFinder(
+    find.text('@${MockData.seedAdminUsername}'),
+    timeout: const Duration(seconds: 10),
+  );
 
   // [ASSERTION] Tài khoản seed PHẢI xuất hiện trong kết quả
   // Tìm kiếm bằng "@admin" (được hiển thị trong SearchResultCard) để tránh khớp
@@ -50,8 +53,7 @@ Future<void> runFriendsFlow(
   );
 
   // ── Bước 3: Mở trang cá nhân của người dùng tìm được ──────────────────────
-  await searchPage.tap(userResultsFinder.first);
-  await tester.pumpAndSettle(const Duration(seconds: 3));
+  await searchPage.safeTap(userResultsFinder.first, warnIfMissed: true);
 
   // ── Bước 4: Kiểm tra và tương tác với nút kết bạn ──────────────────────────
   // ProfileActionBar hiển thị 2 trạng thái:
@@ -61,6 +63,15 @@ Future<void> runFriendsFlow(
 
   final addFriendIcon = find.byIcon(Icons.person_add_alt_1_rounded);
   final checkIcon = find.byIcon(Icons.check_rounded);
+
+  // Chờ cho đến khi hiển thị một trong hai icon
+  final hasActionBar = await searchPage.tryWaitForFinder(
+    addFriendIcon,
+    timeout: const Duration(seconds: 5),
+  ) || await searchPage.tryWaitForFinder(
+    checkIcon,
+    timeout: const Duration(seconds: 1),
+  );
 
   // [ASSERTION] Màn hình profile phải luôn hiển thị MỘT trong hai trạng thái nút
   // Nếu cả hai đều không tìm thấy → UI không render đúng ProfileActionBar
@@ -75,8 +86,11 @@ Future<void> runFriendsFlow(
 
   if (addFriendIcon.evaluate().isNotEmpty) {
     // Trạng thái a: Chưa gửi lời mời → gửi và kiểm tra nút chuyển trạng thái
-    await searchPage.tap(addFriendIcon);
-    await tester.pumpAndSettle(const Duration(seconds: 3));
+    await searchPage.safeTap(addFriendIcon, warnIfMissed: true);
+    await searchPage.waitForFinder(
+      find.byIcon(Icons.check_rounded),
+      timeout: const Duration(seconds: 5),
+    );
 
     // [ASSERTION] Sau khi gửi, nút PHẢI chuyển sang check_rounded
     expect(
@@ -92,8 +106,7 @@ Future<void> runFriendsFlow(
   // ── Bước 5: Quay lại màn hình Tìm kiếm ────────────────────────────────────
   final backIconFinder = find.byIcon(Icons.arrow_back);
   if (backIconFinder.evaluate().isNotEmpty) {
-    await searchPage.tap(backIconFinder.first);
-    await tester.pumpAndSettle(const Duration(seconds: 2));
+    await searchPage.safeTap(backIconFinder.first, warnIfMissed: true);
   }
 
   // ── Bước 6: Quay lại Feed chính ────────────────────────────────────────────

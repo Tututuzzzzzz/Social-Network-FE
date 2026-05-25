@@ -10,9 +10,7 @@ class CreatePostPage extends BasePage {
   Future<void> navigateToCreatePost() async {
     final navCreateFinder = find.byKey(TestKeys.navCreate);
     if (navCreateFinder.evaluate().isNotEmpty) {
-      final navCreateInkWell = tester.widget<InkWell>(navCreateFinder);
-      navCreateInkWell.onTap?.call();
-      await tester.pumpAndSettle();
+      await safeTap(navCreateFinder, warnIfMissed: true);
     }
   }
 
@@ -24,7 +22,6 @@ class CreatePostPage extends BasePage {
   /// Xác nhận gửi bài đăng mới lên máy chủ
   Future<void> submitPost() async {
     final submitButton = find.byKey(TestKeys.createPostSubmitButton);
-    await tap(submitButton);
-    await tester.pumpAndSettle(const Duration(seconds: 4));
+    await safeTap(submitButton, warnIfMissed: true);
   }
 }

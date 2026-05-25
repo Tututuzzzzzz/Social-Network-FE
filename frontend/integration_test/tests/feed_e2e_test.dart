@@ -51,7 +51,10 @@ Future<void> runFeedFlow(
   );
 
   // Chờ danh sách Feed tải lại và hiển thị bài viết vừa tạo
-  await tester.pumpAndSettle(const Duration(seconds: 3));
+  await feedPage.waitForFinder(
+    find.byKey(TestKeys.postLikeButton),
+    timeout: const Duration(seconds: 10),
+  );
 
   // [ASSERTION] Feed phải có ít nhất 1 bài viết (bài vừa tạo)
   expect(
@@ -97,7 +100,10 @@ Future<void> runFeedFlow(
   );
 
   await searchPage.searchUser(loginUsername);
-  await tester.pumpAndSettle(const Duration(seconds: 2));
+  await searchPage.waitForFinder(
+    find.text(loginUsername),
+    timeout: const Duration(seconds: 10),
+  );
 
   // [ASSERTION] Tìm kiếm chính mình phải trả về ít nhất 1 kết quả
   expect(

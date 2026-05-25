@@ -19,7 +19,7 @@ import 'tests/chat_e2e_test.dart';
 import 'tests/profile_e2e_test.dart';
 
 void main() {
-  IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  final binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   testWidgets('E2E: register (optional) + login + core flows',
       (WidgetTester tester) async {
@@ -54,26 +54,70 @@ void main() {
     // 6. Khai báo Map chia sẻ session dữ liệu giữa các luồng test
     final sessionData = <String, String>{};
 
-    // 7. Thực thi tuần tự các tầng kịch bản nghiệp vụ E2E
-    
-    // Tầng A: Đăng ký & Đăng nhập
-    await runAuthFlow(tester, registerPage, loginPage, sessionData);
+    // 7. Thực thi tuần tự với error isolation + screenshot
+    await _runFlow('Auth', () =>
+      runAuthFlow(tester, registerPage, loginPage, sessionData),
+      binding,
+    );
 
     final currentUsername = sessionData['username']!;
 
-    // Tầng B: Tương tác Feed (Like, Comment, Search, Post)
-    await runFeedFlow(tester, feedPage, searchPage, createPostPage, currentUsername);
+    await _runFlow('Feed', () =>
+      runFeedFlow(tester, feedPage, searchPage, createPostPage, currentUsername),
+      binding,
+    );
 
-    // Mở rộng: Luồng nghiệp vụ Bạn bè (Tìm kiếm & kết bạn)
-    await runFriendsFlow(tester, feedPage, searchPage);
+    await _runFlow('Friends', () =>
+      runFriendsFlow(tester, feedPage, searchPage),
+      binding,
+    );
 
-    // Mở rộng: Luồng kiểm tra thông báo thời gian thực
-    await runNotificationsFlow(tester, feedPage);
+    await _runFlow('Notifications', () =>
+      runNotificationsFlow(tester, feedPage),
+      binding,
+    );
 
-    // Tầng C: Nhắn tin Socket qua Chat Room
-    await runChatFlow(tester, chatPage);
+    await _runFlow('Chat', () =>
+      runChatFlow(tester, chatPage),
+      binding,
+    );
 
-    // Tầng D: Sửa Bio Hồ sơ & Đăng xuất
-    await runProfileFlow(tester, profilePage, loginPage);
+    await _runFlow('Profile', () =>
+      runProfileFlow(tester, profilePage, loginPage),
+      binding,
+    );
   });
+}
+
+/// Wrapper: log flow name, chụp screenshot nếu fail, rethrow để fail test
+Future<void> _runFlow(
+  String name,
+  Future<void> Function() flow,
+  IntegrationTestWidgetsFlutterBinding binding,
+) async {
+  print('');
+  print('═══════════════════════════════════════');
+  print('🚀 [E2E] Bắt đầu luồng: $name');
+  print('═══════════════════════════════════════');
+  final stopwatch = Stopwatch()..start();
+
+  try {
+    await flow();
+    stopwatch.stop();
+    print('✅ [E2E] Luồng $name PASSED (${stopwatch.elapsedMilliseconds}ms)');
+  } catch (e) {
+    stopwatch.stop();
+    print('❌ [E2E] Luồng $name FAILED sau ${stopwatch.elapsedMilliseconds}ms');
+    print('   Lỗi: $e');
+
+    // Chụp screenshot tại thời điểm fail
+    try {
+      await binding.takeScreenshot('failure_${name.toLowerCase()}');
+      print('📸 [E2E] Đã chụp screenshot: failure_${name.toLowerCase()}');
+    } catch (screenshotError) {
+      print('⚠️ [E2E] Không thể chụp screenshot: $screenshotError');
+    }
+
+    rethrow; // Vẫn fail test — screenshot chỉ để debug
+  }
 }

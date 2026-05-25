@@ -10,14 +10,7 @@ class FeedPage extends BasePage {
   Future<void> likeFirstPost() async {
     final likeButtonFinder = find.byKey(TestKeys.postLikeButton);
     if (likeButtonFinder.evaluate().isNotEmpty) {
-      final likeInkWell = tester.widget<InkWell>(
-        find.descendant(
-          of: likeButtonFinder.first,
-          matching: find.byType(InkWell),
-        ),
-      );
-      likeInkWell.onTap?.call();
-      await tester.pumpAndSettle(const Duration(seconds: 3));
+      await safeTap(likeButtonFinder.first, warnIfMissed: true);
     }
   }
 
@@ -25,15 +18,8 @@ class FeedPage extends BasePage {
   Future<void> openCommentSection() async {
     final commentButtonFinder = find.byKey(TestKeys.postCommentButton);
     if (commentButtonFinder.evaluate().isNotEmpty) {
-      final commentInkWell = tester.widget<InkWell>(
-        find.descendant(
-          of: commentButtonFinder.first,
-          matching: find.byType(InkWell),
-        ),
-      );
-      commentInkWell.onTap?.call();
-      await tester.pumpAndSettle();
-      await waitForFinder(find.byKey(TestKeys.postCommentTextField));
+      await safeTap(commentButtonFinder.first, warnIfMissed: true);
+      await waitAndSettle(find.byKey(TestKeys.postCommentTextField));
     }
   }
 
@@ -45,8 +31,7 @@ class FeedPage extends BasePage {
   /// Gửi bình luận đi
   Future<void> submitComment() async {
     final sendButton = find.byKey(TestKeys.postCommentSendButton);
-    await tap(sendButton, warnIfMissed: false);
-    await tester.pumpAndSettle(const Duration(seconds: 4));
+    await safeTap(sendButton, warnIfMissed: true);
   }
 
   /// Đóng Bottom Sheet bình luận
@@ -60,9 +45,7 @@ class FeedPage extends BasePage {
   Future<void> navigateToSearch() async {
     final searchButtonFinder = find.byKey(TestKeys.feedSearchButton);
     if (searchButtonFinder.evaluate().isNotEmpty) {
-      final searchIconButton = tester.widget<IconButton>(searchButtonFinder);
-      searchIconButton.onPressed?.call();
-      await tester.pumpAndSettle();
+      await safeTap(searchButtonFinder, warnIfMissed: true);
     }
   }
 
@@ -70,9 +53,7 @@ class FeedPage extends BasePage {
   Future<void> navigateToChat() async {
     final chatButtonFinder = find.byKey(TestKeys.feedChatButton);
     if (chatButtonFinder.evaluate().isNotEmpty) {
-      final chatIconButton = tester.widget<IconButton>(chatButtonFinder);
-      chatIconButton.onPressed?.call();
-      await tester.pumpAndSettle();
+      await safeTap(chatButtonFinder, warnIfMissed: true);
     }
   }
 }

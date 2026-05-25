@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 
 import '../../configs/injector/injector_conf.dart';
+import '../config/env_config.dart';
 import '../cache/secure_local_storage.dart';
 import '../realtime/realtime_socket_service.dart';
 import '../utils/logger.dart';
@@ -14,6 +15,7 @@ class ApiInterceptor extends Interceptor {
   ApiInterceptor(this._secureLocalStorage);
 
   static const _retryFlagKey = '__retried_after_refresh__';
+  static const _startTimeKey = '__request_start_ms__';
   Future<String>? _refreshFuture;
 
   @override
@@ -22,6 +24,12 @@ class ApiInterceptor extends Interceptor {
     RequestInterceptorHandler handler,
   ) async {
     options.baseUrl = ApiConstants.baseUrl;
+
+    if (EnvConfig.enableLogging) {
+      options.extra[_startTimeKey] = DateTime.now().millisecondsSinceEpoch;
+      final uri = '${options.baseUrl}${options.path}';
+      logger.i('HTTP ${options.method} $uri');
+    }
 
     final accessToken = await _secureLocalStorage.load(key: 'access_token');
     if (accessToken.isNotEmpty) {
@@ -32,12 +40,38 @@ class ApiInterceptor extends Interceptor {
   }
 
   @override
+  void onResponse(Response response, ResponseInterceptorHandler handler) {
+    if (EnvConfig.enableLogging) {
+      final startMs = response.requestOptions.extra[_startTimeKey] as int?;
+      final elapsedMs = startMs == null
+          ? 'n/a'
+          : '${DateTime.now().millisecondsSinceEpoch - startMs}ms';
+      final uri =
+          '${response.requestOptions.baseUrl}${response.requestOptions.path}';
+      logger.i(
+        'HTTP ${response.statusCode} ${response.requestOptions.method} $uri ($elapsedMs)',
+      );
+    }
+
+    super.onResponse(response, handler);
+  }
+
+  @override
   Future<void> onError(
     DioException err,
     ErrorInterceptorHandler handler,
   ) async {
     final statusCode = err.response?.statusCode;
-    logger.e(statusCode);
+    if (EnvConfig.enableLogging) {
+      final startMs = err.requestOptions.extra[_startTimeKey] as int?;
+      final elapsedMs = startMs == null
+          ? 'n/a'
+          : '${DateTime.now().millisecondsSinceEpoch - startMs}ms';
+      final uri = '${err.requestOptions.baseUrl}${err.requestOptions.path}';
+      logger.e(
+        'HTTP ERROR ${err.requestOptions.method} $uri status=$statusCode ($elapsedMs)',
+      );
+    }
 
     // Backend trả 401 (token thiếu/sai format) HOẶC 403 (token hết hạn)
     final isTokenError = statusCode == 401 || statusCode == 403;
