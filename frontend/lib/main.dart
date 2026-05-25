@@ -33,54 +33,61 @@ Future<void> _applyRememberMePolicy() async {
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
-  // 1. Khởi tạo Firebase
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
 
-  // 2. Xin quyền và lấy Device Token
-  FirebaseMessaging messaging = FirebaseMessaging.instance;
-  await messaging.requestPermission();
-  String? token = await messaging.getToken();
-  print("🎯 FCM Device Token của máy này là: $token");
+  // Phát hiện môi trường E2E để bỏ qua Firebase và FCM
+  const isE2E = bool.fromEnvironment('IS_E2E', defaultValue: false);
 
-  // 3. Đảm bảo getIt được khởi tạo TRƯỚC KHI xử lý notification 
-  // (Để chắc chắn AppRoutesConf đã nằm trong bộ nhớ)
+  if (!isE2E) {
+    // 1. Khởi tạo Firebase (chỉ trong môi trường thật, không phải E2E)
+    try {
+      await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      );
+
+      // 2. Xin quyền và lấy Device Token
+      FirebaseMessaging messaging = FirebaseMessaging.instance;
+      await messaging.requestPermission();
+      String? token = await messaging.getToken();
+      print("🎯 FCM Device Token của máy này là: $token");
+
+      // 4. Khởi tạo Local Notification và xử lý Click Banner
+      LocalNotificationHelper.initialize(
+        onNotificationClick: (String? payload) {
+          if (payload != null && payload.isNotEmpty) {
+            try {
+              final data = jsonDecode(payload);
+              final route = data['route'];
+              if (route != null) {
+                print("🚀 Đang tự động chuyển hướng đến màn hình: $route");
+                getIt<AppRoutesConf>().router.push(route);
+              }
+            } catch (e) {
+              print("Lỗi khi đọc payload chuyển màn hình: $e");
+            }
+          }
+        },
+      );
+
+      // 5. "Trạm gác" hiển thị banner khi app đang mở
+      FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+        print('🚨 BÍP BÍP! Đã bắt được thông báo khi đang mở app!');
+        if (message.notification != null) {
+          LocalNotificationHelper.display(message);
+        }
+      });
+    } catch (e) {
+      print('⚠️ Firebase init thất bại (có thể đang chạy trên emulator test): $e');
+    }
+  } else {
+    print('🧪 [E2E] Chế độ E2E: Bỏ qua khởi tạo Firebase và FCM.');
+  }
+
+  // 3. Đảm bảo getIt được khởi tạo TRƯỚC KHI xử lý notification
   configureDepedencies();
   await Hive.initFlutter();
 
-  // 4. Khởi tạo Local Notification và xử lý Click Banner
-  LocalNotificationHelper.initialize(
-    onNotificationClick: (String? payload) {
-      if (payload != null && payload.isNotEmpty) {
-        try {
-          final data = jsonDecode(payload);
-          final route = data['route'];
-
-          if (route != null) {
-            print("🚀 Đang tự động chuyển hướng đến màn hình: $route");
-            
-            // 👇 SỬ DỤNG GoRouter TỪ getIt ĐỂ CHUYỂN MÀN HÌNH
-            getIt<AppRoutesConf>().router.push(route);
-          }
-        } catch (e) {
-          print("Lỗi khi đọc payload chuyển màn hình: $e");
-        }
-      }
-    },
-  );
-
-  // 5. "Trạm gác" hiển thị banner khi app đang mở
-  FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-    print('🚨 BÍP BÍP! Đã bắt được thông báo khi đang mở app!');
-    if (message.notification != null) {
-      LocalNotificationHelper.display(message);
-    }
-  });
-
   // 6. Xử lý policy và chạy app
   await _applyRememberMePolicy();
-  
+
   runApp(App());
 }
