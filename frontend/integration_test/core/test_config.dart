@@ -82,6 +82,10 @@ class TestConfig {
     'E2E_ENABLE_REGISTER',
     defaultValue: false,
   );
+  static const enableMediaUpload = bool.fromEnvironment(
+    'E2E_ENABLE_MEDIA_UPLOAD',
+    defaultValue: false,
+  );
   static const startRoute = String.fromEnvironment('START_ROUTE');
   static const apiHost = String.fromEnvironment('API_HOST');
   static const apiPort = String.fromEnvironment('API_PORT');

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/src/core/theme/app_colors.dart';
+import 'package:frontend/src/core/testing/test_keys.dart';
 
 import 'create_post_actions.dart';
 
@@ -32,16 +33,19 @@ class CreatePostBottomTools extends StatelessWidget {
         child: Row(
           children: [
             CreatePostToolbarIconButton(
+              buttonKey: TestKeys.createPostLibraryButton,
               icon: Icons.image_outlined,
               onTap: isPickingImages ? null : onPickFromGallery,
             ),
             const SizedBox(width: 26),
             CreatePostToolbarIconButton(
+              buttonKey: TestKeys.createPostCameraButton,
               icon: Icons.photo_camera_outlined,
               onTap: isPickingImages ? null : onPickFromCamera,
             ),
             const SizedBox(width: 26),
             CreatePostToolbarIconButton(
+              buttonKey: TestKeys.createPostTemplateButton,
               icon: Icons.dashboard_outlined,
               onTap: onTemplate,
             ),

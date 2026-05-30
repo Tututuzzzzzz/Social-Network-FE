@@ -1,7 +1,10 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:frontend/src/core/testing/test_keys.dart';
 import 'package:frontend/src/routes/app_route_path.dart';
+import 'package:frontend/src/features/post/presentation/widgets/feed_screen/post_card.dart';
 import '../data/mock_data.dart';
+import '../core/test_image_picker.dart';
 import '../pages/feed/feed_page.dart';
 import '../pages/feed/create_post_page.dart';
 import '../pages/search/search_page.dart';
@@ -115,5 +118,72 @@ Future<void> runFeedFlow(
     find.byKey(TestKeys.feedSearchButton),
     findsOneWidget,
     reason: 'Phải quay lại màn hình Feed sau khi thoát khỏi Search',
+  );
+}
+
+/// Chạy riêng luồng tạo bài viết có ảnh để test upload media ở BE.
+Future<void> runFeedMediaUploadFlow(
+  WidgetTester tester,
+  FeedPage feedPage,
+  CreatePostPage createPostPage,
+) async {
+  final imagePostText = MockData.postImageText;
+  await TestImagePicker.installGalleryImagePicker(
+    fileName: 'e2e_${MockData.stamp}_post.png',
+  );
+
+  await createPostPage.navigateToCreatePost();
+  await createPostPage.ensureOnPage(
+    TestKeys.createPostCaptionField,
+    AppRoutes.createPost.path,
+  );
+
+  expect(
+    find.byKey(TestKeys.createPostCaptionField),
+    findsOneWidget,
+    reason: 'Trường Caption phải hiển thị trên màn hình Tạo bài viết',
+  );
+
+  await createPostPage.fillCaption(imagePostText);
+  await createPostPage.pickGalleryImage();
+  await tester.pumpAndSettle(const Duration(seconds: 2));
+
+  expect(
+    find.byKey(TestKeys.createPostLibraryButton),
+    findsOneWidget,
+    reason: 'Nút chọn ảnh từ thư viện phải hiển thị khi tạo bài viết',
+  );
+
+  await createPostPage.submitPost();
+
+  await feedPage.ensureOnPage(TestKeys.feedSearchButton, AppRoutes.home.path);
+  await tester.pumpAndSettle(const Duration(seconds: 3));
+  await tester.pumpAndSettle(const Duration(seconds: 5));
+
+  final postTextFinder = find.text(imagePostText);
+  expect(
+    postTextFinder,
+    findsOneWidget,
+    reason: 'Bài viết có ảnh phải xuất hiện lại trên Feed sau khi submit',
+  );
+
+  final postCardFinder = find.ancestor(
+    of: postTextFinder,
+    matching: find.byType(PostCard),
+  );
+  expect(
+    postCardFinder,
+    findsOneWidget,
+    reason: 'Bài viết vừa tạo phải nằm trong một HomeFeedPostCard riêng',
+  );
+
+  final mediaImageFinder = find.descendant(
+    of: postCardFinder,
+    matching: find.byType(Image),
+  );
+  expect(
+    mediaImageFinder,
+    findsWidgets,
+    reason: 'Card bài viết có ảnh phải render widget Image trong Feed',
   );
 }

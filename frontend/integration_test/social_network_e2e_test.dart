@@ -68,6 +68,10 @@ void main() {
         currentUsername,
       );
 
+      if (TestConfig.enableMediaUpload) {
+        await runFeedMediaUploadFlow(tester, feedPage, createPostPage);
+      }
+
       await runFriendsFlow(
         tester,
         feedPage,

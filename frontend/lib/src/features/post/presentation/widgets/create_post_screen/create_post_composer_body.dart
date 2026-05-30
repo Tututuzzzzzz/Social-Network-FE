@@ -133,6 +133,7 @@ class _EmptyActions extends StatelessWidget {
       children: [
         Expanded(
           child: CreatePostActionButton(
+            buttonKey: TestKeys.createPostLibraryButton,
             icon: Icons.image_outlined,
             label: context.l10n.libraryLabel,
             onTap: isPickingImages ? null : onPickFromGallery,
@@ -140,6 +141,7 @@ class _EmptyActions extends StatelessWidget {
         ),
         Expanded(
           child: CreatePostActionButton(
+            buttonKey: TestKeys.createPostCameraButton,
             icon: Icons.photo_camera_outlined,
             label: context.l10n.cameraLabel,
             onTap: isPickingImages ? null : onPickFromCamera,
@@ -147,6 +149,7 @@ class _EmptyActions extends StatelessWidget {
         ),
         Expanded(
           child: CreatePostActionButton(
+            buttonKey: TestKeys.createPostTemplateButton,
             icon: Icons.dashboard_outlined,
             label: context.l10n.templateLabel,
             onTap: onTemplate,

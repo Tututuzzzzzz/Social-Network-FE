@@ -44,6 +44,9 @@ class MockData {
   /// Nội dung bài đăng — có timestamp để dễ debug và không trùng lặp
   static String get postText => 'E2E post $stamp';
 
+  /// Nội dung bài đăng có ảnh — dùng riêng cho flow upload media
+  static String get postImageText => 'E2E image post $stamp';
+
   /// Nội dung tin nhắn chat
   static String get chatMessage => 'E2E hello $stamp';
 

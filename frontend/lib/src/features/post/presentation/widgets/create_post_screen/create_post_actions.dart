@@ -5,11 +5,13 @@ import 'create_post_theme.dart';
 class CreatePostActionButton extends StatelessWidget {
   const CreatePostActionButton({
     super.key,
+    this.buttonKey,
     required this.icon,
     required this.label,
     required this.onTap,
   });
 
+  final Key? buttonKey;
   final IconData icon;
   final String label;
   final VoidCallback? onTap;
@@ -17,6 +19,7 @@ class CreatePostActionButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
+      key: buttonKey,
       onTap: onTap,
       borderRadius: BorderRadius.circular(46),
       child: Column(
@@ -62,16 +65,19 @@ class CreatePostActionButton extends StatelessWidget {
 class CreatePostToolbarIconButton extends StatelessWidget {
   const CreatePostToolbarIconButton({
     super.key,
+    this.buttonKey,
     required this.icon,
     required this.onTap,
   });
 
+  final Key? buttonKey;
   final IconData icon;
   final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     return IconButton(
+      key: buttonKey,
       onPressed: onTap,
       icon: Icon(icon, size: 32, color: CreatePostTheme.mutedColor),
       splashRadius: 26,
