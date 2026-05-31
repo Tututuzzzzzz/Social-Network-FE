@@ -12,27 +12,5 @@ class SearchPage extends BasePage {
     await tester.pumpAndSettle(const Duration(seconds: 3));
   }
 
-  /// Quay lại trang Feed từ trang Tìm kiếm
-  Future<void> goBackToFeed(String homeRoutePath) async {
-    final appBarFinder = find.byType(AppBar);
-    final backIconFinder = find.descendant(
-      of: appBarFinder,
-      matching: find.byIcon(Icons.arrow_back),
-    );
-    if (backIconFinder.evaluate().isNotEmpty) {
-      final iconButtonFinder = find.ancestor(
-        of: backIconFinder,
-        matching: find.byType(IconButton),
-      );
-      if (iconButtonFinder.evaluate().isNotEmpty) {
-        final iconButton = tester.widget<IconButton>(iconButtonFinder.first);
-        iconButton.onPressed?.call();
-        await tester.pumpAndSettle(const Duration(seconds: 4));
-        return;
-      }
-    }
-    // Fallback nếu không thấy nút bấm
-    goRouterGo(homeRoutePath);
-    await tester.pumpAndSettle(const Duration(seconds: 2));
-  }
+
 }

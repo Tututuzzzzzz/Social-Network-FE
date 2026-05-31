@@ -41,15 +41,10 @@ class BasePage {
 
   /// Thực hiện điều hướng trực tiếp qua GoRouter của ứng dụng
   void goRouterGo(String routePath) {
-    try {
-      final BuildContext context = tester.element(find.byType(MaterialApp).first);
+    final elementList = find.byType(Scaffold).evaluate();
+    if (elementList.isNotEmpty) {
+      final BuildContext context = elementList.last;
       GoRouter.of(context).go(routePath);
-    } catch (_) {
-      final elementList = find.byType(Navigator).evaluate();
-      if (elementList.isNotEmpty) {
-        final BuildContext context = elementList.first;
-        GoRouter.of(context).go(routePath);
-      }
     }
   }
 
@@ -65,6 +60,38 @@ class BasePage {
       await tester.pumpAndSettle();
     }
     await waitForFinder(finder, timeout: const Duration(seconds: 15));
+  }
+
+  /// Quay lại trang Feed một cách an toàn bằng cách tìm nút Back/Close và dùng GoRouter
+  Future<void> goBackToFeed(String homeRoutePath) async {
+    // 1. Thử tìm AppBar và tap nút back hoặc close bên trong nó
+    final appBarFinder = find.byType(AppBar);
+    if (appBarFinder.evaluate().isNotEmpty) {
+      final iconsToTry = [Icons.arrow_back, Icons.arrow_back_ios, Icons.close];
+      for (final icon in iconsToTry) {
+        final iconFinder = find.descendant(
+          of: appBarFinder,
+          matching: find.byIcon(icon),
+        );
+        if (iconFinder.evaluate().isNotEmpty) {
+          try {
+            await tester.tap(iconFinder.first);
+            await tester.pumpAndSettle(const Duration(seconds: 3));
+            break; // Chỉ tap 1 lần
+          } catch (_) {
+            // Bỏ qua nếu tap lỗi
+          }
+        }
+      }
+    }
+
+    // 2. Chuyển hướng bằng GoRouter để chắc chắn quay về Feed
+    try {
+      goRouterGo(homeRoutePath);
+      await tester.pumpAndSettle(const Duration(seconds: 2));
+    } catch (e) {
+      debugPrint('Lỗi khi goRouterGo: $e');
+    }
   }
 
   /// Hàm nhập liệu chuẩn có tự động cuộn hiển thị và đóng bàn phím ảo

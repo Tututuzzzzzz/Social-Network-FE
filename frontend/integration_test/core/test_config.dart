@@ -92,6 +92,7 @@ class TestConfig {
   static const apiScheme = String.fromEnvironment('API_SCHEME');
   static const enableLogging = String.fromEnvironment('ENABLE_LOGGING');
   static const runId = String.fromEnvironment('E2E_RUN_ID');
+  static const e2eApiSecret = String.fromEnvironment('E2E_API_SECRET');
 
   static String get resolvedApiHost {
     if (!kIsWeb &&
@@ -123,6 +124,9 @@ class TestConfig {
 
       final request = await client.postUrl(url);
       request.headers.contentType = ContentType.json;
+      if (e2eApiSecret.isNotEmpty) {
+        request.headers.add('x-e2e-secret', e2eApiSecret);
+      }
       request.write(jsonEncode(body));
 
       final response = await request.close();

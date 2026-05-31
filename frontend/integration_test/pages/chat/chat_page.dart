@@ -61,9 +61,5 @@ class ChatPage extends BasePage {
     await tester.pumpAndSettle(const Duration(seconds: 2));
   }
 
-  /// Quay lại trang chủ Bảng tin từ màn hình danh sách Chat
-  Future<void> goBackToFeed(String homeRoutePath) async {
-    goRouterGo(homeRoutePath);
-    await tester.pumpAndSettle(const Duration(seconds: 2));
-  }
+
 }
