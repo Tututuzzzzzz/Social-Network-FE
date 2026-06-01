@@ -36,7 +36,9 @@ Future<void> runNotificationsFlow(
   // Gọi onTap trực tiếp vì widget là InkWell (không phải GestureDetector)
   final navNotificationsInkWell = tester.widget<InkWell>(navNotificationsFinder);
   navNotificationsInkWell.onTap?.call();
-  await tester.pumpAndSettle(const Duration(seconds: 4));
+  // Chờ màn hình Thông báo load xong thay vì delay cứng 4s
+  await tester.pump();
+  await tester.pump(const Duration(milliseconds: 500));
 
   // ── Bước 2: Xác nhận màn hình Thông báo đã load ────────────────────────────
 

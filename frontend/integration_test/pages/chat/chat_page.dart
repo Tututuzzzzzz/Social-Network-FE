@@ -12,7 +12,8 @@ class ChatPage extends BasePage {
     if (chatButtonFinder.evaluate().isNotEmpty) {
       final chatIconButton = tester.widget<IconButton>(chatButtonFinder);
       chatIconButton.onPressed?.call();
-      await tester.pumpAndSettle();
+      // Chờ màn hình Chat load xong (nút tạo cuộc hội thoại xuất hiện)
+      await waitForKey(TestKeys.chatNewConversationButton);
     }
   }
 
@@ -24,14 +25,16 @@ class ChatPage extends BasePage {
   /// Mở cuộc hội thoại đầu tiên trong danh sách chat
   Future<void> openFirstThread() async {
     await tap(find.byKey(TestKeys.chatThreadItem(0)), warnIfMissed: false);
-    await tester.pumpAndSettle(const Duration(seconds: 4));
+    // Chờ khung nhập tin nhắn xuất hiện thay vì delay cứng 4s
+    await waitForKey(TestKeys.messageInputField);
   }
 
   /// Nhấp vào nút để bắt đầu một cuộc hội thoại mới
   Future<void> openNewConversation() async {
     final newConvBtnFinder = find.byKey(TestKeys.chatNewConversationButton);
     await tap(newConvBtnFinder, warnIfMissed: false);
-    await tester.pumpAndSettle(const Duration(seconds: 2));
+    // Chờ danh sách bạn bè (hoặc empty state) xuất hiện thay vì delay cứng 2s
+    await tester.pumpAndSettle();
   }
 
   /// Chọn người bạn đầu tiên trong danh sách để nhắn tin
@@ -43,7 +46,8 @@ class ChatPage extends BasePage {
     );
     if (hasFriend) {
       await tap(friendFinder, warnIfMissed: false);
-      await tester.pumpAndSettle(const Duration(seconds: 4));
+      // Chờ khung nhập tin nhắn xuất hiện thay vì delay cứng 4s
+      await waitForKey(TestKeys.messageInputField);
     }
     return hasFriend;
   }
@@ -52,14 +56,14 @@ class ChatPage extends BasePage {
   Future<void> sendMessage(String text) async {
     await enterTextFieldText(TestKeys.messageInputField, text);
     await tap(find.byKey(TestKeys.messageSendButton), warnIfMissed: false);
-    await tester.pumpAndSettle(const Duration(seconds: 4));
+    // Chờ trường input xuất hiện trở lại (sau khi gửi xong) thay vì delay cứng 4s
+    await waitForKey(TestKeys.messageInputField);
   }
 
   /// Quay lại danh sách Chat
   Future<void> goBackToChatList(String chatRoutePath) async {
     goRouterGo(chatRoutePath);
-    await tester.pumpAndSettle(const Duration(seconds: 2));
+    // Chờ nút tạo cuộc hội thoại mới xuất hiện thay vì delay cứng 2s
+    await waitForKey(TestKeys.chatNewConversationButton);
   }
-
-
 }

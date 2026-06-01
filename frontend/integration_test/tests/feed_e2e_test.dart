@@ -54,7 +54,7 @@ Future<void> runFeedFlow(
   );
 
   // Chờ danh sách Feed tải lại và hiển thị bài viết vừa tạo
-  await tester.pumpAndSettle(const Duration(seconds: 3));
+  await feedPage.waitForKey(TestKeys.postLikeButton);
 
   // [ASSERTION] Feed phải có ít nhất 1 bài viết (bài vừa tạo)
   expect(
@@ -100,7 +100,8 @@ Future<void> runFeedFlow(
   );
 
   await searchPage.searchUser(loginUsername);
-  await tester.pumpAndSettle(const Duration(seconds: 2));
+  // Chờ kết quả hiển thị thay vì delay cứng 2s
+  await searchPage.waitForFinder(find.text(loginUsername));
 
   // [ASSERTION] Tìm kiếm chính mình phải trả về ít nhất 1 kết quả
   expect(
@@ -156,9 +157,8 @@ Future<void> runFeedMediaUploadFlow(
 
   await createPostPage.submitPost();
 
-  await feedPage.ensureOnPage(TestKeys.feedSearchButton, AppRoutes.home.path);
-  await tester.pumpAndSettle(const Duration(seconds: 3));
-  await tester.pumpAndSettle(const Duration(seconds: 5));
+  // Chờ bài viết có ảnh xuất hiện trên Feed thay vì delay cứng 3s+5s
+  await feedPage.waitForFinder(find.text(imagePostText));
 
   final postTextFinder = find.text(imagePostText);
   expect(

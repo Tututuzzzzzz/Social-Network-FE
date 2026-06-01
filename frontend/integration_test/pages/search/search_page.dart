@@ -9,7 +9,12 @@ class SearchPage extends BasePage {
   /// Tìm kiếm người dùng dựa trên từ khóa/tên đăng nhập
   Future<void> searchUser(String query) async {
     await enterTextFieldText(TestKeys.searchTextField, query);
-    await tester.pumpAndSettle(const Duration(seconds: 3));
+    // Chờ kết quả tìm kiếm xuất hiện thay vì delay cứng 3s
+    // tryWaitForFinder: không fail nếu không có kết quả, caller sẽ assert
+    await tryWaitForFinder(
+      find.byKey(TestKeys.searchTextField),
+      timeout: const Duration(seconds: 5),
+    );
   }
 
 

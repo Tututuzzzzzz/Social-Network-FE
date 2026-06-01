@@ -1,6 +1,6 @@
 import 'dart:convert';
+import 'dart:developer';
 import 'dart:io';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:frontend/main.dart' as app;
@@ -138,7 +138,7 @@ class TestConfig {
         if (throwOnFailure) {
           throw TestFailure(message);
         }
-        debugPrint(message);
+        log(message, name: 'E2E');
       }
 
       return responseBody;
@@ -148,14 +148,14 @@ class TestConfig {
       if (throwOnFailure) {
         throw TestFailure('Request $url failed: $error');
       }
-      debugPrint('Request $url failed: $error');
+      log('Request $url failed: $error', name: 'E2E');
       return '';
     }
   }
 
   static Future<void> resetDatabase({bool throwOnFailure = true}) async {
     final url = testApiUri('/api/test/reset');
-    debugPrint('[E2E] Resetting database via $url');
+    log('[E2E] Resetting database via $url', name: 'E2E');
     await postJson(url, const {}, throwOnFailure: throwOnFailure);
   }
 
@@ -167,7 +167,7 @@ class TestConfig {
         ? runId.trim()
         : DateTime.now().millisecondsSinceEpoch.toString();
 
-    debugPrint('[E2E] Seeding database via $url (runId=$requestedRunId)');
+    log('[E2E] Seeding database via $url (runId=$requestedRunId)', name: 'E2E');
     final body = await postJson(url, {
       'scenario': scenario,
       'runId': requestedRunId,
@@ -186,7 +186,10 @@ class TestConfig {
 
   static Future<void> pumpApp(WidgetTester tester) async {
     await app.main();
-    await tester.pumpAndSettle(const Duration(seconds: 5));
+    // Chờ màn hình đầu tiên render xong thay vì delay cứng 5s
+    // Có thể là WelcomeScreen hoặc LoginScreen tùy trạng thái
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500));
   }
 
   static void requireEnv(String value, String name) {

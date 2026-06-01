@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:frontend/src/core/testing/test_keys.dart';
 import 'package:frontend/src/routes/app_route_path.dart';
@@ -42,8 +44,12 @@ Future<void> runChatFlow(
         'Kiểm tra điều hướng từ Feed sang Chat đang hoạt động.',
   );
 
-  // Chờ danh sách cuộc hội thoại được fetch từ API và render xong trên UI
-  await tester.pumpAndSettle(const Duration(seconds: 4));
+  // Chờ danh sách cuộc hội thoại được fetch từ API thay vì delay cứng 4s
+  // tryWaitForFinder: không fail nếu danh sách rỗng (đã xử lý ở if/else bên dưới)
+  await chatPage.tryWaitForFinder(
+    find.byKey(TestKeys.chatThreadItem(0)),
+    timeout: const Duration(seconds: 5),
+  );
 
   // ── Bước 2: Thực hiện gửi tin nhắn ──────────────────────────────────────────
   if (chatPage.hasThreadItem()) {
@@ -73,8 +79,11 @@ Future<void> runChatFlow(
     // Trường hợp chưa có cuộc hội thoại sẵn → mở New Conversation và tạo từ danh sách bạn bè
     await chatPage.openNewConversation();
 
-    // Chờ danh sách bạn bè load xong trên màn hình New Conversation
-    await tester.pumpAndSettle(const Duration(seconds: 4));
+    // Chờ danh sách bạn bè load xong trên màn hình New Conversation thay vì delay cứng 4s
+    await chatPage.tryWaitForFinder(
+      find.byKey(TestKeys.newConversationFriend(0)),
+      timeout: const Duration(seconds: 5),
+    );
 
     // [SOFT CHECK] Kiểm tra xem có bạn bè được accept không
     // Nếu không có → bỏ qua bước gửi tin nhắn, KHÔNG fail test
@@ -104,9 +113,10 @@ Future<void> runChatFlow(
       await chatPage.goBackToChatList(AppRoutes.chat.path);
     } else {
       // Không có friend được accept → log cảnh báo và quay lại danh sách chat
-      print(
+      log(
         '⚠️ [E2E Chat] Không tìm thấy friend được accept trong NewConversation. '
         'Bỏ qua bước gửi tin nhắn. Kiểm tra backend seed.ts đã tạo friendship admin↔seed_user.',
+        name: 'E2E',
       );
       // Quay lại danh sách chat (nếu đang ở màn hình NewConversation)
       await chatPage.goBackToChatList(AppRoutes.chat.path);

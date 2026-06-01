@@ -56,7 +56,8 @@ class ProfilePage extends BasePage {
     if (editProfileSaveFinder.evaluate().isNotEmpty) {
       final saveButton = tester.widget<FilledButton>(editProfileSaveFinder);
       saveButton.onPressed?.call();
-      await tester.pumpAndSettle(const Duration(seconds: 4));
+      // Chờ quay về màn hình Profile thay vì delay cứng 4s
+      await waitForKey(TestKeys.profileSettingsButton);
     }
   }
 

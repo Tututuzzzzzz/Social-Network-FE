@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
@@ -21,6 +23,14 @@ class BasePage {
       }
     }
     throw TestFailure('Timeout waiting for $finder');
+  }
+
+  /// Shorthand: đợi widget với Key cụ thể xuất hiện
+  Future<void> waitForKey(
+    Key key, {
+    Duration timeout = const Duration(seconds: 25),
+  }) async {
+    await waitForFinder(find.byKey(key), timeout: timeout);
   }
 
   /// Thử đợi một Finder xuất hiện và trả về kết quả bool (không crash)
@@ -76,7 +86,8 @@ class BasePage {
         if (iconFinder.evaluate().isNotEmpty) {
           try {
             await tester.tap(iconFinder.first);
-            await tester.pumpAndSettle(const Duration(seconds: 3));
+            // Chờ màn hình chuyển xong thay vì delay cứng
+            await tester.pumpAndSettle();
             break; // Chỉ tap 1 lần
           } catch (_) {
             // Bỏ qua nếu tap lỗi
@@ -88,9 +99,10 @@ class BasePage {
     // 2. Chuyển hướng bằng GoRouter để chắc chắn quay về Feed
     try {
       goRouterGo(homeRoutePath);
-      await tester.pumpAndSettle(const Duration(seconds: 2));
+      // Flush animation frame, không delay cứng
+      await tester.pumpAndSettle();
     } catch (e) {
-      debugPrint('Lỗi khi goRouterGo: $e');
+      log('Lỗi khi goRouterGo: $e', name: 'E2E');
     }
   }
 

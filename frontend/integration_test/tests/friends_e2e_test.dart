@@ -24,7 +24,8 @@ Future<void> runFriendsFlow(
   );
 
   await searchPage.searchUser(targetUsername);
-  await tester.pumpAndSettle(const Duration(seconds: 3));
+  // Chờ kết quả tìm kiếm xuất hiện thay vì delay cứng 3s
+  await searchPage.waitForFinder(find.text('@$targetUsername'));
 
   final userResultsFinder = find.text('@$targetUsername');
   expect(
@@ -34,7 +35,12 @@ Future<void> runFriendsFlow(
   );
 
   await searchPage.tap(userResultsFinder.first);
-  await tester.pumpAndSettle(const Duration(seconds: 3));
+  // Chờ trang profile load xong (icon add-friend hoặc check xuất hiện) thay vì delay cứng 3s
+  await searchPage.waitForFinder(
+    find.byIcon(Icons.person_add_alt_1_rounded).evaluate().isNotEmpty
+        ? find.byIcon(Icons.person_add_alt_1_rounded)
+        : find.byIcon(Icons.check_rounded),
+  );
 
   final addFriendIcon = find.byIcon(Icons.person_add_alt_1_rounded);
   final checkIcon = find.byIcon(Icons.check_rounded);
@@ -47,7 +53,8 @@ Future<void> runFriendsFlow(
 
   if (addFriendIcon.evaluate().isNotEmpty) {
     await searchPage.tap(addFriendIcon);
-    await tester.pumpAndSettle(const Duration(seconds: 3));
+    // Chờ nút chuyển sang trạng thái "đã gửi" thay vì delay cứng 3s
+    await searchPage.waitForFinder(find.byIcon(Icons.check_rounded));
 
     expect(
       find.byIcon(Icons.check_rounded).evaluate().isNotEmpty,
@@ -59,7 +66,8 @@ Future<void> runFriendsFlow(
   final backIconFinder = find.byIcon(Icons.arrow_back);
   if (backIconFinder.evaluate().isNotEmpty) {
     await searchPage.tap(backIconFinder.first);
-    await tester.pumpAndSettle(const Duration(seconds: 2));
+    // Chờ quay lại trang Search (text field còn hiển thị) thay vì delay cứng 2s
+    await searchPage.waitForKey(TestKeys.searchTextField);
   }
 
   await searchPage.goBackToFeed(AppRoutes.home.path);

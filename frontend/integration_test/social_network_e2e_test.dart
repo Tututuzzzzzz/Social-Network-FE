@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -31,12 +33,12 @@ void main() {
       seedData = await TestConfig.seedDatabase();
 
       try {
-        debugPrint('[E2E] Clearing Hive local storage...');
+        log('[E2E] Clearing Hive local storage...', name: 'E2E');
         await Hive.initFlutter();
         await Hive.deleteFromDisk();
-        debugPrint('[E2E] Hive local storage cleared.');
+        log('[E2E] Hive local storage cleared.', name: 'E2E');
       } catch (error) {
-        debugPrint('[E2E] Failed to clear Hive local storage: $error');
+        log('[E2E] Failed to clear Hive local storage: $error', name: 'E2E');
       }
 
       await TestConfig.pumpApp(tester);
@@ -85,7 +87,7 @@ void main() {
     } finally {
       await TestConfig.resetDatabase(throwOnFailure: false);
       if (seedData != null) {
-        debugPrint('[E2E] Cleaned database for runId=${seedData.runId}');
+        log('[E2E] Cleaned database for runId=${seedData.runId}', name: 'E2E');
       }
     }
   });
