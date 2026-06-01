@@ -21,10 +21,18 @@ class CreatePostPage extends BasePage {
     await enterTextFieldText(TestKeys.createPostCaptionField, text);
   }
 
+  /// Chọn ảnh đầu tiên từ thư viện để test flow đăng bài kèm media.
+  Future<void> pickGalleryImage() async {
+    await tap(find.byKey(TestKeys.createPostLibraryButton));
+    // Chờ image picker đóng và UI cập nhật thay vì delay cứng 2s
+    await tester.pumpAndSettle();
+  }
+
   /// Xác nhận gửi bài đăng mới lên máy chủ
   Future<void> submitPost() async {
     final submitButton = find.byKey(TestKeys.createPostSubmitButton);
     await tap(submitButton);
-    await tester.pumpAndSettle(const Duration(seconds: 4));
+    // Chờ tự động về Feed sau khi đăng bài thành công thay vì delay cứng 4s
+    await waitForKey(TestKeys.feedSearchButton);
   }
 }

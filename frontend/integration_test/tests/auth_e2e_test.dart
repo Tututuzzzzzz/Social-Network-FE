@@ -19,10 +19,13 @@ Future<void> runAuthFlow(
   WidgetTester tester,
   RegisterPage registerPage,
   LoginPage loginPage,
-  Map<String, String> sessionData,
-) async {
-  String loginUsername = TestConfig.username.trim();
-  String loginPassword = TestConfig.password.trim();
+  Map<String, String> sessionData, {
+  E2ESeedData? seedData,
+}) async {
+  String loginUsername =
+      seedData?.primary.username ?? TestConfig.username.trim();
+  String loginPassword =
+      seedData?.primary.password ?? TestConfig.password.trim();
 
   // ── Luồng A1: Đăng ký tài khoản mới ────────────────────────────────────────
   if (TestConfig.enableRegister) {
@@ -35,7 +38,9 @@ Future<void> runAuthFlow(
     );
 
     // Ưu tiên dùng E2E_REGISTER_PASSWORD, fallback sang E2E_PASSWORD, rồi default
-    final fallbackPassword = loginPassword.isNotEmpty ? loginPassword : 'Password123!';
+    final fallbackPassword = loginPassword.isNotEmpty
+        ? loginPassword
+        : 'Password123!';
     final registerPassword = TestConfig.registerPassword.trim().isNotEmpty
         ? TestConfig.registerPassword.trim()
         : fallbackPassword;
@@ -79,8 +84,10 @@ Future<void> runAuthFlow(
     loginPassword = registerPassword;
   } else {
     // ── Luồng A2: Đăng nhập bằng tài khoản seed từ backend ─────────────────
-    TestConfig.requireEnv(TestConfig.username, 'E2E_USERNAME');
-    TestConfig.requireEnv(TestConfig.password, 'E2E_PASSWORD');
+    if (seedData == null) {
+      TestConfig.requireEnv(TestConfig.username, 'E2E_USERNAME');
+      TestConfig.requireEnv(TestConfig.password, 'E2E_PASSWORD');
+    }
   }
 
   // Lưu thông tin đăng nhập vào session để các luồng test sau sử dụng

@@ -14,6 +14,7 @@ import '../models/register_model.dart';
 import '../models/user_model.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'dart:io';
+import '../../../../core/utils/logger.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
   final AuthRemoteDataSource _authRemoteDataSource;
@@ -65,7 +66,7 @@ class AuthRepositoryImpl implements AuthRepository {
           await _authRemoteDataSource.saveFcmToken(fcmToken, platform);
         }
       } catch (e) {
-        print("Lỗi khi gửi FCM Token lên server (bỏ qua để không chặn login): $e");
+        logger.w('Lỗi khi gửi FCM Token lên server (bỏ qua để không chặn login): $e');
       }
       return Right(result);
     } on AuthException {

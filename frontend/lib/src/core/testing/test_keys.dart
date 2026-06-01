@@ -30,6 +30,9 @@ class TestKeys {
   static const createPostCaptionField = ValueKey('createPost.caption');
   static const createPostSubmitButton = ValueKey('createPost.submit');
   static const createPostCloseButton = ValueKey('createPost.close');
+  static const createPostLibraryButton = ValueKey('createPost.library');
+  static const createPostCameraButton = ValueKey('createPost.camera');
+  static const createPostTemplateButton = ValueKey('createPost.template');
 
   static const chatNewConversationButton = ValueKey('chat.newConversation');
   static Key chatThreadItem(int index) => ValueKey('chat.thread.$index');

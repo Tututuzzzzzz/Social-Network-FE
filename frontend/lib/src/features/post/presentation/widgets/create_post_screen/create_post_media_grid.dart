@@ -124,11 +124,21 @@ class _PickedImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (kIsWeb) {
-      return Image.network(image.path, fit: BoxFit.cover);
-    }
+    final imageWidget = kIsWeb
+        ? Image.network(image.path, fit: BoxFit.cover)
+        : Image.file(File(image.path), fit: BoxFit.cover);
 
-    return Image.file(File(image.path), fit: BoxFit.cover);
+    return Image(
+      image: imageWidget.image,
+      fit: BoxFit.cover,
+      errorBuilder: (context, error, stackTrace) {
+        return Container(
+          color: const Color(0xFFE8EEF5),
+          alignment: Alignment.center,
+          child: const Icon(Icons.image_not_supported_outlined),
+        );
+      },
+    );
   }
 }
 

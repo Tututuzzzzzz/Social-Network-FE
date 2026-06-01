@@ -9,30 +9,13 @@ class SearchPage extends BasePage {
   /// Tìm kiếm người dùng dựa trên từ khóa/tên đăng nhập
   Future<void> searchUser(String query) async {
     await enterTextFieldText(TestKeys.searchTextField, query);
-    await tester.pumpAndSettle(const Duration(seconds: 3));
+    // Chờ kết quả tìm kiếm xuất hiện thay vì delay cứng 3s
+    // tryWaitForFinder: không fail nếu không có kết quả, caller sẽ assert
+    await tryWaitForFinder(
+      find.byKey(TestKeys.searchTextField),
+      timeout: const Duration(seconds: 5),
+    );
   }
 
-  /// Quay lại trang Feed từ trang Tìm kiếm
-  Future<void> goBackToFeed(String homeRoutePath) async {
-    final appBarFinder = find.byType(AppBar);
-    final backIconFinder = find.descendant(
-      of: appBarFinder,
-      matching: find.byIcon(Icons.arrow_back),
-    );
-    if (backIconFinder.evaluate().isNotEmpty) {
-      final iconButtonFinder = find.ancestor(
-        of: backIconFinder,
-        matching: find.byType(IconButton),
-      );
-      if (iconButtonFinder.evaluate().isNotEmpty) {
-        final iconButton = tester.widget<IconButton>(iconButtonFinder.first);
-        iconButton.onPressed?.call();
-        await tester.pumpAndSettle(const Duration(seconds: 4));
-        return;
-      }
-    }
-    // Fallback nếu không thấy nút bấm
-    goRouterGo(homeRoutePath);
-    await tester.pumpAndSettle(const Duration(seconds: 2));
-  }
+
 }

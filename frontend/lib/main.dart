@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
@@ -48,7 +49,7 @@ Future<void> main() async {
       FirebaseMessaging messaging = FirebaseMessaging.instance;
       await messaging.requestPermission();
       String? token = await messaging.getToken();
-      print("🎯 FCM Device Token của máy này là: $token");
+      log('🎯 FCM Device Token của máy này là: $token', name: 'FCM');
 
       // 4. Khởi tạo Local Notification và xử lý Click Banner
       LocalNotificationHelper.initialize(
@@ -58,11 +59,11 @@ Future<void> main() async {
               final data = jsonDecode(payload);
               final route = data['route'];
               if (route != null) {
-                print("🚀 Đang tự động chuyển hướng đến màn hình: $route");
+                log('🚀 Đang tự động chuyển hướng đến màn hình: $route', name: 'Notification');
                 getIt<AppRoutesConf>().router.push(route);
               }
             } catch (e) {
-              print("Lỗi khi đọc payload chuyển màn hình: $e");
+              log('Lỗi khi đọc payload chuyển màn hình: $e', name: 'Notification');
             }
           }
         },
@@ -70,16 +71,16 @@ Future<void> main() async {
 
       // 5. "Trạm gác" hiển thị banner khi app đang mở
       FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-        print('🚨 BÍP BÍP! Đã bắt được thông báo khi đang mở app!');
+        log('🚨 BÍP BÍP! Đã bắt được thông báo khi đang mở app!', name: 'FCM');
         if (message.notification != null) {
           LocalNotificationHelper.display(message);
         }
       });
     } catch (e) {
-      print('⚠️ Firebase init thất bại (có thể đang chạy trên emulator test): $e');
+      log('⚠️ Firebase init thất bại (có thể đang chạy trên emulator test): $e', name: 'Firebase');
     }
   } else {
-    print('🧪 [E2E] Chế độ E2E: Bỏ qua khởi tạo Firebase và FCM.');
+    log('🧪 [E2E] Chế độ E2E: Bỏ qua khởi tạo Firebase và FCM.', name: 'E2E');
   }
 
   // 3. Đảm bảo getIt được khởi tạo TRƯỚC KHI xử lý notification

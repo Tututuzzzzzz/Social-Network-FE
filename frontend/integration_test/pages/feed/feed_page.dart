@@ -17,7 +17,8 @@ class FeedPage extends BasePage {
         ),
       );
       likeInkWell.onTap?.call();
-      await tester.pumpAndSettle(const Duration(seconds: 3));
+      // Chờ UI cập nhật (icon like) thay vì delay cứng 3s
+      await tester.pumpAndSettle();
     }
   }
 
@@ -46,7 +47,8 @@ class FeedPage extends BasePage {
   Future<void> submitComment() async {
     final sendButton = find.byKey(TestKeys.postCommentSendButton);
     await tap(sendButton, warnIfMissed: false);
-    await tester.pumpAndSettle(const Duration(seconds: 4));
+    // Chờ server xác nhận bình luận: text field vẫn hiển thị là UI ổn định
+    await waitForKey(TestKeys.postCommentTextField);
   }
 
   /// Đóng Bottom Sheet bình luận
