@@ -37,8 +37,7 @@ Future<void> runNotificationsFlow(
   final navNotificationsInkWell = tester.widget<InkWell>(navNotificationsFinder);
   navNotificationsInkWell.onTap?.call();
   // Chờ màn hình Thông báo load xong thay vì delay cứng 4s
-  await tester.pump();
-  await tester.pump(const Duration(milliseconds: 500));
+  await tester.pumpAndSettle();
 
   // ── Bước 2: Xác nhận màn hình Thông báo đã load ────────────────────────────
 
@@ -57,17 +56,13 @@ Future<void> runNotificationsFlow(
     await tester.tap(listTilesFinder.first, warnIfMissed: false);
     // Dùng pump giới hạn thay vì pumpAndSettle để tránh treo vô tận
     // khi màn hình detail có loading indicator không tắt được (ví dụ: API 404)
-    for (var i = 0; i < 15; i++) {
-      await tester.pump(const Duration(milliseconds: 200));
-    }
+    await tester.pumpAndSettle();
   }
 
   // ── Bước 4: Quay lại màn hình Feed ─────────────────────────────────────────
   await feedPage.goBackToFeed(AppRoutes.home.path);
   // Dùng pump giới hạn thay vì pumpAndSettle để tránh treo
-  for (var i = 0; i < 15; i++) {
-    await tester.pump(const Duration(milliseconds: 200));
-  }
+  await tester.pumpAndSettle();
 
   // [ASSERTION] Phải quay lại Feed thành công
   expect(

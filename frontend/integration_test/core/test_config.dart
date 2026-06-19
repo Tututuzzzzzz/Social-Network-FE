@@ -1,9 +1,9 @@
 import 'dart:convert';
 import 'dart:developer';
-import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:frontend/main.dart' as app;
+import 'package:hive_flutter/hive_flutter.dart';
 
 class E2ESeedUser {
   final String id;
@@ -17,15 +17,6 @@ class E2ESeedUser {
     required this.email,
     required this.password,
   });
-
-  factory E2ESeedUser.fromJson(Map<String, dynamic> json) {
-    return E2ESeedUser(
-      id: json['id']?.toString() ?? '',
-      username: json['username']?.toString() ?? '',
-      email: json['email']?.toString() ?? '',
-      password: json['password']?.toString() ?? '',
-    );
-  }
 }
 
 class E2ESeedData {
@@ -44,27 +35,6 @@ class E2ESeedData {
     required this.friend,
     required this.requester,
   });
-
-  factory E2ESeedData.fromJson(Map<String, dynamic> json) {
-    final users = (json['users'] as Map).cast<String, dynamic>();
-
-    return E2ESeedData(
-      runId: json['runId']?.toString() ?? '',
-      scenario: json['scenario']?.toString() ?? '',
-      primary: E2ESeedUser.fromJson(
-        (users['primary'] as Map).cast<String, dynamic>(),
-      ),
-      admin: E2ESeedUser.fromJson(
-        (users['admin'] as Map).cast<String, dynamic>(),
-      ),
-      friend: E2ESeedUser.fromJson(
-        (users['friend'] as Map).cast<String, dynamic>(),
-      ),
-      requester: E2ESeedUser.fromJson(
-        (users['requester'] as Map).cast<String, dynamic>(),
-      ),
-    );
-  }
 }
 
 class TestConfig {
@@ -91,8 +61,6 @@ class TestConfig {
   static const apiPort = String.fromEnvironment('API_PORT');
   static const apiScheme = String.fromEnvironment('API_SCHEME');
   static const enableLogging = String.fromEnvironment('ENABLE_LOGGING');
-  static const runId = String.fromEnvironment('E2E_RUN_ID');
-  static const e2eApiSecret = String.fromEnvironment('E2E_API_SECRET');
 
   static String get resolvedApiHost {
     if (!kIsWeb &&
@@ -104,92 +72,63 @@ class TestConfig {
     return apiHost;
   }
 
-  static Uri testApiUri(String path) {
-    return Uri(
-      scheme: apiScheme,
-      host: resolvedApiHost,
-      port: int.tryParse(apiPort),
-      path: path,
+  // ── Seed data cố định — khớp với e2e-seed.ts (prefix = 'e2e') ─────────────
+
+  static const _seedPassword = 'Password123!';
+
+  /// Seed data cố định — backend auto-seed khi khởi động
+  /// Username/password khớp với e2e-seed.ts (prefix = 'e2e')
+  static E2ESeedData getSeedData() {
+    return const E2ESeedData(
+      runId: 'auto',
+      scenario: 'social_network',
+      primary: E2ESeedUser(
+        id: '',
+        username: 'e2e_user',
+        email: 'e2e.user@example.test',
+        password: _seedPassword,
+      ),
+      admin: E2ESeedUser(
+        id: '',
+        username: 'e2e_admin',
+        email: 'e2e.admin@example.test',
+        password: _seedPassword,
+      ),
+      friend: E2ESeedUser(
+        id: '',
+        username: 'e2e_friend',
+        email: 'e2e.friend@example.test',
+        password: _seedPassword,
+      ),
+      requester: E2ESeedUser(
+        id: '',
+        username: 'e2e_requester',
+        email: 'e2e.requester@example.test',
+        password: _seedPassword,
+      ),
     );
   }
 
-  static Future<String> postJson(
-    Uri url,
-    Map<String, dynamic> body, {
-    bool throwOnFailure = true,
-  }) async {
+  /// Setup chung cho mọi test file — clear local storage + khởi tạo app
+  static Future<E2ESeedData> setupTest(WidgetTester tester) async {
+    validateCoreEnvironment();
     try {
-      final client = HttpClient();
-      client.badCertificateCallback = (cert, host, port) => true;
-
-      final request = await client.postUrl(url);
-      request.headers.contentType = ContentType.json;
-      if (e2eApiSecret.isNotEmpty) {
-        request.headers.add('x-e2e-secret', e2eApiSecret);
-      }
-      request.write(jsonEncode(body));
-
-      final response = await request.close();
-      final responseBody = await utf8.decoder.bind(response).join();
-
-      if (response.statusCode < 200 || response.statusCode >= 300) {
-        final message =
-            'Request $url failed with ${response.statusCode}: $responseBody';
-        if (throwOnFailure) {
-          throw TestFailure(message);
-        }
-        log(message, name: 'E2E');
-      }
-
-      return responseBody;
-    } on TestFailure {
-      rethrow;
+      log('[E2E] Clearing Hive local storage...', name: 'E2E');
+      await Hive.initFlutter();
+      await Hive.deleteFromDisk();
+      log('[E2E] Hive local storage cleared.', name: 'E2E');
     } catch (error) {
-      if (throwOnFailure) {
-        throw TestFailure('Request $url failed: $error');
-      }
-      log('Request $url failed: $error', name: 'E2E');
-      return '';
+      log('[E2E] Failed to clear Hive local storage: $error', name: 'E2E');
     }
-  }
-
-  static Future<void> resetDatabase({bool throwOnFailure = true}) async {
-    final url = testApiUri('/api/test/reset');
-    log('[E2E] Resetting database via $url', name: 'E2E');
-    await postJson(url, const {}, throwOnFailure: throwOnFailure);
-  }
-
-  static Future<E2ESeedData> seedDatabase({
-    String scenario = 'social_network',
-  }) async {
-    final url = testApiUri('/api/test/seed');
-    final requestedRunId = runId.trim().isNotEmpty
-        ? runId.trim()
-        : DateTime.now().millisecondsSinceEpoch.toString();
-
-    log('[E2E] Seeding database via $url (runId=$requestedRunId)', name: 'E2E');
-    final body = await postJson(url, {
-      'scenario': scenario,
-      'runId': requestedRunId,
-      'reset': true,
-    });
-
-    final decoded = jsonDecode(body) as Map<String, dynamic>;
-    if (decoded['ok'] != true || decoded['seed'] is! Map) {
-      throw TestFailure('Invalid E2E seed response: $body');
-    }
-
-    return E2ESeedData.fromJson(
-      (decoded['seed'] as Map).cast<String, dynamic>(),
-    );
+    await pumpApp(tester);
+    return getSeedData();
   }
 
   static Future<void> pumpApp(WidgetTester tester) async {
     await app.main();
     // Chờ màn hình đầu tiên render xong thay vì delay cứng 5s
     // Có thể là WelcomeScreen hoặc LoginScreen tùy trạng thái
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 500));
+    await tester.pumpAndSettle();
   }
 
   static void requireEnv(String value, String name) {

@@ -130,7 +130,7 @@ Future<void> runFeedMediaUploadFlow(
 ) async {
   final imagePostText = MockData.postImageText;
   await TestImagePicker.installGalleryImagePicker(
-    fileName: 'e2e_${MockData.stamp}_post.png',
+    fileName: 'e2e_${MockData.flowStamp}_post.png',
   );
 
   await createPostPage.navigateToCreatePost();
@@ -147,7 +147,7 @@ Future<void> runFeedMediaUploadFlow(
 
   await createPostPage.fillCaption(imagePostText);
   await createPostPage.pickGalleryImage();
-  await tester.pumpAndSettle(const Duration(seconds: 2));
+  await tester.pumpAndSettle();
 
   expect(
     find.byKey(TestKeys.createPostLibraryButton),
